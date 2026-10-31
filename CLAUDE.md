@@ -70,6 +70,12 @@ and write the code fresh. SOAR's code belongs to the school.
   AI-made art. The one exception is the home-screen icon, a stand-in Jason
   chose (decisions log, 2026-10-31); don't add others. Laurie's paintings replace photos wherever she has painted the
   thing.
+- **Laurie's paintings are shown as she painted them.** Crop and frame
+  them, never alter them. A bird that flies out of one is a cut-out over
+  her own sky (`scripts/lift-bird.py`), and at rest the painting itself is
+  shown. Never put one through an image generator. Her title, year and
+  medium come from her, never guessed (`src/lib/paintings.js`,
+  `tests/paintings.test.mjs`).
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything
   large: iPhones repaint it slowly. Soft shapes come from gradients.

@@ -135,19 +135,26 @@ For anything that fits the glass and has no thick paint:
 
 ## Into the app
 
-- **A season's painting:**
-  1. Save it as `public/seasons/<season>.jpg`. The seasons are christmas,
-     advent, easter, lent, muertos, halloween, thanksgiving, valentine,
-     july4, back-to-school, summer, spring, fall and winter.
-  2. Add a line to `SEASON_ART` in `src/lib/seasons.js`.
+- **The painting:** save its JPEG as `public/paintings/<slug>.jpg`, with a
+  720 px copy as `<slug>-720.jpg` for the gallery. Add its line to
+  `PAINTINGS` in `src/lib/paintings.js`, newest first:
+  - title and whether it's her title (`named`);
+  - year, medium and size, only as she gives them;
+  - its size in pixels;
+  - `focus`, the part a panel shows.
 
-  It shows faintly along the bottom of every screen during that season.
-  The bottom of the painting shows most, so a wide painting suits it best.
+  It appears in her gallery (`/lifelist/paintings`) and gets its own page.
+- **A season:** list the season in the painting's `seasons`, for example
+  `['halloween']`. It then shows faintly along the bottom of every screen
+  in that season, and in the Paintings panel on Home. The bottom of the
+  painting shows most, so a wide painting suits it best.
+- **A bird that flies:** `scripts/lift-bird.py` lifts a bird out of the
+  painting. Give its `flyer` the two boxes the script prints. The painting
+  itself is never changed.
 - **Credit:** each painting gets a line in README.md's credits, with its
   title, year and medium, saying it is Laurie's and used with her
   permission.
-- **Later:** bird paintings replace the bird's photo on its Life List page,
-  and her other paintings join the Life List.
+- **Later:** bird paintings replace the bird's photo on its Life List page.
 
 ## The short version
 

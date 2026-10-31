@@ -1,0 +1,49 @@
+/* ============================================
+   Laurie's paintings: a painting in its frame, its bird in flight, the gallery.
+   ============================================ */
+.pf { position: relative; overflow: hidden; background: #2A1E16; isolation: isolate; }
+.pf-img, .pf-sky { position: absolute; max-width: none; user-select: none; -webkit-user-select: none; pointer-events: none; }
+.pf-sky { opacity: 0; transition: opacity .3s ease; }
+.pf-sky.on { opacity: 1; transition: none; }
+html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transition: opacity 1s ease; }
+@media (prefers-reduced-motion: reduce) { .pf-sky, .pf-sky.on { transition: opacity 1s ease; } }
+.pf-link { position: absolute; inset: 0; z-index: 1; }
+.pf-link:focus-visible { outline: 3px solid #FFF; outline-offset: -5px; }
+.pf-fly { position: absolute; z-index: 2; right: 6px; bottom: 6px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(20, 14, 10, .45); color: #FFF; cursor: pointer; }
+.pf-fly svg { width: 20px; height: 20px; }
+.pf-fly:disabled { opacity: .35; cursor: default; }
+.pf-fly:focus-visible { outline: 3px solid #FFF; outline-offset: 2px; }
+.pf-flight { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; opacity: 0; will-change: transform; transform-origin: 50% 50%; user-select: none; }
+
+/* The panel on Home: the painting clipped to the crow and the witch */
+.paint-card .pf { margin: 0 -16px; aspect-ratio: 5 / 4; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+@media (min-width: 900px) { .paint-card .pf { aspect-ratio: 4 / 3; } }
+.paint-cap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.paint-cap b { font-weight: 800; }
+.paint-cap small { color: var(--muted); font-size: 13px; font-weight: 700; }
+.paint-cap a { font-weight: 800; min-height: 44px; display: inline-flex; align-items: center; }
+
+/* The gallery: framed, hung on the evening sky, each under its own light */
+.gallery-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 28px 22px; padding: 8px 4px 0; }
+.gallery-piece { position: relative; display: grid; gap: 10px; justify-items: center; text-decoration: none; color: var(--sky-ink); }
+.gallery-piece::before { content: ""; position: absolute; left: 10%; right: 10%; top: -18px; height: 60%; background: radial-gradient(60% 70% at 50% 0%, rgba(255, 236, 200, .32), transparent 72%); pointer-events: none; }
+.gallery-frame { display: block; width: 100%; max-width: 320px; padding: 10px; background: linear-gradient(145deg, #5A4030, #2B1D14 60%, #3E2C20); border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(255, 230, 200, .12), inset 0 0 0 6px rgba(0, 0, 0, .18), 0 2px 2px rgba(0, 0, 0, .25), 0 22px 36px -18px rgba(0, 0, 0, .7); }
+.gallery-frame img { display: block; width: 100%; height: auto; box-shadow: 0 0 0 1px rgba(0, 0, 0, .4); }
+.gallery-piece b { font-family: var(--font-display); font-weight: 400; font-size: 20px; text-align: center; }
+.gallery-piece small { font-weight: 700; opacity: .85; text-align: center; }
+.gallery-piece:focus-visible .gallery-frame { outline: 3px solid var(--sky-ink); outline-offset: 4px; }
+.gallery-note { color: var(--sky-ink); font-weight: 700; opacity: .85; }
+
+/* One painting, hung large */
+.painting-hang { display: grid; justify-items: center; padding: 6px 0 4px; }
+.painting-hang .gallery-frame { max-width: min(100%, calc(72vh * .75 + 20px)); padding: 12px; }
+.painting-hang .pf { width: 100%; }
+.painting-facts { margin: 0; display: grid; }
+.painting-facts div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.painting-facts dt { color: var(--muted); font-weight: 800; font-size: 14px; }
+.painting-facts dd { margin: 0; font-weight: 700; }
+
+/* Settings: trying on a season */
+.season-try { display: grid; gap: 8px; }
+.season-try > span { display: grid; } .season-try > span span { font-size: 14px; color: var(--muted); font-weight: 500; }

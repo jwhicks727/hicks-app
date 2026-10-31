@@ -15,6 +15,8 @@ Built in this order, each part in daily use before the next.
 - [x] The year's colours: a light seasonal wash over the sky (the Church's
       seasons, the holidays, the four seasons), with a slot for one of
       Laurie's paintings per season once scanned.
+- [x] Laurie's gallery (Life List) and the Paintings panel on Home; her
+      witch and crow colours Halloween, its crow flies once a day.
 - [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), each
       with her yes; a painting she'd rather not have public waits for private
       storage behind sign-in, since anything in `public/` can be fetched by

@@ -9,7 +9,9 @@ import FridgeCard from '../parts/FridgeCard.jsx'
 import RateNudge from '../kitchen/RateNudge.jsx'
 import MindfulCard from '../parts/MindfulCard.jsx'
 import Breathe from '../parts/Breathe.jsx'
-import { usePrefs } from '../lib/prefs.js'
+import { usePrefs, useSeasonTry } from '../lib/prefs.js'
+import PaintingsCard from '../parts/PaintingsCard.jsx'
+import { seasonFor } from '../lib/seasons.js'
 import { useCookbook } from '../lib/useKitchen.js'
 import { WeatherNow } from '../parts/WeatherCard.jsx'
 import FamilyBanner from '../parts/FamilyBanner.jsx'
@@ -34,6 +36,7 @@ export default function Home({ rest = [] }) {
 
 function HomeScreen() {
   const [prefs] = usePrefs()
+  const [tryKey] = useSeasonTry()
   const now = useNow()
   const session = useSession()
   const family = useFamily(session)
@@ -59,6 +62,7 @@ function HomeScreen() {
       <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <WeatherNow />
+      <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
       <FridgeCard book={book} />
       {prefs.mindful !== false && <MindfulCard today={today} />}

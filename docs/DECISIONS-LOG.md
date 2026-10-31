@@ -6,6 +6,41 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Laurie's first painting: the witch and the crow
+
+- **Laurie's gallery** lives in the Life List (`/lifelist/paintings`, each
+  painting at `/lifelist/paintings/<slug>`), framed and hung on the evening
+  sky, newest first. It grows as her paintings are photographed
+  (`docs/ART-CAPTURE.md`); each is a line in `src/lib/paintings.js` and its
+  files in `public/paintings/`.
+- **A "Paintings" panel on Home** (and on the Life List) shows the season's
+  painting, or her newest, clipped to its heart, and opens her gallery.
+- **The crow flies.** Once a day, when the panel comes into view, the crow
+  leaves the painting, takes a jaunty turn round the whole screen (a loop
+  included), and comes home to its place by the witch's hand. The small
+  bird button sends it again; under less motion it only fades out and
+  back. It is moved by transforms alone, over everything, and never takes
+  a tap.
+- **Her painting is never changed.** The crow is lifted out with
+  `scripts/lift-bird.py`: her own sky is filled in behind it from its
+  surroundings (no image generator), and the crow is kept as a soft-edged
+  cut-out. The two composite back to the painting to within about 2 of 255.
+  The patch shows only while the crow is away; at rest the app shows her
+  painting itself.
+- **Halloween is her painting:** its art, and a palette taken from it (the
+  glowing orange sky, the ember-red ground, the witch's olive robe). **Fall
+  takes its colours from the same painting** until there is a fall
+  painting of hers to use.
+- **Trying on a season:** Settings › Reading and motion can show any
+  season's colours, for that visit only, so Halloween can be shown off in
+  November without leaving the app in October.
+- The painting is in from Jason's photo of it on the wall, to show Laurie.
+  Her title, year and medium are hers to give: until then it carries a
+  working title, marked as one, and nothing else is guessed. If she'd
+  rather it weren't in the app, it comes out with its line and its files.
+  Nothing is hosted yet. Before hosting, decide which paintings may be in
+  `public/`, where anyone with the address can open them.
+
 ## 2026-10-31 — Our places on one map, and each in its own sky
 
 - **World opens on a map of all our places**, at three sizes: Around home

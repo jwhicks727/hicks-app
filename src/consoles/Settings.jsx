@@ -3,9 +3,9 @@ import { supabase } from '../lib/supabase.js'
 import { useSession, sendSignInLink, signOut } from '../lib/auth.js'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
-import { usePrefs } from '../lib/prefs.js'
+import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import { GROUPS } from '../lib/cal/observances.js'
-import { seasonFor } from '../lib/seasons.js'
+import { seasonFor, SEASONS, SEASON_ORDER, SEASON_ART } from '../lib/seasons.js'
 import { todayAt } from '../lib/cal/dates.js'
 
 export default function Settings() {
@@ -13,6 +13,7 @@ export default function Settings() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(null)
   const [prefs, update] = usePrefs()
+  const [tryKey, setTry] = useSeasonTry()
 
   return (
     <>
@@ -58,6 +59,15 @@ export default function Settings() {
           <span><b>The season’s colours</b><span>Now: {seasonFor(todayAt()).label}. A light wash over the sky, after the Church year and the holidays</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.seasonal !== false} aria-label="The season’s colours" onClick={() => update({ seasonal: prefs.seasonal === false })}><i /></button>
         </div>
+        {prefs.seasonal !== false && (
+          <label className="form season-try">
+            <span><b>Try on another season</b><span>Until the app is closed, then it’s back to today’s</span></span>
+            <select value={tryKey} onChange={(e) => setTry(e.target.value)}>
+              <option value="">Today’s: {seasonFor(todayAt()).label}</option>
+              {SEASON_ORDER.map((k) => <option key={k} value={k}>{SEASONS[k].label}{SEASON_ART[k] ? ', with Laurie’s painting' : ''}</option>)}
+            </select>
+          </label>
+        )}
         <div className="switch-row">
           <span><b>A mindful moment on Home</b><span>A line from Thich Nhat Hanh each day, and a pause to breathe</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.mindful !== false} aria-label="A mindful moment on Home" onClick={() => update({ mindful: prefs.mindful === false })}><i /></button>

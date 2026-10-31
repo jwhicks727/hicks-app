@@ -29,3 +29,23 @@ export function usePrefs() {
   }
   return [prefs, update]
 }
+
+// Trying on another season's colours: for this visit only (it never sticks),
+// so the app can't be left in October by mistake.
+const TRY = 'teamhicks.season-try'
+export function readSeasonTry() { try { return sessionStorage.getItem(TRY) || '' } catch { return '' } }
+/** [key or '', set]: set('') goes back to the real season. */
+export function useSeasonTry() {
+  const [key, setKey] = useState(readSeasonTry)
+  useEffect(() => {
+    const on = () => setKey(readSeasonTry())
+    window.addEventListener(EVENT, on)
+    return () => window.removeEventListener(EVENT, on)
+  }, [])
+  const set = (k) => {
+    try { if (k) sessionStorage.setItem(TRY, k); else sessionStorage.removeItem(TRY) } catch { /* fine */ }
+    setKey(k)
+    window.dispatchEvent(new Event(EVENT))
+  }
+  return [key, set]
+}
