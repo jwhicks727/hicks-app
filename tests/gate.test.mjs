@@ -43,5 +43,6 @@ test('the app puts the gate in front of every screen, and the gate holds no plac
   const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
   assert.match(app, /if \(gate\.state !== 'open'\) return <Gate gate=\{gate\} \/>/)
   const gate = readFileSync(new URL('../src/shell/Gate.jsx', import.meta.url), 'utf8')
+  assert.ok(!gate.includes('type the code from the same email'), 'the screen must not promise a code the email may not hold')
   for (const place of ['TabBar', 'PaintingsProvider', 'Home', 'supabase.from']) assert.ok(!gate.includes(place), `the gate shows ${place}`)
 })

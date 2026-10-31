@@ -81,12 +81,16 @@ function SignIn() {
     return (
       <section className="gate-card">
         <h1>Check your email</h1>
-        <p>We sent a sign-in link to <b>{email}</b>. Open it on this device. If you’re using the installed app, type the code from the same email instead.</p>
-        <form className="form" onSubmit={verify}>
-          <label>The code<input inputMode="numeric" autoComplete="one-time-code" maxLength={12} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Digits from the email" /></label>
-          <button type="submit" className="btn" disabled={busy}>{busy ? 'Checking…' : 'Sign in'}</button>
-          {note && <p className={note.ok ? 'ok' : 'err'} role="status">{note.text}</p>}
-        </form>
+        <p>We sent a sign-in link to <b>{email}</b>. Open it on this device.</p>
+        <details className="gate-code" open={Boolean(note)}>
+          <summary>Does the email show a code?</summary>
+          <p>If it does, type it here instead of using the link. That is how the installed app signs in.</p>
+          <form className="form" onSubmit={verify}>
+            <label>The code<input inputMode="numeric" autoComplete="one-time-code" maxLength={12} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Digits from the email" /></label>
+            <button type="submit" className="btn" disabled={busy}>{busy ? 'Checking…' : 'Sign in with the code'}</button>
+            {note && <p className={note.ok ? 'ok' : 'err'} role="status">{note.text}</p>}
+          </form>
+        </details>
         <div className="gate-row">
           <button type="button" className="gate-link" onClick={() => { setCode(''); setStep('email') }}>Use another address, or send it again</button>
         </div>
