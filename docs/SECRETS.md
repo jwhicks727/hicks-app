@@ -15,5 +15,5 @@ this repository, an issue, a commit or a chat.
 | Google sign-in (OAuth) client | Supabase auth settings | Jason | Sign-in and Google Calendar sync | Planned |
 | Synoptic token | The weather job's secrets | Jason | Our stations' readings | Planned |
 | QParent and ParentSquare sign-ins | The school job's secrets | A parent (their yes) | Anna's grades and school news, where there's no feed | Planned |
-| Anthropic API key | The scouts' secrets, with a monthly spending limit | Jason | The daily jam and neighbourhood scouts | Planned |
+| Anthropic API key (`ANTHROPIC_API_KEY`) | The `claude` Edge Function's secrets (`supabase secrets set`), and the scouts' secrets later; a monthly spending limit set in Anthropic's console | Jason | Every Claude feature in the app (the Kitchen's planning and chat, a calendar from a screenshot, the garden's photos), through the one function, within the app's own daily and monthly caps (`AI_DAILY_CAP_CENTS`, `AI_MONTHLY_CAP_CENTS`, not secret) | To add (docs/DATABASE.md, "Claude") |
 | eBird API key, Laurie's eBird login | The birding job's secrets | Laurie (her yes) | Her life list and nearby sightings | Planned |

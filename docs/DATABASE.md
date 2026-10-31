@@ -111,6 +111,32 @@ reader:
 npx supabase functions deploy readings --no-verify-jwt --project-ref <project-ref>
 ```
 
+## Claude
+
+The `claude` Edge Function (`supabase/functions/claude/`) is the app's one
+door to Claude. It answers only a signed-in family member, and the
+planning tasks only Jason or Laurie. What each task sends, and to which
+model, is in `supabase/functions/_shared/claude.js`.
+
+- **Always the latest Sonnet.** The function asks Anthropic's Models API
+  which Sonnets are active and uses the newest. No version is written into
+  the app; a new Sonnet is used the day it arrives.
+- **Within a budget.** Each call is recorded in `ai_usage`. Once the family
+  has spent the day's cap ($3 unless `AI_DAILY_CAP_CENTS` says otherwise)
+  or the month's ($30, `AI_MONTHLY_CAP_CENTS`), it declines until the next
+  day or month. Set a spending limit in Anthropic's console too.
+- **Laurie's food rules** reach Claude only for a parent's request, and
+  only while her own latest answer in `ai_consents` is yes.
+- **A refused request** is retried server-side on Anthropic's recommended
+  fallback model (`fallbacks: "default"`).
+
+Set the key and deploy:
+
+```sh
+npx supabase secrets set ANTHROPIC_API_KEY=... --project-ref <project-ref>
+npx supabase functions deploy claude --no-verify-jwt --project-ref <project-ref>
+```
+
 ## Signing in
 
 For now, a sign-in link by email (Supabase's own, no setup needed). Once the
@@ -135,6 +161,11 @@ sign-in link won't come back to the app.
 | `recipe_private` | Each recipe's "Laurie's plate" (protein, what was kept off) | Parents only | Parents |
 | `recipe_ratings` | Our 1–5 ratings, one each per recipe | The family | Each of us, our own only (`my_member_id()`) |
 | `fridge` | The recipes bought for this week, until cooked | The family | Parents |
+| `ai_usage` | Each call to Claude: who, which task, which model, tokens and cost | Parents all; each of us our own | Only `ai_record()`, from the `claude` function |
+| `ai_consents` | Each owner's yes or no to sending something of theirs to Claude (Laurie's food rules); the latest row stands | Parents, and each of us our own | Each of us, our own only |
+| `food_rules` | Laurie's food rules, every version kept, dated, with what changed | Parents only | Parents add a new version; nobody edits one |
+| `kitchen_preferences` | The kitchen's tastes, dislikes, pantry and equipment, every version kept | The family | Parents add a new version |
+| `week_plans` | A week's ask, the ideas Claude gave, the ones picked | The family | Parents |
 
 Migration index:
 
@@ -143,3 +174,4 @@ Migration index:
 | `20261031230000_foundations` | The family, sources and their versions, calendar events, family days; `is_family()`, `is_parent()`; row-level security and grants. |
 | `20261031230100_kitchen` | Recipes, Laurie's plate kept apart, ratings, the fridge; `my_member_id()`. Named a minute after the foundations so it runs after them. |
 | `20261031230200_event_places` | Events get a place (name, coordinates, both or neither), an outdoors switch and who made them. |
+| `20261101060000_claude_and_kitchen_planning` | Claude's usage and the caps (`ai_spend()`, `ai_record()`), consents, Laurie's food rules (versioned, parents only), kitchen preferences, week plans. |
