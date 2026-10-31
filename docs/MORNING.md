@@ -111,8 +111,10 @@ checks.
    The project ref is the part of the Supabase URL before `.supabase.co`.
 3. **Check it:** Kitchen › Ask › "What can I make with what's in the
    fridge?". An answer means it works.
-4. **Laurie's yes:** when she signs in, Kitchen › Rules & preferences has
-   her switch. Her rules go to Claude only while it's on.
+4. **Laurie's rules:** type or paste them into Kitchen › Rules &
+   preferences › Laurie's food rules (only you and Laurie can see them).
+   They go to Claude when you or she plan the week, write recipes or ask in
+   the Kitchen chat.
 
 ## 5. Your journal
 

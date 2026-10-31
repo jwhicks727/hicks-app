@@ -5,7 +5,7 @@
 // (supabase/functions/claude/index.ts) does the asking; this decides the
 // model, the tasks, their schemas and tools, what each may send, and the
 // cost. Personal data reaches Claude only as the screen that asks says it
-// will, and Laurie's food rules only while her yes stands.
+// will, and Laurie's food rules only on a parent's request (Jason's or Laurie's).
 
 // ---- The model: always the latest Sonnet ----------------------------------------
 // The app never names a model version. It asks the Models API which Sonnets
@@ -88,8 +88,8 @@ How to talk: warmly and briefly, like a friend who cooks. Plain sentences. When 
 export function kitchenNow({ today, preferences, rules, recipes = [], fridge = [], plan, page, garden = [] } = {}) {
   const lines = [`Today is ${today}.`]
   lines.push(preferences ? `The family's kitchen preferences, as last saved:\n${preferences.slice(0, 8000)}` : 'The family hasn’t saved any kitchen preferences yet.')
-  if (rules) lines.push(`Laurie's food rules (shared with her permission; every dinner's core must satisfy them):\n${rules.slice(0, 8000)}`)
-  else lines.push('Laurie’s food rules are not shared in this conversation. Don’t guess at them; if a question needs them, say they’re hers to share from Kitchen › Rules.')
+  if (rules) lines.push(`Laurie's food rules (private to Jason and Laurie; every dinner's core must satisfy them):\n${rules.slice(0, 8000)}`)
+  else lines.push('Laurie’s food rules aren’t part of this conversation (they’re only for Jason’s and Laurie’s own requests, or none have been saved yet). Don’t guess at them; if a question needs them, say so.')
   if (recipes.length) lines.push('Their cookbook (title · average stars · last cooked):\n' + recipes.slice(0, 80).map((r) => `- ${r.title}${r.stars ? ` · ${r.stars}` : ''}${r.last ? ` · ${r.last}` : ''}`).join('\n'))
   if (fridge.length) lines.push('In the fridge to cook this week: ' + fridge.slice(0, 12).join('; '))
   if (garden.length) lines.push('From their own garden lately (worth cooking with): ' + garden.slice(0, 12).join('; '))

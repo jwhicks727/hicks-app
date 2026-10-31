@@ -199,7 +199,6 @@ html[data-motion="less"] .badge.unicorn { animation: none; }
 .versioned { white-space: pre-wrap; background: color-mix(in srgb, var(--ink) 3%, var(--card)); border-left: 3px solid var(--tint); padding: 10px 12px; border-radius: 0 4px 4px 0; max-height: 420px; overflow: auto; }
 .history summary { cursor: pointer; font-weight: 800; min-height: 40px; display: flex; align-items: center; }
 .history details { margin: 6px 0 6px 10px; } .history details summary { font-weight: 700; color: var(--muted); }
-.consent { padding: 10px 12px; border-radius: 4px; background: color-mix(in srgb, var(--tint) 7%, var(--card)); }
 .kchat-fab { position: fixed; z-index: 30; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tab-bottom) + var(--tabbar) + 14px); display: flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 16px 0 12px; border: 0; border-radius: 24px; background: #C42D20; color: var(--on-colour); font: inherit; font-weight: 800; box-shadow: 0 3px 0 #7A1A12, 0 12px 24px -10px rgba(60, 20, 10, .7); cursor: pointer; }
 .kchat-fab svg { width: 22px; height: 22px; }
 @media (min-width: 900px) { .kchat-fab { bottom: 28px; } }

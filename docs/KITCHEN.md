@@ -5,7 +5,7 @@ the app now holds it. This is the part of that handoff that belongs in the
 repository: the household's pattern, the weekly rhythm, the recipe format and
 the Kitchen's design. **Laurie's food rules are not here.** They are health
 information: they live in the database, readable by Jason and Laurie only,
-and reach Claude only with Laurie's yes (CLAUDE.md, "The family's data").
+and reach Claude only on a parent's request (CLAUDE.md, "The family's data").
 
 ## The household and the pattern
 
@@ -145,15 +145,17 @@ From the handoff, for the recipes and for whoever writes them:
 
   Every change is a new, dated version with a note of what changed; the
   old ones stay.
-- **Laurie's yes:** her own switch on that screen decides whether her rules
-  go to Claude. With it off, Claude plans without them and says so.
+- **Laurie's rules and Claude:** they go to Claude when Jason or Laurie plan
+  the week, write recipes or ask in the Kitchen chat, so every dinner's core
+  satisfies them, and never on anyone else's request. (There used to be a
+  sign-off switch for Laurie; it was dropped, decisions log 2026-11-01.)
 - **Ask, from anywhere in the Kitchen:** the red button opens a
   conversation with Claude. It sees:
   - what you type;
   - the preferences;
   - the cookbook's titles and ratings;
   - the recipe you're on;
-  - Laurie's rules, only with her yes.
+  - Laurie's rules, when a parent is asking.
 
   Anything it suggests saving comes as a card to confirm: a change to the
   preferences or the rules, a recipe for the cookbook, ideas for the week.

@@ -3,7 +3,7 @@ import { Card } from '../ui/Card.jsx'
 import { Crumb } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
 import { useDraft } from '../lib/useDraft.js'
-import { usePreferences, useFoodRules, useConsents, savePreferences, saveFoodRules, sayConsent } from '../lib/useKitchenPlan.js'
+import { usePreferences, useFoodRules, savePreferences, saveFoodRules } from '../lib/useKitchenPlan.js'
 
 const when = (iso) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 const STARTER = `Store: Trader Joe's, mostly.
@@ -24,10 +24,9 @@ In the pantry now:`
  */
 export default function Rules({ parent, me, members }) {
   const session = useSession()
-  const prefs = usePreferences(session), rules = useFoodRules(session), consents = useConsents(session)
+  const prefs = usePreferences(session), rules = useFoodRules(session)
   const laurie = members.find((m) => m.name === 'Laurie') || null
   const owner = rules.rows[0] ? members.find((m) => m.id === rules.rows[0].belongs_to) : laurie
-  const yes = owner ? consents.rows.find((c) => c.member_id === owner.id) : null
   return (
     <>
       <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="greet">Rules &amp; preferences</h1></header>
@@ -42,16 +41,7 @@ export default function Rules({ parent, me, members }) {
           about="Health information: only Jason and Laurie can read these. Every dinner’s core satisfies them. Each change is a new version, dated, and the old ones are kept."
           onSave={async (body, note) => { const r = await saveFoodRules((owner || me).id, body, note, me); rules.reload(); return r }}
         >
-          <div className={'consent ' + (yes && yes.granted ? 'on' : 'off')}>
-            {me && owner && me.id === owner.id ? (
-              <div className="switch-row">
-                <span><b>Let Claude read my rules when we plan</b><span>{yes && yes.granted ? `Yes, since ${when(yes.at)}. They go to Claude (Anthropic) only when Jason or you plan the week, write recipes or ask in the Kitchen chat. Switch it off any time.` : 'Off: Claude plans without them, and says so. They would go to Anthropic only when Jason or you ask it to plan.'}</span></span>
-                <button type="button" className="switch" role="switch" aria-checked={Boolean(yes && yes.granted)} aria-label="Let Claude read my rules" onClick={async () => { await sayConsent(me, !(yes && yes.granted)); consents.reload() }}><i /></button>
-              </div>
-            ) : (
-              <p className="muted">{yes && yes.granted ? `${owner ? owner.name : 'Laurie'} said yes on ${when(yes.at)}: Claude reads these when you plan.` : `${owner ? owner.name : 'Laurie'} hasn’t said yes, so Claude plans without these. It’s her switch, here, when she signs in.`}</p>
-            )}
-          </div>
+          <p className="muted small">These go to Claude (Anthropic) when Jason or Laurie plan the week, write recipes or ask in the Kitchen chat, so every dinner's core satisfies them. No one else's request carries them, and no one else can read them.</p>
         </Versioned>
       )}
     </>
@@ -73,7 +63,7 @@ function Versioned({ title, tint, rows, canEdit, about, starter = '', draftKey, 
     <Card tint={tint} label={title} glyph={secret ? 'candle' : 'pot'} tag={latest ? `v${rows.length} · ${when(latest.created_at)}` : undefined} className="span-3">
       <p className="muted">{about}</p>
       {children}
-      {!edit && (latest ? <div className="versioned">{latest.body}</div> : <p className="muted">Nothing saved yet. {secret ? 'Type or paste them here: they stay in the database, and only go to Claude with her yes.' : 'This is kept in the database, not in the app’s code, so it starts empty: write it fresh, or paste what you had from before, and every plan and every chat will go by it.'}</p>)}
+      {!edit && (latest ? <div className="versioned">{latest.body}</div> : <p className="muted">Nothing saved yet. {secret ? 'Type or paste them here: they stay in the database, and go to Claude only when Jason or Laurie ask it to plan.' : 'This is kept in the database, not in the app’s code, so it starts empty: write it fresh, or paste what you had from before, and every plan and every chat will go by it.'}</p>)}
       {edit && (
         <div className="form">
           <label>{latest ? 'The new version' : 'The first version'}<textarea rows={10} maxLength={20000} value={edit.body} onChange={(e) => setEdit({ ...edit, body: e.target.value })} /></label>

@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Laurie's food rules no longer need her sign-off to reach Claude
+
+Reversing the earlier rule that Claude receives Laurie's food rules only while
+her own switch says yes. Jason's call: a separate sign-off was thoughtful but
+unnecessary in this household, and it left Claude planning without her rules
+whenever she hadn't signed in to flip it. Now the rules go to Claude whenever a
+parent (Jason or Laurie) plans the week, writes recipes or asks in the Kitchen
+chat, so every dinner's core satisfies them. What stays: only Jason and Laurie
+can read them, they go on no one else's request (Anna's chat questions carry
+none), they never reach the wall or the repository, and the screens say they
+are sent. The `ai_consents` table is no longer read and its rows are kept.
+The earlier entries on this ("Claude everywhere" and the kitchen's) stand as
+the history.
+
+---
+
 ## 2026-11-01 — Text the week's ideas to Laurie; fish from an ordinary supermarket
 
 The week's one-line ideas are numbered, and one tap opens Jason's own Messages

@@ -187,14 +187,12 @@ async function kitchenContext(db: any, isParent: boolean, page?: { slug?: string
   const last = new Map<string, string>()
   for (const f of fridge.data ?? []) if (f.status === 'cooked' && f.done_on && !last.has(f.recipe_id)) last.set(f.recipe_id, f.done_on)
   const byId = new Map((recipes.data ?? []).map((r: { id: string, title: string }) => [r.id, r.title]))
-  // Laurie's rules: only for a parent asking, and only while her yes stands
+  // Laurie's rules: only for a parent asking (Jason or Laurie), never for anyone else's request.
+  // (Her separate sign-off was dropped on Jason's decision, 2026-11-01: docs/DECISIONS-LOG.md.)
   let rules = ''
   if (isParent) {
-    const { data: latest } = await db.from('food_rules').select('belongs_to, body').order('created_at', { ascending: false }).limit(1)
-    if (latest && latest[0]) {
-      const { data: yes } = await db.from('ai_consents').select('granted').eq('member_id', latest[0].belongs_to).eq('what', 'food_rules').order('at', { ascending: false }).limit(1)
-      if (yes && yes[0] && yes[0].granted === true) rules = latest[0].body
-    }
+    const { data: latest } = await db.from('food_rules').select('body').order('created_at', { ascending: false }).limit(1)
+    if (latest && latest[0]) rules = latest[0].body
   }
   let recipe = ''
   if (page && typeof page.slug === 'string' && /^[a-z0-9-]{1,80}$/.test(page.slug)) {

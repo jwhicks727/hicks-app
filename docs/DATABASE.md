@@ -164,8 +164,9 @@ model, is in `supabase/functions/_shared/claude.js`.
   has spent the day's cap ($3 unless `AI_DAILY_CAP_CENTS` says otherwise)
   or the month's ($30, `AI_MONTHLY_CAP_CENTS`), it declines until the next
   day or month. Set a spending limit in Anthropic's console too.
-- **Laurie's food rules** reach Claude only for a parent's request, and
-  only while her own latest answer in `ai_consents` is yes.
+- **Laurie's food rules** reach Claude only for a parent's request (Jason's
+  or Laurie's), never anyone else's. The `ai_consents` table, where she
+  once answered yes or no, is no longer read; its rows are kept as history.
 - **A refused request** is retried server-side on Anthropic's recommended
   fallback model (`fallbacks: "default"`).
 
@@ -201,7 +202,7 @@ sign-in link won't come back to the app.
 | `recipe_ratings` | Our 1–5 ratings, one each per recipe | The family | Each of us, our own only (`my_member_id()`) |
 | `fridge` | The recipes bought for this week, until cooked | The family | Parents |
 | `ai_usage` | Each call to Claude: who, which task, which model, tokens and cost | Parents all; each of us our own | Only `ai_record()`, from the `claude` function |
-| `ai_consents` | Each owner's yes or no to sending something of theirs to Claude (Laurie's food rules); the latest row stands | Parents, and each of us our own | Each of us, our own only |
+| `ai_consents` | Once: each owner's yes or no to sending something of theirs to Claude (Laurie's food rules). No longer read since 2026-11-01; kept as history | Parents, and each of us our own | Each of us, our own only |
 | `food_rules` | Laurie's food rules, every version kept, dated, with what changed | Parents only | Parents add a new version; nobody edits one |
 | `kitchen_preferences` | The kitchen's tastes, dislikes, pantry and equipment, every version kept | The family | Parents add a new version |
 | `week_plans` | A week's ask, the ideas Claude gave, the ones picked | The family | Parents |

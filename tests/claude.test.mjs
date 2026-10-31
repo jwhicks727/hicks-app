@@ -55,8 +55,8 @@ test('who may ask what: the planning is the parents’; the rules tool only when
   assert.ok(!kitchenTools().some((t) => t.name === 'propose_food_rules'))
   assert.ok(kitchenTools({ canRules: true }).some((t) => t.name === 'propose_food_rules'))
   for (const t of kitchenTools({ canRules: true })) { assert.equal(t.strict, true); assert.equal(t.input_schema.additionalProperties, false) }
-  assert.match(kitchenNow({ today: '2026-11-01' }), /not shared/)
-  assert.match(kitchenNow({ today: '2026-11-01', rules: 'No X' }), /with her permission/)
+  assert.match(kitchenNow({ today: '2026-11-01' }), /aren’t part of this conversation/)
+  assert.match(kitchenNow({ today: '2026-11-01', rules: 'No X' }), /private to Jason and Laurie/)
   assert.match(planAsk({ count: 50, asked: 'and three breakfasts' }), /^Give 20 .*three breakfasts/s)
 })
 

@@ -107,7 +107,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
           <label>Anything to add to the ask<textarea rows={3} maxLength={1500} value={ask.asked} onChange={(e) => setAsk({ ...ask, asked: e.target.value })} placeholder="Three breakfasts too · a slow-cooker night · my hands are sore this week · something Anna’s friend would eat Friday" /></label>
         </div>
         <button type="button" className="btn" disabled={Boolean(busy)} onClick={() => getIdeas(false)}>{ideas.length ? 'Start over with new ideas' : 'Get ideas'}</button>
-        <p className="muted small">Sends this, the kitchen’s preferences and the cookbook’s titles to Claude (Anthropic); Laurie’s food rules too, only if she has said yes in <Link to="/kitchen/rules">Rules &amp; preferences</Link>.</p>
+        <p className="muted small">Sends this, the kitchen’s preferences and the cookbook’s titles to Claude (Anthropic), and Laurie’s food rules too, from <Link to="/kitchen/rules">Rules &amp; preferences</Link>.</p>
       </Card>
 
       {ideas.length > 0 && (
