@@ -4,8 +4,8 @@
 // Pure: no React, no database, so tests can run it.
 
 export const SOURCE_KINDS = [
-  ['google_calendar', 'Google Calendar', 'Syncs on its own'],
-  ['ical', 'iCal or webcal link', 'Outlook, iCloud and most school systems publish one; syncs on its own'],
+  ['google_calendar', 'Google Calendar', 'Paste its “Secret address in iCal format” (Settings and sharing → Integrate calendar), or the public one for a shared calendar; read every night'],
+  ['ical', 'iCal or webcal link', 'Outlook, iCloud and most school systems publish one; read every night'],
   ['pdf', 'PDF', 'Read into dates you approve'],
   ['word', 'Word document', 'Read into dates you approve'],
   ['google_doc', 'Google Doc', 'Read into dates you approve'],

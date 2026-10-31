@@ -49,6 +49,53 @@ Each calendar source in Setup has a "Whose is it": mark Kordyak's calendar
 as Laurie's, Wayne Ruble's as Anna's and SOAR's as Jason's, and the year
 view lines up their days off.
 
+## Reading calendar feeds
+
+The `read-sources` Edge Function (`supabase/functions/read-sources/`) reads
+every calendar source in Setup that is a feed (iCal, webcal, or a Google
+Calendar's iCal address) into `calendar_events`, nightly and when a parent
+presses "Read now". Each reading is kept in `source_versions`; a feed that
+hasn't changed writes nothing; an upcoming event that leaves the feed is
+hidden with a dated note, never deleted, and nothing in the past is touched
+(the rules: `supabase/functions/_shared/sync.js`). Documents, pictures and
+web pages are not read yet.
+
+Once, from a computer with Node (the project's reference is the part of the
+Supabase URL before `.supabase.co`):
+
+```sh
+npx supabase login
+npx supabase functions deploy read-sources --no-verify-jwt --project-ref <project-ref>
+openssl rand -hex 32        # the nightly schedule's key: keep it for the next two steps
+npx supabase secrets set READ_SOURCES_KEY=<that key> --project-ref <project-ref>
+```
+
+`--no-verify-jwt` is deliberate: the function checks its caller itself (a
+signed-in parent, through `is_parent()`, or the schedule's key) and turns
+everyone else away.
+
+Then the nightly run, in the SQL editor. Switch on `pg_cron` and `pg_net`
+first (Database → Extensions). The key goes into Supabase's Vault, not into
+the schedule's text:
+
+```sql
+select vault.create_secret('<that key>', 'read_sources_key');
+
+select cron.schedule('read-calendar-feeds', '17 11 * * *', $$
+  select net.http_post(
+    url := 'https://<project-ref>.supabase.co/functions/v1/read-sources',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-read-sources-key', (select decrypted_secret from vault.decrypted_secrets where name = 'read_sources_key')),
+    body := '{}'::jsonb)
+$$);
+```
+
+`17 11 * * *` is 11:17 UTC: 3:17 AM at home in winter, 4:17 AM in summer.
+To stop it: `select cron.unschedule('read-calendar-feeds');`. Each run reads
+at most 20 feeds, waits at most 15 seconds for each, and refuses a feed over
+3 MB.
+
 ## Signing in
 
 For now, a sign-in link by email (Supabase's own, no setup needed). Once the

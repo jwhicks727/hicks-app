@@ -12,6 +12,7 @@ import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 
 const KIND_NAME = Object.fromEntries(SOURCE_KINDS.map(([k, n]) => [k, n]))
+const FEEDS = ['ical', 'google_calendar'] // read by the read-sources function; the rest wait for document reading
 const EMPTY = { title: '', url: '', kind: '', covers_until: '', remind_days: 30, notes: '', for_whom: '' }
 
 function SourceForm({ initial, members, draftKey, onSaved, onCancel }) {
@@ -64,6 +65,18 @@ export default function Setup() {
   const family = useFamily(session)
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(() => hasDraft('source.new'))
+  const [reading, setReading] = useState({})
+  async function readNow(s) {
+    setReading((r) => ({ ...r, [s.id]: 'Reading…' }))
+    const { data, error } = await supabase.functions.invoke('read-sources', { body: { source_id: s.id } })
+    let words = data?.results?.[0]?.status
+    if (error) {
+      const status = error.context?.status
+      words = status === 403 ? 'Only Jason or Laurie can read a source.' : status && status !== 404 ? `The reader answered ${status}.` : 'The feed reader isn’t set up yet (docs/DATABASE.md, “Reading calendar feeds”).'
+    }
+    setReading((r) => ({ ...r, [s.id]: words || 'Done.' }))
+    reload()
+  }
   const today = todayAtHome()
 
   if (!supabase || session === null) {
@@ -100,13 +113,17 @@ export default function Setup() {
                     <div className="source-t">
                       <b>{s.title}</b>
                       <span>{KIND_NAME[s.kind] || s.kind}{s.for_whom && family.members.find((m) => m.id === s.for_whom) ? ` · ${family.members.find((m) => m.id === s.for_whom).name}’s` : ''}{s.covers_until ? ` · good until ${s.covers_until}` : ''}{s.last_checked_at ? ` · checked ${s.last_checked_at.slice(0, 10)}` : ' · not read yet'}</span>
+                      {s.last_status && <span>{s.last_status}</span>}
                       {s.url && (/^(https?|webcal):\/\//i.test(s.url) ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="source-link">{s.url}</a> : <span className="source-link">{s.url}</span>)}
                     </div>
                     <span className={'state ' + st.state}>{st.state === 'stale' ? 'Needs next year’s' : st.state === 'soon' ? `Runs out in ${st.days} days` : st.state === 'ok' ? 'Current' : 'Ongoing'}</span>
                     <div className="source-b">
-                      <button type="button" className="btn ghost" onClick={async () => { await supabase.from('sources').update({ last_checked_at: new Date().toISOString(), last_status: 'Checked by hand' }).eq('id', s.id); reload() }}>Mark checked</button>
+                      {FEEDS.includes(s.kind) && s.url
+                        ? <button type="button" className="btn ghost" disabled={reading[s.id] === 'Reading…'} onClick={() => readNow(s)}>Read now</button>
+                        : <button type="button" className="btn ghost" onClick={async () => { await supabase.from('sources').update({ last_checked_at: new Date().toISOString(), last_status: 'Checked by hand' }).eq('id', s.id); reload() }}>Mark checked</button>}
                       <button type="button" className="btn ghost" onClick={() => setEditing(s.id)}>Edit</button>
                     </div>
+                    {reading[s.id] && <p className="muted" role="status">{reading[s.id]}</p>}
                   </>
                 )}
               </li>
@@ -115,7 +132,7 @@ export default function Setup() {
         </ul>
         {rows && rows.length === 0 && !adding && <p className="muted">Nothing yet. Start with the school calendars: Kordyak (Rialto Unified), Wayne Ruble (Fontana Unified) and SOAR.</p>}
         {adding ? <SourceForm members={family.members} draftKey="source.new" onSaved={() => { setAdding(false); reload() }} onCancel={() => setAdding(false)} /> : <button type="button" className="btn" onClick={() => setAdding(true)}>Add a source</button>}
-        <p className="muted">Reading sources automatically (feeds every night, documents into dates you approve) comes next; for now Setup keeps them and tells you when they go stale.</p>
+        <p className="muted">Calendar feeds (iCal, webcal, a Google Calendar’s iCal address) are read every night once the reader is set up, and “Read now” reads one at once. Documents and pictures, read into dates you approve, come next.</p>
       </Card>
 
       <FamilyDays family={family} today={today} reload={family.reload} />

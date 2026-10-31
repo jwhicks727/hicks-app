@@ -6,6 +6,30 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Calendar feeds are read by a Supabase Edge Function
+
+- **Feeds first.** Most school systems, Google Calendar and Outlook publish
+  an iCal address, and it needs no sign-in, so `read-sources` reads those
+  nightly and on a parent's "Read now". Documents and pictures (read into
+  dates someone approves) come after.
+- **Supabase, not GitHub Actions:** it sits beside the data, costs nothing
+  at this size, and keeps the service key where it already is. The nightly
+  run is `pg_cron` calling the function with its own key from the Vault;
+  the key is never in the repository or the schedule's text.
+- **A re-read never loses history:** events are matched by their feed id;
+  an upcoming event that leaves the feed is hidden with a dated note (and
+  comes back if the feed brings it back); past events are left alone; what
+  a person hid stays hidden. Every reading is a `source_versions` row.
+- **Caps:** 20 feeds a run, 15 seconds and 3 MB a feed, 3,000 events a
+  feed, and "Read now" refuses a second read within two minutes. Only web
+  addresses are fetched, never this machine or a private network.
+- **Which events are days off** is guessed from their words ("break",
+  "holiday", "no school"); staff and teacher work days count as school days.
+  The guess decides the year view's stripes; a way to correct it comes with
+  event editing.
+
+---
+
 ## 2026-10-31 — Family days in Setup; each source says whose it is
 
 - **Family days can be kept in the app** (Setup → Family days), not only in

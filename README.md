@@ -50,6 +50,9 @@ connected. Copy it to `.env` (never committed) and fill it in.
   whose table runs to 2035.
 - `supabase/migrations/` — the database, one migration at a time
   (`docs/DATABASE.md`).
+- `supabase/functions/` — jobs that run on Supabase: `read-sources` reads
+  the calendar feeds nightly. Its logic is in `_shared/`, plain JavaScript
+  the tests run too.
 - `docs/` — the decisions log, the design principles, the plan, and the
   clickable mockup the look was worked out in (`docs/mockup/`).
 

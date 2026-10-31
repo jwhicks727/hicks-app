@@ -21,8 +21,11 @@ Built in this order, each part in daily use before the next.
       with row-level security and explicit grants; guard tests for every
       migration.
 - [ ] Run the first migration and add the family (docs/DATABASE.md).
-- [ ] Reading sources automatically: feeds nightly; documents and pictures
-      into dates someone approves.
+- [x] Reading calendar feeds (iCal, webcal, Google Calendar's iCal
+      address): the `read-sources` Edge Function, nightly and on "Read now",
+      keeping every reading and never deleting an event (to deploy:
+      docs/DATABASE.md, "Reading calendar feeds").
+- [ ] Reading documents and pictures into dates someone approves.
 - [ ] Sign-in for the three of us (built: the email link), and the
       greeting by name (built: Home greets whoever is signed in).
 - [ ] Hosting (Firebase, as SOAR uses), and the app installable on our phones.

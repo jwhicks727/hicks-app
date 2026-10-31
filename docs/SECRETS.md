@@ -9,6 +9,7 @@ this repository, an issue, a commit or a chat.
 | Supabase database password | A password manager | Jason | Database maintenance only (migrations from a computer). The app never uses it. | Created 2026-10-31 |
 | Supabase project URL and publishable (anon) key | `.env` (local), hosting settings | The family | The app itself. Not secret: they ship inside the app, and row-level security is what protects the data. | To add |
 | Supabase secret (service role) key | Supabase's own settings; scheduled jobs' secrets | Jason | Scheduled jobs that act for the family. Never in the app or `.env`. | Not used yet |
+| `READ_SOURCES_KEY` (the calendar feed reader's nightly key) | The Edge Function's secrets (`supabase secrets set`) and Supabase's Vault (`read_sources_key`), nowhere else | Jason | The nightly run of `read-sources`; a parent's "Read now" uses their own sign-in instead. To change it: set a new one in both places. | To add (docs/DATABASE.md, "Reading calendar feeds") |
 | Yahoo app password | The scheduled job's secrets | Laurie (her yes, revocable from her Yahoo account) | Reading the monthly lector schedule | Planned |
 | GroupMe access token | The scheduled job's secrets | The family member it belongs to | Reading the altar servers' schedule posts | Later |
 | Google sign-in (OAuth) client | Supabase auth settings | Jason | Sign-in and Google Calendar sync | Planned |
