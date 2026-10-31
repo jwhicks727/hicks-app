@@ -6,6 +6,27 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The year's colours, after SOAR's seasonal schedule
+
+- **A seasonal wash over the sky,** following the shape of SOAR's schedule
+  (`src/seasons.js` there): windows of dates, a specific holiday winning over
+  the season around it, and a palette of an accent and three hues. Its
+  holiday and season colours came across; the rest is the family's own.
+- **The Church sets the big seasons,** worked out each year: Advent to
+  Christmas Eve, Christmas until the Baptism of the Lord (not the 26th),
+  Lent the quietest palette of all, Easter until Pentecost. Then Día de los
+  Muertos, Halloween, Thanksgiving week, Valentine's (quiet in Lent), the
+  Fourth, back to school, and the four seasons between.
+- **It stays light:** soft glows in the corners over the sunset sky, never a
+  new background, and a switch in Settings.
+- **Laurie's paintings will make the visuals:** each season has a slot for
+  one (`SEASON_ART`), shown faintly along the bottom of the sky
+  (docs/ART-CAPTURE.md).
+- **The icon stays the outline sprout;** the leafy one was too busy at
+  home-screen size.
+
+---
+
 ## 2026-10-31 — The swirling light wraps the occasion's card, not the screen
 
 Jason saw it fill the screen's edges and asked for it on the event's card

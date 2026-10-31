@@ -5,6 +5,8 @@ import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import { usePrefs } from '../lib/prefs.js'
 import { GROUPS } from '../lib/cal/observances.js'
+import { seasonFor } from '../lib/seasons.js'
+import { todayAt } from '../lib/cal/dates.js'
 
 export default function Settings() {
   const session = useSession()
@@ -52,6 +54,10 @@ export default function Settings() {
             <button key={k} type="button" aria-pressed={(prefs.motion || 'device') === k} onClick={() => update({ motion: k })}>{l}</button>
           ))}
         </fieldset>
+        <div className="switch-row">
+          <span><b>The season’s colours</b><span>Now: {seasonFor(todayAt()).label}. A light wash over the sky, after the Church year and the holidays</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.seasonal !== false} aria-label="The season’s colours" onClick={() => update({ seasonal: prefs.seasonal === false })}><i /></button>
+        </div>
         <p className="muted">These stay on this device.</p>
       </Card>
 

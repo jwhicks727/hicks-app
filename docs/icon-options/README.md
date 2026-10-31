@@ -7,7 +7,7 @@ stand-ins until a human-made icon replaces them (docs/DECISIONS-LOG.md).
 | Picture | Status |
 |---|---|
 | `sprout-outline.png` | In use |
-| `sprout-leafy.png` | Pinned as the other option |
+| `sprout-leafy.png` | Pinned, then set aside: too busy at home-screen size (Jason) |
 
 `compare.png` shows both on a phone's home screen, as Android's circle and
 as the browser tab's icon.
