@@ -65,7 +65,10 @@ Built in this order, each part in daily use before the next.
       and Home ask for next year's (the job-waiting shine), with a link to
       where it came from last time, and a reminder on our phones.
 - [x] The Church year: feasts, saints, colours; traditional prayers with a
-      warm invitation to pray them; readings at USCCB. Worked out here
+      warm invitation to pray them.
+- [x] The readings for any day and any of its Masses, read in the app
+      (`readings` function, to deploy; unverified against USCCB's live page
+      until it runs), with USCCB's own page always a tap away. Worked out here
       rather than with romcal (decisions log).
 - [x] Sacred Heart, Rancho Cucamonga: Mass and confession times, and a word
       on holy days and their eves (unverified until checked).

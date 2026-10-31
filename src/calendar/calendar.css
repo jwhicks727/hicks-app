@@ -245,3 +245,12 @@ html[data-motion="less"] .confetti { display: none; }
 .seen-credit { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
 @media (min-width: 700px) { .seen { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 1100px) { .seen { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+/* The readings, for reading */
+.mass-picks button { background: var(--card); }
+.reading { display: grid; gap: 12px; padding: 18px 18px 20px; border-radius: var(--r-card); background: var(--card); box-shadow: var(--shadow-warm); border-top: 4px solid var(--lc); }
+.reading h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-family: var(--font-voice); font-weight: 400; font-size: 22px; }
+.reading h2 b { font-family: var(--font-ui); font-size: 15px; font-weight: 800; color: var(--muted); }
+.reading-text { display: grid; gap: 12px; font-size: 18px; line-height: 1.7; max-width: 42em; }
+.reading-text .refrain { font-weight: 800; color: color-mix(in srgb, var(--lc) 55%, var(--ink)); }
+.reading-foot { display: grid; gap: 8px; justify-items: start; }

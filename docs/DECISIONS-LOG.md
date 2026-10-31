@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The readings, read in the app
+
+- **The text comes from the USCCB's own readings page,** fetched by a small
+  Edge Function when one of us opens a day's readings, shown as plain text,
+  and never stored or shown to anyone outside the family. The lectionary's
+  text is copyrighted (CCD); this is the family reading it privately, the
+  way we would on the USCCB's site, and the app credits it and always links
+  to the page. If that ever seems too much, the link alone stays.
+- **Any Mass:** on days with several (Christmas's Vigil, Night, Dawn and Day)
+  the page's own list of Masses becomes a choice, each with its own address.
+- **Unverified tonight:** USCCB's site couldn't be reached from the session
+  where this was built, so the page's shape is as known, tested on a sample,
+  and the app says plainly when a page doesn't read rather than guessing.
+
+---
+
 ## 2026-10-31 — Outdoor events research themselves
 
 - **Events can be added in the app** (any of us), with a place found on the

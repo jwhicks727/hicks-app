@@ -14,6 +14,7 @@ import YearView from '../calendar/YearView.jsx'
 import Coming from '../parts/Coming.jsx'
 import EventForm from '../calendar/EventForm.jsx'
 import EventPage from '../calendar/EventPage.jsx'
+import Readings from '../calendar/Readings.jsx'
 import { Link } from '../shell/Link.jsx'
 import '../calendar/calendar.css'
 
@@ -41,6 +42,7 @@ export default function Calendar({ rest }) {
   const email = session && session.user.email ? session.user.email.toLowerCase() : null
   const me = email ? family.members.find((m) => (m.email || '').toLowerCase() === email) : null
   const one = useEvent(rest[0] === 'event' ? session : null, rest[0] === 'event' ? rest[1] : null)
+  if (rest[0] === 'day' && rest[2] === 'readings' && /^\d{4}-\d\d-\d\d$/.test(rest[1])) return <Readings date={rest[1]} variant={/^[A-Za-z0-9]{1,20}$/.test(rest[3] || '') ? rest[3] : ''} session={session} />
   if (rest[0] === 'new') return <EventForm date={/^\d{4}-\d\d-\d\d$/.test(rest[1] || '') ? rest[1] : today} members={family.members} />
   if (rest[0] === 'event' && rest[2] === 'edit') return one.loaded ? <EventForm event={one.event} date={one.event ? one.event.starts_on : today} members={family.members} /> : null
   if (rest[0] === 'event') return <EventPage state={one} members={family.members} parent={Boolean(me && me.role === 'parent')} today={today} />

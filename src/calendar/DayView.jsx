@@ -2,7 +2,7 @@ import SunCalc from 'suncalc'
 import { navigate } from '../lib/router.js'
 import { calPath, stepDate } from '../lib/cal/paths.js'
 import { dayView } from '../lib/cal/day.js'
-import { liturgicalDay, readingsUrl, SEASON_NAMES, COLOUR_NAMES, cycles } from '../lib/cal/liturgy.js'
+import { liturgicalDay, SEASON_NAMES, COLOUR_NAMES, cycles } from '../lib/cal/liturgy.js'
 import { invitation, PRAYERS } from '../lib/cal/prayers.js'
 import { parishDay, PARISH } from '../lib/cal/sacredHeart.js'
 import { spanWords } from '../lib/cal/observances.js'
@@ -71,7 +71,7 @@ export default function DayView({ date, today, data, signedIn }) {
             </details>
           )}
         </div>
-        <a className="btn ghost" href={readingsUrl(date)} target="_blank" rel="noopener noreferrer">The day’s readings ›</a>
+        <Link className="btn ghost" to={`/calendar/day/${date}/readings`}>The day’s readings ›</Link>
       </Card>
 
       <Card tint="#B8322A" label={`At ${PARISH.name}`} glyph="calendar" tag={PARISH.town} className="parish-card">

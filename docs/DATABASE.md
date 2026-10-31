@@ -96,6 +96,21 @@ To stop it: `select cron.unschedule('read-calendar-feeds');`. Each run reads
 at most 20 feeds, waits at most 15 seconds for each, and refuses a feed over
 3 MB.
 
+## The readings
+
+The `readings` Edge Function (`supabase/functions/readings/`) reads the Mass
+readings for a date (and, on days with several Masses, each one) from the
+USCCB's readings page, for a signed-in family member to read in the app. It
+stores nothing and answers no one else. Its reading of the page
+(`supabase/functions/_shared/readings.js`) is unverified against the live
+site: if the app says the page "didn't read cleanly", USCCB's page has
+changed shape, and the link to it still works. Deploy it like the feed
+reader:
+
+```sh
+npx supabase functions deploy readings --no-verify-jwt --project-ref <project-ref>
+```
+
 ## Signing in
 
 For now, a sign-in link by email (Supabase's own, no setup needed). Once the
