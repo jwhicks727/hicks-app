@@ -27,3 +27,14 @@ export function ordinalWord(n) { return WORDS[n] || ordinal(n) }
 export function todayAt(tz = 'America/Los_Angeles', now = new Date()) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(now)
 }
+
+/** A wall-clock time at home ('YYYY-MM-DD', 'HH:MM') as an ISO instant, daylight time included. */
+export function homeInstant(d, hm, tz = 'America/Los_Angeles') {
+  const [y, m, dd] = parts(d), [h, mi] = hm.split(':').map(Number)
+  const offset = (t) => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date(t)).filter((x) => x.type !== 'literal').map((x) => [x.type, Number(x.value)]))
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute) - t
+  }
+  const guess = Date.UTC(y, m - 1, dd, h, mi)
+  return new Date(guess - offset(guess - offset(guess))).toISOString()
+}

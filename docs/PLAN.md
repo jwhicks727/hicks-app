@@ -98,6 +98,12 @@ Built in this order, each part in daily use before the next.
       day itself), with a chip that names the day and plays it again.
 - [x] Home opens with the family day banner (two days ahead), Today in the
       Church with an invitation to pray, and the Masses still to come.
+- [x] Adding and changing our own events in the app, with a place found on
+      the map; an outdoor one (camping, a hike, the beach: the app suggests
+      it) shows the weather there (the forecast within 16 days, else the
+      same dates over the past five years), each night's moon and dark
+      skies, meteor showers, and what iNaturalist's observers have seen
+      nearby that month: birds first, with photos and their credits.
 - [ ] Concerts as special events with their ticket and scrapbook.
 
 Art to check before use: Christicons (Christian line icons), the Wellcome

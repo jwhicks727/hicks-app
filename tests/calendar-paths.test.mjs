@@ -78,3 +78,9 @@ test('a day off at two schools is said once, and joins a holiday of the same nam
   assert.equal(its.filter((i) => i.label === 'Thanksgiving').length, 1)
   assert.equal(dayView('2026-11-26', { events, who: 'a' }).events.length, 2, 'Anna sees her own school')
 })
+
+test('a time at home becomes the right instant, either side of the clocks changing', async () => {
+  const { homeInstant } = await import('../src/lib/cal/dates.js')
+  assert.equal(homeInstant('2026-10-31', '18:30'), '2026-11-01T01:30:00.000Z')
+  assert.equal(homeInstant('2026-11-07', '18:30'), '2026-11-08T02:30:00.000Z')
+})

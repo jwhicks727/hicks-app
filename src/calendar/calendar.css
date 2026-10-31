@@ -222,3 +222,26 @@ html[data-motion="less"] .astro-meteor { stroke-dashoffset: 0; }
   .confetti { display: none; }
 }
 html[data-motion="less"] .confetti { display: none; }
+
+/* Events: new, and their page */
+.new-event { justify-self: start; }
+.ev-link { color: inherit; text-decoration: none; } .ev-link:hover b { text-decoration: underline; }
+.place-row { display: flex; gap: 8px; } .place-row input { flex: 1; min-width: 0; }
+.place-picks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.place-picks button { width: 100%; text-align: left; min-height: 44px; padding: 8px 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; cursor: pointer; }
+.place-picks span { color: var(--muted); }
+.switch-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.switch-row > span { display: grid; } .switch-row > span span { font-size: 14px; color: var(--muted); font-weight: 500; }
+.pre-line { white-space: pre-line; }
+.nights { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.nights li { display: flex; gap: 10px; align-items: center; }
+.dark-sky { color: #4B3A8C; }
+.seen { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.seen li { display: grid; gap: 2px; min-width: 0; }
+.seen a { display: grid; gap: 2px; color: inherit; text-decoration: none; }
+.seen img, .seen-none { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 12%, var(--card)); display: block; }
+.seen b { line-height: 1.2; }
+.seen-n { font-size: 13px; color: var(--muted); font-weight: 700; }
+.seen-credit { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+@media (min-width: 700px) { .seen { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .seen { grid-template-columns: repeat(6, minmax(0, 1fr)); } }

@@ -107,8 +107,8 @@ export default function DayView({ date, today, data, signedIn }) {
           <ul className="obs">
             {dv.events.map((e) => (
               <li key={e.id} style={{ '--c': (KIND_STYLE[e.kind] || KIND_STYLE.event).colour }}>
-                <span className="ml-g"><Glyph name={(KIND_STYLE[e.kind] || KIND_STYLE.event).glyph} /></span>
-                <span><b>{e.title}</b>{e.school && <span className="ml-sub"> · {e.kind === 'no_school' ? 'No school at' : 'At'} {e.school.name}</span>}{e.starts_at && <span className="ml-sub"> · {hm.format(new Date(e.starts_at))}{e.ends_at ? `–${hm.format(new Date(e.ends_at))}` : ''}</span>}{e.ends_on > e.starts_on && <span className="ml-sub"> · {e.starts_on.slice(5)} to {e.ends_on.slice(5)}</span>}</span>
+                <span className="ml-g"><Glyph name={e.outdoors ? 'leaf' : (KIND_STYLE[e.kind] || KIND_STYLE.event).glyph} /></span>
+                <span><Link to={`/calendar/event/${e.id}`} className="ev-link"><b>{e.title}</b></Link>{e.place && <span className="ml-sub"> · {e.place.split(',')[0]}</span>}{e.school && <span className="ml-sub"> · {e.kind === 'no_school' ? 'No school at' : 'At'} {e.school.name}</span>}{e.starts_at && <span className="ml-sub"> · {hm.format(new Date(e.starts_at))}{e.ends_at ? `–${hm.format(new Date(e.ends_at))}` : ''}</span>}{e.ends_on > e.starts_on && <span className="ml-sub"> · {e.starts_on.slice(5)} to {e.ends_on.slice(5)}</span>}</span>
               </li>
             ))}
           </ul>

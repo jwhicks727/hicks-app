@@ -6,6 +6,26 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Outdoor events research themselves
+
+- **Events can be added in the app** (any of us), with a place found on the
+  map through Open-Meteo's place search. The app suggests "outdoors" from
+  the words (camping, hike, trail, beach, park, birding…); the switch
+  decides.
+- **An outdoor event's page reads its place when it's opened:** the
+  forecast there within 16 days, otherwise the same dates over the past five
+  years (Open-Meteo's archive), so a trip months away still says what to
+  pack; each night's moon and whether the sky will be dark; meteor showers;
+  and what iNaturalist's observers have seen within about 12 km in that
+  month, birds first for Laurie, then mammals, plants, reptiles and insects.
+- **Only the place travels:** its name to find it, then its coordinates
+  rounded to about a kilometre. The form asks for a park, town or venue,
+  never someone's address. Results are kept for the session, not stored.
+- **Read on opening, not by a job:** the events are few and the answers
+  change (forecasts), so nothing runs in the background or costs anything.
+
+---
+
 ## 2026-10-31 — The sky's events, worked out and illustrated
 
 - **Eclipses are computed** (Meeus ch. 54), not listed: the kind, the time

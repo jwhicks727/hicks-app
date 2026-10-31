@@ -40,7 +40,7 @@ export function useEvents(session, from, to) {
     let live = true
     if (!supabase || !session) { setState({ events: [], error: null }); return undefined }
     fetchAll(() => supabase.from('calendar_events')
-      .select('id, source_id, title, starts_on, ends_on, starts_at, ends_at, kind, for_whom, notes')
+      .select('id, source_id, title, starts_on, ends_on, starts_at, ends_at, kind, for_whom, notes, place, lat, lng, outdoors')
       .eq('status', 'approved').lte('starts_on', to).gte('ends_on', from)
       .order('starts_on').order('id'))
       .then(({ data, error }) => { if (live) setState({ events: data || [], error: error ? error.message : null }) })
@@ -48,3 +48,24 @@ export function useEvents(session, from, to) {
   }, [session, from, to])
   return state
 }
+
+/** One event, by id. */
+export function useEvent(session, id) {
+  const [state, setState] = useState({ event: null, loaded: false, error: null })
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session || !id) { setState({ event: null, loaded: Boolean(session === null), error: null }); return undefined }
+    supabase.from('calendar_events').select('*').eq('id', id).maybeSingle()
+      .then(({ data, error }) => { if (live) setState({ event: data || null, loaded: true, error: error ? error.message : null }) })
+    return () => { live = false }
+  }, [session, id, n])
+  return { ...state, reload: () => setN((x) => x + 1) }
+}
+
+/** Add or change an event the family made (not one read from a feed). */
+export async function saveEvent(row, id) {
+  return id ? supabase.from('calendar_events').update(row).eq('id', id).is('source_id', null).select('id').single()
+    : supabase.from('calendar_events').insert({ ...row, status: 'approved' }).select('id').single()
+}
+export async function deleteEvent(id) { return supabase.from('calendar_events').delete().eq('id', id) }

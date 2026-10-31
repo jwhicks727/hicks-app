@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useSession } from '../lib/auth.js'
-import { useFamily, useEvents } from '../lib/useCalendar.js'
+import { useFamily, useEvents, useEvent } from '../lib/useCalendar.js'
 import { usePrefs } from '../lib/prefs.js'
 import { useNow } from '../lib/useNow.js'
 import { todayAt, parts, MONTHS, WEEKDAYS, addDays } from '../lib/cal/dates.js'
@@ -12,6 +12,9 @@ import WeekView from '../calendar/WeekView.jsx'
 import DayView from '../calendar/DayView.jsx'
 import YearView from '../calendar/YearView.jsx'
 import Coming from '../parts/Coming.jsx'
+import EventForm from '../calendar/EventForm.jsx'
+import EventPage from '../calendar/EventPage.jsx'
+import { Link } from '../shell/Link.jsx'
 import '../calendar/calendar.css'
 
 const VIEW = { day: DayView, week: WeekView, month: MonthView, year: YearView }
@@ -29,12 +32,23 @@ function titleFor(view, date, today) {
   return date === today ? `Today, ${MONTHS[m - 1]} ${d}` : `${wd}, ${MONTHS[m - 1]} ${d}${thisYear ? '' : `, ${y}`}`
 }
 
+// Besides the views (paths.js): /calendar/new/<date>, /calendar/event/<id>, /calendar/event/<id>/edit
 export default function Calendar({ rest }) {
   const now = useNow()
   const today = todayAt('America/Los_Angeles', now)
-  const { view, date } = parseCalPath(rest, today)
   const session = useSession()
   const family = useFamily(session)
+  const email = session && session.user.email ? session.user.email.toLowerCase() : null
+  const me = email ? family.members.find((m) => (m.email || '').toLowerCase() === email) : null
+  const one = useEvent(rest[0] === 'event' ? session : null, rest[0] === 'event' ? rest[1] : null)
+  if (rest[0] === 'new') return <EventForm date={/^\d{4}-\d\d-\d\d$/.test(rest[1] || '') ? rest[1] : today} members={family.members} />
+  if (rest[0] === 'event' && rest[2] === 'edit') return one.loaded ? <EventForm event={one.event} date={one.event ? one.event.starts_on : today} members={family.members} /> : null
+  if (rest[0] === 'event') return <EventPage state={one} members={family.members} parent={Boolean(me && me.role === 'parent')} today={today} />
+  return <Views rest={rest} today={today} session={session} family={family} />
+}
+
+function Views({ rest, today, session, family }) {
+  const { view, date } = parseCalPath(rest, today)
   const [from, to] = viewRange(view, date)
   const { events: raw } = useEvents(session, from, to)
   const events = useMemo(() => annotateEvents(raw, family.sources, family.members), [raw, family.sources, family.members])
@@ -47,6 +61,7 @@ export default function Calendar({ rest }) {
       <CalHead view={view} date={date} today={today} title={titleFor(view, date, today)}>
         {(view === 'month' || view === 'year') && <SeasonStrip date={date} today={today} />}
       </CalHead>
+      {session && <Link className="btn new-event span-6" to={`/calendar/new/${view === 'day' ? date : today}`}>+ Something new</Link>}
       <WhoFilter members={family.members} who={who} onChange={(id) => update({ calendarWho: id })} />
       <View date={date} today={today} data={data} signedIn={Boolean(session)} family={family} />
       {view === 'month' && (

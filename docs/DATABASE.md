@@ -114,7 +114,7 @@ sign-in link won't come back to the app.
 | `family_members` | The three of us | The family | The SQL editor only |
 | `sources` | Every outside calendar, document, folder or feed, with what it covers and when it goes stale | The family | Parents |
 | `source_versions` | Each reading of a source, kept as history | The family | Parents add; nobody changes |
-| `calendar_events` | Events from sources and from us; "proposed" until approved when read from a document | The family | The family; parents remove |
+| `calendar_events` | Events from sources and from us; "proposed" until approved when read from a document. Our own can have a place (name and coordinates) and be marked outdoors | The family | The family; parents remove |
 | `family_days` | Birthdays, anniversaries, Anna's adoption day, the angelversary | The family | Parents |
 | `recipes` | Jason's recipe files, less Laurie's plate; their three pictures | The family | Parents |
 | `recipe_private` | Each recipe's "Laurie's plate" (protein, what was kept off) | Parents only | Parents |
@@ -127,3 +127,4 @@ Migration index:
 |---|---|
 | `20261031230000_foundations` | The family, sources and their versions, calendar events, family days; `is_family()`, `is_parent()`; row-level security and grants. |
 | `20261031230100_kitchen` | Recipes, Laurie's plate kept apart, ratings, the fridge; `my_member_id()`. Named a minute after the foundations so it runs after them. |
+| `20261031230200_event_places` | Events get a place (name, coordinates, both or neither), an outdoors switch and who made them. |

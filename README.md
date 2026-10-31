@@ -79,6 +79,9 @@ where it appears and listed here:
   Service's (public domain). Both are asked for by the browser with the
   town's coordinates only. The weather pictures are drawn on the 24-unit
   grid.
+- **Sightings:** an outdoor event shows what iNaturalist's observers have
+  recorded nearby (https://www.inaturalist.org), each photo with its own
+  observer's credit and licence as iNaturalist gives it, and a link back.
 - **Prayers:** the traditional English forms, which belong to everyone; the
   saints' one-line stories are our own.
 - **Calendar pictures:** small line icons drawn on the same 24-unit grid;
