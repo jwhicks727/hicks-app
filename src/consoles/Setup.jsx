@@ -12,9 +12,12 @@ import { useSources, todayAtHome } from '../lib/useSources.js'
 import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
 import { REGISTRY } from '../registry.js'
 import { Card } from '../ui/Card.jsx'
+import { Confirm } from '../ui/Confirm.jsx'
 
 const KIND_NAME = Object.fromEntries(SOURCE_KINDS.map(([k, n]) => [k, n]))
 const FEEDS = ['ical', 'google_calendar'] // read by the read-sources function; the rest wait for document reading
+// When a source was added, to tell two of the same name apart
+const addedOn = (iso) => new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
 const EMPTY = { title: '', url: '', kind: '', covers_until: '', remind_days: 30, notes: '', for_whom: '' }
 
 function SourceForm({ initial, members, draftKey, onSaved, onCancel }) {
@@ -68,6 +71,26 @@ export default function Setup() {
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(() => hasDraft('source.new'))
   const [reading, setReading] = useState({})
+  const [removing, setRemoving] = useState(null) // { s, count }: asked, not yet done
+  const [removeNote, setRemoveNote] = useState(null)
+  // Remove a calendar: its dates first (they would otherwise stay on the calendar with no source), then the source
+  async function askRemove(s) {
+    setRemoveNote(null)
+    const { count, error } = await supabase.from('calendar_events').select('id', { count: 'exact', head: true }).eq('source_id', s.id)
+    if (error) { setRemoveNote(error.message); return }
+    setRemoving({ s, count: count || 0 })
+  }
+  async function remove() {
+    const { s } = removing
+    setRemoving(null)
+    const sorry = (m) => (/permission|policy|denied/i.test(m) ? 'Only Jason or Laurie can remove a calendar.' : m)
+    const { error: e1 } = await supabase.from('calendar_events').delete().eq('source_id', s.id)
+    if (e1) { setRemoveNote(sorry(e1.message)); return }
+    const { error: e2 } = await supabase.from('sources').delete().eq('id', s.id)
+    if (e2) { setRemoveNote(sorry(e2.message)); return }
+    setRemoveNote(`Removed “${s.title}”.`)
+    reload()
+  }
   async function readNow(s) {
     setReading((r) => ({ ...r, [s.id]: 'Reading…' }))
     const { data, error } = await supabase.functions.invoke('read-sources', { body: { source_id: s.id } })
@@ -114,7 +137,7 @@ export default function Setup() {
                   <>
                     <div className="source-t">
                       <b>{s.title}</b>
-                      <span>{KIND_NAME[s.kind] || s.kind}{s.for_whom && family.members.find((m) => m.id === s.for_whom) ? ` · ${family.members.find((m) => m.id === s.for_whom).name}’s` : ''}{s.covers_until ? ` · good until ${s.covers_until}` : ''}{s.last_checked_at ? ` · checked ${s.last_checked_at.slice(0, 10)}` : ' · not read yet'}</span>
+                      <span>{KIND_NAME[s.kind] || s.kind}{s.for_whom && family.members.find((m) => m.id === s.for_whom) ? ` · ${family.members.find((m) => m.id === s.for_whom).name}’s` : ''}{s.covers_until ? ` · good until ${s.covers_until}` : ''}{s.last_checked_at ? ` · checked ${s.last_checked_at.slice(0, 10)}` : ' · not read yet'}{s.created_at ? ` · added ${addedOn(s.created_at)}` : ''}</span>
                       {s.last_status && <span>{s.last_status}</span>}
                       {s.url && (/^(https?|webcal):\/\//i.test(s.url) ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="source-link">{s.url}</a> : <span className="source-link">{s.url}</span>)}
                     </div>
@@ -124,6 +147,7 @@ export default function Setup() {
                         ? <button type="button" className="btn ghost" disabled={reading[s.id] === 'Reading…'} onClick={() => readNow(s)}>Read now</button>
                         : <button type="button" className="btn ghost" onClick={async () => { await supabase.from('sources').update({ last_checked_at: new Date().toISOString(), last_status: 'Checked by hand' }).eq('id', s.id); reload() }}>Mark checked</button>}
                       <button type="button" className="btn ghost" onClick={() => setEditing(s.id)}>Edit</button>
+                      <button type="button" className="btn ghost" onClick={() => askRemove(s)}>Remove</button>
                     </div>
                     {reading[s.id] && <p className="muted" role="status">{reading[s.id]}</p>}
                   </>
@@ -132,6 +156,12 @@ export default function Setup() {
             )
           })}
         </ul>
+        {removeNote && <p className="muted" role="status">{removeNote}</p>}
+        {removing && (
+          <Confirm title={`Remove “${removing.s.title}”?`} yes="Remove it" danger onYes={remove} onNo={() => setRemoving(null)}>
+            <p>{removing.count ? `Its ${removing.count} date${removing.count === 1 ? '' : 's'} leave the calendar too, including anything the family changed on them.` : 'It has no dates on the calendar.'} This can’t be undone, but the calendar can be added again.</p>
+          </Confirm>
+        )}
         {rows && rows.length === 0 && !adding && <p className="muted">Nothing yet. Start with the school calendars: Kordyak (Rialto Unified), Wayne Ruble (Fontana Unified) and SOAR.</p>}
         {adding ? <SourceForm members={family.members} draftKey="source.new" onSaved={() => { setAdding(false); reload() }} onCancel={() => setAdding(false)} /> : <button type="button" className="btn" onClick={() => setAdding(true)}>Add a source</button>}
         <p className="muted">Calendar feeds (iCal, webcal, a Google Calendar’s iCal address) are read every night once the reader is set up, and “Read now” reads one at once. A screenshot, photo or PDF of a calendar goes in below, its dates read by Claude for you to choose from.</p>

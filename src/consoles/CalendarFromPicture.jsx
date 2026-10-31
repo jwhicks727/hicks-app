@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { Card } from '../ui/Card.jsx'
 import Dropzone from '../ui/Dropzone.jsx'
@@ -17,6 +17,7 @@ const KIND = { no_school: 'No school', school: 'School', event: 'Event', other: 
 export default function CalendarFromPicture({ members, onAdded }) {
   const [d, setD, clear] = useDraft('calendar.picture', { events: null, picked: [], title: '', hint: '', for_whom: '' })
   const [busy, setBusy] = useState(null), [preview, setPreview] = useState(null)
+  const adding = useRef(false) // a second tap while the first is still saving does nothing
   async function read(files) {
     const f = files[0]
     setBusy('Reading the dates…')
@@ -30,13 +31,16 @@ export default function CalendarFromPicture({ members, onAdded }) {
   }
   async function add() {
     const keep = d.events.filter((_, i) => d.picked.includes(i))
-    if (!keep.length) return
+    if (!keep.length || adding.current) return
+    adding.current = true
     setBusy('Adding…')
     const last = keep.reduce((m, e) => (e.ends_on > m ? e.ends_on : m), keep[0].ends_on)
     const { data: src, error } = await supabase.from('sources').insert({ title: d.title.slice(0, 200) || 'A calendar from a picture', kind: 'image', purpose: 'calendar', for_whom: d.for_whom || null, covers_until: last, last_checked_at: new Date().toISOString(), last_status: `Read from a picture: ${keep.length} dates added` }).select('id').single()
-    if (error) { setBusy(error.message); return }
+    if (error) { adding.current = false; setBusy(error.message); return }
     const { error: e2 } = await supabase.from('calendar_events').upsert(eventRows(keep, { sourceId: src.id, forWhom: d.for_whom }), { onConflict: 'source_id,external_id' })
-    if (e2) { setBusy(e2.message); return }
+    if (e2) { adding.current = false; setBusy(e2.message); return }
+    // Done: the card goes back to asking for a picture, and says what was added
+    adding.current = false
     clear(); setPreview(null); setBusy(`Added ${keep.length} to the calendar.`); onAdded && onAdded()
   }
   const toggle = (i) => setD({ ...d, picked: d.picked.includes(i) ? d.picked.filter((x) => x !== i) : [...d.picked, i] })

@@ -25,6 +25,9 @@ Built in this order, each part in daily use before the next.
       colours. Settings can try another season's show.
 - [ ] A show for every season, as she paints them: Christmas, Advent,
       Lent, Easter, spring, summer, July 4th.
+- [x] Admin can remove a calendar (its dates go with it, after a question), and
+      each calendar says when it was added, so a duplicate can be told from the
+      original.
 - [x] Settings can play Home's opening (the crow and the leaves) again, and
       shows which build a device is running.
 - [x] Laurie's gallery (Life List) and the Paintings panel on Home; her
