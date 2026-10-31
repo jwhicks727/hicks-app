@@ -54,3 +54,5 @@ where it appears and listed here:
 - **Food pictures** (from the next phase): the Food Icon Pack by Michael
   Bollin, https://foodiconpack.com, CC BY 4.0, coloured in.
 - **Sun and moon:** worked out on the device with SunCalc (BSD licence).
+- **Icons:** Home's sprout is Lucide's (https://lucide.dev, ISC licence); the
+  other tab icons are drawn on the same 24-unit grid.

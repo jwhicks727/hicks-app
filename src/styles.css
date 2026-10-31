@@ -87,7 +87,7 @@ button { font: inherit; }
 .tab[aria-current="page"] { color: var(--tc, var(--ink)); background: color-mix(in srgb, var(--tw) 16%, var(--card)); font-weight: 800; }
 .tab[aria-current="page"]::before { content: ""; position: absolute; bottom: 3px; left: 38%; right: 38%; height: 3px; border-radius: 2px; background: var(--tb, var(--tw)); }
 .tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-.t-home { --tw: #E9A962; --tb: linear-gradient(90deg, #E9A962, #D6664D); }
+.t-home { --tw: #8CC67A; --tc: #3F6B2E; --tb: linear-gradient(90deg, #B5D99A, #5F8A4A); }
 .t-world { --tw: #8ABDE3; --tb: linear-gradient(90deg, #8ABDE3, #3BA3A8); }
 .t-calendar { --tw: #3E7A4C; --tc: var(--chapel); }
 .t-kitchen { --tw: #F03E2F; --tc: var(--kitchen); }

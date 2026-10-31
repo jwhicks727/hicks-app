@@ -34,6 +34,8 @@ new entry; the old one stays. The working rules for every project are in
   allow it, each recorded.
 - **The app is called Team Hicks,** as the family calls itself: the name,
   the header and the wall's greeting.
+- **Two personal icons:** Home is a sprout (things growing at home), and
+  the Calendar icon carries a small cross, since the Church year lives in it.
 - **Laurie's hawk is a Cooper's Hawk** (Jason confirmed).
 - The meal-planning handoff isn't in the repository yet: it holds Laurie's
   health information, so it is split first (rules, format and data model in
