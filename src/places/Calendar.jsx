@@ -70,7 +70,7 @@ function Views({ rest, today, session, family }) {
       {view === 'month' && (
         <Coming tint="#3E7A4C" glyph="calendar" className="span-6" title="Still coming to the calendar" items={[
           'Our Google calendars, synced both ways',
-          'The school calendars read from Setup: Kordyak, Wayne Ruble and SOAR side by side in the year view',
+          'The school calendars read from Admin: Kordyak, Wayne Ruble and SOAR side by side in the year view',
           'Laurie’s lectoring from her monthly email, and Anna’s altar serving and ministry',
           'Catholic and saint line art for the feasts, and art for the seasons and holidays',
           'Concerts as special events, with their ticket and scrapbook',

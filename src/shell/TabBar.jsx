@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from './Link.jsx'
 import { APP_PLACES } from '../lib/router.js'
 import IconTile from '../ui/IconTile.jsx'
-import { APPS } from '../ui/apps.jsx'
+import { APPS, TOOLS } from '../ui/apps.jsx'
 import AppsSheet from './AppsSheet.jsx'
 
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
@@ -48,12 +48,10 @@ export default function TabBar({ current }) {
         </button>
         <span className="rail-apps">
           <span className="rail-apps-h">Apps</span>
-          {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={22} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
+          {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={30} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
         </span>
         <span className="rail-more">
-          <Link to="/settings" aria-current={current === 'settings' ? 'page' : undefined}>Settings</Link>
-          <Link to="/setup" aria-current={current === 'setup' ? 'page' : undefined}>Setup</Link>
-          <Link to="/reports" aria-current={current === 'reports' ? 'page' : undefined}>Reports</Link>
+          {TOOLS.map((t) => <Link key={t.key} to={t.to} aria-current={current === t.key ? 'page' : undefined}><IconTile colours={t.colours} size={28} flat><svg viewBox="0 0 24 24">{t.icon}</svg></IconTile>{t.name}</Link>)}
         </span>
       </nav>
       {open && <AppsSheet onClose={() => setOpen(false)} />}

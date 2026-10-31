@@ -72,7 +72,7 @@ export function GlowWrap({ occasion, day, className = '', replayAt = 'bottom', c
           {occasion.extra && <Particles kind={occasion.extra} />}
         </div>
       )}
-      <button type="button" className={'glow-replay at-' + replayAt} onClick={play} aria-label={`${occasion.name}: play the light again`}><span className="occasion-dot" /></button>
+      <button type="button" className={'glow-replay at-' + replayAt} onClick={play} aria-label={`${occasion.name}: play the light again`} title="Play the light again"><span className="occasion-dot" /><svg className="glow-replay-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12a7 7 0 1 0 2.1-5" /><path d="M5 4.5V8h3.5" /></svg></button>
     </div>
   )
 }

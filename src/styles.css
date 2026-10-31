@@ -124,7 +124,7 @@ button { font: inherit; }
   .t-apps { display: none; }
   .rail-apps { display: grid; gap: 1px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
   .rail-apps-h { padding: 4px 12px 6px; font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .rail-apps a { display: flex; align-items: center; gap: 12px; padding: 6px 10px; font-size: 15px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
+  .rail-apps a { display: flex; align-items: center; gap: 12px; padding: 5px 10px; font-size: 15px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
   .rail-apps a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, #C0824F 14%, var(--card)); }
   .screen { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; align-items: start; }
   .screen > * { grid-column: span 6; }
@@ -196,7 +196,7 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .rail-more { display: none; }
 @media (min-width: 960px) {
   .rail-more { display: grid; gap: 2px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
-  .rail-more a { padding: 8px 12px; font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
+  .rail-more a { display: flex; align-items: center; gap: 12px; padding: 5px 11px; font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
   .rail-more a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, var(--card)); }
 }
 @media (prefers-reduced-motion: reduce) { .shine::before { animation: none; } }
@@ -315,3 +315,68 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .apps-tile b { font-size: 15px; line-height: 1.2; }
 .apps-tile span { font-size: 12px; color: var(--muted); line-height: 1.25; }
 html[data-motion="less"] .apps-tile { transition: none; }
+/* The tools at the sheet's foot: Settings, Admin, Reports */
+.apps-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line); }
+.apps-tools a { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 8px; border-radius: var(--r-control); text-decoration: none; color: var(--ink); }
+.apps-tools a:hover, .apps-tools a:focus-visible { background: color-mix(in srgb, var(--ink) 5%, var(--card)); }
+.apps-tools b { font-size: 14px; min-width: 0; }
+@media (max-width: 360px) { .apps-tools a { flex-direction: column; gap: 4px; } }
+/* The light-or-dark switch on Home */
+.theme-btn svg { transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
+.theme-btn:active svg { transform: rotate(-30deg) scale(.9); }
+html[data-motion="less"] .theme-btn svg { transition: none; }
+
+/* Admin: the parish's week as read from its website */
+.parish-week { display: grid; gap: 0; margin: 0; }
+.parish-week > div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
+.parish-week dt { font-weight: 800; }
+.parish-week dd { margin: 0; color: var(--ink); }
+.parish-week .conf { color: var(--muted); }
+.daily-tag { margin-left: 8px; padding: 1px 7px; border-radius: var(--r-control); font-style: normal; font-size: 12px; font-weight: 800; white-space: nowrap; background: color-mix(in srgb, #B8322A 14%, var(--card)); color: var(--ink); }
+@media (max-width: 420px) { .parish-week > div { grid-template-columns: 1fr; gap: 2px; } }
+
+/* The schools beside home, on the weather card */
+.wx-schools { display: grid; gap: 6px; }
+.wx-schools-h { font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.wx-schools ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.wx-school { display: grid; gap: 1px; height: 100%; padding: 8px 9px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 9%, var(--card)); color: var(--ink); text-decoration: none; }
+.wx-school:hover, .wx-school:focus-visible { background: color-mix(in srgb, var(--tint) 16%, var(--card)); }
+.ws-name { display: grid; } .ws-name b { font-size: 14px; line-height: 1.2; } .ws-name small { color: var(--muted); font-size: 11px; }
+.ws-temp { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.1; }
+.ws-vs { font-size: 12px; font-weight: 700; line-height: 1.25; }
+.ws-when { font-size: 11px; color: var(--muted); line-height: 1.25; }
+.wx-schools-note { margin: 0; }
+@media (max-width: 360px) { .wx-schools ul { grid-template-columns: 1fr; } }
+
+/* A school's own station */
+.st-now { display: flex; align-items: center; gap: 12px; }
+.st-temp { font-family: var(--font-display); font-weight: 400; font-size: 44px; line-height: 1; }
+.st-now > span { display: grid; font-weight: 700; } .st-now small { color: var(--muted); font-weight: 600; }
+.st-chart { margin: 0; display: grid; gap: 4px; }
+.st-chart svg { display: block; height: auto; }
+.st-grid { stroke: var(--line); stroke-width: 1; }
+.st-axis { font: 700 9px var(--font-ui); fill: var(--muted); }
+.st-school { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.st-home { fill: none; stroke: color-mix(in srgb, var(--ink) 45%, transparent); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.st-chart figcaption { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.st-chart figcaption i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+.st-chart .st-home-key { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink) 45%, transparent) 0 4px, transparent 4px 7px); margin-left: 8px; }
+.st-place { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.st-place-h, .st-place > small { grid-column: 1 / -1; }
+
+/* Birds around us */
+.bd-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.bd-bird { display: grid; gap: 3px; width: 100%; height: 100%; padding: 0 0 8px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--card); color: var(--ink); font: inherit; text-align: left; cursor: pointer; overflow: hidden; }
+.bd-bird img, .bd-nophoto { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: color-mix(in srgb, #2E7F86 14%, var(--card)); }
+.bd-nophoto { display: grid; place-items: center; }
+.bd-nophoto svg { width: 46%; height: 46%; fill: none; stroke: color-mix(in srgb, #2E7F86 70%, var(--card)); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.bd-bird b { padding: 0 8px; font-size: 13px; line-height: 1.2; }
+.bd-bird small { padding: 0 8px; font-size: 11px; color: var(--muted); }
+.bd-bird.notable { border-color: #3E8A4A; box-shadow: 0 0 0 2px color-mix(in srgb, #3E8A4A 45%, transparent); }
+.bd-bird.notable small { color: #3E8A4A; font-weight: 800; }
+:root[data-theme="dark"] .bd-bird.notable small { color: #8CC67A; }
+.bd-bird:hover, .bd-bird:focus-visible { transform: translateY(-1px); }
+.bd-photo { margin: 0 0 8px; } .bd-photo img { width: 100%; max-height: 50vh; object-fit: cover; border-radius: var(--r-card); }
+.bd-photo figcaption { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.bd-sci { font-style: italic; color: var(--muted); margin: 0; }
+html[data-motion="less"] .bd-bird:hover { transform: none; }

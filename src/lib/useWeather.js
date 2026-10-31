@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { forecastUrl, alertsUrl, shapeForecast, shapeAlerts, placeNowUrl, shapePlaceNow } from './weather.js'
+import { forecastUrl, alertsUrl, shapeForecast, shapeAlerts, placeNowUrl, shapePlaceNow, placesNowUrl, shapePlacesNow } from './weather.js'
 import { HOME_TOWN } from './sky.js'
 
 const KEEP_MS = 15 * 60 * 1000 // the forecast changes hourly; asking every quarter hour is plenty
@@ -57,5 +57,43 @@ export function usePlaceWeather(place) {
     run()
     return () => { live = false }
   }, [slug]) // eslint-disable-line react-hooks/exhaustive-deps
+  return state
+}
+
+/**
+ * Right now at many places, in one request: { [slug]: weather }, kept for a
+ * quarter hour. Places at the same point (home and a school in one town) are
+ * asked once.
+ */
+export function usePlacesWeather(places) {
+  const [state, setState] = useState({})
+  const ids = places.map((p) => p.slug).sort().join(',')
+  useEffect(() => {
+    if (!places.length) return undefined
+    let live = true
+    const key = KEY + '.many.' + ids
+    const points = []
+    const at = {}
+    for (const p of places) { const k = p.lat.toFixed(3) + ',' + p.lng.toFixed(3); if (!(k in at)) { at[k] = points.length; points.push({ slug: k, lat: p.lat, lng: p.lng }) } }
+    const run = async () => {
+      try {
+        let kept = null
+        try { kept = JSON.parse(sessionStorage.getItem(key)) } catch { /* nothing kept */ }
+        if (!kept || Date.now() - kept.at > KEEP_MS) {
+          const r = await fetch(placesNowUrl(points))
+          if (!r.ok) throw new Error(String(r.status))
+          kept = { at: Date.now(), json: await r.json() }
+          try { sessionStorage.setItem(key, JSON.stringify(kept)) } catch { /* fine */ }
+        }
+        const byPoint = shapePlacesNow(kept.json, points)
+        const out = {}
+        for (const p of places) { const w = byPoint[p.lat.toFixed(3) + ',' + p.lng.toFixed(3)]; if (w) out[p.slug] = w }
+        if (live) setState(out)
+      } catch { if (live) setState({}) }
+    }
+    run()
+    const t = setInterval(run, KEEP_MS)
+    return () => { live = false; clearInterval(t) }
+  }, [ids]) // eslint-disable-line react-hooks/exhaustive-deps
   return state
 }

@@ -41,7 +41,7 @@ function DayForm({ initial, members, draftKey, onSaved, onCancel }) {
   )
 }
 
-/** Setup: the family's own days. Kept only in the database; parents keep them. */
+/** Admin: the family's own days. Kept only in the database; parents keep them. */
 export default function FamilyDays({ family, today, reload }) {
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(() => hasDraft('family-day.new'))

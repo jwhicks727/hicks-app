@@ -1,5 +1,5 @@
 // The three school calendars the year view lays side by side. Each is read
-// from a calendar source in Setup whose "for" is the person it belongs to.
+// from a calendar source in Admin whose "for" is the person it belongs to.
 export const SCHOOLS = [
   { key: 'kordyak', name: 'Kordyak', district: 'Rialto Unified', person: 'Laurie', role: 'teacher', colour: '#E0662F' },
   { key: 'ruble', name: 'Wayne Ruble', district: 'Fontana Unified', person: 'Anna', role: 'student', colour: '#4A7FD6' },
@@ -25,7 +25,7 @@ export function noSchoolDays(events, sources, members) {
 }
 const next = (d) => new Date(Date.parse(d + 'T12:00:00Z') + 864e5).toISOString().slice(0, 10)
 
-/** Which schools have a calendar in Setup at all. */
+/** Which schools have a calendar in Admin at all. */
 export function schoolsWithCalendars(sources, members) {
   return SCHOOLS.filter((s) => sources.some((src) => members.find((m) => m.id === src.for_whom && (m.name || '').toLowerCase() === s.person.toLowerCase())))
 }

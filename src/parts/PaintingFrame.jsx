@@ -12,7 +12,8 @@ import './paintings.css'
 // the screen, loop, and come home to its place, small and far off at first
 // and growing as it nears. With `auto` it does that once
 // a day when the frame is first well in view; the small bird button sends it
-// again. At rest the painting is always her painting, whole and unaltered:
+// again, and so does a "hicks:fly" event naming its painting (the Home
+// card's Play again, which also drops the season's leaves). At rest the painting is always her painting, whole and unaltered:
 // while the bird is away, a patch of her own sky covers its place; when it
 // lands, the patch fades and the cut-out lifts away, leaving the painting.
 
@@ -59,6 +60,15 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
     if (reducedMotion()) { setBlink(true); setTimeout(() => setBlink(false), 1200); return }
     setHome(false); setFlying(true)
   }
+  const flyRef = useRef(fly)
+  flyRef.current = fly
+  // Again, on request from outside the frame
+  useEffect(() => {
+    if (!flyer) return undefined
+    const on = (e) => { if (!e.detail || e.detail.slug === p.slug) flyRef.current() }
+    window.addEventListener('hicks:fly', on)
+    return () => window.removeEventListener('hicks:fly', on)
+  }, [flyer, p.slug])
   const landed = () => {
     markPlayed(p.slug, day)
     setHome(true)

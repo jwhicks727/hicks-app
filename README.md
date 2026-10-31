@@ -65,7 +65,7 @@ Setting it all up, in order: `docs/MORNING.md`.
 - `src/places/` — one file per place, and the screens under each.
 - `src/parts/` — pieces shared between places (the sky today, ...).
 - `src/shell/` — the sky behind everything, the tab bar, links and Back.
-- `src/consoles/` — Settings, Setup and Reports, built from `src/registry.js`.
+- `src/consoles/` — Settings, Admin and Reports, built from `src/registry.js` (reached from the foot of the Apps sheet, or the computer's rail).
 - `src/calendar/` — the calendar's day, week, month and year views.
 - `src/places/world/` — the map of our places and each place's page;
   the places themselves are `src/lib/places.js`, their skylines' shapes
@@ -134,6 +134,21 @@ and added: `docs/ART-CAPTURE.md`.
   `scripts/make-map.mjs`. The mountains and lakes near home are rough
   outlines drawn for the app. The places' skylines are generic silhouettes
   drawn in code (`src/lib/scenes.js`), no one's artwork or logo.
+- **Freeways round home:** Natural Earth's roads (public domain), read
+  by `scripts/make-freeways.mjs` into `src/lib/freeways.js`, renumbered
+  where Natural Earth numbers them wrongly here; the 210 through Fontana,
+  which it lacks, is traced by hand through its interchanges.
+- **Mass times:** read from Sacred Heart's own website
+  (https://www.sacredheartrc.org/) by the `parish` function, once a day;
+  until it has been read, the Diocese of San Bernardino's listing, marked
+  unchecked.
+- **The schools' stations:** readings through Synoptic Data's Open Access
+  tier (https://synopticdata.com, free for non-commercial use, credited
+  where shown); the stations belong to the networks that run them.
+- **Birds around us:** sightings from eBird (https://ebird.org), the Cornell
+  Lab of Ornithology, asked about the town's centre; each photo is from
+  iNaturalist (https://www.inaturalist.org), only one with a Creative
+  Commons licence, shown with its photographer's credit.
 - **Jam history:** shows taped on this day, from Relisten
   (https://relisten.net), which streams the Internet Archive's Live Music
   Archive, from bands that allow taping. Read by the browser with only the

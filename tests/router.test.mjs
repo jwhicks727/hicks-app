@@ -7,7 +7,8 @@ test('every screen has an address', () => {
   assert.deepEqual(parsePath('/world/school/soar'), { place: 'world', rest: ['school', 'soar'] })
   assert.deepEqual(parsePath('/lifelist'), { place: 'lifelist', rest: [] })
   assert.deepEqual(parsePath('/jams'), { place: 'jams', rest: [] })
-  assert.deepEqual(parsePath('/setup'), { place: 'setup', rest: [] })
+  assert.deepEqual(parsePath('/admin'), { place: 'admin', rest: [] })
+  assert.deepEqual(parsePath('/setup'), { place: 'admin', rest: [] }) // Setup became Admin; old links still land
 })
 
 test('an address that names nothing opens Home', () => {

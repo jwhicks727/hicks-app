@@ -8,6 +8,7 @@ import { PLACES, placeBySlug, mapsLinks, distanceWords, aheadWords, milesBetween
 import { HOME_TOWN } from '../../lib/sky.js'
 import WeatherIcon from '../../parts/WeatherIcon.jsx'
 import Scene, { placeSky } from './Scene.jsx'
+import StationCard from '../../parts/StationCard.jsx'
 
 // /world/place/<slug>: one of our places in its own sky right now, how far it
 // is and what time it is there, and the way to it in this phone's maps app.
@@ -68,6 +69,7 @@ export default function PlacePage({ slug }) {
           </div>
         )}
       </Card>
+      {['kordyak', 'ruble', 'soar'].includes(place.slug) && <StationCard place={place} />}
       {place.home ? <FromHome now={now} /> : (
         <Card className="span-3" tint={place.colour} label="Our other places" glyph="star">
           <nav className="place-step" aria-label="Our other places">

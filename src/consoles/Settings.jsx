@@ -112,7 +112,7 @@ export default function Settings() {
 
       <Card tint="#8A5BC4" label="More" glyph="calendar" className="span-6">
         <nav className="console-links">
-          <Link to="/setup"><b>Setup</b><span>Every outside source the app reads, pasted in once and kept fresh</span></Link>
+          <Link to="/admin"><b>Admin</b><span>Every outside source the app reads, pasted in once and kept fresh</span></Link>
           <Link to="/reports"><b>Reports</b><span>What’s in the app, at a glance</span></Link>
         </nav>
       </Card>

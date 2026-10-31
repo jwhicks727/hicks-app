@@ -118,3 +118,26 @@ test('the outlines are there, and a scene’s shapes are the same every time', (
   assert.match(snowCaps(pts, 70), /^M.*Z$/)
   assert.equal(snowCaps(pts, 0), '')
 })
+
+test('labels sit beside their own pins, inside the frame, never on each other', async () => {
+  const { calloutLabels } = await import('../src/lib/places.js')
+  const items = [
+    { id: 'a', x: 100, y: 100, w: 90, h: 40 }, { id: 'b', x: 112, y: 104, w: 110, h: 40 }, { id: 'c', x: 340, y: 20, w: 100, h: 40 },
+    { id: 'd', x: 5, y: 300, w: 80, h: 40 }, { id: 'e', x: 200, y: 200, w: 90, h: 40 },
+  ]
+  const W = 360, H = 360, out = calloutLabels(items, { W, H })
+  const box = (id) => { const i = items.find((x) => x.id === id), o = out[id]; return [o.left, o.top, o.left + i.w, o.top + i.h] }
+  for (const i of items) {
+    const [l, t, r, b] = box(i.id)
+    assert.ok(l >= 6 && t >= 6 && r <= W - 6 && b <= H - 6, `${i.id} inside the frame`)
+    // close to its pin: within 100px of it, not at an edge band
+    const dx = Math.max(l - i.x, 0, i.x - r), dy = Math.max(t - i.y, 0, i.y - b)
+    assert.ok(Math.hypot(dx, dy) < 100, `${i.id} near its pin`)
+  }
+  for (const p of items) for (const q of items) {
+    if (p.id >= q.id) continue
+    const [a, b, c, d] = box(p.id), [e, f, g, h] = box(q.id)
+    assert.ok(!(a < g && e < c && b < h && f < d), `${p.id} and ${q.id} overlap`)
+  }
+  assert.equal(out.e.far, false) // a pin alone gets its label right beside it
+})

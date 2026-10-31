@@ -1,17 +1,17 @@
 // ============================================
-// registry.js -- what each place adds to Setup, Settings and Reports
+// registry.js -- what each place adds to Admin, Settings and Reports
 // ============================================
-// Add a place, a setup section or a report here and it appears in Setup and
+// Add a place, a setup section or a report here and it appears in Admin and
 // Reports by itself, as SOAR's module registry does. tests/registry.test.mjs
 // keeps this list and the router in step.
 
 export const REGISTRY = [
   { key: 'home', name: 'Home', colour: '#5F8A4A', setup: [], reports: [] },
   { key: 'world', name: 'World', colour: '#3BA3A8',
-    setup: [{ key: 'stations', title: 'Weather stations', ready: false }, { key: 'places', title: 'Places we love', ready: false }],
+    setup: [{ key: 'stations', title: 'Weather stations', ready: true }, { key: 'places', title: 'Places we love', ready: false }],
     reports: [] },
   { key: 'calendar', name: 'Calendar', colour: '#3E7A4C',
-    setup: [{ key: 'sources', title: 'Calendar sources', ready: true }, { key: 'family-days', title: 'Family days', ready: true }],
+    setup: [{ key: 'sources', title: 'Calendar sources', ready: true }, { key: 'family-days', title: 'Family days', ready: true }, { key: 'mass-times', title: 'Mass times from the parish', ready: true }],
     reports: [{ key: 'sources', title: 'Calendar sources', blurb: 'Every source, what it covers, and which need rolling over', ready: true },
       { key: 'family-days', title: 'Family days', blurb: 'The days we keep, and what’s coming next', ready: true }] },
   { key: 'kitchen', name: 'Kitchen', colour: '#F03E2F',

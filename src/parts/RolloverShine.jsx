@@ -12,7 +12,7 @@ export default function RolloverShine() {
   const due = rows.filter((s) => ['stale', 'soon'].includes(staleness(s, today).state))
   if (!due.length) return null
   return (
-    <Link to="/setup" className="shine span-6">
+    <Link to="/admin" className="shine span-6">
       <span>{due.length === 1 ? `${due[0].title} needs next year’s` : 'Calendars need rolling over'}</span>
       <span className="n">{due.length}</span>
     </Link>

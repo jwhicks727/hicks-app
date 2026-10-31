@@ -26,7 +26,7 @@ insert into public.family_members (name, email, role, colour) values
 ```
 
 Then the family days. They live in the database, not in code: add them in
-the app (Setup → Family days, once a parent has signed in), or all at once
+the app (Admin → Family days, once a parent has signed in), or all at once
 here. The years are counted for you ("Turning 12", "25th anniversary:
 silver"); `note` is the line under a day with no year to count.
 
@@ -45,14 +45,14 @@ from (values
 left join public.family_members m on m.name = v.who;
 ```
 
-Each calendar source in Setup has a "Whose is it": mark Kordyak's calendar
+Each calendar source in Admin has a "Whose is it": mark Kordyak's calendar
 as Laurie's, Wayne Ruble's as Anna's and SOAR's as Jason's, and the year
 view lines up their days off.
 
 ## Reading calendar feeds
 
 The `read-sources` Edge Function (`supabase/functions/read-sources/`) reads
-every calendar source in Setup that is a feed (iCal, webcal, or a Google
+every calendar source in Admin that is a feed (iCal, webcal, or a Google
 Calendar's iCal address) into `calendar_events`, nightly and when a parent
 presses "Read now". Each reading is kept in `source_versions`; a feed that
 hasn't changed writes nothing; an upcoming event that leaves the feed is
@@ -110,6 +110,45 @@ reader:
 ```sh
 npx supabase functions deploy readings --no-verify-jwt --project-ref <project-ref>
 ```
+
+## Mass times, the stations and the birds
+
+Three Edge Functions read the outside world for the family, each answering
+only a signed-in family member and keeping what it read where the family
+can read it but not change it. They use the service role key Supabase gives
+every function; nothing to set for that.
+
+- **`parish`** reads Sacred Heart's website (the home page, then up to
+  three of its own Mass-times pages) at most once a day, or once in ten
+  minutes when a parent taps Admin › Mass times › Read it again. Its
+  reading (`supabase/functions/_shared/parish.js`) takes the lines under
+  a Mass-times heading, each day or range of days and its times; every
+  weekday Mass is a Daily Mass. A week that differs from the last is a new
+  row of `parish_schedules`, so every version is kept; one that doesn't
+  look like a parish's week (no Sunday Mass, too few weekdays) is never
+  kept. Unverified against the live site until it first runs: Admin shows
+  what it read, or that it couldn't.
+- **`stations`** reads the stations in `weather_stations` through Synoptic
+  with `SYNOPTIC_TOKEN`, at most every quarter hour (sooner after a change
+  in Admin), keeping the answer in `outside_cache`. A station quiet for 90
+  minutes hands over to its fallback airport. Home's readings go out
+  without its station's id, name or place.
+- **`birds`** reads eBird with `EBIRD_API_KEY` at most once an hour, about
+  the town's centre (this week, within about ten miles; the notable ones
+  within twenty), and looks up a photo on iNaturalist for the first dozen
+  species, kept only with a Creative Commons licence and its credit. A
+  sighting at a private location keeps its bird and day, not its place.
+
+```sh
+npx supabase functions deploy parish --no-verify-jwt --project-ref <project-ref>
+npx supabase secrets set SYNOPTIC_TOKEN=... --project-ref <project-ref>
+npx supabase functions deploy stations --no-verify-jwt --project-ref <project-ref>
+npx supabase secrets set EBIRD_API_KEY=... --project-ref <project-ref>
+npx supabase functions deploy birds --no-verify-jwt --project-ref <project-ref>
+```
+
+Synoptic and eBird answers are written to their documented formats and
+unverified against the live services until the functions first run.
 
 ## Claude
 
@@ -181,6 +220,9 @@ sign-in link won't come back to the app.
 | `academy_goals` | Her goals: why, a picture, steps, when reached (a trophy) | The family | The family |
 | `academy_grades` | Her grades, entered by hand (QParent later): class, letter or percent, term, date | The family (the three of us) | The family; parents remove |
 | `academy_cheers` | Cheers for Anna, for anything: what for, a note, a picture, who from | The family | The family adds as themselves; parents or the cheerer remove |
+| `parish_schedules` | Sacred Heart's week of Masses and confession as read from its website, a new row whenever it changes; when first seen and last checked | The family | Only the `parish` function |
+| `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
+| `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
 | `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
 
 Migration index:
@@ -195,3 +237,4 @@ Migration index:
 | `20261101060200_paintings` | Laurie's paintings, behind sign-in: the table and the private bucket (family reads, parents add). |
 | `20261101090000_journal` | Each person's journal: entries, notes to your future self, settings. Every policy is the writer's only, with no parent or family override (tests/migrations.test.mjs checks). |
 | `20261101090100_academy` | Anna's academy: settings, rooms, tasks, goals, grades, cheers, the family's own pictures and the private `academy` bucket (family reads; parents add pictures). |
+| `20261101120000_parish_stations_birds` | What the app reads from outside: Sacred Heart's schedules (every version), the station each place reads (the schools' seeded, home's set in Admin), and the last answer from Synoptic and eBird. The family reads; the functions write; parents choose the stations. |

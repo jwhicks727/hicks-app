@@ -20,7 +20,14 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 /* The panel on Home: the painting clipped to the crow and the witch */
 .paint-card .pf { margin: 0 -16px; aspect-ratio: 5 / 4; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 @media (min-width: 900px) { .paint-card .pf { aspect-ratio: 4 / 3; } }
-.paint-cap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.paint-cap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
+.paint-acts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+/* Play again: the crow flies and the season's leaves fall, once more */
+.paint-play { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px 4px 10px; border: 1px solid color-mix(in srgb, #C0824F 45%, var(--line)); border-radius: var(--r-control); background: color-mix(in srgb, #C0824F 12%, var(--card)); color: var(--ink); font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.paint-play svg { width: 15px; height: 15px; }
+.paint-play:hover, .paint-play:focus-visible { background: color-mix(in srgb, #C0824F 22%, var(--card)); }
+.paint-play:active svg { transform: rotate(-60deg); transition: transform .3s ease; }
+@media (pointer: coarse) { .paint-play { min-height: 44px; } }
 .paint-cap b { font-weight: 800; }
 .paint-cap small { color: var(--muted); font-size: 13px; font-weight: 700; }
 .paint-cap a { font-weight: 800; min-height: 44px; display: inline-flex; align-items: center; }

@@ -6,6 +6,64 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Mass times from the parish's own website
+
+Sacred Heart's times come from sacredheartrc.org, read once a day by the
+`parish` function, so the app has what the parish last posted rather than a
+diocesan listing that may be out of date. The page is read as text: the
+lines under a Mass-times heading, each day or range of days and its times,
+with what each says about itself (Spanish, ASL, the vigil). Every weekday
+Mass, and Saturday morning's, is marked **Daily Mass**; Saturday evening's
+is Sunday's vigil. A week that differs from the last is kept as a new
+version, never written over; a reading that doesn't look like a parish's
+week is never kept, and the app goes on with the last good one, or the
+diocese's listing marked unchecked. The reader was written to the usual
+shape of a parish page without seeing this one (it couldn't be reached from
+where it was written), so Admin › Mass times shows exactly what it read.
+
+## 2026-11-01 — The schools beside home, and the birds round town
+
+The schools' weather comes from the stations Jason chose (Kordyak SE685,
+Wayne Ruble 980SE, SOAR NGC08), through Synoptic's free Open Access tier,
+and home's from the station nearest the house, set in Admin and kept only
+in the database. A station quiet for 90 minutes hands over to an airport
+(Ontario for the Fontana schools, San Bernardino for SOAR), and the screen
+says so rather than showing an old number as new. The `stations` function
+keeps the last answer and asks at most every quarter hour, so a busy day
+can't run through the free tier.
+
+Birds around us is eBird's public sightings within about ten miles of the
+town's centre (never the house), the notable ones a little further out and
+first, in green. Photos are iNaturalist's, only under a Creative Commons
+licence, each with its photographer's credit, in place of the Macaulay
+Library embeds first planned: those need an embed per photo, and
+iNaturalist answers a species name with a licensed photo in one request. A
+sighting at a private location keeps its bird and its day, never its place.
+
+## 2026-11-01 — Labels beside their places, tiles below, freeways round home
+
+The map's names moved from bands at the top and bottom, joined to their
+pins by long lines, to beside their own pins, bigger, each with its weather
+now (and its time, abroad). Each label tries the sides of its pin, close
+first, then a little further out with a short line, so crowded places still
+read. The list below became tiles with what's happening there right now:
+the weather, the day's high and low, the next sunrise or sunset, wind and
+rain when they matter, and how far, or how far ahead. Around home draws the
+freeways, so the map reads like the drive: Natural Earth's roads,
+renumbered where it numbers them wrongly here, and the 210, which it lacks,
+traced by hand. Each freeway's number slides along it to a spot no label
+covers.
+
+## 2026-11-01 — Admin, tools at the foot of Apps, and a light switch on Home
+
+Setup is called Admin, at `/admin` (`/setup` still opens it). Settings,
+Admin and Reports have icons, one quiet slate for all three, at the foot of
+the Apps sheet and of the computer's rail. The button at the top of Home is
+a sun or a moon that switches between light and dark in one tap; Settings
+still offers the device's own. The paintings card has **Play again**: the
+crow flies and the season's leaves fall once more. The glow's small replay
+dot carries a replay arrow, so it says what it does.
+
 ## 2026-11-01 — The wordmark in the icon's font
 
 "Team Hicks" at the top of the rail is set in Agbalumo, the font of the

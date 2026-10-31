@@ -15,6 +15,8 @@
 .itile.flat::after { inset: max(2px, calc(var(--sz) * .07)); border-radius: max(2px, calc(var(--sz) * .06)); box-shadow: none; border: max(1px, calc(var(--sz) * .028)) solid color-mix(in srgb, var(--k1) 72%, transparent); transition: border-color .25s ease; }
 .itile.flat.sm::after { display: none; }
 .itile.flat svg { filter: none; width: 52%; height: 52%; }
+/* Small (the rail, a chip): the line icon takes more of its tile, so it reads at a glance */
+.itile.flat.sm svg { width: 68%; height: 68%; }
 /* Pointed at, focused or pressed: the outline brightens, a ring appears, the glow widens (its parent says: a link, a button, a tile) */
 a:hover > .itile.flat, a:focus-visible > .itile.flat, button:hover > .itile.flat, button:focus-visible > .itile.flat { box-shadow: 0 0 0 2px color-mix(in srgb, var(--k1) 55%, transparent), 0 0 calc(var(--sz) * .5) calc(var(--sz) * -.02) color-mix(in srgb, var(--k2) 80%, transparent); transform: translateY(-1px); }
 a:hover > .itile.flat::after, a:focus-visible > .itile.flat::after { border-color: var(--k1); }

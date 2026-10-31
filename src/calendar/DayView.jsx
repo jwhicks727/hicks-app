@@ -4,7 +4,8 @@ import { calPath, stepDate } from '../lib/cal/paths.js'
 import { dayView } from '../lib/cal/day.js'
 import { liturgicalDay, SEASON_NAMES, COLOUR_NAMES, cycles } from '../lib/cal/liturgy.js'
 import { invitation, PRAYERS } from '../lib/cal/prayers.js'
-import { parishDay, PARISH } from '../lib/cal/sacredHeart.js'
+import { parishDay, PARISH, massWords } from '../lib/cal/sacredHeart.js'
+import { useParish } from '../lib/useParish.js'
 import { spanWords } from '../lib/cal/observances.js'
 import { addDays, parts, dow } from '../lib/cal/dates.js'
 import { HOME_TOWN, moonName } from '../lib/sky.js'
@@ -23,13 +24,15 @@ import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 const hourNow = () => Number(new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' }).format(new Date()))
 const middayOf = (d) => { const [y, m, dd] = parts(d); return new Date(Date.UTC(y, m - 1, dd, 20)) } // noon in winter, 1 PM in summer
+const readDay = (iso) => new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, month: 'short', day: 'numeric' }).format(new Date(iso))
 const sentence = (t) => (/[.!?”]$/.test(t) ? t : t + '.')
 const CONFETTI = ['#F03E2F', '#F2C14E', '#5FA85A', '#4A7FD6', '#8A5BC4', '#F08A3C']
 
 export default function DayView({ date, today, data, signedIn }) {
   const dv = dayView(date, data), lit = dv.lit
   const inv = invitation(date, lit, date === today ? hourNow() : 9)
-  const parish = parishDay(date, lit, liturgicalDay(addDays(date, 1)))
+  const [read] = useParish()
+  const parish = parishDay(date, lit, liturgicalDay(addDays(date, 1)), read && read.schedule)
   const swipe = useSwipe(() => navigate(calPath('day', stepDate('day', date, 1)), { replace: true }), () => navigate(calPath('day', stepDate('day', date, -1)), { replace: true }))
   const celebrate = dv.family.filter((f) => f.kind !== 'remember'), remember = dv.family.filter((f) => f.kind === 'remember')
   const others = dv.observances.filter((o) => o.group !== 'nature' && o.group !== 'wild'), sky = dv.observances.filter((o) => o.group === 'nature')
@@ -84,9 +87,11 @@ export default function DayView({ date, today, data, signedIn }) {
 
       <Card tint="#B8322A" label={`At ${PARISH.name}`} glyph="calendar" tag={PARISH.town} className="parish-card">
         {parish.note && <p className="nudge">{parish.note}</p>}
-        <ul className="times">{parish.mass.map((t) => { const [, at, what] = t.match(/^(\d{1,2}:\d\d [AP]M),?\s*(.*)$/) || [null, t, '']; return <li key={t}><b>{at}</b>{what && <span> {what}</span>}</li> })}</ul>
-        {parish.confession && <p><b>Confession</b> {parish.confession}</p>}
-        <p className="muted small">Mass times from {PARISH.source.replace(/^The /, 'the ')}, not yet checked with the parish.</p>
+        <ul className="times">{parish.mass.map((m) => <li key={m.time} className={m.daily ? 'daily' : m.vigil ? 'vigil' : ''}><b className="nw">{m.time}</b>{massWords(m) && <span> {massWords(m)}</span>}</li>)}</ul>
+        {parish.confession && <p><b>Confession</b> <span className="nw">{parish.confession}</span></p>}
+        <p className="muted small">{parish.fromParish
+          ? <>From <a href={read.url || PARISH.site} target="_blank" rel="noreferrer">the parish’s website</a>, read {readDay(read.checked_at)}.</>
+          : <>Mass times from {PARISH.listing}, not yet checked with <a href={PARISH.site} target="_blank" rel="noreferrer">the parish’s website</a>.</>}</p>
       </Card>
 
       {(others.length > 0 || dv.ongoing.some((o) => o.group !== 'nature' && o.group !== 'wild')) && (

@@ -20,7 +20,7 @@ step says.
 A development copy shows the paintings without signing in. A hosted copy
 never will.
 
-## 1. The database: eight migrations, in order
+## 1. The database: nine migrations, in order
 
 Supabase dashboard › SQL Editor › New query. For each file in
 `supabase/migrations/`, oldest first, paste it in and Run:
@@ -33,6 +33,8 @@ Supabase dashboard › SQL Editor › New query. For each file in
 6. `20261101060200_paintings.sql`
 7. `20261101090000_journal.sql`
 8. `20261101090100_academy.sql`
+9. `20261101120000_parish_stations_birds.sql` (new: if you've run the
+   first eight, run just this one)
 
 Each should say "Success. No rows returned". If one fails, stop and tell
 Claude the message: don't edit a migration that has run.
@@ -163,3 +165,47 @@ With the family using it, each piece of work goes on its own branch with a
 draft pull request. The **Preview** workflow builds it, tests it, and posts
 a preview link on the pull request (it lives 7 days), so you can try it on
 your phone before it's merged. Merging deploys it.
+
+## 10. Mass times, the schools' stations, and the birds
+
+New since the first sitting. Each part works on its own; skip any for now.
+
+1. **The migration.** If you haven't yet, run
+   `20261101120000_parish_stations_birds.sql` (step 1, the ninth).
+2. **Mass times from the parish.** No key needed:
+
+   ```sh
+   npx supabase functions deploy parish --no-verify-jwt --project-ref <project-ref>
+   ```
+
+   Then Apps › Admin › Mass times › "Read it again". It shows the week it
+   read from sacredheartrc.org, each weekday marked Daily Mass. If it says
+   the page didn't read as a week, the app keeps showing the diocese's
+   listing (marked unchecked): tell Claude, with the page's address.
+3. **The schools' own stations.** Make a free account at
+   synopticdata.com (the Open Access tier, for non-commercial use), and in
+   its console make a public token. Then:
+
+   ```sh
+   npx supabase secrets set SYNOPTIC_TOKEN=<paste the token> --project-ref <project-ref>
+   npx supabase functions deploy stations --no-verify-jwt --project-ref <project-ref>
+   ```
+
+   Home's weather card grows "At the schools". If a school shows its
+   airport instead, its own station is quiet or isn't open to the free
+   tier; Admin › Weather stations can change it.
+4. **Home's own station.** Admin › Weather stations › Home: the id of the
+   station nearest the house (find it on mesowest.utah.edu), and an
+   airport for its fallback. It's kept in the database only, and the app
+   never shows it by name.
+5. **Birds around us.** Signed in to eBird, open ebird.org/api/keygen and
+   copy the key. Then:
+
+   ```sh
+   npx supabase secrets set EBIRD_API_KEY=<paste the key> --project-ref <project-ref>
+   npx supabase functions deploy birds --no-verify-jwt --project-ref <project-ref>
+   ```
+
+   Home shows the week's birds round town right after the weather, the
+   notable ones first in green.
+

@@ -139,7 +139,7 @@ licence nobody wrote down.
   button that just opens the parent. Filters, sorts and layouts stay out of
   the address; switching between items on one screen replaces the address
   rather than adding a step.
-- **Settings, Setup and Reports follow the registry** (`src/registry.js`):
+- **Settings, Admin and Reports follow the registry** (`src/registry.js`):
   a place declares its setup sections and reports there and they appear by
   themselves. `tests/registry.test.mjs` keeps it in step with the router. A
   new place, or a new kind of data, adds its setup section and its report.
@@ -237,6 +237,13 @@ licence nobody wrote down.
   goes to an AI service only when the app says so and its owner said yes.
 - Each reading of an outside source is kept as a version: a new version never
   silently deletes the old one's data.
+- An outside service the app shows (the parish's website, our weather
+  stations through Synoptic, eBird) is read only by its Edge Function,
+  which keeps the last answer in the database and asks at most once a day
+  (the parish), every quarter hour (stations) or every hour (birds),
+  however often the app opens; the browser never holds the service's key.
+  A reading that doesn't look right is never kept, and the screen says
+  which source it's showing.
 
 ## How much to check, and when
 

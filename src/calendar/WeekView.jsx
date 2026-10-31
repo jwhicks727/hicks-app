@@ -2,7 +2,8 @@ import { Link } from '../shell/Link.jsx'
 import { navigate } from '../lib/router.js'
 import { calPath, stepDate } from '../lib/cal/paths.js'
 import { dayView } from '../lib/cal/day.js'
-import { parishDay } from '../lib/cal/sacredHeart.js'
+import { parishDay, massWords } from '../lib/cal/sacredHeart.js'
+import { useParish } from '../lib/useParish.js'
 import { liturgicalDay } from '../lib/cal/liturgy.js'
 import { addDays, parts, WEEKDAYS } from '../lib/cal/dates.js'
 import { itemsOf, isCelebration } from './items.js'
@@ -14,13 +15,14 @@ const weekWords = (name) => name.replace(/^[A-Z][a-z]+day of (the )?/, '').repla
 
 export default function WeekView({ date, today, data }) {
   const days = Array.from({ length: 7 }, (_, i) => dayView(addDays(date, i), data))
+  const [read] = useParish()
   const swipe = useSwipe(() => navigate(calPath('week', stepDate('week', date, 1)), { replace: true }), () => navigate(calPath('week', stepDate('week', date, -1)), { replace: true }))
   return (
     <section className="week span-6" aria-label="The week" key={date} {...swipe}>
       {days.map((dv) => {
         const [, , d] = parts(dv.date), wd = WEEKDAYS[new Date(Date.UTC(...parts(dv.date).map((v, i) => (i === 1 ? v - 1 : v)))).getUTCDay()]
         const its = itemsOf(dv, { withChurch: false })
-        const parish = parishDay(dv.date, dv.lit, liturgicalDay(addDays(dv.date, 1)))
+        const parish = parishDay(dv.date, dv.lit, liturgicalDay(addDays(dv.date, 1)), read && read.schedule)
         const fam = dv.family.some((f) => f.kind !== 'remember')
         return (
           <article key={dv.date} className={'dblock' + (dv.date === today ? ' today' : '') + (fam ? ' celebrate-day' : '')} style={{ '--lc': dv.lit.colourHex }}>
@@ -38,7 +40,7 @@ export default function WeekView({ date, today, data }) {
                 ))}
               </ul>
             )}
-            <p className="mass-line"><b>Mass</b> {parish.mass.map((t, i) => { const [, at, what] = t.match(/^(\d{1,2}:\d\d [AP]M),?\s*(.*)$/) || [null, t, '']; return <span key={t}>{i > 0 && ' · '}<span className="nw">{at}</span>{what && ` ${what}`}</span> })}{parish.confession && <> · <b>Confession</b> <span className="nw">{parish.confession}</span></>}</p>
+            <p className="mass-line"><b>{parish.mass.length && parish.mass.every((m) => m.daily) ? 'Daily Mass' : 'Mass'}</b> {parish.mass.map((m, i) => { const what = parish.mass.every((x) => x.daily) ? massWords({ ...m, daily: false }) : massWords(m); return <span key={m.time}>{i > 0 && ' · '}<span className="nw">{m.time}</span>{what && ` ${what}`}</span> })}{parish.confession && <> · <b>Confession</b> <span className="nw">{parish.confession}</span></>}</p>
           </article>
         )
       })}

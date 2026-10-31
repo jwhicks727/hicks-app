@@ -34,7 +34,15 @@ test('what’s coming, soonest first, rolling into next year', () => {
 
 test('the parish: a holy day and its eve say so, rather than guess', () => {
   const sat = parishDay('2026-10-31', liturgicalDay('2026-10-31'), liturgicalDay('2026-11-01'))
-  assert.match(sat.mass.at(-1), /vigil/); assert.equal(sat.confession, '3:30–4:30 PM'); assert.equal(sat.note, null)
+  assert.equal(sat.mass.at(-1).vigil, true); assert.equal(sat.mass[0].daily, true); assert.equal(sat.confession, '3:30–4:30 PM'); assert.equal(sat.note, null)
+  assert.equal(sat.fromParish, false) // no reading from the parish's site yet: the diocese's listing
+  const sun = parishDay('2026-11-01', liturgicalDay('2026-11-01'), liturgicalDay('2026-11-02'))
+  assert.ok(sun.mass.every((m) => !m.daily && !m.vigil))
+  // The parish's own week wins when there is one
+  const read = { mass: { 0: [{ time: '9:00 AM', note: '' }], 6: [{ time: '8:00 AM', note: '' }, { time: '4:00 PM', note: '', vigil: true }] }, confession: { 6: ['2:00–3:00 PM'] } }
+  const sat2 = parishDay('2026-10-31', liturgicalDay('2026-10-31'), liturgicalDay('2026-11-01'), read)
+  assert.deepEqual(sat2.mass.map((m) => [m.time, m.daily, m.vigil]), [['8:00 AM', true, false], ['4:00 PM', false, true]])
+  assert.equal(sat2.confession, '2:00–3:00 PM'); assert.equal(sat2.fromParish, true)
   const dec7 = parishDay('2026-12-07', liturgicalDay('2026-12-07'), liturgicalDay('2026-12-08'))
   assert.match(dec7.note, /vigil Mass this evening/)
   assert.match(parishDay('2026-12-08', liturgicalDay('2026-12-08'), liturgicalDay('2026-12-09')).note, /posts its own Mass times/)

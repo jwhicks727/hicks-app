@@ -18,7 +18,7 @@ import Reports from './consoles/Reports.jsx'
 // Anna's academy loads when it's opened: its rooms and pictures are only for there
 const Academy = lazy(() => import('./academy/Academy.jsx'))
 
-const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, journal: Journal, garden: Garden, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, setup: Setup, reports: Reports }
+const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, journal: Journal, garden: Garden, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, admin: Setup, reports: Reports }
 
 export default function App() {
   const path = usePath()

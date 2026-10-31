@@ -43,3 +43,20 @@ test('alerts: most serious first, one of each, tests left out, words capped', ()
   assert.deepEqual(a.map((x) => x.event), ['Red Flag Warning', 'Wind Advisory']); assert.equal(a[0].instruction.length, 600)
   assert.deepEqual(shapeAlerts(null), [])
 })
+
+test('many places in one request, each read back in its own time', async () => {
+  const { placesNowUrl, shapePlacesNow } = await import('../src/lib/weather.js')
+  const list = [{ slug: 'a', lat: 34.09, lng: -117.43 }, { slug: 'b', lat: 48.857, lng: 2.352 }]
+  const u = new URL(placesNowUrl(list))
+  assert.equal(u.searchParams.get('latitude'), '34.090,48.857')
+  const day = (rise, set) => ({ temperature_2m_max: [80.4], temperature_2m_min: [55.2], sunrise: [rise], sunset: [set], precipitation_probability_max: [10] })
+  const json = [
+    { current: { temperature_2m: 71.6, weather_code: 0, is_day: 1, wind_speed_10m: 6.2, relative_humidity_2m: 30 }, daily: day('2026-10-31T07:05', '2026-10-31T17:58') },
+    { current: { temperature_2m: 50.1, weather_code: 61, is_day: 0, wind_speed_10m: 12, relative_humidity_2m: 88 }, daily: day('2026-11-01T08:21', '2026-11-01T17:22') },
+  ]
+  const out = shapePlacesNow(json, list)
+  assert.deepEqual([out.a.temp, out.a.words, out.a.sunset, out.a.wind], [72, 'Clear', '5:58 PM', 6])
+  assert.deepEqual([out.b.temp, out.b.pic, out.b.sunrise, out.b.humidity], [50, 'rain', '8:21 AM', 88])
+  // One place answers as an object, not a list
+  assert.equal(shapePlacesNow(json[0], [list[0]]).a.temp, 72)
+})

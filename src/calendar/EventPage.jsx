@@ -134,7 +134,7 @@ export default function EventPage({ state, members, parent, today }) {
           {ev.notes && <p className="pre-line">{ev.notes}</p>}
           {ev.lat != null && <a className="btn ghost" href={`https://www.openstreetmap.org/?mlat=${ev.lat}&mlon=${ev.lng}#map=12/${ev.lat}/${ev.lng}`} target="_blank" rel="noopener noreferrer">On the map ›</a>}
           {!ev.source_id && <div className="form-actions"><Link className="btn ghost" to={`/calendar/event/${ev.id}/edit`}>Change it</Link>{parent && <button type="button" className="btn ghost" onClick={() => setRemoving(true)}>Remove it</button>}</div>}
-          {ev.source_id && <p className="muted small">From one of the calendars in Setup: change it there.</p>}
+          {ev.source_id && <p className="muted small">From one of the calendars in Admin: change it there.</p>}
         </Card>
         </GlowWrap>
       )}

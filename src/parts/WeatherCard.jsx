@@ -2,6 +2,7 @@ import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import { useWeather } from '../lib/useWeather.js'
 import WeatherIcon from './WeatherIcon.jsx'
+import SchoolsBeside from './SchoolsBeside.jsx'
 import { WEEKDAYS } from '../lib/cal/dates.js'
 
 const SEV = { 3: '#8A1F11', 2: '#B3401A', 1: '#C98A12', 0: '#6E5B4B' }
@@ -26,8 +27,8 @@ function Alerts({ alerts }) {
 
 const Credit = () => <p className="wx-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · alerts from the <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer">National Weather Service</a></p>
 
-/** The weather at home now, and the next twelve hours. */
-export function WeatherNow({ className = 'span-3', more = true }) {
+/** The weather at home now, the schools beside it, and the next twelve hours. */
+export function WeatherNow({ className = 'span-3', more = true, schools = true }) {
   const { forecast: f, alerts, error } = useWeather()
   return (
     <Card tint="#4A7FD6" label="Weather at home" glyph="weather" className={className + ' wx-card'}>
@@ -45,6 +46,7 @@ export function WeatherNow({ className = 'span-3', more = true }) {
           </div>
           <p>{f.now.wind.line}.{f.now.wind.santaAna && <b> Santa Ana winds: dry and gusty. Hold on to the patio umbrella.</b>}</p>
           <Alerts alerts={alerts} />
+          {schools && <SchoolsBeside homeTemp={f.now.temp} />}
           <ol className="wx-hours" aria-label="The next twelve hours">
             {f.hours.map((h) => (
               <li key={h.time}>

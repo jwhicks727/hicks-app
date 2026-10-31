@@ -1,8 +1,8 @@
 import SunCalc from 'suncalc'
+import ThemeToggle from '../ui/ThemeToggle.jsx'
 import { HOME_TOWN, greeting } from '../lib/sky.js'
 import { useNow } from '../lib/useNow.js'
 import SkyToday from '../parts/SkyToday.jsx'
-import Coming from '../parts/Coming.jsx'
 import RolloverShine from '../parts/RolloverShine.jsx'
 import TodayCard from '../parts/TodayCard.jsx'
 import FridgeCard from '../parts/FridgeCard.jsx'
@@ -21,8 +21,8 @@ import PaintingsCard from '../parts/PaintingsCard.jsx'
 import { seasonFor } from '../lib/seasons.js'
 import { useCookbook } from '../lib/useKitchen.js'
 import { WeatherNow } from '../parts/WeatherCard.jsx'
+import BirdsCard from '../parts/BirdsCard.jsx'
 import FamilyBanner from '../parts/FamilyBanner.jsx'
-import { Link } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
 import { useFamily, useEvents } from '../lib/useCalendar.js'
 import { dayView } from '../lib/cal/day.js'
@@ -59,7 +59,7 @@ function HomeScreen() {
   return (
     <>
       <header className="hero span-6">
-        <div className="hero-top"><span className="kicker">{dateFmt.format(now)}</span><Link to="/settings" className="icon-btn" aria-label="Settings, Setup and Reports"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg></Link></div>
+        <div className="hero-top"><span className="kicker">{dateFmt.format(now)}</span><ThemeToggle /></div>
         <span className="eyebrow">{sun}</span>
         {/* Each of us by name once signed in; the wall will greet Team Hicks. */}
         <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
@@ -70,6 +70,7 @@ function HomeScreen() {
       <AcademyCard session={session} me={me} today={today} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <WeatherNow />
+      <BirdsCard />
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
       <DaysOffCard today={today} />
@@ -80,10 +81,6 @@ function HomeScreen() {
       {prefs.mindful !== false && <MindfulCard today={today} />}
       <JournalCard session={session} me={me} today={today} />
       <SkyToday />
-      <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[
-        'Kordyak, Wayne Ruble and SOAR beside home, from our chosen stations (SE685, 980SE, NGC08)',
-        'Birds around us, straight after the weather',
-      ]} />
     </>
   )
 }

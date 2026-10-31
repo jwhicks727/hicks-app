@@ -5,6 +5,8 @@ import { useDraft, hasDraft } from '../lib/useDraft.js'
 import { SCHOOLS } from '../lib/cal/schools.js'
 import FamilyDays from './FamilyDays.jsx'
 import CalendarFromPicture from './CalendarFromPicture.jsx'
+import ParishTimes from './ParishTimes.jsx'
+import StationsSetup from './StationsSetup.jsx'
 import { useSession } from '../lib/auth.js'
 import { useSources, todayAtHome } from '../lib/useSources.js'
 import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
@@ -83,9 +85,9 @@ export default function Setup() {
   if (!supabase || session === null) {
     return (
       <>
-        <header className="hero span-6"><span className="kicker">Team Hicks</span><h1 className="greet">Setup</h1></header>
+        <header className="hero span-6"><span className="kicker">Team Hicks</span><h1 className="greet">Admin</h1></header>
         <Card tint="#453644" label="Sign in first" glyph="star" className="span-6">
-          <p>Setup is for Jason and Laurie. <Link to="/settings">Sign in from Settings</Link>.</p>
+          <p>Admin is for Jason and Laurie. <Link to="/settings">Sign in from Settings</Link>.</p>
         </Card>
       </>
     )
@@ -95,7 +97,7 @@ export default function Setup() {
     <>
       <header className="hero span-6">
         <span className="kicker">Team Hicks · parents</span>
-        <h1 className="greet">Setup</h1>
+        <h1 className="greet">Admin</h1>
         <span className="sub">Every outside thing the app reads: pasted in once, rechecked when you like, and a nudge before it goes stale.</span>
       </header>
 
@@ -139,6 +141,10 @@ export default function Setup() {
       <CalendarFromPicture members={family.members} onAdded={reload} />
 
       <FamilyDays family={family} today={today} reload={family.reload} />
+
+      <ParishTimes />
+
+      <StationsSetup />
 
       <Card tint="#8A5BC4" label="Still to come here" glyph="star" className="span-6">
         <ul className="coming">

@@ -13,11 +13,14 @@ export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'journal', 'garde
 // The tab bar: Home, Calendar, Kitchen, World, and Apps, which opens a sheet of
 // these (src/ui/apps.jsx) and stays lit while one of them is open.
 export const APP_PLACES = ['journal', 'garden', 'lifelist', 'jams', 'academy']
-// Reached from Settings (and the desktop rail), not the tab bar.
-export const CONSOLES = ['settings', 'setup', 'reports']
+// Reached from the foot of the Apps sheet (and the desktop rail), not the tab bar.
+export const CONSOLES = ['settings', 'admin', 'reports']
+// Old addresses that still open the screen they became (Setup became Admin).
+const RENAMED = { setup: 'admin' }
 
 export function parsePath(pathname) {
   const parts = pathname.split('/').filter(Boolean)
+  if (RENAMED[parts[0]]) parts[0] = RENAMED[parts[0]]
   const known = PLACES.includes(parts[0]) || CONSOLES.includes(parts[0])
   return { place: known ? parts[0] : 'home', rest: known ? parts.slice(1) : [] }
 }

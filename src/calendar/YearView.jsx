@@ -45,9 +45,9 @@ export default function YearView({ date, today, data, signedIn, family }) {
           <p>{!signedIn
             ? 'Sign in to see the school calendars side by side.'
             : withCal.length === 0
-              ? 'None yet. Paste each school’s calendar into Setup (a link, a PDF or a photo of the printed one), marked as Laurie’s, Anna’s or Jason’s, and its days off line up here.'
+              ? 'None yet. Paste each school’s calendar into Admin (a link, a PDF or a photo of the printed one), marked as Laurie’s, Anna’s or Jason’s, and its days off line up here.'
               : `Still to add: ${SCHOOLS.filter((s) => !withCal.includes(s)).map((s) => `${s.name} (${s.person}’s)`).join(' and ')}.`}</p>
-          {signedIn && <Link className="btn ghost" to="/setup">Open Setup</Link>}
+          {signedIn && <Link className="btn ghost" to="/admin">Open Admin</Link>}
         </Card>
       )}
       <div className={'year-grid span-6 layer-' + layer} key={y}>

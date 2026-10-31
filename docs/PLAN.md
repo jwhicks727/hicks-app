@@ -7,7 +7,8 @@ Built in this order, each part in daily use before the next.
 - [x] Five tabs, the same for everyone: Home, Calendar, Kitchen, World and
       Apps, a sheet of the journal, the academy, Life List, the Gallery, Jams
       and the Garden (2026-11-01).
-- [x] Light and dark, chosen in Settings or following the device
+- [x] Light and dark, chosen in Settings or following the device; a sun
+      or moon on Home switches between them in one tap
       (2026-11-01).
 
 - [x] The repository, the look (tokens, fonts, cards), the six places, the
@@ -30,7 +31,7 @@ Built in this order, each part in daily use before the next.
       with her yes; a painting she'd rather not have public waits for private
       storage behind sign-in, since anything in `public/` can be fetched by
       its address once hosted.
-- [x] Settings (sign in by email link, text size, motion), Setup (calendar
+- [x] Settings (sign in by email link, text size, motion), Admin (calendar
       sources: paste, edit, mark checked, staleness) and Reports (calendar
       sources), all following `src/registry.js`. Home shows the rollover
       shine when a source is due.
@@ -65,13 +66,15 @@ Built in this order, each part in daily use before the next.
       (Jewish exact, Islamic expected), birding days and small joys, each
       kind switchable in Settings; solstices, equinoxes, moon phases with
       their names, meteor showers and the clocks changing.
-- [ ] Sacred Heart's Mass times checked with the parish (shown now, labelled
-      as not yet checked), and kept as a Setup source so they're rechecked.
+- [x] Sacred Heart's Mass times read from the parish's own website once a
+      day (the `parish` function), every version kept, weekday Masses
+      marked Daily Mass; the diocese's listing, marked unchecked, until the
+      first reading. Admin shows the week it read and reads it again.
 - [ ] Two-way sync with our Google calendars.
 - [ ] The year view: the three school calendars side by side, clickable:
       Kordyak (Rialto Unified, Laurie's teacher calendar), Wayne Ruble
       (Fontana Unified, Anna's student calendar), SOAR (Jason's).
-- [ ] **The Setup console's calendar sources.** Paste a link or upload a
+- [ ] **The Admin console's calendar sources.** Paste a link or upload a
       file and it's saved, read and rechecked later. Takes any common
       delivery: a PDF, a Word file, a Google Doc or Sheet, a Drive folder, a
       Google Calendar, an iCal / webcal link (Outlook, iCloud and most school
@@ -81,7 +84,7 @@ Built in this order, each part in daily use before the next.
       approves before they reach the calendar. Each source keeps its history:
       a new version never silently deletes the old one's events.
 - [ ] **Rollover nags.** Each source knows the dates it covers (a school
-      year, a month of lector dates). A few weeks before it runs out, Setup
+      year, a month of lector dates). A few weeks before it runs out, Admin
       and Home ask for next year's (the job-waiting shine), with a link to
       where it came from last time, and a reminder on our phones.
 - [x] The Church year: feasts, saints, colours; traditional prayers with a
@@ -117,7 +120,7 @@ Built in this order, each part in daily use before the next.
       illustrate`), on the days about the Cross: Ash Wednesday, Palm Sunday,
       Good Friday, the Holy Cross, the Sacred Heart (docs/CHURCH-ART.md).
       Waiting on the photos.
-- [x] Setup keeps the family days (add, change, remove, with a proper
+- [x] Admin keeps the family days (add, change, remove, with a proper
       question before removing) and says whose each calendar source is; a
       half-typed entry survives the phone closing the app. Reports shows the
       family days kept and the next ones.
@@ -201,8 +204,15 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       weather there, how far, and Open in Maps / Directions in the phone's
       own maps app (`src/lib/places.js`, `src/places/world/`).
 - [ ] Kordyak's building geocoded (4580 Mango Ave), so its pin is the school rather than the town.
-- [ ] Weather from our stations through Synoptic: Kordyak SE685, Wayne Ruble
-      980SE, SOAR NGC08, home its nearest (set in the app).
+- [x] Weather from our stations through Synoptic: Kordyak SE685, Wayne Ruble
+      980SE, SOAR NGC08, home its nearest (set in Admin), each with an
+      airport standing in when it goes quiet; "At the schools" on Home's
+      weather, and each school's page has its station and the last day
+      beside home's.
+- [x] The map: each place's name beside its pin with its weather now (and
+      its time abroad); the places below as tiles with what's happening
+      there (weather, high and low, the next sunrise or sunset, wind, rain,
+      how far or how far ahead); Around home draws the freeways.
 - [ ] Day by day and hour by hour, wound back and forward; school pages
       (the school's place page grows its station and recess flags); one of
       our places on World each day; NWS alerts for home and the schools.
@@ -219,8 +229,12 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [ ] Recent first: new birds, outings, paintings, trips.
 - [ ] Laurie's eBird history, drill-downs by day, bird, month and place.
 - [ ] Camping and Disneyland trips; the national parks checklist.
-- [ ] Bird pictures: her photo, else an embedded Macaulay Library photo with
-      its credit; her painting replaces both.
+- [ ] Bird pictures: her photo, else a licensed photo with its credit (Birds
+      around us uses iNaturalist's Creative Commons photos); her painting
+      replaces both.
+- [x] Birds around us on Home, right after the weather: this week's
+      sightings round town from eBird, the notable ones first in green,
+      each a tap from when and where it was last seen.
 
 ## 4. Kitchen
 

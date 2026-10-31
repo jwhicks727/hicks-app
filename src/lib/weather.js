@@ -37,6 +37,41 @@ export function shapePlaceNow(json) {
   return { temp: Math.round(c.temperature_2m), high: d ? Math.round(d.temperature_2m_max[0]) : null, low: d ? Math.round(d.temperature_2m_min[0]) : null, ...conditions(c.weather_code, c.is_day) }
 }
 
+/** Right now at several places in one request (Open-Meteo answers a list for a list of points). */
+export function placesNowUrl(list) {
+  const q = new URLSearchParams({
+    latitude: list.map((p) => p.lat.toFixed(3)).join(','), longitude: list.map((p) => p.lng.toFixed(3)).join(','),
+    current: 'temperature_2m,weather_code,is_day,wind_speed_10m,relative_humidity_2m',
+    daily: 'temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max',
+    temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', timezone: 'auto', forecast_days: '1',
+  })
+  return `https://api.open-meteo.com/v1/forecast?${q}`
+}
+const clock = (iso) => { const m = /T(\d\d):(\d\d)/.exec(iso || ''); if (!m) return null; const h = Number(m[1]); return `${((h + 11) % 12) + 1}:${m[2]} ${h < 12 ? 'AM' : 'PM'}` }
+const clockHour = (iso) => { const m = /T(\d\d):(\d\d)/.exec(iso || ''); return m ? Number(m[1]) + Number(m[2]) / 60 : null }
+/**
+ * Each place's weather right now, by slug: temp, words, picture, high, low, wind,
+ * humidity, the day's chance of rain, and its sunrise and sunset in its own time.
+ * `list` is in the order the request named them.
+ */
+export function shapePlacesNow(json, list) {
+  const arr = Array.isArray(json) ? json : json ? [json] : []
+  const out = {}
+  list.forEach((p, i) => {
+    const j = arr[i], c = j && j.current, d = j && j.daily
+    if (!c) return
+    out[p.slug] = {
+      temp: Math.round(c.temperature_2m), ...conditions(c.weather_code, c.is_day),
+      high: d ? Math.round(d.temperature_2m_max[0]) : null, low: d ? Math.round(d.temperature_2m_min[0]) : null,
+      wind: c.wind_speed_10m != null ? Math.round(c.wind_speed_10m) : null, humidity: c.relative_humidity_2m ?? null,
+      rain: d && d.precipitation_probability_max ? d.precipitation_probability_max[0] : null,
+      sunrise: d ? clock(d.sunrise[0]) : null, sunset: d ? clock(d.sunset[0]) : null,
+      sunriseH: d ? clockHour(d.sunrise[0]) : null, sunsetH: d ? clockHour(d.sunset[0]) : null, isDay: Boolean(c.is_day),
+    }
+  })
+  return out
+}
+
 // WMO weather codes, as Open-Meteo gives them: [words, picture]
 const CODES = {
   0: ['Clear', 'clear'], 1: ['Mostly clear', 'clear'], 2: ['Partly cloudy', 'partly'], 3: ['Cloudy', 'cloudy'],

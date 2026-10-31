@@ -284,3 +284,41 @@ export function mapsLinks(place, ua = '') {
   if (/Android/.test(ua)) return { app: 'Maps', open: `geo:${ll}?q=${q}`, directions: google }
   return { app: 'Google Maps', open: `https://www.google.com/maps/search/?api=1&query=${q}`, directions: google }
 }
+
+/**
+ * Labels beside their own pins, never in a band at the edge: each tries the
+ * eight sides of its pin, close first, then further out (with a leader line),
+ * and takes the first spot inside the frame that covers no other label and no
+ * pin. The most crowded pins choose first. `items`: { id, x, y, w, h } in px.
+ * Returns { [id]: { left, top, far } }; `far` means it needs its leader.
+ */
+export function calloutLabels(items, { W, H, pad = 6, gap = 4, dot = 8 }) {
+  const out = {}, boxes = []
+  const pins = items.map((i) => [i.x, i.y])
+  const crowd = (i) => items.filter((j) => j !== i && Math.hypot(j.x - i.x, j.y - i.y) < 120).length
+  const order = items.slice().sort((a, b) => crowd(b) - crowd(a) || a.y - b.y)
+  const hits = (b) => boxes.some((o) => o[0] < b[2] + gap && b[0] < o[2] + gap && o[1] < b[3] + gap && b[1] < o[3] + gap)
+  const covers = (b, own) => pins.some(([x, y], k) => k !== own && x > b[0] - dot && x < b[2] + dot && y > b[1] - dot && y < b[3] + dot)
+  const inside = (b) => b[0] >= pad && b[1] >= pad && b[2] <= W - pad && b[3] <= H - pad
+  for (const it of order) {
+    const own = items.indexOf(it), { x, y, w, h } = it
+    let pick = null, best = null
+    for (const d of [10, 22, 38, 58, 82]) {
+      // right, left, above, below, then the corners
+      const spots = [[x + d, y - h / 2], [x - d - w, y - h / 2], [x - w / 2, y - d - h], [x - w / 2, y + d],
+        [x + d * 0.7, y - d * 0.7 - h], [x - d * 0.7 - w, y - d * 0.7 - h], [x + d * 0.7, y + d * 0.7], [x - d * 0.7 - w, y + d * 0.7]]
+      for (const [l, t] of spots) {
+        const b = [l, t, l + w, t + h]
+        if (!inside(b)) continue
+        if (!hits(b) && !covers(b, own)) { pick = { left: l, top: t, far: d > 10 }; break }
+        if (!best && !hits(b)) best = { left: l, top: t, far: true }
+      }
+      if (pick) break
+    }
+    // Nowhere clear: the first spot that at least misses the other labels, or held inside the frame by its pin
+    if (!pick) pick = best || { left: Math.min(W - pad - w, Math.max(pad, x + 10)), top: Math.min(H - pad - h, Math.max(pad, y - h / 2)), far: false }
+    boxes.push([pick.left, pick.top, pick.left + w, pick.top + h])
+    out[it.id] = pick
+  }
+  return out
+}
