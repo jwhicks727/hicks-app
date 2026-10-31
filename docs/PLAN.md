@@ -180,3 +180,47 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [ ] Chill and relaxing music from free sources (to find).
 - [ ] Each person's favourites: Jason's jam bands, Anna's bands, Laurie's
       Christian artists. Their commercial recordings link out rather than play.
+
+## 6. Mindfulness, and the Buddhist year
+
+Jason doesn't practise but enjoys Buddhism and mindfulness, so the app
+celebrates them the way it celebrates everything else: woven into the
+places, quietly, never mixed into the Church's own cards, and only for those
+who want it. A sketch for the next session; the questions come first.
+
+**To settle first**
+
+- Which traditions or teachers speak to him (Zen, Plum Village and Thich
+  Nhat Hanh, Tibetan, Theravada and insight meditation, secular
+  mindfulness)? That decides the dates (Vesak alone falls on three
+  different days by tradition) and the words.
+- Whose is it: Jason's alone, or the family's to switch on? It wants to be a
+  per-person setting (in the database, like whose days the calendar shows),
+  not a device one.
+- Words: only translations that belong to everyone (Max Müller's 1881
+  *Dhammapada*, the older sutta translations); Thich Nhat Hanh's gathas and
+  most modern translations are copyrighted, so they'd be links, not text.
+- Sound: a bell, or silence?
+
+**Where it could live**
+
+- **Home: a pause.** A small card for whoever has it on, with a breathing
+  circle that grows and shrinks (in for four, out for six), an optional
+  struck bowl made by the phone itself (no recording to license), and one,
+  three or five minutes. Under less motion, a count instead of the circle.
+  Never a streak or a nag.
+- **The calendar: the Buddhist year,** as its own switchable group like the
+  others: Vesak, Bodhi Day (December 8, the same day as the Immaculate
+  Conception, each on its own card), Nirvana Day (February 15), Dharma Day
+  and Sangha Day on their full moons, Obon in the summer for remembering
+  those before us (kin to All Souls), Losar; the uposatha days on the new
+  and full moons the app already works out, as quiet "days for practice".
+  Thich Nhat Hanh was born on October 11, the angelversary: the day could
+  hold both, if Jason would like that, or not.
+- **The swirling light** for Vesak in lotus pink, white and gold; Bodhi Day
+  in fig-leaf green and gold.
+- **The bridges that are already there:** the Ignatian Examen as an evening
+  invitation among the prayers (Catholic contemplative practice, and
+  mindful at heart); a mindful walk suggested on an outdoor event (the first
+  ten minutes in silence); birding as noticing; a pause before cooking in
+  cook mode; a "chill" shelf in Jams for sitting music.
