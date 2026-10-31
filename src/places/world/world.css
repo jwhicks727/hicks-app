@@ -2,9 +2,13 @@
    World: all our places on a map, and each place in its own sky.
    Map colours are tokens so the dark scheme can change them in one place.
    ============================================ */
-.pmap-card { --pm-sea-a: #A8D3D6; --pm-sea-b: #CFE6DF; --pm-land: #F6EAD4; --pm-coast: #B99A72; --pm-grid: rgba(60, 110, 120, .14); --pm-night: #24306B; --pm-frame: #E9F2EE; --pm-peak: #E2CFA8; --pm-peak-edge: #A88A62; }
+.pmap-card { --pm-sea-a: #3FA7C4; --pm-sea-b: #7FD3D6; --pm-wave: rgba(255, 255, 255, .22); --pm-land: #F6EAD4; --pm-coast: #8A7A5C; --pm-grid: rgba(255, 255, 255, .22); --pm-night: #1D2466; --pm-frame: #E9F2EE; --pm-peak: #B7A6E0; --pm-peak-edge: #6E5BA8;
+  --pm-na: #F7C08F; --pm-sa: #B9E3A6; --pm-eu: #D8C3F2; --pm-af: #F5D27A; --pm-as: #F5B0BE; --pm-oc: #A9E3D3; --pm-ice: #F1F7FB;
+  --pm-coast-a: #BFE3A4; --pm-coast-b: #EBDD9C; --pm-coast-c: #F2C88A; --pm-lake: #5FD0D8; }
 @media (prefers-color-scheme: dark) {
-  .pmap-card { --pm-sea-a: #17323D; --pm-sea-b: #1E3E45; --pm-land: #4D4034; --pm-coast: #8C7458; --pm-grid: rgba(180, 220, 220, .1); --pm-night: #050818; --pm-frame: #1A2A30; --pm-peak: #6A5845; --pm-peak-edge: #A68C6C; }
+  .pmap-card { --pm-sea-a: #123A4D; --pm-sea-b: #1C5560; --pm-wave: rgba(255, 255, 255, .08); --pm-land: #4D4034; --pm-coast: #C9B590; --pm-grid: rgba(180, 220, 220, .1); --pm-night: #050818; --pm-frame: #1A2A30; --pm-peak: #6E62A0; --pm-peak-edge: #B9AEE6;
+    --pm-na: #8A5E3E; --pm-sa: #4E7A45; --pm-eu: #6C5A8E; --pm-af: #8C7434; --pm-as: #8E4F5E; --pm-oc: #3F7A6C; --pm-ice: #9AA8B4;
+    --pm-coast-a: #4F7044; --pm-coast-b: #7A6E3E; --pm-coast-c: #8A6540; --pm-lake: #2E8A96; }
 }
 .fig { white-space: nowrap; }
 
@@ -27,11 +31,18 @@
 .pm-sea-a { stop-color: var(--pm-sea-a); } .pm-sea-b { stop-color: var(--pm-sea-b); }
 .pm-land { fill: var(--pm-land); stroke: var(--pm-coast); stroke-width: 1; stroke-linejoin: round; }
 .pm-grid { fill: none; stroke: var(--pm-grid); stroke-width: 1; }
-.pm-night { fill: var(--pm-night); opacity: .15; }
-.pm-lake { fill: var(--pm-sea-a); stroke: var(--pm-coast); stroke-width: .8; }
+.pm-night { fill: var(--pm-night); opacity: .22; }
+.pm-lake { fill: var(--pm-lake); stroke: #FFFFFF; stroke-width: .8; }
+.pm-wave { fill: none; stroke: var(--pm-wave); stroke-width: .7; }
+.pm-r { stroke: none; }
+.pm-r-na { fill: var(--pm-na); } .pm-r-sa { fill: var(--pm-sa); } .pm-r-eu { fill: var(--pm-eu); } .pm-r-af { fill: var(--pm-af); } .pm-r-as { fill: var(--pm-as); } .pm-r-oc { fill: var(--pm-oc); } .pm-r-ice { fill: var(--pm-ice); }
+.pm-land.pm-coastline { fill: none; stroke: var(--pm-coast); stroke-width: .8; }
+.pm-land.pm-near-land { fill: url(#pm-near-land); }
+.pm-coast-a { stop-color: var(--pm-coast-a); } .pm-coast-b { stop-color: var(--pm-coast-b); } .pm-coast-c { stop-color: var(--pm-coast-c); }
 .pm-peaks path { fill: var(--pm-peak); stroke: var(--pm-peak-edge); stroke-width: .8; stroke-linejoin: round; }
 .pm-peaks .pm-snow { fill: #FFF; stroke: none; }
-.pm-range { font: 800 9.5px var(--font-ui); letter-spacing: .14em; fill: var(--pm-peak-edge); text-anchor: middle; paint-order: stroke; stroke: var(--pm-land); stroke-width: 3px; stroke-linejoin: round; }
+.pm-dot { filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .35)); }
+.pm-range { font: 800 9.5px var(--font-ui); letter-spacing: .14em; fill: var(--pm-peak-edge); text-anchor: middle; paint-order: stroke; stroke: rgba(255, 250, 235, .85); stroke-width: 3px; stroke-linejoin: round; }
 .pm-dot { stroke: #FFF; stroke-width: 2; }
 .pm-pulse { opacity: .3; transform-box: fill-box; transform-origin: center; animation: pmap-pulse 2.6s ease-out infinite; }
 @keyframes pmap-pulse { from { transform: scale(.6); opacity: .45; } to { transform: scale(2.2); opacity: 0; } }

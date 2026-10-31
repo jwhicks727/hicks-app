@@ -6,6 +6,27 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Colourful maps
+
+The family loves colour, so the maps have more of it, though no more
+detail:
+
+- **The world:** each continent in its own soft colour:
+  - coral for North America;
+  - green for South America;
+  - lavender for Europe;
+  - gold for Africa;
+  - rose for Asia;
+  - sea-green for Oceania;
+  - ice for Greenland.
+
+  The continents are cut along longitude and latitude bands by
+  `scripts/make-map.mjs`, with one coastline drawn over them all. The sea
+  is a deeper blue with faint waves, and the night side shows more.
+- **Southern California:** the land shades from green at the coast to gold
+  inland. The mountains' peaks are purple, with snow on Baldy and San
+  Gorgonio in winter. The lakes are turquoise.
+
 ## 2026-11-01 — Hosting on Firebase, previews on every pull request, paintings behind sign-in
 
 - **Firebase Hosting, on the free Spark plan,** serves the app; Supabase

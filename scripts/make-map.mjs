@@ -102,7 +102,26 @@ const world = landRings(read('land-110m.json'))
     return copies
   })
   .map((r) => simplify(r.map(([lon, lat]) => [(lon + 180) / 360 * W, (top - Math.max(bottom, lat)) / 360 * W]), 0.6))
-  .filter((r) => r.length > 3).map(d).join('')
+  .filter((r) => r.length > 3)
+
+// Continents, for their own colours: the land cut along longitude and latitude
+// into bands that don't overlap (lon/lat boxes: [west, south, east, north]), each
+// part filled in its region's colour, the coastline drawn once over them all.
+const BANDS = {
+  ice: [[-75, 59, -10, 84]],
+  na: [[-180, 7.5, -75, 84], [-75, 7.5, -25, 59]],
+  sa: [[-180, -60, -25, 7.5]],
+  eu: [[-25, 36, 45, 59], [-10, 59, 45, 84]],
+  af: [[-25, -60, 33, 36], [33, -60, 52, 12]],
+  as: [[33, 12, 45, 36], [45, 12, 52, 84], [52, -10, 180, 84]],
+  oc: [[52, -60, 110, -10], [110, -60, 180, -10]],
+}
+const lonlat = landRings(read('land-110m.json')).filter((r) => Math.max(...r.map((p) => p[1])) > bottom).map(unwrap)
+  .flatMap((r) => { const lons = r.map((p) => p[0]), out = [r]; if (Math.max(...lons) > 180) out.push(r.map(([a, b]) => [a - 360, b])); if (Math.min(...lons) < -180) out.push(r.map(([a, b]) => [a + 360, b])); return out })
+const toW = (r) => r.map(([lon, lat]) => [(lon + 180) / 360 * W, (top - Math.max(bottom, lat)) / 360 * W])
+const regionsOut = Object.fromEntries(Object.entries(BANDS).map(([k, boxes]) => [k, boxes.flatMap((b) => lonlat.map((r) => clip(r, b)).filter((r) => r.length > 2))
+  .map((r) => simplify(toW(r), 0.6)).filter((r) => r.length > 2).map(d).join('')]))
+const worldLand = world.map(d).join('')
 
 // Southern California, with room round it so a wide or tall screen can show more:
 // the Channel Islands to past the Salton Sea, Ensenada to past Santa Barbara
@@ -117,7 +136,7 @@ fs.writeFileSync(out, `// Generated from Natural Earth's land (public domain), b
 // package (ISC): outlines only, simplified. Regenerate rather than edit
 // (docs/DECISIONS-LOG.md, "Our places on a map").
 
-export const WORLD = { width: ${W}, height: ${H}, top: ${top}, bottom: ${bottom}, land: '${world}' }
+export const WORLD = { width: ${W}, height: ${H}, top: ${top}, bottom: ${bottom}, land: '${worldLand}', regions: ${JSON.stringify(regionsOut)} }
 export const NEAR = { width: 1000, k: ${k}, cos0: ${cos0}, height: ${NH}, box: ${JSON.stringify(BOX)}, lat0: ${lat0}, land: '${near}' }
 `)
-console.log('world', world.length, 'near', near.length, 'heights', H, NH)
+console.log('world', worldLand.length, 'regions', Object.keys(regionsOut).join(','), 'near', near.length, 'heights', H, NH)

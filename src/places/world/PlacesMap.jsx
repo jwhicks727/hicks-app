@@ -144,15 +144,20 @@ export default function PlacesMap() {
             <svg className="pm-layer" viewBox={viewBoxFor('world', cam, size.W, size.H, data.NEAR).join(' ')} preserveAspectRatio="none" style={{ opacity: 1 - w }} aria-hidden="true">
               <defs>
                 <linearGradient id="pm-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="pm-sea-a" /><stop offset="1" className="pm-sea-b" /></linearGradient>
+                <pattern id="pm-waves" width="14" height="8" patternUnits="userSpaceOnUse"><path d="M0 5q3.5-3 7 0t7 0" className="pm-wave" /></pattern>
+                <linearGradient id="pm-near-land" x1="0" y1="1" x2="1" y2="0"><stop offset="0" className="pm-coast-a" /><stop offset=".5" className="pm-coast-b" /><stop offset="1" className="pm-coast-c" /></linearGradient>
               </defs>
               <rect x="-1000" y="0" width="3000" height={data.WORLD.height} fill="url(#pm-sea)" />
               <path className="pm-grid" d={[...Array(13)].map((_, i) => `M${(i * 1000) / 12} 0V${data.WORLD.height}`).join('') + [...Array(5)].map((_, i) => `M-1000 ${((84 - (60 - i * 30)) / 360) * 1000}H2000`).join('')} vectorEffect="non-scaling-stroke" />
-              <path className="pm-land" d={data.WORLD.land} vectorEffect="non-scaling-stroke" />
+              <rect x="-1000" y="0" width="3000" height={data.WORLD.height} fill="url(#pm-waves)" />
+              {Object.entries(data.WORLD.regions || {}).map(([k, d]) => <path key={k} className={'pm-r pm-r-' + k} d={d} />)}
+              <path className="pm-land pm-coastline" d={data.WORLD.land} vectorEffect="non-scaling-stroke" />
               <path className="pm-night" d={nightPath(now)} />
             </svg>
             <svg className="pm-layer" viewBox={viewBoxFor('near', cam, size.W, size.H, data.NEAR).join(' ')} preserveAspectRatio="none" style={{ opacity: w }} aria-hidden="true">
               <rect x="-4000" y="-4000" width="9000" height="9000" fill="url(#pm-sea)" />
-              <path className="pm-land" d={data.NEAR.land} vectorEffect="non-scaling-stroke" />
+              <rect x="-4000" y="-4000" width="9000" height="9000" fill="url(#pm-waves)" />
+              <path className="pm-land pm-near-land" d={data.NEAR.land} vectorEffect="non-scaling-stroke" />
               {LAKES.map((l) => { const [x, y] = project('near', l.lat, l.lng, data.NEAR); return <ellipse key={l.name} className="pm-lake" cx={x} cy={y} rx={l.rx * data.NEAR.cos0 * data.NEAR.k} ry={l.ry * data.NEAR.k} transform={`rotate(${l.tilt} ${x} ${y})`} vectorEffect="non-scaling-stroke" /> })}
             </svg>
             <svg className="pm-over" viewBox={`0 0 ${size.W} ${size.H}`} aria-hidden="true">
