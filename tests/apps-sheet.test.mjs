@@ -6,10 +6,17 @@ import { readFileSync } from 'node:fs'
 const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const bar = readFileSync(new URL('../src/shell/TabBar.jsx', import.meta.url), 'utf8')
 
-test('the sheet ends above the floating tab bar', () => {
-  const m = css.match(/\.sheet-scrim:has\(\.apps-sheet\) \{ bottom: calc\((\d+)px/)
-  assert.ok(m, 'the Apps sheet needs its own bottom edge')
-  assert.ok(Number(m[1]) >= 76, 'the tab bar is about 66px tall and 10px up: the sheet must end above 76px')
+test('the sheet ends above the floating tab bar, by the same two numbers the bar is placed with', () => {
+  assert.match(css, /\.sheet-scrim:has\(\.apps-sheet\) \{ bottom: calc\(var\(--tab-bottom\) \+ var\(--tabbar\) \+ \d+px\); \}/)
+  assert.match(css, /--tabbar: \d+px;/)
+  assert.match(css, /--tab-bottom: calc\(\d+px \+ env\(safe-area-inset-bottom, 0px\) \* \.\d+\)/)
+  assert.match(css, /\.tabs \{[^}]*bottom: var\(--tab-bottom\)/)
+})
+
+test('everything that floats above the bar uses the same two numbers', () => {
+  const kitchen = readFileSync(new URL('../src/kitchen/kitchen.css', import.meta.url), 'utf8')
+  for (const sel of ['\\.timers', '\\.kchat-fab']) assert.match(kitchen.match(new RegExp(sel + ' \\{[^}]*\\}'))[0], /bottom: calc\(var\(--tab-bottom\) \+ var\(--tabbar\)/)
+  assert.match(css, /\.sky-bg \{[^}]*min-height: 100lvh/)
 })
 
 test('a tab tapped under the sheet closes it and goes on in the sheet’s own step of history', () => {

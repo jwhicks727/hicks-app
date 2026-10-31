@@ -19,5 +19,5 @@ test('it shows only once the page has scrolled, and copies the same sky', () => 
   assert.match(css, /\.sky-top\.on \{ opacity: 1; \}/)
   assert.match(sky, /window\.scrollY > \d+/)
   assert.match(sky, /className=\{'sky-top' \+ \(scrolled \? ' on' : ''\)\}/)
-  assert.match(sky, /backgroundSize: '100% 100dvh'/)
+  assert.match(sky, /backgroundSize: '100% 100lvh'/)
 })

@@ -29,7 +29,7 @@ export default function Sky() {
   return (
     <>
       <div className="sky-bg" aria-hidden="true" style={{ background: skyGradient(key) }} />
-      <div className={'sky-top' + (scrolled ? ' on' : '')} aria-hidden="true" style={{ background: skyGradient(key), backgroundSize: '100% 100dvh', backgroundRepeat: 'no-repeat' }} />
+      <div className={'sky-top' + (scrolled ? ' on' : '')} aria-hidden="true" style={{ background: skyGradient(key), backgroundSize: '100% 100lvh', backgroundRepeat: 'no-repeat' }} />
     </>
   )
 }

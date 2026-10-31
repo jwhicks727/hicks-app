@@ -13,7 +13,8 @@
   --font-voice: Caprasimo, "Cooper Black", Georgia, serif;
   --font-display: Caprasimo, "Cooper Black", Georgia, serif;
   --font-brand: Agbalumo, Caprasimo, Georgia, serif; /* the wordmark only, the icon's own font */
-  --tabbar: 64px;
+  --tabbar: 58px; /* the floating tab bar's height: 4px padding, a 48px tab, 4px padding, a border */
+  --tab-bottom: calc(4px + env(safe-area-inset-bottom, 0px) * .4); /* how far it floats above the bottom: close, clear of the home indicator */
   --shadow-warm: inset 0 1px 0 rgba(255, 255, 255, .55), 0 2px 4px rgba(90, 50, 20, .07), 0 16px 32px -22px rgba(90, 45, 10, .6);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .9 -.32'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
 }
@@ -33,7 +34,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.5; background: #F1DCC0;
-  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(var(--tabbar) + 44px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(var(--tabbar) + var(--tab-bottom) + 30px) max(16px, env(safe-area-inset-left, 0px));
 }
 body.sky-dark { --sky-ink: #FFF8EE; }
 h1, h2, h3, p { margin: 0; }
@@ -42,7 +43,8 @@ a { color: inherit; }
 button { font: inherit; }
 
 /* The sky, lamplight from below, and a little paper grain */
-.sky-bg { position: fixed; inset: 0; z-index: -2; transition: background 1.5s ease; }
+/* min-height: the tallest the screen can be, so a plain band of page colour can never show below it (a browser's own toolbar, a keyboard that left the layout short) */
+.sky-bg { position: fixed; inset: 0; min-height: 100lvh; z-index: -2; transition: background 1.5s ease; }
 .sky-bg::before, .sky-bg::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
 .sky-bg::before { background: radial-gradient(130% 55% at 50% 108%, rgba(255, 168, 92, .42), rgba(255, 168, 92, 0) 70%); }
 .sky-bg::after { background: var(--grain); opacity: .35; }
@@ -97,10 +99,10 @@ html[data-motion="less"] .sky-top { transition: none; }
 .sky-pair figcaption span { color: var(--muted); }
 
 /* The tab bar floats on a phone; a side rail on a computer */
-.tabs { position: fixed; z-index: 20; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 6px;
+.tabs { position: fixed; z-index: 20; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: var(--tab-bottom);
+  max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 4px;
   background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 4px rgba(90, 50, 20, .08), 0 18px 36px -14px rgba(60, 30, 10, .55); }
-.tab { position: relative; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-bottom: 6px; border-radius: 9px; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.tab { position: relative; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-bottom: 4px; border-radius: 9px; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
 .tab svg { width: 24px; height: 24px; }
 .tab[aria-current="page"], .tab.lit, .tab[aria-expanded="true"] { color: var(--tc, var(--ink)); background: color-mix(in srgb, var(--tw) 16%, var(--card)); font-weight: 800; }
 .tab[aria-current="page"]::before, .tab.lit::before { content: ""; position: absolute; bottom: 3px; left: 38%; right: 38%; height: 3px; border-radius: 2px; background: var(--tb, var(--tw)); }
@@ -324,8 +326,8 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .apps-tile b { font-size: 15px; line-height: 1.2; }
 .apps-tile span { font-size: 12px; color: var(--muted); line-height: 1.25; }
 html[data-motion="less"] .apps-tile { transition: none; }
-/* The Apps sheet stands above the tab bar, which stays in view and works (the bar is about 66px tall, 10px up) */
-.sheet-scrim:has(.apps-sheet) { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+/* The Apps sheet stands above the tab bar, which stays in view and works */
+.sheet-scrim:has(.apps-sheet) { bottom: calc(var(--tab-bottom) + var(--tabbar) + 6px); }
 .sheet-scrim:has(.apps-sheet) .sheet { max-height: 100%; padding-bottom: 0; }
 /* The tools at the sheet's foot: Settings, Admin, Reports */
 .apps-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line); }

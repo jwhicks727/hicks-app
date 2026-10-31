@@ -83,7 +83,7 @@
 .recipe-foot .btn.ghost { background: var(--card); }
 
 /* Timers, docked above the tab bar */
-.timers { position: fixed; z-index: 30; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tabbar) + 22px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; pointer-events: none; }
+.timers { position: fixed; z-index: 30; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tab-bottom) + var(--tabbar) + 12px); display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; pointer-events: none; }
 .timer { pointer-events: auto; display: flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 16px; border: 0; border-radius: 24px; background: var(--steady); color: var(--on-steady); font: inherit; box-shadow: 0 10px 24px -10px rgba(0, 0, 0, .6); cursor: pointer; max-width: 100%; }
 .timer b { font-family: var(--font-voice); font-weight: 400; font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .timer span { font-size: 13px; font-weight: 700; opacity: .85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46vw; }
@@ -193,7 +193,7 @@ html[data-motion="less"] .badge.unicorn { animation: none; }
 .history summary { cursor: pointer; font-weight: 800; min-height: 40px; display: flex; align-items: center; }
 .history details { margin: 6px 0 6px 10px; } .history details summary { font-weight: 700; color: var(--muted); }
 .consent { padding: 10px 12px; border-radius: 4px; background: color-mix(in srgb, var(--tint) 7%, var(--card)); }
-.kchat-fab { position: fixed; z-index: 30; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tabbar) + 24px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 16px 0 12px; border: 0; border-radius: 24px; background: #C42D20; color: var(--on-colour); font: inherit; font-weight: 800; box-shadow: 0 3px 0 #7A1A12, 0 12px 24px -10px rgba(60, 20, 10, .7); cursor: pointer; }
+.kchat-fab { position: fixed; z-index: 30; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tab-bottom) + var(--tabbar) + 14px); display: flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 16px 0 12px; border: 0; border-radius: 24px; background: #C42D20; color: var(--on-colour); font: inherit; font-weight: 800; box-shadow: 0 3px 0 #7A1A12, 0 12px 24px -10px rgba(60, 20, 10, .7); cursor: pointer; }
 .kchat-fab svg { width: 22px; height: 22px; }
 @media (min-width: 900px) { .kchat-fab { bottom: 28px; } }
 html.phone-landscape .kchat-fab { bottom: 12px; }

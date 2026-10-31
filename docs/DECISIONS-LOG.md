@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The tab bar sits close to the bottom, and the sky always reaches it
+
+The floating tab bar rode about 44 points above the bottom of an iPhone (10px
+plus the whole home-indicator inset), its padding was generous, and on Kitchen a
+plain band of page colour showed under it: the sky layer is `position: fixed;
+inset: 0`, which is only as tall as the layout viewport, so when that comes up
+short of the screen (a browser's own toolbar, a keyboard that left the layout
+short) the page's flat background showed through and the bar looked pushed up.
+The sky now has `min-height: 100lvh`, the tallest the screen can be. The bar
+floats 4px plus 40% of the home-indicator inset above the bottom, with 4px
+padding and 48px tabs (58px tall), and everything that floats above it (the
+Ask button, the timers, the Apps sheet, the page's own bottom padding) is
+placed by the same two numbers, `--tabbar` and `--tab-bottom`. Unverified on a
+real phone: the band was not reproduced, and this fixes its likely cause.
+
+---
+
 ## 2026-11-01 — The page fades into the sky under the status bar
 
 On an installed iPhone the app draws under the status bar (`viewport-fit=cover`
