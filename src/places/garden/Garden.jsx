@@ -19,9 +19,9 @@ import PotLineup from './PotLineup.jsx'
 import PlantArt from './PlantArt.jsx'
 import './garden.css'
 
-// /us/garden                 the garden: today's care, every area's map, what to plant now
-// /us/garden/area/<id>       one area: its map, to arrange, and its spots
-// /us/garden/spot/<id>       one bed, pot or tree: its plants, photos and care
+// /garden                 the garden: today's care, every area's map, what to plant now
+// /garden/area/<id>       one area: its map, to arrange, and its spots
+// /garden/spot/<id>       one bed, pot or tree: its plants, photos and care
 export default function Garden({ rest = [] }) {
   const session = useSession()
   const family = useFamily(session)
@@ -34,7 +34,7 @@ export default function Garden({ rest = [] }) {
   if (!session) {
     return (
       <>
-        <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">The Garden</h1></header>
+        <header className="hero span-6"><span className="kicker">Yard and rooms</span><h1 className="greet">The Garden</h1></header>
         <Card tint="#5F8A4A" label="Sign in first" glyph="star" className="span-6"><p>The Garden is ours alone: <Link to="/settings">sign in from Settings</Link>.</p></Card>
       </>
     )
@@ -73,11 +73,11 @@ function GardenHome({ g, me, parent, today, forecast }) {
   const urls = useSignedUrls(recent.map((p) => p.thumb_path || p.path))
   async function create() {
     const { data, error } = await addArea({ name: adding.name.trim() || 'The yard', indoor: adding.indoor, width_ft: Number(adding.width) || 30, depth_ft: Number(adding.depth) || 20, light: adding.light || null, sort: g.areas.length })
-    if (!error) { clearAdding(); g.reload(); navigate(`/us/garden/area/${data.id}`) }
+    if (!error) { clearAdding(); g.reload(); navigate(`/garden/area/${data.id}`) }
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">The Garden</h1></header>
+      <header className="hero span-6"><span className="kicker">Yard and rooms</span><h1 className="greet">The Garden</h1></header>
       <Card tint="#5F8A4A" label="Today" glyph="weather" tag={care.length ? `${care.length}` : undefined} className="span-3">
         <CareList care={care} today={today} me={me} onDone={g.reload} />
       </Card>
@@ -91,7 +91,7 @@ function GardenHome({ g, me, parent, today, forecast }) {
           const spots = g.spots.filter((s) => s.area_id === a.id)
           const n = g.plants.filter((p) => p.status !== 'done' && spots.some((s) => s.id === p.spot_id)).length
           return (
-            <Link key={a.id} to={`/us/garden/area/${a.id}`} className="garea">
+            <Link key={a.id} to={`/garden/area/${a.id}`} className="garea">
               {a.indoor ? <PotLineup area={a} spots={spots} plants={g.plants} mini /> : <GardenMap area={a} spots={spots} plants={g.plants} className="mini" />}
               <span><b>{a.name}</b><span>{a.indoor ? ROOM_LIGHT[a.light] || 'Indoors' : 'Outdoors'} · {spots.length} {spots.length === 1 ? 'spot' : 'spots'} · {n} {n === 1 ? 'plant' : 'plants'}</span></span>
             </Link>
@@ -118,7 +118,7 @@ function GardenHome({ g, me, parent, today, forecast }) {
       )}
       {recent.length > 0 && (
         <Card tint="#5F8A4A" label="Lately" glyph="star" className="span-6">
-          <div className="gphotos">{recent.map((p) => <Link key={p.id} to={`/us/garden/spot/${p.spot_id}`} className="gphoto">{urls[p.thumb_path || p.path] ? <img src={urls[p.thumb_path || p.path]} alt={`From ${fmt(p.taken_on)}`} loading="lazy" /> : <span />}<em>{fmt(p.taken_on)}</em></Link>)}</div>
+          <div className="gphotos">{recent.map((p) => <Link key={p.id} to={`/garden/spot/${p.spot_id}`} className="gphoto">{urls[p.thumb_path || p.path] ? <img src={urls[p.thumb_path || p.path]} alt={`From ${fmt(p.taken_on)}`} loading="lazy" /> : <span />}<em>{fmt(p.taken_on)}</em></Link>)}</div>
         </Card>
       )}
     </>
@@ -128,8 +128,8 @@ function GardenHome({ g, me, parent, today, forecast }) {
 function AreaPage({ id, g, me, parent, today, forecast }) {
   const area = g.areas.find((a) => a.id === id)
   const [edit, setEdit] = useState(false), [sel, setSel] = useState(null), [moving, setMoving] = useState(false), [ask, setAsk] = useState(null)
-  if (!g.loaded) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">…</h1></header>
-  if (!area) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">Not one of our areas</h1></header>
+  if (!g.loaded) return <header className="hero span-6"><Crumb to="/garden">The Garden</Crumb><h1 className="greet">…</h1></header>
+  if (!area) return <header className="hero span-6"><Crumb to="/garden">The Garden</Crumb><h1 className="greet">Not one of our areas</h1></header>
   const spots = g.spots.filter((s) => s.area_id === area.id)
   const chosen = spots.find((s) => s.id === sel)
   const kinds = area.indoor ? ['pot', 'plant', 'other'] : ['bed', 'box', 'pot', 'tree', 'plant', 'feeder', 'bath', 'compost', 'path']
@@ -138,16 +138,16 @@ function AreaPage({ id, g, me, parent, today, forecast }) {
   const resize = async (k) => { const s = chosen; const w = Math.round(s.w * k * 10) / 10, h = Math.round(s.h * k * 10) / 10; await saveSpot(s.id, { x: s.x, y: s.y, w, h }); g.reload() }
   return (
     <>
-      <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><span className="kicker">{area.indoor ? 'Inside' : 'Outside'} · about {Number(area.width_ft)} × {Number(area.depth_ft)} ft</span><h1 className="greet">{area.name}</h1></header>
+      <header className="hero span-6"><Crumb to="/garden">The Garden</Crumb><span className="kicker">{area.indoor ? 'Inside' : 'Outside'} · about {Number(area.width_ft)} × {Number(area.depth_ft)} ft</span><h1 className="greet">{area.name}</h1></header>
       {area.indoor ? (
         <Card tint="#5F8A4A" label="Its plants" glyph="pot" tag={area.light ? ROOM_LIGHT[area.light] : undefined} className="span-6">
           <PotLineup area={area} spots={spots} plants={g.plants} />
-          <AddPot area={area} count={spots.length} onAdded={(sid) => { g.reload(); navigate(`/us/garden/spot/${sid}`) }} />
+          <AddPot area={area} count={spots.length} onAdded={(sid) => { g.reload(); navigate(`/garden/spot/${sid}`) }} />
         </Card>
       ) : (
       <Card tint="#5F8A4A" label={edit ? 'Arranging' : 'The map'} glyph="star" className="span-6 gmap-card">
         <GardenMap area={area} spots={spots} plants={g.plants} edit={edit} selected={sel} moving={moving}
-          onSelect={(x) => { setSel(x); setMoving(false) }} onOpen={(x) => navigate(`/us/garden/spot/${x}`)}
+          onSelect={(x) => { setSel(x); setMoving(false) }} onOpen={(x) => navigate(`/garden/spot/${x}`)}
           onMove={async (sid, p) => { const s = spots.find((x) => x.id === sid); await saveSpot(sid, { ...s, ...p, x: p.x, y: p.y, w: s.w, h: s.h }); setMoving(false); g.reload() }} />
         {!edit && <p className="muted small">Tap a spot to open it.</p>}
         {edit && (
@@ -159,7 +159,7 @@ function AreaPage({ id, g, me, parent, today, forecast }) {
                   <button type="button" className="btn ghost" aria-pressed={moving} onClick={() => setMoving(!moving)}>{moving ? 'Now tap where it goes' : 'Move'}</button>
                   <button type="button" className="btn ghost" onClick={() => resize(1.2)} aria-label="Bigger">Bigger</button>
                   <button type="button" className="btn ghost" onClick={() => resize(1 / 1.2)} aria-label="Smaller">Smaller</button>
-                  <Link className="btn ghost" to={`/us/garden/spot/${chosen.id}`}>Open</Link>
+                  <Link className="btn ghost" to={`/garden/spot/${chosen.id}`}>Open</Link>
                   {parent && <button type="button" className="btn ghost danger-t" onClick={() => setAsk('spot')}>Remove</button>}
                 </div>
                 <p className="muted small">Drag it, or tap Move and then the map.</p>
@@ -178,14 +178,14 @@ function AreaPage({ id, g, me, parent, today, forecast }) {
         <ul className="gspots">
           {spots.map((s) => {
             const n = g.plants.filter((p) => p.spot_id === s.id && p.status !== 'done')
-            return <li key={s.id}><Link to={`/us/garden/spot/${s.id}`}><i style={{ background: (SPOT_KINDS[s.kind] || SPOT_KINDS.other).colour }} /><span><b>{s.name}</b><span>{SPOT_KINDS[s.kind].name}{n.length ? ` · ${n.map((p) => p.name).join(', ')}` : ''}</span></span><em>›</em></Link></li>
+            return <li key={s.id}><Link to={`/garden/spot/${s.id}`}><i style={{ background: (SPOT_KINDS[s.kind] || SPOT_KINDS.other).colour }} /><span><b>{s.name}</b><span>{SPOT_KINDS[s.kind].name}{n.length ? ` · ${n.map((p) => p.name).join(', ')}` : ''}</span></span><em>›</em></Link></li>
           })}
           {!spots.length && <li className="muted">Nothing on the map yet: tap Arrange, then add a bed, a pot or a tree.</li>}
         </ul>
         {parent && <button type="button" className="btn ghost danger-t" onClick={() => setAsk('area')}>Remove this area</button>}
       </Card>
       {ask && <Confirm title={ask === 'area' ? `Remove ${area.name}?` : `Remove ${chosen ? chosen.name : 'it'}?`} yes="Remove" danger onNo={() => setAsk(null)}
-        onYes={async () => { if (ask === 'area') { await removeArea(area.id); navigate('/us/garden', { replace: true }) } else { await removeSpot(chosen.id); setSel(null) } setAsk(null); g.reload() }}>
+        onYes={async () => { if (ask === 'area') { await removeArea(area.id); navigate('/garden', { replace: true }) } else { await removeSpot(chosen.id); setSel(null) } setAsk(null); g.reload() }}>
         <p>{ask === 'area' ? 'Its map, its spots, their plants, photos and care log all go.' : 'Its plants, photos and care log go with it.'}</p>
       </Confirm>}
     </>
@@ -202,8 +202,8 @@ function SpotPage({ id, g, me, parent, today }) {
   const [note, setNote] = useState(''), [busy, setBusy] = useState(null), [open, setOpen] = useState(null)
   const photos = g.photos.filter((p) => p.spot_id === id)
   const urls = useSignedUrls(photos.map((p) => p.thumb_path || p.path))
-  if (!g.loaded) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">…</h1></header>
-  if (!spot) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">Not one of our spots</h1></header>
+  if (!g.loaded) return <header className="hero span-6"><Crumb to="/garden">The Garden</Crumb><h1 className="greet">…</h1></header>
+  if (!spot) return <header className="hero span-6"><Crumb to="/garden">The Garden</Crumb><h1 className="greet">Not one of our spots</h1></header>
   const plants = g.plants.filter((p) => p.spot_id === id)
   const log = g.log.filter((l) => l.spot_id === id).slice(0, 20)
   const quick = spot.kind === 'feeder' || spot.kind === 'bath' ? [['refill', spot.kind === 'feeder' ? 'Fresh nectar' : 'Fresh water'], ['note', 'A note']] : CARE
@@ -219,7 +219,7 @@ function SpotPage({ id, g, me, parent, today }) {
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to={area ? `/us/garden/area/${area.id}` : '/us/garden'}>{area ? area.name : 'The Garden'}</Crumb><span className="kicker">{SPOT_KINDS[spot.kind].name}{spot.sun ? ` · ${SUN[spot.sun] || ROOM_LIGHT[spot.sun]}` : ''}</span><h1 className="greet">{spot.name}</h1></header>
+      <header className="hero span-6"><Crumb to={area ? `/garden/area/${area.id}` : '/garden'}>{area ? area.name : 'The Garden'}</Crumb><span className="kicker">{SPOT_KINDS[spot.kind].name}{spot.sun ? ` · ${SUN[spot.sun] || ROOM_LIGHT[spot.sun]}` : ''}</span><h1 className="greet">{spot.name}</h1></header>
       {area && area.indoor && <PotLook spot={spot} plant={g.plants.find((p) => p.spot_id === id && p.status !== 'done')} onSave={async (patch) => { await saveSpot(spot.id, patch); g.reload() }} />}
       <Card tint="#5F8A4A" label="What grows here" glyph="star" className="span-3">
         <ul className="gplants">

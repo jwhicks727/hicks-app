@@ -100,7 +100,7 @@ licence nobody wrote down.
   Illustrations (maps, rooms, windows, scenes) keep their own whites.
 - **A place's icon** is a cream line icon (the tab icons' 24-unit grid) on
   a tile of its own colour, light to deep (`IconTile`, `src/ui/IconTile.jsx`;
-  the places under Us in `src/ui/usPlaces.jsx`), in the mockup's muted
+  the apps in `src/ui/apps.jsx`), in the mockup's muted
   outdoor tones (plum, ochre, sea, rust, lake, moss). Only the academy is
   brighter: its kinds of room put their Fluent Emoji picture on the same
   tile, each in its own bright colour (`KIND_COLOURS`, `src/academy/rooms.js`).

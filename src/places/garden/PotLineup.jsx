@@ -14,7 +14,7 @@ export default function PotLineup({ area, spots, plants, mini = false, open = tr
         const art = <PlantArt form={form} size={mini ? (size === 'tree' ? 'medium' : 'small') : size} pot={pot} seed={spot.id} title={spot.name} />
         return (
           <div key={spot.id} className="pots-one" role="listitem">
-            {open && !mini ? <Link to={`/us/garden/spot/${spot.id}`} className="pots-art" aria-label={spot.name}>{art}</Link> : <span className="pots-art">{art}</span>}
+            {open && !mini ? <Link to={`/garden/spot/${spot.id}`} className="pots-art" aria-label={spot.name}>{art}</Link> : <span className="pots-art">{art}</span>}
             {!mini && <span className="pots-name"><b>{spot.name}</b>{plant && plant.name !== spot.name && <span>{plant.name}</span>}</span>}
           </div>
         )

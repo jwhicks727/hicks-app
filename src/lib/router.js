@@ -1,7 +1,7 @@
 // ============================================
 // router.js -- every screen has an address, and Back goes back
 // ============================================
-// /home, /world, /calendar, /kitchen, /us (and /lifelist, /jams, /academy), and below each the thing open
+// /home, /world, /calendar, /kitchen, and the apps (/journal, /academy, /lifelist, /jams, /garden), and below each the thing open
 // on it (/world/school/soar). Filters, sorts and layouts stay out of the
 // address. Each in-app step stores its depth in history.state, so an in-app
 // Back walks the same history as the browser's Back and the phone's gesture,
@@ -9,10 +9,10 @@
 
 import { useEffect, useState } from 'react'
 
-export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'us', 'lifelist', 'jams', 'academy']
-// The tab bar's five: Home, Calendar, Kitchen, World and Us. Life List, Jams and the
-// academy are reached from Us, and light its tab while they're open.
-export const UNDER_US = ['us', 'lifelist', 'jams', 'academy']
+export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'journal', 'garden', 'lifelist', 'jams', 'academy']
+// The tab bar: Home, Calendar, Kitchen, World, and Apps, which opens a sheet of
+// these (src/ui/apps.jsx) and stays lit while one of them is open.
+export const APP_PLACES = ['journal', 'garden', 'lifelist', 'jams', 'academy']
 // Reached from Settings (and the desktop rail), not the tab bar.
 export const CONSOLES = ['settings', 'setup', 'reports']
 
@@ -31,6 +31,13 @@ export function navigate(to, { replace = false } = {}) {
   const state = { depth: replace ? depth() : depth() + 1 }
   if (replace) window.history.replaceState(state, '', to)
   else window.history.pushState(state, '', to)
+  window.dispatchEvent(new Event('hicks:navigate'))
+  window.scrollTo(0, 0)
+}
+
+/** From a sheet that holds a step of history (the Apps sheet): its step becomes the new screen's. */
+export function navigateFromSheet(to) {
+  window.history.replaceState({ depth: depth() + 1 }, '', to)
   window.dispatchEvent(new Event('hicks:navigate'))
   window.scrollTo(0, 0)
 }

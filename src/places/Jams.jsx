@@ -9,7 +9,6 @@ export default function Jams() {
   return (
     <>
       <header className="hero span-6">
-        <Crumb to="/us">Us</Crumb>
         <span className="kicker">Jam bands first</span>
         <h1 className="greet">Jams</h1>
       </header>

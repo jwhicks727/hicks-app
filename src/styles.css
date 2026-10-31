@@ -27,7 +27,7 @@
 /* The hour's sky, dimmed to evening so the paper cards sit easy on it */
 :root[data-theme="dark"] .sky-bg { box-shadow: inset 0 0 0 200vmax rgba(14, 10, 22, .55); }
 :root[data-theme="dark"] .sky-bg::before { opacity: .45; }
-:root[data-theme="dark"] .t-home { --tc: #A9D58C; } :root[data-theme="dark"] .t-us { --tc: #F0B27A; }
+:root[data-theme="dark"] .t-home { --tc: #A9D58C; } :root[data-theme="dark"] .t-apps { --tc: #F0B27A; }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
@@ -93,8 +93,8 @@ button { font: inherit; }
   background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 4px rgba(90, 50, 20, .08), 0 18px 36px -14px rgba(60, 30, 10, .55); }
 .tab { position: relative; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-bottom: 6px; border-radius: 9px; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
 .tab svg { width: 24px; height: 24px; }
-.tab[aria-current="page"] { color: var(--tc, var(--ink)); background: color-mix(in srgb, var(--tw) 16%, var(--card)); font-weight: 800; }
-.tab[aria-current="page"]::before { content: ""; position: absolute; bottom: 3px; left: 38%; right: 38%; height: 3px; border-radius: 2px; background: var(--tb, var(--tw)); }
+.tab[aria-current="page"], .tab.lit, .tab[aria-expanded="true"] { color: var(--tc, var(--ink)); background: color-mix(in srgb, var(--tw) 16%, var(--card)); font-weight: 800; }
+.tab[aria-current="page"]::before, .tab.lit::before { content: ""; position: absolute; bottom: 3px; left: 38%; right: 38%; height: 3px; border-radius: 2px; background: var(--tb, var(--tw)); }
 .tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .t-home { --tw: #8CC67A; --tc: #3F6B2E; --tb: linear-gradient(90deg, #B5D99A, #5F8A4A); }
 .t-world { --tw: #8ABDE3; --tb: linear-gradient(90deg, #8ABDE3, #3BA3A8); }
@@ -102,9 +102,9 @@ button { font: inherit; }
 .t-kitchen { --tw: #F03E2F; --tc: var(--kitchen); }
 .t-lifelist { --tw: #5F8A4A; --tc: var(--journal); }
 .t-jams { --tw: #8A5BC4; --tb: linear-gradient(90deg, #F03E2F, #F2C14E, #5FA85A, #4A7FD6, #8A5BC4); }
-.t-us { --tw: #C0824F; --tc: #8A4E22; --tb: linear-gradient(90deg, #F2C14E, #E0662F, #C0824F); }
+.t-apps { --tw: #C0824F; --tc: #8A4E22; --tb: linear-gradient(90deg, #B49AD0, #F2C14E, #7FC6C2, #E9A08A); border: 0; background: none; font: inherit; font-size: 11px; font-weight: 700; color: var(--muted); cursor: pointer; }
 .brand { display: none; }
-.rail-under { display: none; }
+.rail-apps { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .screen > * { animation-name: fade-in; animation-duration: .4s; }
@@ -119,10 +119,12 @@ button { font: inherit; }
   .brand { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.1; padding: 4px 10px 12px; }
   .tab { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 0 12px; font-size: 15px; min-height: 46px; border-radius: var(--r-control); }
   .tab[aria-current="page"]::before { top: 10px; bottom: 10px; left: 0; right: auto; width: 4px; height: auto; }
-  /* What's under Us, listed beneath it */
-  .rail-under { display: grid; gap: 1px; margin: -2px 0 2px 22px; }
-  .rail-under a { display: flex; align-items: center; gap: 10px; padding: 5px 10px 5px 6px; font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
-  .rail-under a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, #C0824F 14%, var(--card)); }
+  /* The apps, listed under their heading; the Apps button is the phone's */
+  .t-apps { display: none; }
+  .rail-apps { display: grid; gap: 1px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+  .rail-apps-h { padding: 4px 12px 6px; font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .rail-apps a { display: flex; align-items: center; gap: 12px; padding: 6px 10px; font-size: 15px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
+  .rail-apps a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, #C0824F 14%, var(--card)); }
   .screen { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; align-items: start; }
   .screen > * { grid-column: span 6; }
   .span-2 { grid-column: span 2 !important; } .span-3 { grid-column: span 3 !important; } .span-4 { grid-column: span 4 !important; }
@@ -303,13 +305,12 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .home-cheer small { font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .home-cheer b { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; overflow-wrap: anywhere; }
 
-/* Us: everything that's ours, beyond the four shared tabs (src/places/Us.jsx) */
-.ours { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px; }
-.ours-tile { position: relative; display: grid; justify-items: center; align-content: start; gap: 2px; padding: 20px 8px 16px; min-height: 44px; border-radius: var(--r-card); text-decoration: none; text-align: center;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--k1) 9%, var(--card)), var(--card) 70%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k2) 14%, var(--line)); transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s ease; }
-.ours-tile:hover, .ours-tile:focus-visible { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--k2) 45%, var(--line)), 0 14px 24px -16px var(--k2); }
-.ours-tile:active { transform: translateY(1px); }
-.ours-tile .itile { margin-bottom: 10px; }
-.ours-tile b { font-size: 17px; line-height: 1.2; }
-.ours-tile span { font-size: 13px; color: var(--muted); line-height: 1.2; }
-html[data-motion="less"] .ours-tile { transition: none; }
+/* The Apps sheet (src/shell/AppsSheet.jsx) */
+.apps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 8px; padding-bottom: 6px; }
+.apps-tile { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 12px 4px 10px; min-height: 44px; border-radius: var(--r-card); text-decoration: none; text-align: center; color: var(--ink); transition: background .2s ease, transform .2s cubic-bezier(.2, .8, .2, 1); }
+.apps-tile:hover, .apps-tile:focus-visible { background: color-mix(in srgb, var(--ink) 5%, var(--card)); }
+.apps-tile:active { transform: scale(.96); }
+.apps-tile .itile { margin-bottom: 8px; }
+.apps-tile b { font-size: 15px; line-height: 1.2; }
+.apps-tile span { font-size: 12px; color: var(--muted); line-height: 1.25; }
+html[data-motion="less"] .apps-tile { transition: none; }

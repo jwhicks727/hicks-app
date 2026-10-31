@@ -42,7 +42,7 @@ export default function Academy({ rest = [] }) {
   if (!session || (family.loaded && !me)) {
     return (
       <>
-        <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Anna’s school</span><h1 className="greet">The Academy</h1></header>
+        <header className="hero span-6"><span className="kicker">Anna’s school</span><h1 className="greet">The Academy</h1></header>
         <Card tint="#3FA34D" label="Sign in first" glyph="star" className="span-6"><p>Anna’s school is ours alone: <Link to="/settings">sign in from Settings</Link> to visit.</p></Card>
       </>
     )
@@ -50,7 +50,7 @@ export default function Academy({ rest = [] }) {
   const colours = (a.settings && a.settings.colours) || []
   const props = { a, me, anna, today, celebrate: setMoment, parent: Boolean(me && me.role === 'parent') }
   let screen
-  if (!a.loaded) screen = <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Anna’s school</span><h1 className="greet">The Academy</h1><p className="sub">Opening the gates…</p></header>
+  if (!a.loaded) screen = <header className="hero span-6"><span className="kicker">Anna’s school</span><h1 className="greet">The Academy</h1><p className="sub">Opening the gates…</p></header>
   else if (!a.settings && !a.rooms.length) screen = <Welcome {...props} />
   else if (rest[0] === 'room') screen = <RoomPage id={rest[1]} {...props} />
   else if (rest[0] === 'tasks') screen = <TasksPage {...props} />
@@ -82,7 +82,7 @@ function Welcome({ a, anna, celebrate }) {
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">A school of your own</span><h1 className="greet">Welcome, Principal {anna.name}</h1></header>
+      <header className="hero span-6"><span className="kicker">A school of your own</span><h1 className="greet">Welcome, Principal {anna.name}</h1></header>
       <Card tint="#3FA34D" label="Name your school" glyph="star" className="span-6">
         <div className="form">
           <label>Its name<input maxLength={80} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></label>
@@ -137,7 +137,6 @@ function CampusHome({ a, anna, today, celebrate, me }) {
   return (
     <>
       <header className="hero span-6 ac-hero">
-        <Crumb to="/us">Us</Crumb>
         <div className="hero-top"><span className="kicker">{anna.name}’s school</span><button type="button" className="icon-btn" onClick={() => setEditing(true)} aria-label="The school’s name, motto and colours"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /></svg></button></div>
         <h1 className="greet">{s.name || `${anna.name}’s Academy`}</h1>
         {s.motto && <p className="ac-motto">{s.motto}</p>}

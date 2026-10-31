@@ -9,9 +9,9 @@ repository, its own database, its own look.
 
 ## The places
 
-Five tabs, the same for all of us: four places we share, and **Us**, which
-holds everything that's ours. On a computer, the rail lists what's under Us
-too.
+Five tabs, the same for all of us: four places we share, and **Apps**,
+which opens a sheet of everything else over whatever you're looking at. On
+a computer, the side rail lists the apps under their own heading.
 
 | Tab | What it is |
 |---|---|
@@ -19,18 +19,18 @@ too.
 | **Calendar** | A full calendar (day, week, month, year), synced with our Google calendars, with the Church year, Mass times, our ministries, family days, holidays, heritage days, seasons and nature woven in. |
 | **Kitchen** | Jason's cooking: the week's recipes, what's left in the fridge, a cook check before cooking. |
 | **World** | All our places on one map (around home, SoCal, the world), each with its own page, its skyline in its sky right now and a link into the phone's maps app; weather in depth; the sky, the sun and the moon; a page for each school. |
-| **Us** | Everything that's ours, one tap away: |
+| **Apps** | A sheet of the apps below; the tab stays lit while one is open. |
 
-Under **Us** (each keeps its own address, and the Us tab stays lit inside it):
+The apps (each at its own address):
 
 | Place | What it is |
 |---|---|
-| **Journal** (`/us/journal`) | Each person's own journal, readable by them alone: the day's question, anything else, gratitudes; this day in other years; notes to your future self. |
+| **Journal** (`/journal`) | Each person's own journal, readable by them alone: the day's question, anything else, gratitudes; this day in other years; notes to your future self. |
 | **The Academy** (`/academy`) | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 | **Life List** (`/lifelist`) | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off. |
 | **The Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in. |
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
-| **The Garden** (`/us/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
+| **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
 
 What's built so far, and what's next: [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -80,9 +80,10 @@ Setting it all up, in order: `docs/MORNING.md`.
   isometric), tasks, goals, grades and the Hall of Fame; its pictures are
   `src/academy/items.js` and `public/academy/` (`docs/ACADEMY-ART.md`). It
   loads only when opened.
-- `src/places/Us.jsx` — the Us tab; under it `src/places/us/` holds the
-  journal (`Journal.jsx`, with `src/lib/journal.js`: each person's own,
-  readable by them alone) and the garden.
+- `src/shell/AppsSheet.jsx` and `src/ui/apps.jsx` — the Apps tab's sheet
+  and its list. `src/places/journal/` is the journal (with
+  `src/lib/journal.js`: each person's own, readable by them alone);
+  `src/places/garden/` the garden.
 - `src/lib/` — plain logic with no React, so tests can run it.
   `src/lib/cal/` works out the calendar: the Church's day (`liturgy.js`),
   the saints' lines and prayers, holidays and heritage days
@@ -163,6 +164,6 @@ and added: `docs/ART-CAPTURE.md`.
   drawn to WebP by `scripts/academy-art.mjs` with the licence beside them
   in `public/academy/`. The rooms and campus are drawn in code. Pictures
   the family adds carry their own licence (`docs/ACADEMY-ART.md`).
-- **Indoor plants** are drawn in code (`src/places/us/PlantArt.jsx`).
-- **The places under Us** each have a line icon drawn on the tab icons' 24-unit
-  grid, on a tile in their own colour (`src/ui/usPlaces.jsx`, `src/ui/IconTile.jsx`).
+- **Indoor plants** are drawn in code (`src/places/garden/PlantArt.jsx`).
+- **The apps** each have a line icon drawn on the tab icons' 24-unit grid,
+  on a tile in their own colour (`src/ui/apps.jsx`, `src/ui/IconTile.jsx`).

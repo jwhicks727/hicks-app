@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Apps, a sheet, instead of Us
+
+The fifth tab is **Apps**, and it opens a sheet rather than a page, the way
+SOAR's new layout opens its Modules: a grid of the apps (Journal, The
+Academy, Life List, The Gallery, Jams, The Garden) over whatever you were
+looking at. Closing it leaves that screen as it was; a tile opens its app,
+and Back from the app returns to where you were. The tab stays lit while an
+app is open. On a computer the rail lists the apps under an "Apps" heading,
+with no sheet. Every app has its own address now (`/journal`, `/garden`
+joining `/academy`, `/lifelist`, `/jams`), and none has a Back link to a
+menu. This replaces the Us page from earlier the same day; the code is our
+own, written fresh, with only the idea taken from SOAR.
+
 ## 2026-11-01 — Outdoor tones, and cream for white
 
 Us's tiles came down from bright to the mockup's own muted, outdoor tones:
