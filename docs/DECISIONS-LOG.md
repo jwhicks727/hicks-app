@@ -6,6 +6,15 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Back to main, for the moment
+
+The day the app went live was also the day of the most setup, with many
+small fixes arriving a few minutes apart, and a branch and a pull request
+for each was more to keep track of than the work itself. So, for now, work
+goes straight to `main` again and each push deploys. The branch rule below
+stays written down for when Jason says branches are back: one branch at a
+time, a draft pull request only after asking him.
+
 ## 2026-11-01 — One branch for each piece of work
 
 Now that the app is live at hicks.web.app, nothing is committed straight to
