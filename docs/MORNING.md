@@ -15,7 +15,7 @@ step says.
 3. Today is Día de los Muertos, so her leaves drift down slowly as petals.
    For Halloween's show, open Settings › Reading and motion › Try another
    season › Halloween › Play it.
-4. Her gallery: Life List › Laurie's gallery.
+4. Her Gallery: Apps › The Gallery.
 
 A development copy shows the paintings without signing in. A hosted copy
 never will.
@@ -45,7 +45,13 @@ family days block is there too, or add them in the app later).
 
 ## 3. Signing in
 
-Authentication › URL Configuration › Redirect URLs. Add:
+First the two values the app needs, from Supabase › Project Settings ›
+API: copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` (the
+Project URL) and `VITE_SUPABASE_ANON_KEY` (the *publishable* key; never the
+secret or service key). `.env` is never committed. Without it the app says
+the database isn't connected, and a build made without it ships that way.
+
+Then Authentication › URL Configuration › Redirect URLs. Add:
 
 - `http://localhost:5173/**`
 - your Firebase address, once step 8 gives it:
@@ -103,8 +109,8 @@ name › "Pictures the family has added", with each one's licence
 
 ## 7. Paintings into private storage
 
-In the development copy, signed in as a parent: Life List › Laurie's
-gallery › "Move them now". From then on they're behind sign-in everywhere
+In the development copy (`npm run dev` on your computer, not the hosted
+app), signed in as a parent: Apps › The Gallery › "Move them now". From then on they're behind sign-in everywhere
 (docs/PAINTINGS-STORAGE.md).
 
 ## 8. Firebase Hosting (the free Spark plan)
@@ -124,7 +130,8 @@ gallery › "Move them now". From then on they're behind sign-in everywhere
    firebase deploy --only hosting
    ```
 
-   The address it prints is the app. Add it to the redirect URLs (step 3).
+   (This build reads your `.env`: check it's filled in first.) The address
+   it prints is the app. Add it to the redirect URLs (step 3).
    On your phone, open it in Safari, then Share › Add to Home Screen: Team
    Hicks, with its icon.
 4. **For previews and automatic deploys,** run
@@ -145,7 +152,10 @@ gallery › "Move them now". From then on they're behind sign-in everywhere
 5. GitHub › Settings › Environments › New environment "production" ›
    Deployment branches: only `main`.
 
-From here, every merge to `main` deploys the live app.
+From here, every merge to `main` deploys the live app. Until this step is
+done, the **Deploy** workflow fails on each push to `main` (it has no
+secret to deploy with yet): that's expected. Once it's done, GitHub ›
+Actions › Deploy › Run workflow deploys the latest.
 
 ## 9. The way work goes from now on
 
