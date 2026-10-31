@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Lift a bird out of one of Laurie's paintings so it can fly (src/lib/paintings.js).
+Lift things out of Laurie's paintings so they can move (src/lib/paintings.js):
+a bird that flies, or the leaves she painted, to drift across the screen.
 
-Two steps, run on a computer with Python 3, Pillow and numpy:
+Run on a computer with Python 3, Pillow and numpy:
 
   1. flatten: a photo of the canvas on the wall -> the painting alone, square on.
-       python3 scripts/lift-bird.py flatten photo.jpg flat.png --size 1440x1920
+       python3 scripts/lift-art.py flatten photo.jpg flat.png --size 1440x1920
      The canvas's edges are found where its dark border meets the lighter wall;
      give --corners x,y,x,y,x,y,x,y (top-left, top-right, bottom-right,
      bottom-left) when they can't be.
@@ -15,6 +16,11 @@ Two steps, run on a computer with Python 3, Pillow and numpy:
          --grain 520,300,760,420 --slug witch-and-crow --bird crow --out public/paintings
      --region is a box round the bird with sky all round it; --grain a patch of
      open sky to borrow the canvas's grain from.
+  3. leaves: flat.png -> <slug>-leaves.png, a sheet of the small bright things
+     she painted on a dark ground (leaves, petals, sparks), and prints where
+     each one sits on the sheet.
+       python3 scripts/lift-art.py leaves flat.png --region 0,1580,1080,1920 \\
+         --slug witch-and-crow --count 24 --out public/paintings
 
 The sky behind the bird is filled from its own surroundings (no image
 generator is involved), and the bird and the sky composite back to the
@@ -30,6 +36,8 @@ sub = ap.add_subparsers(dest='step', required=True)
 f = sub.add_parser('flatten'); f.add_argument('photo'); f.add_argument('out'); f.add_argument('--size', default='1440x1920'); f.add_argument('--corners')
 l = sub.add_parser('lift'); l.add_argument('flat'); l.add_argument('--region', required=True); l.add_argument('--grain', required=True)
 l.add_argument('--slug', required=True); l.add_argument('--bird', default='bird'); l.add_argument('--out', default='public/paintings'); l.add_argument('--dark', type=float, default=110)
+v = sub.add_parser('leaves'); v.add_argument('flat'); v.add_argument('--region', required=True); v.add_argument('--slug', required=True)
+v.add_argument('--count', type=int, default=24); v.add_argument('--out', default='public/paintings')
 args = ap.parse_args()
 box = lambda s: [int(v) for v in s.split(',')]
 
@@ -162,4 +170,46 @@ def lift():
       'check': f'composite error {err:.2f} of 255',
     }))
 
-flatten() if args.step == 'flatten' else lift()
+
+
+def leaves():
+    """Her small painted things on a dark ground, each soft-edged, packed onto one sheet."""
+    x0, y0, x1, y1 = box(args.region)
+    im = Image.open(args.flat).convert('RGB'); A = np.asarray(im).astype(np.float64)[y0:y1, x0:x1]
+    L = A.mean(axis=2)
+    Lim = Image.fromarray(np.uint8(np.clip(L, 0, 255)))
+    bgL = np.asarray(Lim.filter(ImageFilter.MinFilter(9)).filter(ImageFilter.GaussianBlur(12))).astype(float)
+    rgb = Image.fromarray(np.uint8(np.clip(A, 0, 255)))
+    bgC = np.asarray(rgb.filter(ImageFilter.MinFilter(9)).filter(ImageFilter.GaussianBlur(12))).astype(float)
+    alpha = np.clip((L - bgL - 14) / 46, 0, 1)
+    sat = A.max(axis=2) - A.min(axis=2)
+    core = (alpha > 0.45) & (sat > 30)
+    H, W = core.shape; lab = np.zeros((H, W), int); comps = []; n = 0
+    for y in range(H):
+        for x in range(W):
+            if core[y, x] and not lab[y, x]:
+                n += 1; stack = [(y, x)]; lab[y, x] = n; pts = []
+                while stack:
+                    cy, cx = stack.pop(); pts.append((cy, cx))
+                    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        ny, nx = cy + dy, cx + dx
+                        if 0 <= ny < H and 0 <= nx < W and core[ny, nx] and not lab[ny, nx]:
+                            lab[ny, nx] = n; stack.append((ny, nx))
+                ys = [p[0] for p in pts]; xs = [p[1] for p in pts]
+                if 40 <= len(pts) <= 2500: comps.append((len(pts), min(xs), min(ys), max(xs), max(ys)))
+    comps.sort(reverse=True); comps = comps[:args.count]
+    m = 4; cells = []
+    for _, a, b, c, d in comps:
+        a, b, c, d = max(a - m, 0), max(b - m, 0), min(c + m + 1, W), min(d + m + 1, H)
+        al = alpha[b:d, a:c][..., None]; fg = np.where(al > 0, (A[b:d, a:c] - (1 - al) * bgC[b:d, a:c]) / np.maximum(al, 1e-6), 0)
+        cells.append(np.dstack([np.clip(fg, 0, 255), al[..., 0] * 255]))
+    # Pack them in a row, left to right
+    sw = sum(cl.shape[1] + 2 for cl in cells); sh = max(cl.shape[0] for cl in cells)
+    sheet = np.zeros((sh, sw, 4)); boxes = []; x = 0
+    for cl in cells:
+        h, w = cl.shape[:2]; sheet[:h, x:x + w] = cl; boxes.append([x, 0, w, h]); x += w + 2
+    Image.fromarray(np.uint8(np.round(sheet)), 'RGBA').save(f'{args.out}/{args.slug}-leaves.png', optimize=True)
+    print(json.dumps({'sheet': [sw, sh], 'boxes': boxes}))
+
+
+{'flatten': flatten, 'lift': lift, 'leaves': leaves}[args.step]()

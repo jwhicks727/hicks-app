@@ -90,7 +90,7 @@ and added: `docs/ART-CAPTURE.md`.
 - **Laurie's paintings:** hers, used with her permission and listed in
   `src/lib/paintings.js`: *The witch and the crow* (a working title),
   photographed on the wall at home. Its crow is lifted out to fly by
-  `scripts/lift-bird.py`, which fills her sky in behind it from its
+  `scripts/lift-art.py`, which fills her sky in behind it from its
   surroundings; the painting is always shown unaltered at rest.
 - **Maps:** land and sea outlines from Natural Earth (public domain,
   https://www.naturalearthdata.com), by way of the world-atlas package's

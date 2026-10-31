@@ -6,6 +6,28 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Seasons move instead of colouring the sky
+
+This reverses the seasonal wash of 2026-10-31.
+
+- **The sky keeps its own colours all year.** The light wash of each
+  season's colours over the sky is gone, and so is the painting faded
+  along the bottom of every screen.
+- **Each season shows itself as an animation, almost always from Laurie's
+  paintings.** Once a day, a moment after the app opens, something she
+  painted moves across the screen, over everything, never taking a tap,
+  and not at all under less motion.
+  - **Fall, Thanksgiving week and Halloween:** the leaves round her witch,
+    lifted out of the painting by `scripts/lift-art.py leaves`, fall
+    across the screen, swaying and turning.
+  - **Día de los Muertos:** the same leaves drift down slowly, like
+    marigold petals.
+  - The crow still flies on Home's panel.
+- **A season with none of her paintings has no show,** and Settings says
+  so. It waits for her to paint one rather than taking stock art.
+- **Settings › The season's show** switches it off. **Try another season**
+  plays any season's show, and hangs its painting on Home, for that visit.
+
 ## 2026-11-01 — Answers from the family, and small changes
 
 - **Places stay well-labelled places;** no "why it matters" lines.
@@ -52,7 +74,7 @@ new entry; the old one stays. The working rules for every project are in
   back. It is moved by transforms alone, over everything, and never takes
   a tap.
 - **Her painting is never changed.** The crow is lifted out with
-  `scripts/lift-bird.py`: her own sky is filled in behind it from its
+  `scripts/lift-art.py`: her own sky is filled in behind it from its
   surroundings (no image generator), and the crow is kept as a soft-edged
   cut-out. The two composite back to the painting to within about 2 of 255.
   The patch shows only while the crow is away; at rest the app shows her

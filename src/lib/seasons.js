@@ -5,9 +5,9 @@
 // specific holiday winning over the broad season around it, and palettes of
 // an accent and three hues for a soft wash. Written fresh for the family:
 // the Church's seasons move with Easter and are worked out each year, and
-// Christmas lasts until the Baptism of the Lord. The wash sits lightly over
-// the sunset sky; each season can carry one of Laurie's paintings
-// (`art`, docs/ART-CAPTURE.md). Pure: tests/seasons.test.mjs.
+// Christmas lasts until the Baptism of the Lord. The sky keeps its own
+// colours; a season shows itself as an animation from one of Laurie's
+// paintings (src/lib/seasonShows.js). Pure: tests/seasons.test.mjs.
 
 import { keyDates } from './cal/liturgy.js'
 import { nthWeekday, addDays, parts } from './cal/dates.js'
@@ -35,6 +35,7 @@ export const SEASONS = {
 }
 
 // Laurie's painting for each season: whichever of her paintings names it (src/lib/paintings.js).
+// It's the painting on Home's panel in that season.
 export const SEASON_ART = Object.fromEntries(PAINTINGS.flatMap((p) => p.seasons.map((k) => [k, p.src])).reverse())
 
 /** Each season's windows in year `y`: [{ from, to }] as 'YYYY-MM-DD', inclusive. */

@@ -12,9 +12,12 @@ Built in this order, each part in daily use before the next.
 - [ ] The family's own Supabase project (Jason creates it; settings in `.env`).
       West US (North California); new tables not exposed automatically;
       automatic row-level security on.
-- [x] The year's colours: a light seasonal wash over the sky (the Church's
-      seasons, the holidays, the four seasons), with a slot for one of
-      Laurie's paintings per season once scanned.
+- [x] The season's show: once a day, something from one of Laurie's
+      paintings moves across the screen (her painted leaves fall through
+      fall and Halloween; the crow flies on Home). The sky keeps its own
+      colours. Settings can try another season's show.
+- [ ] A show for every season, as she paints them: Christmas, Advent,
+      Lent, Easter, spring, summer, July 4th.
 - [x] Laurie's gallery (Life List) and the Paintings panel on Home; her
       witch and crow colours Halloween, its crow flies once a day.
 - [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), each

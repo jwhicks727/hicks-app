@@ -4,7 +4,7 @@
 // Pure, so tests run it in Node. Each painting is photographed the way
 // docs/ART-CAPTURE.md says and added here with its files in public/paintings/;
 // newest first. A painting with a `flyer` has one of its own birds cut out
-// (scripts/lift-bird.py): the bird and the patch of sky behind it composite
+// (scripts/lift-art.py): the bird and the patch of sky behind it composite
 // back to the painting exactly, and at rest the painting is always shown
 // whole, as she painted it.
 
@@ -25,6 +25,8 @@ export const PAINTINGS = [
       sky: '/paintings/witch-and-crow-sky.png', skyAt: [0.1674, 0.324, 0.2639, 0.1656],
       faces: 'right',
     },
+    // The leaves she painted falling round the witch, lifted onto one sheet (scripts/lift-art.py leaves)
+    leaves: { sheet: '/paintings/witch-and-crow-leaves.png', size: [842, 50], boxes: [[0,0,37,46],[39,0,54,39],[95,0,30,50],[127,0,48,28],[177,0,42,33],[221,0,43,47],[266,0,40,34],[308,0,35,38],[345,0,28,44],[375,0,30,46],[407,0,24,42],[433,0,31,37],[466,0,34,41],[502,0,30,38],[534,0,35,36],[571,0,32,39],[605,0,25,46],[632,0,36,34],[670,0,26,37],[698,0,24,42],[724,0,28,26],[754,0,28,30],[784,0,22,31],[808,0,32,25]] },
   },
 ]
 export const paintingBySlug = (slug) => PAINTINGS.find((p) => p.slug === slug) || null

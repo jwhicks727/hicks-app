@@ -1,5 +1,6 @@
 import { parsePath, usePath } from './lib/router.js'
 import Sky from './shell/Sky.jsx'
+import SeasonShow from './shell/SeasonShow.jsx'
 import TabBar from './shell/TabBar.jsx'
 import Home from './places/Home.jsx'
 import World from './places/World.jsx'
@@ -20,6 +21,7 @@ export default function App() {
   return (
     <>
       <Sky />
+      <SeasonShow />
       <div className="app">
         <TabBar current={place} />
         <main className="screen" key={place}>

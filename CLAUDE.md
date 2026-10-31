@@ -72,7 +72,7 @@ and write the code fresh. SOAR's code belongs to the school.
   thing.
 - **Laurie's paintings are shown as she painted them.** Crop and frame
   them, never alter them. A bird that flies out of one is a cut-out over
-  her own sky (`scripts/lift-bird.py`), and at rest the painting itself is
+  her own sky (`scripts/lift-art.py`), and at rest the painting itself is
   shown. Never put one through an image generator. Her title, year and
   medium come from her, never guessed (`src/lib/paintings.js`,
   `tests/paintings.test.mjs`).

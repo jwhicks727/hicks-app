@@ -1,0 +1,11 @@
+/* The season's show: her painted leaves falling across the screen (src/shell/SeasonShow.jsx) */
+.season-show { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
+.ss-fall { position: absolute; left: 0; top: 0; will-change: transform; transform: translate3d(var(--x0), -12vh, 0);
+  animation: show-fall var(--dur) cubic-bezier(.35, .1, .6, .9) var(--delay) both; }
+.ss-sway { display: block; animation: show-sway var(--swaydur) ease-in-out infinite alternate; }
+.ss-sway i { display: block; background-repeat: no-repeat; animation: show-spin var(--dur) linear var(--delay) both; }
+@keyframes show-fall { 0% { transform: translate3d(var(--x0), -12vh, 0); opacity: 0; } 6% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translate3d(var(--x1), 108vh, 0); opacity: 0; } }
+@keyframes show-sway { from { transform: translateX(calc(var(--sway) * -1)) rotateX(0deg); } to { transform: translateX(var(--sway)) rotateX(55deg); } }
+@keyframes show-spin { to { transform: rotate(var(--spin)); } }
+html[data-motion="less"] .season-show { display: none; }
+@media (prefers-reduced-motion: reduce) { .season-show { display: none; } }

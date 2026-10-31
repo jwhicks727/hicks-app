@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { existsSync, statSync } from 'node:fs'
 import { PAINTINGS, paintingBySlug, paintingFor, cropFor, boxIn, flightPoints, birdAt, along, progress } from '../src/lib/paintings.js'
 import { SEASON_ART, SEASONS, seasonByKey, seasonFor } from '../src/lib/seasons.js'
+import { SHOWS, showFor, leafFalls, showLength } from '../src/lib/seasonShows.js'
 
 const pub = (f) => new URL('../public' + f, import.meta.url)
 
@@ -28,9 +29,18 @@ test('every painting is here with its files, and nothing about it is guessed', (
   assert.equal(paintingBySlug('nope'), null)
 })
 
-test('her painting colours its season, and a season without one falls back to her newest', () => {
+test('her painting hangs in its season, and a season without one falls back to her newest', () => {
   assert.equal(SEASON_ART.halloween, paintingBySlug('witch-and-crow').src)
   assert.equal(seasonFor('2026-10-20').art, SEASON_ART.halloween)
+  // Her leaves fall in fall; a season with none of her paintings has no show
+  assert.equal(showFor('fall').painting.slug, 'witch-and-crow')
+  assert.equal(showFor('christmas'), null)
+  const falls = leafFalls(showFor('halloween'), 7)
+  assert.equal(falls.length, SHOWS.halloween.count)
+  assert.deepEqual(falls, leafFalls(showFor('halloween'), 7), 'the same leaves for the same day')
+  for (const f of falls) assert.ok(f.leaf.length === 4 && f.dur > 0 && f.x0 >= 0 && f.x0 <= 100)
+  assert.ok(showLength(falls) < 20000)
+  assert.ok(existsSync(pub(paintingBySlug('witch-and-crow').leaves.sheet)))
   assert.equal(seasonByKey('halloween').key, 'halloween')
   assert.equal(seasonByKey('nope'), null)
   assert.equal(paintingFor('halloween').slug, 'witch-and-crow')

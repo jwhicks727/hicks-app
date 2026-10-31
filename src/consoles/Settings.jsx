@@ -5,7 +5,8 @@ import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import { GROUPS } from '../lib/cal/observances.js'
-import { seasonFor, SEASONS, SEASON_ORDER, SEASON_ART } from '../lib/seasons.js'
+import { seasonFor, SEASONS, SEASON_ORDER } from '../lib/seasons.js'
+import { showFor } from '../lib/seasonShows.js'
 import { todayAt } from '../lib/cal/dates.js'
 
 export default function Settings() {
@@ -56,17 +57,20 @@ export default function Settings() {
           ))}
         </fieldset>
         <div className="switch-row">
-          <span><b>The season’s colours</b><span>Now: {seasonFor(todayAt()).label}. A light wash over the sky, after the Church year and the holidays</span></span>
-          <button type="button" className="switch" role="switch" aria-checked={prefs.seasonal !== false} aria-label="The season’s colours" onClick={() => update({ seasonal: prefs.seasonal === false })}><i /></button>
+          <span><b>The season’s show</b><span>{(() => { const sh = showFor(seasonFor(todayAt()).key); return sh ? `Now, ${seasonFor(todayAt()).label}: ${sh.what}, once a day` : `${seasonFor(todayAt()).label} has none of Laurie’s paintings yet` })()}</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.seasonal !== false} aria-label="The season’s show" onClick={() => update({ seasonal: prefs.seasonal === false })}><i /></button>
         </div>
         {prefs.seasonal !== false && (
-          <label className="form season-try">
-            <span><b>Try on another season</b><span>Until the app is closed, then it’s back to today’s</span></span>
-            <select value={tryKey} onChange={(e) => setTry(e.target.value)}>
-              <option value="">Today’s: {seasonFor(todayAt()).label}</option>
-              {SEASON_ORDER.map((k) => <option key={k} value={k}>{SEASONS[k].label}{SEASON_ART[k] ? ', with Laurie’s painting' : ''}</option>)}
-            </select>
-          </label>
+          <div className="form season-try">
+            <label htmlFor="season-try"><b>Try another season</b><span>Its show and its painting on Home, until the app is closed</span></label>
+            <div className="season-try-row">
+              <select id="season-try" value={tryKey} onChange={(e) => setTry(e.target.value)}>
+                <option value="">Today’s: {seasonFor(todayAt()).label}</option>
+                {SEASON_ORDER.filter((k) => showFor(k)).map((k) => <option key={k} value={k}>{SEASONS[k].label}</option>)}
+              </select>
+              <button type="button" className="btn ghost" disabled={!showFor(tryKey || seasonFor(todayAt()).key)} onClick={() => window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: tryKey || seasonFor(todayAt()).key } }))}>Play it</button>
+            </div>
+          </div>
         )}
         <div className="switch-row">
           <span><b>A mindful moment on Home</b><span>A line from Thich Nhat Hanh each day, and a pause to breathe</span></span>

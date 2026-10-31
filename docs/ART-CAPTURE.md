@@ -145,10 +145,13 @@ For anything that fits the glass and has no thick paint:
 
   It appears in her gallery (`/lifelist/paintings`) and gets its own page.
 - **A season:** list the season in the painting's `seasons`, for example
-  `['halloween']`. It then shows faintly along the bottom of every screen
-  in that season, and in the Paintings panel on Home. The bottom of the
-  painting shows most, so a wide painting suits it best.
-- **A bird that flies:** `scripts/lift-bird.py` lifts a bird out of the
+  `['halloween']`. It then hangs in the Paintings panel on Home through
+  that season.
+- **A season's show:** something she painted can move across the screen
+  in its season. Lift the leaves, petals or sparks with
+  `scripts/lift-art.py leaves`, and name the painting in `SHOWS` in
+  `src/lib/seasonShows.js`.
+- **A bird that flies:** `scripts/lift-art.py lift` lifts a bird out of the
   painting. Give its `flyer` the two boxes the script prints. The painting
   itself is never changed.
 - **Credit:** each painting gets a line in README.md's credits, with its
