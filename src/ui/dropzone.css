@@ -1,0 +1,28 @@
+/* Somewhere to give the app a picture: choose, photograph, paste or drop (src/ui/Dropzone.jsx) */
+.drop { display: grid; justify-items: center; gap: 6px; padding: 18px 14px; border: 2px dashed color-mix(in srgb, var(--tint, #C0824F) 45%, var(--line)); border-radius: var(--r-card); background: color-mix(in srgb, var(--tint, #C0824F) 5%, var(--card)); text-align: center; transition: background .2s ease, border-color .2s ease; }
+.drop.over { border-color: var(--tint, #C0824F); background: color-mix(in srgb, var(--tint, #C0824F) 16%, var(--card)); }
+.drop.off { opacity: .55; }
+.drop-i { width: 28px; height: 28px; color: color-mix(in srgb, var(--tint, #C0824F) 80%, var(--ink)); }
+.drop b { font-weight: 800; }
+.drop-how { color: var(--muted); font-size: 14px; }
+.drop-b { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+.drop-b .btn { justify-self: auto; }
+.drop-note { color: var(--muted); font-size: 14px; font-weight: 700; }
+/* A camera button only where there's likely a camera */
+@media (pointer: fine) { .drop-cam { display: none; } }
+
+/* A calendar read from a picture, to choose from */
+.pic-preview { max-width: 100%; max-height: 220px; justify-self: start; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+.pic-events { list-style: none; margin: 0; padding: 0; display: grid; max-height: 420px; overflow-y: auto; }
+.pic-events li { border-bottom: 1px solid var(--line); }
+.pic-events label { display: grid; grid-template-columns: 24px 9.5em minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 48px; cursor: pointer; }
+.pic-events input { width: 20px; height: 20px; }
+.pic-events .fig { color: var(--muted); font-weight: 700; font-size: 14px; }
+.pic-kind { font-style: normal; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 7%, var(--card)); white-space: nowrap; }
+.pic-kind.no_school { background: #FBE3D6; color: #8A3412; }
+@media (max-width: 520px) { .pic-events label { grid-template-columns: 24px minmax(0, 1fr) auto; } .pic-events .fig { grid-column: 2 / 4; grid-row: 2; } .pic-events b { grid-row: 1; grid-column: 2; } }
+
+/* A form's own "fill it in from a picture" */
+.from-pic { display: grid; gap: 10px; }
+.from-pic summary { cursor: pointer; font-weight: 800; min-height: 44px; display: flex; align-items: center; }
+.from-pic[open] { padding-bottom: 6px; }

@@ -6,6 +6,29 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Anything can come in as a picture, a paste or a drop
+
+- **One way in, everywhere a file or a picture goes** (`src/ui/Dropzone.jsx`):
+  - choose a file;
+  - take a photo (on a phone);
+  - paste it: a screenshot on the clipboard, anywhere on the screen while
+    the drop zone shows, or with its Paste button;
+  - drag it in on a desktop.
+
+  Pasted text goes where text is wanted. Pictures are shrunk on the phone
+  before they're sent.
+- **A calendar from a picture** (Setup): a screenshot of a school calendar,
+  a photo of a flyer, a PDF from an email. Claude reads the dates; a
+  parent ticks the ones to keep; they go in under a source of their own,
+  marked "Read from a picture", good until its last date.
+- **A new event from a picture** (Calendar): an invitation, a ticket or a
+  flyer fills the form in, for checking before it's saved.
+- **A recipe from a photo or screenshot** (Kitchen › Add recipes): Claude
+  rewrites it in Jason's format, faithfully, for him to check before
+  saving. Obsidian files can be dropped in several at once.
+- **Every one of these says on screen** that the picture goes to Claude
+  (Anthropic), before it is sent.
+
 ## 2026-11-01 — A morning sit, and the teaching taken lightly
 
 - **The breathing pause becomes the morning sit** (`/home/sit`): one short

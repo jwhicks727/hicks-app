@@ -4,6 +4,7 @@ import { useFamily } from '../lib/useCalendar.js'
 import { useDraft, hasDraft } from '../lib/useDraft.js'
 import { SCHOOLS } from '../lib/cal/schools.js'
 import FamilyDays from './FamilyDays.jsx'
+import CalendarFromPicture from './CalendarFromPicture.jsx'
 import { useSession } from '../lib/auth.js'
 import { useSources, todayAtHome } from '../lib/useSources.js'
 import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
@@ -132,8 +133,10 @@ export default function Setup() {
         </ul>
         {rows && rows.length === 0 && !adding && <p className="muted">Nothing yet. Start with the school calendars: Kordyak (Rialto Unified), Wayne Ruble (Fontana Unified) and SOAR.</p>}
         {adding ? <SourceForm members={family.members} draftKey="source.new" onSaved={() => { setAdding(false); reload() }} onCancel={() => setAdding(false)} /> : <button type="button" className="btn" onClick={() => setAdding(true)}>Add a source</button>}
-        <p className="muted">Calendar feeds (iCal, webcal, a Google Calendar’s iCal address) are read every night once the reader is set up, and “Read now” reads one at once. Documents and pictures, read into dates you approve, come next.</p>
+        <p className="muted">Calendar feeds (iCal, webcal, a Google Calendar’s iCal address) are read every night once the reader is set up, and “Read now” reads one at once. A screenshot, photo or PDF of a calendar goes in below, its dates read by Claude for you to choose from.</p>
       </Card>
+
+      <CalendarFromPicture members={family.members} onAdded={reload} />
 
       <FamilyDays family={family} today={today} reload={family.reload} />
 

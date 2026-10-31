@@ -6,6 +6,9 @@ import { useDraft } from '../lib/useDraft.js'
 import { saveEvent } from '../lib/useCalendar.js'
 import { looksOutdoors, geocodeUrl, shapePlaces } from '../lib/outdoors.js'
 import { homeInstant } from '../lib/cal/dates.js'
+import Dropzone from '../ui/Dropzone.jsx'
+import { askClaude, prepareUpload } from '../lib/claude.js'
+import { cleanReading } from '../lib/cal/fromPicture.js'
 
 const KINDS = [['event', 'Something on'], ['show', 'A show or concert'], ['family', 'Family'], ['ministry', 'Church or ministry'], ['school', 'School'], ['no_school', 'No school'], ['holiday', 'Holiday'], ['other', 'Other']]
 const hmOf = (iso) => (iso ? new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(iso)) : '')
@@ -17,7 +20,19 @@ export default function EventForm({ event, date, members }) {
   const [f, setF, clear] = useDraft(event ? `event.${event.id}` : 'event.new', initial)
   const [found, setFound] = useState(null)
   const [err, setErr] = useState(null)
+  const [reading, setReading] = useState(null)
   const outdoors = f.outdoors ?? looksOutdoors(f.title, f.place)
+  // An invitation, a ticket or a flyer: Claude reads it, and the form fills in for checking
+  async function fromPicture(files) {
+    setReading('Reading it…')
+    const up = await prepareUpload(files[0], { max: 2000 })
+    const res = await askClaude('calendar-from-image', { file: { data: up.data, media_type: up.media_type }, hint: 'one event: an invitation, a ticket or a flyer' })
+    if (res.error) { setReading(res.error); return }
+    const [e] = cleanReading(res.events)
+    if (!e) { setReading('No date found in that one.'); return }
+    setF({ ...f, title: e.title, starts_on: e.starts_on, ends_on: e.ends_on, allDay: !e.time, start: e.time || f.start, kind: e.kind === 'other' ? 'event' : e.kind, notes: [f.notes, e.note].filter(Boolean).join('\n') })
+    setReading('Filled in from the picture: check it, then save.')
+  }
   async function find() {
     setFound('Looking…')
     try { const r = await fetch(geocodeUrl(f.place)); setFound(shapePlaces(await r.json())) } catch { setFound('The map couldn’t be reached just now.') }
@@ -40,6 +55,14 @@ export default function EventForm({ event, date, members }) {
     <>
       <header className="hero span-6"><Crumb to={`/calendar/day/${date}`}>Calendar</Crumb><span className="kicker">Calendar</span><h1 className="greet">{event ? 'Change it' : 'Something new'}</h1></header>
       <Card tint="#3E7A4C" label={event ? event.title : 'New event'} glyph="calendar" className="span-6">
+        {!event && (
+          <details className="from-pic" open={Boolean(reading)}>
+            <summary>Fill it in from a screenshot or photo</summary>
+            <Dropzone accept="image/*,application/pdf" label="An invitation, ticket or flyer" hint="Paste a screenshot, drop it here, or choose one." onFiles={fromPicture} disabled={reading === 'Reading it…'} />
+            <p className="muted small">The picture goes to Claude (Anthropic) to read the date and time; you check it before saving.</p>
+            {reading && <p className="muted" role="status">{reading}</p>}
+          </details>
+        )}
         <form className="form" onSubmit={save}>
           <label>What<input required maxLength={300} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="Camping at Big Bear, the String Cheese Incident…" /></label>
           <div className="form-row">
