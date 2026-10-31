@@ -6,6 +6,38 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The garden, from Home
+
+- **The garden lives under Home** (`/home/garden`), with a card on Home
+  for today's jobs.
+- **Maps, not plans:**
+  - **Areas:** the back yard, the patio, a room inside, each drawn
+    colourfully: a mown lawn, or a room's wooden floor lit from its window.
+  - **Spots:** beds and raised boxes in soil, with rosettes and a few
+    blooms; terracotta pots; trees from above; the hummingbird feeder; the
+    bird bath; paths; compost.
+  - **To arrange:** drag on a desktop or with a finger, or choose a spot,
+    tap Move and tap the map. Nothing needs a mouse.
+  - The maps never hold an address or coordinates.
+- **Care is worked out, not typed:**
+  - **Watering:** each plant has its own rhythm, a day sooner at 95° or
+    more, and is skipped when rain is likely.
+  - **The feeder's nectar:** changed every 2 days at 90° and over, every 6
+    when it's cool.
+  - **The bird bath:** fresh every 2–3 days.
+  - **Warnings:** wind (bring light pots in), heat, and frost (cover, and
+    water the day before).
+  - "Done" is one tap.
+- **Photos stay in a private bucket** (the family only, signed links). One
+  goes to Claude only when someone taps "Have Claude look", and the
+  screen says so first. Claude names the plants, judges their health,
+  and gives care for this climate and month. Its answer is kept with the
+  photo.
+- **What to plant each month** is a general guide for inland Southern
+  California, with UC IPM linked for pests and problems.
+- **The garden feeds the Kitchen:** picks logged in the last ten days are
+  part of what Claude knows when it plans or chats.
+
 ## 2026-11-01 — The Kitchen's week, its rules, and Claude to talk to
 
 - **The whole weekly workflow is in the app** (docs/KITCHEN.md):

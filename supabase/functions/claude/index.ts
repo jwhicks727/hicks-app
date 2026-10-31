@@ -173,12 +173,14 @@ Deno.serve(async (req) => {
 // What the Kitchen tells Claude: read as the caller, so row-level security decides what's included
 // deno-lint-ignore no-explicit-any
 async function kitchenContext(db: any, isParent: boolean, page?: { slug?: string }) {
-  const [prefs, recipes, ratings, fridge, plan] = await Promise.all([
+  const since = new Date(Date.now() - 10 * 864e5).toISOString().slice(0, 10)
+  const [prefs, recipes, ratings, fridge, plan, picked] = await Promise.all([
     db.from('kitchen_preferences').select('body').order('created_at', { ascending: false }).limit(1),
     db.from('recipes').select('id, slug, title').order('updated_at', { ascending: false }).limit(120),
     db.from('recipe_ratings').select('recipe_id, stars').limit(1000),
     db.from('fridge').select('recipe_id, status, added_on, done_on').order('added_on', { ascending: false }).limit(200),
     db.from('week_plans').select('ideas').order('created_at', { ascending: false }).limit(1),
+    db.from('garden_log').select('on_date, note, spot:garden_spots(name)').eq('kind', 'harvest').gte('on_date', since).order('on_date', { ascending: false }).limit(12),
   ])
   const stars = new Map<string, number[]>()
   for (const r of ratings.data ?? []) stars.set(r.recipe_id, [...(stars.get(r.recipe_id) ?? []), r.stars])
@@ -208,6 +210,8 @@ async function kitchenContext(db: any, isParent: boolean, page?: { slug?: string
     }),
     fridge: (fridge.data ?? []).filter((f: { status: string }) => f.status === 'waiting').map((f: { recipe_id: string }) => byId.get(f.recipe_id)).filter(Boolean),
     plan: plan.data && plan.data[0] ? plan.data[0] : null,
+    // deno-lint-ignore no-explicit-any
+    garden: (picked.data ?? []).map((h: any) => `${h.note || 'a pick'} from ${h.spot ? h.spot.name : 'the garden'} (${h.on_date})`),
     page: recipe ? { recipe } : undefined,
   }
 }

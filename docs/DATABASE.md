@@ -166,6 +166,11 @@ sign-in link won't come back to the app.
 | `food_rules` | Laurie's food rules, every version kept, dated, with what changed | Parents only | Parents add a new version; nobody edits one |
 | `kitchen_preferences` | The kitchen's tastes, dislikes, pantry and equipment, every version kept | The family | Parents add a new version |
 | `week_plans` | A week's ask, the ideas Claude gave, the ones picked | The family | Parents |
+| `garden_areas` | The garden's areas: the yard, the patio, a room inside; about how big; a room's light | The family | The family; parents remove |
+| `garden_spots` | What's on an area's map: beds, boxes, pots, trees, feeders, baths, paths; where (in percent of the area) and how sunny | The family | The family; parents remove |
+| `garden_plants` | What grows in a spot: variety, when planted, water every N days | The family | The family |
+| `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
+| `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
 
 Migration index:
 
@@ -175,3 +180,4 @@ Migration index:
 | `20261031230100_kitchen` | Recipes, Laurie's plate kept apart, ratings, the fridge; `my_member_id()`. Named a minute after the foundations so it runs after them. |
 | `20261031230200_event_places` | Events get a place (name, coordinates, both or neither), an outdoors switch and who made them. |
 | `20261101060000_claude_and_kitchen_planning` | Claude's usage and the caps (`ai_spend()`, `ai_record()`), consents, Laurie's food rules (versioned, parents only), kitchen preferences, week plans. |
+| `20261101060100_garden` | The garden's areas, spots, plants, care log and photos, and the private `garden` bucket for the photos (family only). |

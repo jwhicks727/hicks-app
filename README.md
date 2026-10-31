@@ -11,7 +11,7 @@ repository, its own database, its own look.
 
 | Place | What it is |
 |---|---|
-| **Home** | Today at a glance: the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days. |
+| **Home** | Today at a glance: the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days, the morning sit, and the garden (`/home/garden`): maps of the yard and each room's plants, what needs doing today, photos Claude can look at. |
 | **World** | All our places on one map (around home, SoCal, the world), each with its own page, its skyline in its sky right now and a link into the phone's maps app; weather in depth; the sky, the sun and the moon; a page for each school. |
 | **Calendar** | A full calendar (day, week, month, year), synced with our Google calendars, with the Church year, Mass times, our ministries, family days, holidays, heritage days, seasons and nature woven in. |
 | **Kitchen** | Jason's cooking: the week's recipes, what's left in the fridge, a cook check before cooking. |

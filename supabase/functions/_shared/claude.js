@@ -84,13 +84,14 @@ Technique they keep: convection means reduce 25°F or cut time 25%, never both; 
 How to talk: warmly and briefly, like a friend who cooks. Plain sentences. When something would change their saved preferences, Laurie's food rules, the cookbook or this week's list, use the matching tool to propose it: nothing is saved until someone in the family confirms it on screen. Never invent a rating or a past dinner.`
 
 /** The parts of the system prompt that change: what they've told the app, and what's in the kitchen now. */
-export function kitchenNow({ today, preferences, rules, recipes = [], fridge = [], plan, page } = {}) {
+export function kitchenNow({ today, preferences, rules, recipes = [], fridge = [], plan, page, garden = [] } = {}) {
   const lines = [`Today is ${today}.`]
   lines.push(preferences ? `The family's kitchen preferences, as last saved:\n${preferences.slice(0, 8000)}` : 'The family hasn’t saved any kitchen preferences yet.')
   if (rules) lines.push(`Laurie's food rules (shared with her permission; every dinner's core must satisfy them):\n${rules.slice(0, 8000)}`)
   else lines.push('Laurie’s food rules are not shared in this conversation. Don’t guess at them; if a question needs them, say they’re hers to share from Kitchen › Rules.')
   if (recipes.length) lines.push('Their cookbook (title · average stars · last cooked):\n' + recipes.slice(0, 80).map((r) => `- ${r.title}${r.stars ? ` · ${r.stars}` : ''}${r.last ? ` · ${r.last}` : ''}`).join('\n'))
   if (fridge.length) lines.push('In the fridge to cook this week: ' + fridge.slice(0, 12).join('; '))
+  if (garden.length) lines.push('From their own garden lately (worth cooking with): ' + garden.slice(0, 12).join('; '))
   if (plan && plan.ideas && plan.ideas.length) lines.push('This week’s ideas so far: ' + plan.ideas.slice(0, 20).map((i) => i.title).join('; '))
   if (page && page.recipe) lines.push(`They're looking at this recipe now:\n${page.recipe.slice(0, 16000)}`)
   return lines.join('\n\n')

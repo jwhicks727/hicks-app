@@ -138,6 +138,24 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       parent's own sign-in where there's no other way. Only Jason, Laurie and
       Anna see her grades. To check: each portal's terms on automated access.
 
+## 1b. The garden (from Home)
+
+- [x] Maps of the yard and of each room's plants: beds, boxes, pots, trees,
+      the hummingbird feeder, the bird bath, paths. Arranged by dragging,
+      or with a tap on a phone.
+- [x] What grows where: the variety, when it was planted, how often to
+      water.
+- [x] Today's care, from what's been logged and the forecast. Watering
+      comes sooner in a heat wave and is skipped with rain coming. Fresh
+      nectar is due sooner the hotter it is. Wind, heat and frost bring
+      warnings.
+- [x] Photos for each spot, kept privately. Claude looks at one when
+      asked.
+- [x] What to plant this month.
+- [x] What the garden gave lately reaches the Kitchen's planning.
+- [ ] A photo timeline for each plant, side by side; a reminder pushed to a
+      phone once the app is hosted.
+
 ## 2. World
 
 - [x] The forecast at home (Open-Meteo: now, the next twelve hours, the

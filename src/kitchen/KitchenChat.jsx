@@ -50,7 +50,7 @@ function Chat({ me, parent, members, slug, today }) {
 
   return (
     <div className="kchat">
-      <p className="kchat-says">Talks with Claude (Anthropic). It sees what you type here, the kitchen’s preferences, the cookbook’s titles and ratings{slug ? ', the recipe you’re on' : ''}, and Laurie’s food rules only if she has said yes. Nothing is saved without you.</p>
+      <p className="kchat-says">Talks with Claude (Anthropic). It sees what you type here, the kitchen’s preferences, the cookbook’s titles and ratings, what the garden gave lately{slug ? ', the recipe you’re on' : ''}, and Laurie’s food rules only if she has said yes. Nothing is saved without you.</p>
       {c.messages.length === 0 && (
         <div className="kchat-try">{SUGGEST.map((s) => <button key={s} type="button" className="btn ghost" onClick={() => send(s)}>{s}</button>)}</div>
       )}

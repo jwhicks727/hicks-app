@@ -1,0 +1,38 @@
+/* The garden: colourful maps, today's care, its photos (src/places/home/Garden.jsx) */
+.gmap { display: block; width: 100%; height: auto; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); user-select: none; -webkit-user-select: none; }
+.gmap.edit { touch-action: none; outline: 3px dashed color-mix(in srgb, #5F8A4A 60%, transparent); outline-offset: 2px; }
+.gmap.moving { cursor: crosshair; }
+.gspot-name { font: 800 3.1px var(--font-ui); fill: #1F2A18; paint-order: stroke; stroke: rgba(255, 255, 255, .85); stroke-width: .7px; stroke-linejoin: round; pointer-events: none; }
+.gmap.mini .gspot-name { display: none; }
+.gmap-card .gmap { max-height: 70vh; }
+.gtools { display: grid; gap: 8px; }
+.gtools-b, .gtools-add, .gquick { display: flex; flex-wrap: wrap; gap: 8px; }
+.gtools-b .btn, .gtools-add .btn, .gquick .btn { justify-self: auto; }
+.btn.ghost.danger-t { color: #A33A1C; }
+.gareas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; }
+.garea { display: grid; gap: 8px; padding: 10px; border-radius: var(--r-card); background: var(--card); box-shadow: var(--shadow-warm); text-decoration: none; color: var(--ink); border: 0; font: inherit; text-align: left; cursor: pointer; }
+.garea > span { display: grid; } .garea > span span { color: var(--muted); font-size: 14px; }
+.garea.add { place-content: center; min-height: 140px; border: 2px dashed color-mix(in srgb, #5F8A4A 45%, var(--line)); background: color-mix(in srgb, #5F8A4A 6%, var(--card)); box-shadow: none; }
+.garea.add span { color: var(--muted); }
+.gcare { list-style: none; margin: 0; padding: 0; display: grid; }
+.gcare li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0 10px 10px; border-bottom: 1px solid var(--line); border-left: 4px solid #8FBF72; }
+.gcare li.now { border-left-color: #D9463A; } .gcare li.heads-up { border-left-color: #E8B04A; }
+.gcare li > span { display: grid; gap: 2px; } .gcare li > span span { color: var(--muted); font-size: 14px; }
+.gcare .btn { flex: none; justify-self: auto; }
+.gspots, .gplants, .glog { list-style: none; margin: 0; padding: 0; display: grid; }
+.gspots a { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 52px; text-decoration: none; color: inherit; border-bottom: 1px solid var(--line); }
+.gspots i { width: 14px; height: 14px; border-radius: 4px; } .gspots span { display: grid; } .gspots span span { color: var(--muted); font-size: 14px; } .gspots em { font-style: normal; color: var(--muted); }
+.gplants li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.gplants li > span { flex: 1 1 12em; display: grid; } .gplants li.done { opacity: .6; }
+.gplants .btn { justify-self: auto; min-height: 40px; }
+.glog li { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.gphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.gphoto { position: relative; display: block; aspect-ratio: 1; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, #5F8A4A 12%, var(--card)); border: 0; padding: 0; cursor: pointer; }
+.gphoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gphoto em { position: absolute; left: 4px; bottom: 4px; font-style: normal; font-size: 11px; font-weight: 800; color: #FFF; background: rgba(0, 0, 0, .45); padding: 1px 6px; border-radius: 3px; }
+.gbig { width: 100%; max-height: 60vh; object-fit: contain; border-radius: 6px; background: #1D1A17; min-height: 120px; }
+.glook { display: grid; gap: 6px; padding: 12px; border-radius: 6px; background: color-mix(in srgb, #5F8A4A 8%, var(--card)); border-left: 4px solid #5F8A4A; }
+.glook.watch { border-left-color: #E8B04A; } .glook.trouble { border-left-color: #D9463A; }
+.glook-h { font-family: var(--font-display); font-size: 20px; }
+.glook ul { margin: 0; padding-left: 1.2em; } .glook p { margin: 0; }
+.gcard-care .gcare li { padding-top: 8px; padding-bottom: 8px; }
