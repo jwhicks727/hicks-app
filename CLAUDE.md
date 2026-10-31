@@ -70,6 +70,9 @@ and write the code fresh. SOAR's code belongs to the school.
   AI-made art. The one exception is the home-screen icon, a stand-in Jason
   chose (decisions log, 2026-10-31); don't add others. Laurie's paintings replace photos wherever she has painted the
   thing.
+- **Our own things (crucifixes, statues) are illustrated from their own
+  photos** by `scripts/lift-art.py illustrate`, never by an image
+  generator (docs/CHURCH-ART.md).
 - **Laurie's paintings are shown as she painted them.** Crop and frame
   them, never alter them. A bird that flies out of one is a cut-out over
   her own sky (`scripts/lift-art.py`), and at rest the painting itself is

@@ -6,6 +6,24 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Our crucifixes, illustrated, on the days about the Cross
+
+- **The family's own crucifixes** appear on the Church card on the days
+  that are about the Cross:
+  - Ash Wednesday;
+  - Palm Sunday;
+  - Good Friday;
+  - the Exaltation of the Holy Cross;
+  - the Sacred Heart;
+  - and, quietly, the Fridays of Lent.
+- **Each is drawn from our own crucifix,** photographed on a plain
+  background and made into a flat, inked illustration by
+  `scripts/lift-art.py illustrate`. That step finds the photo's own
+  colours, flattens them, outlines where they meet, and clears the
+  background; it is not an image generator.
+- They wait on the photos (docs/CHURCH-ART.md), then live behind sign-in
+  like the paintings.
+
 ## 2026-11-01 — A few surprises
 
 - **Tonight's sunset,** on Home through the afternoon. The forecast's

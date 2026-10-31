@@ -107,6 +107,10 @@ Built in this order, each part in daily use before the next.
       (and whether it's up here) and of the sun, meteor showers, solstices
       and equinoxes.
 - [ ] Their own art: saint and feast line art, holiday and season pictures.
+- [ ] Our crucifixes, photographed and illustrated (`scripts/lift-art.py
+      illustrate`), on the days about the Cross: Ash Wednesday, Palm Sunday,
+      Good Friday, the Holy Cross, the Sacred Heart (docs/CHURCH-ART.md).
+      Waiting on the photos.
 - [x] Setup keeps the family days (add, change, remove, with a proper
       question before removing) and says whose each calendar source is; a
       half-typed entry survives the phone closing the app. Reports shows the

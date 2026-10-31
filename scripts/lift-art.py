@@ -16,6 +16,11 @@ Run on a computer with Python 3, Pillow and numpy:
          --grain 520,300,760,420 --slug witch-and-crow --bird crow --out public/paintings
      --region is a box round the bird with sky all round it; --grain a patch of
      open sky to borrow the canvas's grain from.
+  4. illustrate: a photo of one of our things (a crucifix, a statue) on a plain
+     background -> a flat, inked illustration with the background cleared:
+       python3 scripts/lift-art.py illustrate photo.jpg out.png --colours 7
+     Colours are found in the photo itself (k-means), flattened, cleaned of
+     speckle, and outlined where they meet. No image generator is involved.
   3. leaves: flat.png -> <slug>-leaves.png, a sheet of the small bright things
      she painted on a dark ground (leaves, petals, sparks), and prints where
      each one sits on the sheet.
@@ -38,6 +43,8 @@ l = sub.add_parser('lift'); l.add_argument('flat'); l.add_argument('--region', r
 l.add_argument('--slug', required=True); l.add_argument('--bird', default='bird'); l.add_argument('--out', default='public/paintings'); l.add_argument('--dark', type=float, default=110)
 v = sub.add_parser('leaves'); v.add_argument('flat'); v.add_argument('--region', required=True); v.add_argument('--slug', required=True)
 v.add_argument('--count', type=int, default=24); v.add_argument('--out', default='public/paintings')
+i = sub.add_parser('illustrate'); i.add_argument('photo'); i.add_argument('out'); i.add_argument('--colours', type=int, default=7); i.add_argument('--max', type=int, default=1400)
+i.add_argument('--keep-background', action='store_true')
 args = ap.parse_args()
 box = lambda s: [int(v) for v in s.split(',')]
 
@@ -212,4 +219,44 @@ def leaves():
     print(json.dumps({'sheet': [sw, sh], 'boxes': boxes}))
 
 
-{'flatten': flatten, 'lift': lift, 'leaves': leaves}[args.step]()
+
+
+def illustrate():
+    """A photo made into a flat, inked illustration: its own colours, flattened and outlined."""
+    im = Image.open(args.photo).convert('RGB')
+    k = min(1, args.max / max(im.size)); im = im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))), Image.LANCZOS)
+    A = np.asarray(im.filter(ImageFilter.MedianFilter(5))).astype(np.float64); H, W = A.shape[:2]
+    # The background: the colour round the edges; the subject is what differs from it
+    edge = np.concatenate([A[0], A[-1], A[:, 0], A[:, -1]])
+    bg = np.median(edge, axis=0)
+    dist = np.sqrt(((A - bg) ** 2).sum(axis=2))
+    subject = np.ones((H, W), bool) if args.keep_background else dist > max(28, np.percentile(np.sqrt(((edge - bg) ** 2).sum(axis=1)), 95) * 1.4)
+    # Its colours: k-means on the subject's pixels, a fixed start so a re-run matches
+    px = A[subject].reshape(-1, 3)
+    rng = np.random.default_rng(7); sample = px[rng.choice(len(px), min(len(px), 40000), replace=False)]
+    centres = sample[np.linspace(0, len(sample) - 1, args.colours).astype(int)]
+    for _ in range(20):
+        lab = ((sample[:, None, :] - centres[None]) ** 2).sum(axis=2).argmin(axis=1)
+        centres = np.array([sample[lab == c].mean(axis=0) if (lab == c).any() else centres[c] for c in range(args.colours)])
+    idx = ((A.reshape(-1, 1, 3) - centres[None]) ** 2).sum(axis=2).argmin(axis=1).reshape(H, W)
+    # Clean the speckle: each pixel takes its neighbourhood's commonest colour
+    idx = np.asarray(Image.fromarray(idx.astype(np.uint8)).filter(ImageFilter.ModeFilter(7))).astype(int)
+    flat = centres[idx]
+    # Lift the flat colours a little, as an illustration would
+    flat = np.clip(flat * 1.06 + 8, 0, 255)
+    # Ink where colours meet, and round the subject
+    ink = np.zeros((H, W), bool)
+    ink[1:] |= idx[1:] != idx[:-1]; ink[:, 1:] |= idx[:, 1:] != idx[:, :-1]
+    sub = np.asarray(Image.fromarray((subject * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(5))) > 127
+    ink[1:] |= sub[1:] != sub[:-1]; ink[:, 1:] |= sub[:, 1:] != sub[:, :-1]
+    ink = np.asarray(Image.fromarray((ink * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))) > 127
+    out = np.dstack([flat, np.full((H, W), 255.0)])
+    out[ink, :3] = [43, 32, 25]
+    if not args.keep_background:
+        alpha = np.asarray(Image.fromarray((sub * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2))).astype(float)
+        out[..., 3] = np.maximum(alpha, ink * 255.0 * sub)
+    Image.fromarray(np.uint8(np.round(out)), 'RGBA').save(args.out, optimize=True)
+    print(json.dumps({'size': [W, H], 'colours': [('#%02X%02X%02X' % tuple(int(v) for v in c)) for c in centres]}))
+
+
+{'flatten': flatten, 'lift': lift, 'leaves': leaves, 'illustrate': illustrate}[args.step]()
