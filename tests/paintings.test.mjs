@@ -56,7 +56,10 @@ test('the flight ends exactly at the bird’s place, facing as painted, wings st
   const to = { x: 120, y: 410 }, pts = flightPoints(390, 844, to)
   assert.ok(pts[0].x > 390, 'starts off the screen')
   assert.deepEqual(pts.at(-1), to)
-  const end = birdAt(pts, 1, { fly: 110, land: 80, faces: 'right' })
+  const end = birdAt(pts, 1, { land: 80, faces: 'right' })
+  // Far off and small at first, growing as it comes
+  const start = birdAt(pts, 0.05, { land: 80 }), mid = birdAt(pts, 0.5, { land: 80 })
+  assert.ok(start.size < mid.size && mid.size < 80 && start.size < 30, `${start.size} ${mid.size}`)
   assert.ok(Math.abs(end.x - to.x) < 1e-6 && Math.abs(end.y - to.y) < 1e-6)
   assert.equal(end.size, 80); assert.equal(end.flap, 1); assert.equal(end.dir, 1); assert.ok(Math.abs(end.tilt) < 1e-6)
   assert.equal(progress(0), 0); assert.equal(progress(1), 1)

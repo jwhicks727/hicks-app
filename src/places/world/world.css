@@ -97,7 +97,7 @@
 @keyframes scene-spin { to { transform: rotate(360deg); } }
 .scene .glide { animation: scene-glide 26s linear infinite; }
 @keyframes scene-glide { from { transform: translateX(-240px); } to { transform: translateX(600px); } }
-.scene .burst { transform-box: fill-box; transform-origin: center; opacity: 0; animation: scene-burst 4.2s ease-out infinite; }
+.scene .burst { transform-box: fill-box; transform-origin: center; opacity: 0; animation: scene-burst 4.8s ease-out infinite; }
 @keyframes scene-burst { 0% { transform: scale(.2); opacity: 0; } 8% { opacity: 1; } 45% { transform: scale(1.15); opacity: .9; } 70% { transform: scale(1.25); opacity: 0; } 100% { opacity: 0; } }
 
 html[data-motion="less"] .pm-pulse, html[data-motion="less"] .pm-arc, html[data-motion="less"] .scene * { animation: none !important; }

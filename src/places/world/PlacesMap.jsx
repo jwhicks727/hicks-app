@@ -94,7 +94,9 @@ export default function PlacesMap() {
     for (const p of pins) {
       const a = toScreen('world', cam, W, H, data.NEAR, p.lat, p.lng), b = toScreen('near', cam, W, H, data.NEAR, p.lat, p.lng)
       let x = a[0] + (b[0] - a[0]) * w, y = a[1] + (b[1] - a[1]) * w
-      if (p.kind === 'place' && stop === 'home') { const n = (towns[p.town] = (towns[p.town] || 0) + 1) - 1; if (n) { x += FAN[n][0]; y += FAN[n][1] } }
+      // Places sharing one spot (home and a school both at the town's centre) fan out round it
+      const spot = `${p.lat},${p.lng}`
+      if (p.kind === 'place' && stop === 'home') { const n = (towns[spot] = (towns[spot] || 0) + 1) - 1; if (n) { x += FAN[n][0]; y += FAN[n][1] } }
       spots[p.slug] = { x, y }
     }
   }

@@ -172,13 +172,22 @@ const SCENES = {
       P(S.castleGate(190), c.lit || c.tone.mid, 'g'),
       c.lit && P('M188 104h4v5h-4zM174 118h3v4h-3zM202 116h3v4h-3zM154 126h3v3h-3zM224 128h3v3h-3z', c.lit, 'cw'),
       P(S.palm(-20, 70, -4) + S.palm(0, 58, 3) + S.palm(420, 74, 5) + S.palm(440, 62, -2) + S.palm(120, 50, -3), c.tone.near, 'p'),
-      c.night && (c.hour === 20 || c.hour === 21) && <g key="fx">{[[150, 34, '#FFD36A', 0], [235, 24, '#FF7AC2', 1.1], [100, 46, '#7AE0FF', 2.2], [270, 50, '#B48CFF', 3.1]].map(([x, y, col, d], i) => (
-        <g key={i} transform={`translate(${x} ${y})`}>
-          <g className={c.still ? '' : 'burst'} style={{ animationDelay: `${d}s`, opacity: c.still ? 0.55 : undefined }}>
-            {[...Array(14)].map((_, k) => { const a = (k * Math.PI) / 7; return <line key={k} x1={Math.cos(a) * 4} y1={Math.sin(a) * 4} x2={Math.cos(a) * 13} y2={Math.sin(a) * 13} stroke={col} strokeWidth="1.3" strokeLinecap="round" /> })}
-          </g>
+      c.night && (c.hour === 20 || c.hour === 21) && <Fireworks key="fx" still={c.still} />,
+    ]
+  },
+  lancaster: (c) => {
+    const bloom = c.month >= 3 && c.month <= 5 // the poppies, most springs
+    return [
+      range(161, 112, 30, c.tone.far, snowy(c.month) && c.tone.snow, { jag: 1.4 }),
+      ...[-130, -96, -62, 420, 452, 486, 520].map((x, i) => (
+        <g key={'wt' + i}>
+          <path d={S.turbineTower(x, 30)} fill={c.tone.mid} />
+          <path d={S.turbineBlades(x, 120, 9)} fill={c.tone.mid} className={c.still ? '' : 'spin'} style={{ transformOrigin: `${x}px 120px`, animationDuration: `${7 + i}s` }} />
         </g>
-      ))}</g>,
+      )),
+      P('M-160 150V136Q-60 132 40 135T240 134T560 136V150Z', c.night ? '#2A2340' : '#D9B98A', 'desert'),
+      bloom && !c.night && P(Array.from({ length: 70 }, (_, i) => { const r = S.seeded(i + 3), x = -150 + r() * 700, y = 137 + r() * 12; return `M${x.toFixed(1)} ${y.toFixed(1)}a1.3 1.1 0 1 0 2.6 0a1.3 1.1 0 1 0-2.6 0Z` }).join(''), '#F2741F', 'pop'),
+      P(S.joshuaTree(60, 70, 4) + S.joshuaTree(150, 52, 9) + S.joshuaTree(290, 78, 13) + S.joshuaTree(360, 46, 21) + S.joshuaTree(-60, 58, 5) + S.joshuaTree(470, 64, 31), c.tone.near, 'jt'),
     ]
   },
   'long-beach': (c) => [
@@ -236,7 +245,7 @@ const SCENES = {
     const gold = c.night && c.hour >= 17 && (c.hour < 23 || c.minute < 45), sparkle = gold && c.minute < 5
     return [
       range(141, 132, 8, c.tone.far, null, { jag: 0.5 }),
-      P(S.eiffel(250, 112), gold ? '#E9B04A' : c.tone.mid, 'et'),
+      <Eiffel key="et" x={250} h={116} colour={gold ? '#E9B04A' : c.tone.mid} />,
       sparkle && <g key="sp">{S.stars(7, 30).map(([x, y], i) => <circle key={i} cx={250 + ((x % 40) - 20) * (y / 80)} cy={40 + y * 1.3} r=".9" fill="#FFF" className={c.still ? '' : 'twinkle'} style={{ animationDelay: `${(i % 5) * 0.2}s` }} />)}</g>,
       P(S.rooftops(143, -160, 560), c.tone.near, 'rt'),
       c.lit && P(S.windows(143, -160, 560, 4, 24, 0.5), c.lit, 'w'),
@@ -250,4 +259,44 @@ const SCENES = {
     P([60, 80, 100, 300, 320, 340, -60, -40, 460, 480].map((x, i) => S.pine(x, 30 + (i % 3) * 8)).join(''), c.tone.near, 'p'),
     P('M-160 150V140H560V150Z', c.tone.near, 'wall'),
   ],
+}
+
+/** The Eiffel Tower as an open lattice: its platforms filled, its legs and bracing drawn in fine lines. */
+function Eiffel({ x, h, colour }) {
+  const { solid, lines } = S.eiffel(x, h)
+  return (
+    <g>
+      <path d={lines} fill="none" stroke={colour} strokeWidth=".75" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={solid} fill={colour} />
+    </g>
+  )
+}
+
+/** Fireworks: a big round burst with two smaller ones rising out of it, up and to either side, then a few more. */
+function Fireworks({ still }) {
+  const shells = [
+    ...S.burstTrio(200, 50, 19).map((b, i) => ({ ...b, colour: ['#FFD36A', '#FF7AC2', '#7AE0FF'][i] })),
+    { x: 92, y: 46, r: 11, delay: 1.9, colour: '#B48CFF' }, { x: 318, y: 40, r: 12, delay: 2.6, colour: '#FFD36A' },
+  ]
+  return (
+    <g>
+      {shells.map((b, i) => {
+        const n = Math.round(b.r * 1.3)
+        return (
+          <g key={i} transform={`translate(${b.x.toFixed(1)} ${b.y.toFixed(1)})`}>
+            <g className={still ? '' : 'burst'} style={{ animationDelay: `${b.delay}s`, opacity: still ? 0.6 : undefined }}>
+              {Array.from({ length: n }, (_, k) => {
+                const a = (k * 2 * Math.PI) / n
+                return <line key={k} x1={Math.cos(a) * b.r * 0.32} y1={Math.sin(a) * b.r * 0.32} x2={Math.cos(a) * b.r} y2={Math.sin(a) * b.r} stroke={b.colour} strokeWidth="1.2" strokeLinecap="round" />
+              })}
+              {Array.from({ length: n }, (_, k) => {
+                const a = ((k + 0.5) * 2 * Math.PI) / n
+                return <circle key={'s' + k} cx={Math.cos(a) * b.r * 1.08} cy={Math.sin(a) * b.r * 1.08} r=".7" fill="#FFF" />
+              })}
+            </g>
+          </g>
+        )
+      })}
+    </g>
+  )
 }

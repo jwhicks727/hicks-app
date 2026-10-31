@@ -145,7 +145,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       world), with a page for each: its skyline in its own sky, the time and
       weather there, how far, and Open in Maps / Directions in the phone's
       own maps app (`src/lib/places.js`, `src/places/world/`).
-- [ ] Why each place matters, in the family's words, on its card.
+- [ ] Kordyak's building geocoded (4580 Mango Ave), so its pin is the school rather than the town.
 - [ ] Weather from our stations through Synoptic: Kordyak SE685, Wayne Ruble
       980SE, SOAR NGC08, home its nearest (set in the app).
 - [ ] Day by day and hour by hour, wound back and forward; school pages
@@ -177,7 +177,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       steps, start-by time, ratings), cook mode, timers, the fridge and its
       Home card. Runs once `20261031230100_kitchen` has run.
 - [x] Keepers and unicorns (celebrated, and back on "Make it again"); the
-      week's Must buy and Check the pantry lists; each of us asked to rate
+      week's Probably buy and Check the pantry lists; each of us asked to rate
       in the days after a dinner.
 - [ ] Laurie's food rules and `check_plate`; the weekly ten ideas and pins;
       `adapt`, the substitution engine.

@@ -90,7 +90,7 @@ exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
   three weeks, unicorns first (`src/lib/kitchen/week.js`).
 - **This week's two lists, not a grocery list.** Jason writes his own. Once
   the week's dishes are picked ("Add to this week"), the Kitchen gives
-  **Must buy** (produce and herbs, protein, fresh dairy and bread: what the
+  **Probably buy** (produce and herbs, protein, fresh dairy and bread: what the
   dishes can't do without) and **Check the pantry** (fridge staples like
   miso, Parmesan and chili crisp; the freezer; the shelves), each line saying
   which dish needs how much. Ticks stay on the device for the week.

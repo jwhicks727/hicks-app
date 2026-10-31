@@ -6,6 +6,36 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Answers from the family, and small changes
+
+- **Places stay well-labelled places;** no "why it matters" lines.
+- **The schools and the parish are pinned at their real buildings:**
+  - Wayne Ruble, from a school directory;
+  - SOAR, from the US Census geocoder, as SOAR's own app uses it;
+  - Sacred Heart, from its Plus Code.
+
+  Kordyak stays at the town's centre until it is geocoded. Home stays the
+  town, as ever. Places sharing one spot fan out round it.
+- **Anaheim's maps search is just "Anaheim, CA".**
+- **Lancaster joins SoCal:** the Antelope Valley, with Joshua trees, a
+  poppy bloom in spring, wind turbines on the far ridge, and the San
+  Gabriels from the north.
+- **"Must buy" becomes "Probably buy":** there may be scallions left over.
+- **The Eiffel Tower is drawn as an open lattice:**
+  - legs braced in zigzags;
+  - the great arch;
+  - its two platforms;
+  - the shaft to the mast.
+
+  The sky shows through.
+- **Anaheim's fireworks open with a trio:** one large round burst and two
+  smaller ones rising out of it, up and to either side, at about 60°,
+  just overlapping it.
+- **The crow starts small and far off,** and grows as it flies nearer,
+  until it settles at its painted size. Its replay is a quiet little bird
+  in the corner.
+- **Hosting is Firebase,** on its free tier.
+
 ## 2026-10-31 — Laurie's first painting: the witch and the crow
 
 - **Laurie's gallery** lives in the Life List (`/lifelist/paintings`, each

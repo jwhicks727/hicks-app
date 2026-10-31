@@ -9,9 +9,11 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 @media (prefers-reduced-motion: reduce) { .pf-sky, .pf-sky.on { transition: opacity 1s ease; } }
 .pf-link { position: absolute; inset: 0; z-index: 1; }
 .pf-link:focus-visible { outline: 3px solid #FFF; outline-offset: -5px; }
-.pf-fly { position: absolute; z-index: 2; right: 6px; bottom: 6px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(20, 14, 10, .45); color: #FFF; cursor: pointer; }
-.pf-fly svg { width: 20px; height: 20px; }
-.pf-fly:disabled { opacity: .35; cursor: default; }
+/* The replay: a quiet little bird in the corner, a full tap target around it */
+.pf-fly { position: absolute; z-index: 2; right: 2px; bottom: 2px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; color: #FFF; cursor: pointer; opacity: .55; transition: opacity .2s ease; }
+.pf-fly svg { width: 15px; height: 15px; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .55)); }
+.pf-fly:hover, .pf-fly:focus-visible { opacity: 1; }
+.pf-fly:disabled { opacity: 0; cursor: default; }
 .pf-fly:focus-visible { outline: 3px solid #FFF; outline-offset: 2px; }
 .pf-flight { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; opacity: 0; will-change: transform; transform-origin: 50% 50%; user-select: none; }
 

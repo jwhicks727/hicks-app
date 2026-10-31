@@ -9,7 +9,8 @@ import './paintings.css'
 
 // One of Laurie's paintings, cropped to `focus` and filling its frame. If the
 // painting has a flyer (its crow), the bird can leave the painting, fly round
-// the screen, loop, and come home to its place. With `auto` it does that once
+// the screen, loop, and come home to its place, small and far off at first
+// and growing as it nears. With `auto` it does that once
 // a day when the frame is first well in view; the small bird button sends it
 // again. At rest the painting is always her painting, whole and unaltered:
 // while the bird is away, a patch of her own sky covers its place; when it
@@ -86,13 +87,13 @@ function Flight({ flyer, target, onLanded }) {
     const vw = window.innerWidth, vh = window.innerHeight
     const t0 = target(), to0 = { x: t0.left + t0.width / 2, y: t0.top + t0.height / 2 }
     const pts = flightPoints(vw, vh, to0)
-    const flySize = Math.min(150, Math.max(72, t0.width * 1.6)), ratio = t0.height / t0.width
+    const ratio = t0.height / t0.width
     let raf = 0, start = 0, done = false
     const step = (now) => {
       if (!start) start = now
       const t = Math.min(1, (now - start) / FLIGHT_MS)
       const box = target(), to = { x: box.left + box.width / 2, y: box.top + box.height / 2 }
-      const b = birdAt(pts, t, { ms: FLIGHT_MS, fly: flySize, land: box.width, faces: flyer.faces })
+      const b = birdAt(pts, t, { ms: FLIGHT_MS, land: box.width, faces: flyer.faces })
       // If the page scrolls on the way, the path bends to where its place is now
       const x = b.x + (to.x - to0.x) * t * t, y = b.y + (to.y - to0.y) * t * t
       const w = t < 1 ? b.size : box.width, h = t < 1 ? w * ratio : box.height

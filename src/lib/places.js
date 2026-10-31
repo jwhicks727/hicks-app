@@ -14,7 +14,7 @@ const LA = 'America/Los_Angeles'
 // show: [west, south, east, north].
 export const STOPS = {
   home: { name: 'Around home', layer: 'near', box: [-117.86, 33.97, -116.86, 34.34] },
-  socal: { name: 'SoCal', layer: 'near', box: [-118.3, 32.62, -116.8, 34.32] },
+  socal: { name: 'SoCal', layer: 'near', box: [-118.3, 32.62, -116.8, 34.76] },
   world: { name: 'The world', layer: 'world', box: [-165, -36, 125, 64] },
 }
 export const STOP_ORDER = ['home', 'socal', 'world']
@@ -24,14 +24,18 @@ export const STOP_ORDER = ['home', 'socal', 'world']
 export const PLACES = [
   { slug: 'home', name: 'Home', town: 'Fontana', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, tz: LA, stop: 'home', colour: '#D4553A', scene: 'home', line: 'Where Team Hicks lives', home: true },
   { slug: 'kordyak', name: 'Kordyak', town: 'Fontana', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, tz: LA, stop: 'home', colour: '#E0662F', scene: 'kordyak', line: 'Laurie’s school, in Rialto Unified', maps: 'Nancy R. Kordyak Elementary School, Fontana, CA' },
-  { slug: 'ruble', name: 'Wayne Ruble', town: 'Fontana', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, tz: LA, stop: 'home', colour: '#4A7FD6', scene: 'ruble', line: 'Anna’s school, in Fontana Unified', maps: 'Wayne Ruble Middle School, Fontana, CA' },
-  { slug: 'soar', name: 'SOAR', town: 'San Bernardino', lat: 34.1083, lng: -117.2898, tz: LA, stop: 'home', colour: '#5FA85A', scene: 'soar', line: 'Jason’s school', maps: 'SOAR Charter Academy, San Bernardino, CA' },
-  { slug: 'sacred-heart', name: 'Sacred Heart', town: 'Rancho Cucamonga', lat: 34.1064, lng: -117.5931, tz: LA, stop: 'home', colour: '#B3263A', scene: 'parish', line: 'Our parish', maps: 'Sacred Heart Catholic Church, Rancho Cucamonga, CA' },
+  // Wayne Ruble: 6762 Juniper Ave (coordinates from a school directory). SOAR: 198 W Mill St (US Census
+  // geocoder). Sacred Heart: 12704 Foothill Blvd (its Plus Code, 85644F4C+RC). Kordyak, 4580 Mango Ave,
+  // stays at the town's centre until it is geocoded (docs/PLAN.md).
+  { slug: 'ruble', name: 'Wayne Ruble', town: 'Fontana', lat: 34.1317, lng: -117.4413, tz: LA, stop: 'home', colour: '#4A7FD6', scene: 'ruble', line: 'Anna’s school, in Fontana Unified', maps: 'Wayne Ruble Middle School, Fontana, CA' },
+  { slug: 'soar', name: 'SOAR', town: 'San Bernardino', lat: 34.0922, lng: -117.2873, tz: LA, stop: 'home', colour: '#5FA85A', scene: 'soar', line: 'Jason’s school', maps: 'SOAR Charter Academy, San Bernardino, CA' },
+  { slug: 'sacred-heart', name: 'Sacred Heart', town: 'Rancho Cucamonga', lat: 34.1068, lng: -117.5289, tz: LA, stop: 'home', colour: '#B3263A', scene: 'parish', line: 'Our parish', maps: 'Sacred Heart Catholic Church, Rancho Cucamonga, CA' },
   { slug: 'redlands', region: 'San Bernardino County', name: 'Redlands', town: 'Redlands', lat: 34.0556, lng: -117.1825, tz: LA, stop: 'home', colour: '#E8892B', scene: 'redlands', line: 'Orange groves under the San Bernardino Mountains' },
   { slug: 'claremont', region: 'Los Angeles County', name: 'Claremont', town: 'Claremont', lat: 34.0967, lng: -117.7198, tz: LA, stop: 'home', colour: '#7A6BB0', scene: 'claremont', line: 'The Village and the colleges, under Mount Baldy' },
   { slug: 'san-dimas', region: 'Los Angeles County', name: 'San Dimas', town: 'San Dimas', lat: 34.1067, lng: -117.8067, tz: LA, stop: 'home', colour: '#8A9A3B', scene: 'san-dimas', line: 'Foothills and oaks' },
   { slug: 'big-bear', region: 'San Bernardino Mountains', name: 'Big Bear', town: 'Big Bear Lake', lat: 34.2439, lng: -116.9114, tz: LA, stop: 'home', colour: '#2F7D7A', scene: 'big-bear', line: 'Lake, pines and snow, up in the mountains', maps: 'Big Bear Lake, CA' },
-  { slug: 'anaheim', region: 'Orange County', name: 'Anaheim', town: 'Anaheim', lat: 33.8121, lng: -117.919, tz: LA, stop: 'socal', colour: '#D66BA0', scene: 'anaheim', line: 'Castles, mountains and fireworks', maps: 'Disneyland Resort, Anaheim, CA' },
+  { slug: 'anaheim', region: 'Orange County', name: 'Anaheim', town: 'Anaheim', lat: 33.8121, lng: -117.919, tz: LA, stop: 'socal', colour: '#D66BA0', scene: 'anaheim', line: 'Castles, mountains and fireworks' },
+  { slug: 'lancaster', region: 'Antelope Valley', name: 'Lancaster', town: 'Lancaster', lat: 34.6868, lng: -118.1542, tz: LA, stop: 'socal', colour: '#E8A33D', scene: 'lancaster', line: 'Poppies, Joshua trees and the open desert' },
   { slug: 'long-beach', region: 'Los Angeles County', name: 'Long Beach', town: 'Long Beach', lat: 33.7701, lng: -118.1937, tz: LA, stop: 'socal', colour: '#2C6E9E', scene: 'long-beach', line: 'The old liner, the harbour and its cranes' },
   { slug: 'san-diego', region: 'San Diego County', name: 'San Diego', town: 'San Diego', lat: 32.7157, lng: -117.1611, tz: LA, stop: 'socal', colour: '#2A9D8F', scene: 'san-diego', line: 'Sailboats on the bay' },
   { slug: 'kona', region: 'Island of Hawaiʻi', name: 'Kona', town: 'Kailua-Kona', lat: 19.64, lng: -155.9969, tz: 'Pacific/Honolulu', stop: 'world', colour: '#E07A2E', scene: 'kona', line: 'Volcanoes, surf and palms on the Big Island', maps: 'Kailua-Kona, HI' },

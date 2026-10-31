@@ -161,10 +161,42 @@ export const monorailTrain = (y) => `M0 ${f(y)}H62Q72 ${f(y)} 76 ${f(y - 5)}Q72 
 export const monorailWindows = (y) => [8, 20, 32, 44].map((x) => `M${x} ${f(y - 9)}H${x + 8}V${f(y - 6)}H${x}Z`).join('') + `M60 ${f(y - 9)}Q68 ${f(y - 9)} 70 ${f(y - 6)}H60Z`
 
 // ---- Landmarks ----
+/**
+ * The Eiffel Tower, as an open lattice: its four legs curving in to the first
+ * platform, the great arch between them, the legs meeting at the second
+ * platform, the shaft to the top. { solid, lines }: platforms to fill, and
+ * the legs' edges and bracing to stroke, so the sky shows through.
+ */
 export function eiffel(x, h) {
-  const y1 = 150 - h * 0.27, y2 = 150 - h * 0.56, y3 = 150 - h * 0.9
-  return `M${f(x - 30)} 150Q${f(x - 21)} ${f(150 - h * 0.12)} ${f(x - 19)} ${f(y1)}L${f(x - 9)} ${f(y2)}Q${f(x - 4)} ${f(150 - h * 0.78)} ${f(x - 2)} ${f(y3)}L${f(x)} ${f(150 - h)}L${f(x + 2)} ${f(y3)}Q${f(x + 4)} ${f(150 - h * 0.78)} ${f(x + 9)} ${f(y2)}L${f(x + 19)} ${f(y1)}Q${f(x + 21)} ${f(150 - h * 0.12)} ${f(x + 30)} 150H${f(x + 18)}Q${f(x)} ${f(150 - h * 0.24)} ${f(x - 18)} 150Z` +
-    `M${f(x - 22)} ${f(y1 - 2)}H${f(x + 22)}V${f(y1 + 1.5)}H${f(x - 22)}Z` + `M${f(x - 11)} ${f(y2 - 1.5)}H${f(x + 11)}V${f(y2 + 1)}H${f(x - 11)}Z`
+  const Y = (k) => 150 - h * k
+  const y1 = Y(0.27), y2 = Y(0.56), y3 = Y(0.9)
+  // Half-widths up the tower: outer and inner edge of a leg
+  const outer = (y) => (y >= y1 ? 19 + 11 * Math.pow((y - y1) / (150 - y1), 1.6) : y >= y2 ? 9.5 + 9.5 * ((y - y2) / (y1 - y2)) ** 1.15 : 2 + 4 * ((y - y3) / (y2 - y3)) ** 1.4)
+  const inner = (y) => (y >= y1 ? 11 + 6 * Math.pow((y - y1) / (150 - y1), 1.4) : y >= y2 ? 3 + 8 * ((y - y2) / (y1 - y2)) : 0)
+  const edge = (fn, sign, from, to, n = 14) => Array.from({ length: n + 1 }, (_, i) => { const y = from + ((to - from) * i) / n; return [x + sign * fn(y), y] })
+  let lines = ''
+  for (const sign of [-1, 1]) {
+    for (const [a, b] of [[150, y1], [y1, y2]]) {
+      lines += line(edge(outer, sign, a, b)) + line(edge(inner, sign, a, b))
+      // Bracing: a zigzag between the leg's two edges
+      const steps = a === 150 ? 7 : 6, zig = []
+      for (let i = 0; i <= steps; i++) { const y = a + ((b - a) * i) / steps; zig.push([x + sign * (i % 2 ? inner(y) : outer(y)), y]) }
+      lines += line(zig)
+    }
+  }
+  // The shaft above the second platform, braced across
+  lines += line(edge(outer, -1, y2, y3, 10)) + line(edge(outer, 1, y2, y3, 10))
+  for (let i = 0; i < 8; i++) {
+    const ya = y2 + ((y3 - y2) * i) / 8, yb = y2 + ((y3 - y2) * (i + 1)) / 8
+    lines += line([[x - outer(ya), ya], [x + outer(yb), yb]]) + line([[x + outer(ya), ya], [x - outer(yb), yb]])
+  }
+  // The great arch between the legs, under the first platform
+  const archFoot = Y(0.08)
+  lines += `M${f(x - inner(archFoot))} ${f(archFoot)}Q${f(x)} ${f(y1 - 2)} ${f(x + inner(archFoot))} ${f(archFoot)}`
+  lines += `M${f(x)} ${f(y3)}V${f(Y(1))}` // the mast
+  const solid = `M${f(x - 23)} ${f(y1 - 2.4)}H${f(x + 23)}V${f(y1 + 1.4)}H${f(x - 23)}Z` + `M${f(x - 11.5)} ${f(y2 - 2)}H${f(x + 11.5)}V${f(y2 + 1)}H${f(x - 11.5)}Z` +
+    `M${f(x - 3)} ${f(y3 - 1)}H${f(x + 3)}V${f(y3 + 1.2)}H${f(x - 3)}Z` + `M${f(x - 1.4)} ${f(y3 - 1)}V${f(y3 - 5)}H${f(x + 1.4)}V${f(y3 - 1)}Z`
+  return { solid, lines }
 }
 /** Paris rooftops: mansards, chimneys, a dome or two. */
 export function rooftops(seed, x0, x1) {
@@ -250,4 +282,47 @@ export function cloud(x, y, s) {
 export function stars(seed, n) {
   const r = seeded(seed)
   return Array.from({ length: n }, () => [-150 + r() * 700, 4 + r() * 70, 0.4 + r() * 0.7])
+}
+
+/** A Joshua tree: a shaggy trunk, arms that fork and bend upward, spiky tufts at the tips. */
+export function joshuaTree(x, h, seed = 1) {
+  const r = seeded(seed)
+  const limb = (x0, y0, ang, len, depth) => {
+    const x1 = x0 + Math.cos(ang) * len, y1 = y0 - Math.sin(ang) * len, w = 2.2 + depth * 1.1
+    let d = `M${f(x0 - w)} ${f(y0)}L${f(x1 - w * 0.8)} ${f(y1)}L${f(x1 + w * 0.8)} ${f(y1)}L${f(x0 + w)} ${f(y0)}Z`
+    if (depth > 0) {
+      const spread = 0.5 + r() * 0.35
+      d += limb(x1, y1, ang + spread, len * (0.62 + r() * 0.15), depth - 1) + limb(x1, y1, ang - spread * 0.8, len * (0.55 + r() * 0.2), depth - 1)
+    } else {
+      // A tuft of spiky leaves
+      for (let k = 0; k < 15; k++) {
+        const a = Math.PI / 2 + ((k - 7) / 7) * 1.7, L = 5 + r() * 3.5
+        d += `M${f(x1)} ${f(y1)}L${f(x1 + Math.cos(a) * L - 0.5)} ${f(y1 - Math.sin(a) * L)}L${f(x1 + Math.cos(a) * L + 0.5)} ${f(y1 - Math.sin(a) * L)}Z`
+      }
+    }
+    return d
+  }
+  return limb(x, 150, Math.PI / 2 + (r() - 0.5) * 0.15, h * 0.42, 2)
+}
+/** A wind turbine on a far ridge: its tower, and its three blades turning about [x, top]. */
+export const turbineTower = (x, h) => `M${f(x - 0.7)} 150L${f(x - 0.35)} ${f(150 - h)}H${f(x + 0.35)}L${f(x + 0.7)} 150Z`
+export function turbineBlades(x, top, L) {
+  return [0, 120, 240].map((deg) => {
+    const a = (deg * Math.PI) / 180, ex = x + Math.sin(a) * L, ey = top - Math.cos(a) * L, nx = Math.cos(a) * 0.6, ny = Math.sin(a) * 0.6
+    return `M${f(x + nx)} ${f(top + ny)}L${f(ex)} ${f(ey)}L${f(x - nx)} ${f(top - ny)}Z`
+  }).join('') + circle(x, top, 0.9)
+}
+
+/**
+ * Three round bursts: one large, and two smaller ones rising out of it up
+ * and to either side, about 60 degrees from straight up, just overlapping
+ * its edge. [{ x, y, r, delay }] around a centre (cx, cy).
+ */
+export function burstTrio(cx, cy, R) {
+  const r = R * 0.56, d = R + r * 0.62, a = Math.PI / 3
+  return [
+    { x: cx, y: cy, r: R, delay: 0 },
+    { x: cx - Math.sin(a) * d, y: cy - Math.cos(a) * d, r, delay: 0.45 },
+    { x: cx + Math.sin(a) * d, y: cy - Math.cos(a) * d, r, delay: 0.45 },
+  ]
 }

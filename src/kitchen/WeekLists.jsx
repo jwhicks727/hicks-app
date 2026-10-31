@@ -38,7 +38,7 @@ export default function WeekLists({ bodies, weekOf }) {
   return (
     <Card tint="#3E7A4C" label="This week’s two lists" glyph="pot" tag={`${bodies.length} ${bodies.length === 1 ? 'dish' : 'dishes'}`} className="span-6 week-lists">
       <div className="wl-pair">
-        <List which="buy" title="Must buy" word="Fresh things these dishes can’t do without." />
+        <List which="buy" title="Probably buy" word="Fresh things these dishes call for, unless some are still in the fridge." />
         <List which="check" title="Check the pantry" word="Staples to look for before you go: the fridge, the freezer, the shelves." />
       </div>
     </Card>

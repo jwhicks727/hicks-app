@@ -82,10 +82,10 @@ export const progress = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 1.7
 
 /**
  * The bird at time t (0-1) of a flight of `ms`: its centre, which way it
- * faces, its tilt (degrees), the squash of a wingbeat, and its size from
- * `fly` to `land` (px wide).
+ * faces, its tilt (degrees), the squash of a wingbeat, and its size (px
+ * wide): small and far off at first, growing as it comes nearer, to `land`.
  */
-export function birdAt(pts, t, { ms = 5600, fly, land, faces = 'right' }) {
+export function birdAt(pts, t, { ms = 5600, land, faces = 'right' }) {
   const u = progress(t), p = along(pts, u)
   const bob = Math.sin(t * Math.PI * 7) * 7 * (1 - t)
   const right = p.dx >= 0, dir = faces === 'right' ? (right ? 1 : -1) : (right ? -1 : 1)
@@ -93,6 +93,5 @@ export function birdAt(pts, t, { ms = 5600, fly, land, faces = 'right' }) {
   const tilt = Math.max(-55, Math.min(55, ang)) * (right ? 1 : -1) * (1 - Math.pow(t, 6))
   const beats = (t * ms) / 1000 * 4.6 * Math.PI // about 2.3 wingbeats a second
   const flap = t < 0.96 ? 1 - 0.34 * Math.abs(Math.sin(beats)) : 1
-  const k = Math.min(1, Math.max(0, (t - 0.68) / 0.32)), ease = k * k * (3 - 2 * k)
-  return { x: p.x, y: p.y + bob, dir, tilt, flap, size: fly + (land - fly) * ease }
+  return { x: p.x, y: p.y + bob, dir, tilt, flap, size: land * (0.26 + 0.74 * Math.pow(u, 1.25)) }
 }
