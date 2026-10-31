@@ -69,6 +69,11 @@ where it appears and listed here:
   the calendar's solstices, equinoxes and moon phases follow Jean Meeus,
   *Astronomical Algorithms* (chapters 27 and 49), and its Hebrew and Islamic
   dates Dershowitz and Reingold, *Calendrical Calculations*.
+- **Weather:** the forecast is Open-Meteo's (https://open-meteo.com, data
+  CC BY 4.0, credited on each weather card); alerts are the National Weather
+  Service's (public domain). Both are asked for by the browser with the
+  town's coordinates only. The weather pictures are drawn on the 24-unit
+  grid.
 - **Prayers:** the traditional English forms, which belong to everyone; the
   saints' one-line stories are our own.
 - **Calendar pictures:** small line icons drawn on the same 24-unit grid.

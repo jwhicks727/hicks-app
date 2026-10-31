@@ -6,6 +6,20 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The forecast at home, before the stations
+
+- **Open-Meteo for the forecast, the National Weather Service for alerts,**
+  both free with no key, fetched by the browser itself and kept for a
+  quarter of an hour. Only the town's coordinates are sent, never the
+  address. The schools' own readings wait for Synoptic's token; until then
+  Home shows home's weather, and says the schools are coming.
+- **The Santa Anas get a line of their own** when the wind is from the north
+  or east, gusting 25 mph or more, with humidity at 30% or under.
+- **Alerts are read as data:** only their event name, headline, severity,
+  end time and instruction are shown, capped in length, most serious first.
+
+---
+
 ## 2026-10-31 — Music is Jams; Team Hicks on the home screen
 
 - **The Music tab is called Jams** (address `/jams`): more us, and jam bands

@@ -108,6 +108,10 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 2. World
 
+- [x] The forecast at home (Open-Meteo: now, the next twelve hours, the
+      week) and the National Weather Service's alerts, on Home and World,
+      with a word when the Santa Anas blow. Only the town's coordinates are
+      sent.
 - [ ] Weather from our stations through Synoptic: Kordyak SE685, Wayne Ruble
       980SE, SOAR NGC08, home its nearest (set in the app).
 - [ ] Day by day and hour by hour, wound back and forward; school pages;
