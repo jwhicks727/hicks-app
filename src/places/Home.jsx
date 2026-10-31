@@ -9,7 +9,10 @@ import { WeatherNow } from '../parts/WeatherCard.jsx'
 import FamilyBanner from '../parts/FamilyBanner.jsx'
 import { Link } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
-import { useFamily } from '../lib/useCalendar.js'
+import { useFamily, useEvents } from '../lib/useCalendar.js'
+import { dayView } from '../lib/cal/day.js'
+import { occasionFor } from '../lib/occasions.js'
+import { OccasionChip } from '../ui/Glow.jsx'
 import { todayAt } from '../lib/cal/dates.js'
 import '../calendar/calendar.css'
 
@@ -24,6 +27,8 @@ export default function Home() {
   const email = session && session.user.email ? session.user.email.toLowerCase() : null
   const me = email && family.members.find((m) => (m.email || '').toLowerCase() === email)
   const today = todayAt(HOME_TOWN.tz, now), hour = +hourFmt.format(now)
+  const { events } = useEvents(session, today, today)
+  const occasion = occasionFor(dayView(today, { familyDays: family.days, events }))
   const t = SunCalc.getTimes(now, HOME_TOWN.lat, HOME_TOWN.lng)
   const sun = now < t.sunset ? `sunset ${hm.format(t.sunset)}` : `sunrise ${hm.format(SunCalc.getTimes(new Date(now.getTime() + 864e5), HOME_TOWN.lat, HOME_TOWN.lng).sunrise)}`
   return (
@@ -33,6 +38,7 @@ export default function Home() {
         <span className="eyebrow">{sun}</span>
         {/* Each of us by name once signed in; the wall will greet Team Hicks. */}
         <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
+        <OccasionChip occasion={occasion} day={today} />
       </header>
       <RolloverShine />
       <FamilyBanner today={today} days={family.days} />

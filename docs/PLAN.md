@@ -88,6 +88,8 @@ Built in this order, each part in daily use before the next.
       question before removing) and says whose each calendar source is; a
       half-typed entry survives the phone closing the app. Reports shows the
       family days kept and the next ones.
+- [x] The swirling light on occasions, in their own colours (Home and the
+      day itself), with a chip that names the day and plays it again.
 - [x] Home opens with the family day banner (two days ahead), Today in the
       Church with an invitation to pray, and the Masses still to come.
 - [ ] Concerts as special events with their ticket and scrapbook.

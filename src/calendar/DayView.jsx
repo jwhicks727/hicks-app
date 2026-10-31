@@ -14,6 +14,8 @@ import { Link } from '../shell/Link.jsx'
 import { KIND_STYLE, observanceGlyph } from './kinds.js'
 import { Glyph, MoonGlyph } from './Glyph.jsx'
 import { useSwipe } from './useSwipe.js'
+import { occasionFor } from '../lib/occasions.js'
+import { OccasionChip } from '../ui/Glow.jsx'
 
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 const hourNow = () => Number(new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' }).format(new Date()))
@@ -31,6 +33,7 @@ export default function DayView({ date, today, data, signedIn }) {
   const cyc = cycles(date), sundayReadings = dow(date) === 0 || ['solemnity', 'principal', 'triduum'].includes(lit.rank)
   return (
     <div className="day-stack span-6" {...swipe} key={date}>
+      <OccasionChip occasion={occasionFor(dv)} day={date} className="day-occasion" />
       {celebrate.map((f) => (
         <article key={f.id || f.title} className="celebrate">
           {!reducedMotion() && <span className="confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, i) => <i key={i} style={{ '--x': `${(i * 5.6 + 2).toFixed(1)}%`, '--d': `${(i % 6) * 0.7}s`, '--c': CONFETTI[i % 6] }} />)}</span>}

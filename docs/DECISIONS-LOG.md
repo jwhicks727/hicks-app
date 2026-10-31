@@ -6,6 +6,34 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The swirling light, in colours that mean something
+
+Jason asked for occasional, wild, swirling light like a phone assistant's
+glow, with colours that mean something. It wraps the edge of the screen for
+about seven seconds, then fades:
+
+- **Whose colours:** the family's own days get the rainbow; a concert gets a
+  liquid light show (the jam bands' own tradition); Christmas and its eve
+  red and green with white fluttering down; Easter gold and white; Pentecost
+  fire with sparks rising; the Sacred Heart (the parish's feast) red and
+  gold; Our Lady of Guadalupe her turquoise, gold and roses; Advent Sundays
+  violet, Gaudete rose; the other great feasts their liturgical colour; and
+  New Year, Halloween, the Fourth, Thanksgiving, Lunar New Year, Hanukkah,
+  Valentine's, St Patrick's, Jerry's birthday, Cornell '77, the solstices and
+  a total eclipse of the moon their own. Palm Sunday, the Triduum and days
+  we remember stay quiet.
+- **Occasional:** once a day per occasion, by itself; again whenever the
+  occasion's chip (under Home's greeting, and at the top of the day) is
+  tapped.
+- **Built without blur** (masks for soft edges, transforms for motion), as
+  blur repaints slowly on iPhones. Normal blending, not additive: added
+  light washed the colours to white on the cream page.
+- **Every animation name is unique across the stylesheets,** checked by a
+  test: the light's "rise" sparks briefly replaced the app's own "rise"
+  entrance, and every card on every screen faded to nothing.
+
+---
+
 ## 2026-10-31 — The forecast at home, before the stations
 
 - **Open-Meteo for the forecast, the National Weather Service for alerts,**

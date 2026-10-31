@@ -52,6 +52,15 @@ and write the code fresh. SOAR's code belongs to the school.
 - Colour means something: each place has its own. A shine in a place's own
   colour means something is waiting on you; a rainbow gleam means something
   wonderful happened. Rare, one at a time.
+- **The swirling light** (`src/ui/Glow.jsx`) is for occasions, and its
+  colours are the occasion's (`src/lib/occasions.js`, tested): the rainbow
+  for the family's days, a liquid light show for a concert, red and green
+  with fluttering white at Christmas, the Church's colours on its great
+  feasts, nothing in Lent's sorrowful days. It plays by itself once a day
+  per occasion, again when its chip is tapped, never takes a tap, and is a
+  still glow under less motion. Transforms and opacity only: no blur.
+- Every stylesheet lands in one bundle: an animation name is never reused
+  (`tests/css-guard.test.mjs`).
 - Art is human-made, with its source and licence recorded in README.md. No
   AI-made art. Laurie's paintings replace photos wherever she has painted the
   thing.
