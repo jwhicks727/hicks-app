@@ -99,9 +99,9 @@ licence nobody wrote down.
   for the journal, `g` for the garden): every stylesheet is global, and a
   bare `.celebrate` or `.flag` meets another place's.
 - Art is human-made, with its source and licence recorded in README.md. No
-  AI-made art. The one exception is the home-screen icon, a stand-in Jason
-  chose (decisions log, 2026-10-31); don't add others. Laurie's paintings replace photos wherever she has painted the
-  thing.
+  AI-made art, the home-screen icon included: it's the letter H set in
+  Agbalumo (decisions log, 2026-11-01). Laurie's paintings replace photos
+  wherever she has painted the thing.
 - **Our own things (crucifixes, statues) are illustrated from their own
   photos** by `scripts/lift-art.py illustrate`, never by an image
   generator (docs/CHURCH-ART.md).
