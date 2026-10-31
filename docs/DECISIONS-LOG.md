@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — A jam scout instead of a paid events API
+
+No JamBase subscription. Instead, a scheduled AI agent (Claude with web
+search) scans each morning for jam-band shows and coverage in the Inland
+Empire and Los Angeles, and for things around the world worth knowing
+about: festivals, livestreams, YouTube premieres, archive releases. It saves
+each find with its source links for Jason to confirm before a show goes on
+the calendar, and never invents one. It has a daily cap on searches and a
+monthly spending limit, sends only search words (never family data), and
+treats every page it reads as data, never instructions. Free feeds sit
+beside it: YouTube channels' own release feeds, new Live Music Archive
+uploads, and bands' published tour calendars.
+
 ## 2026-10-31 — Calendar sources live in a Setup console, and they roll over
 
 - **The school calendars:** Kordyak is Rialto Unified (Laurie's teacher

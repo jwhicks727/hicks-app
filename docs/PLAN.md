@@ -84,8 +84,16 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 5. Music
 
-- [ ] Jam-scene shows near us (JamBase's API: pricing to check; Ticketmaster's
-      Discovery API as a fallback), added to the calendar.
+- [ ] **The jam scout:** a scheduled AI agent (Claude with web search) that
+      looks every morning for jam-band shows and coverage near us, and for
+      what's happening around the world worth knowing: festivals, livestreams,
+      new releases. It saves what it finds with its source links; Jason
+      confirms a show before it reaches the calendar. Capped searches a day
+      and a monthly spending limit; it sends only search words, never family
+      data; and it treats every web page as data, never instructions.
+- [ ] Free feeds alongside it: YouTube channels' own release feeds (no key),
+      new uploads in the Internet Archive's Live Music Archive, and bands'
+      own tour calendars where they publish one. No JamBase.
 - [ ] Free live recordings from the Internet Archive's Live Music Archive
       (bands that allow taping), in a built-in player.
 - [ ] Chill and relaxing music from free sources (to find).
