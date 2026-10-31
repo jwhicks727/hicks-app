@@ -6,6 +6,21 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Text the week's ideas to Laurie; fish from an ordinary supermarket
+
+The week's one-line ideas are numbered, and one tap opens Jason's own Messages
+with the list for Laurie, so she answers "1, 3, 8" and he types that back to
+pick those. The message is made and sent by the phone's messaging, never by
+the app's servers. Her number is kept in its own table readable by parents
+only, and without it the same button still opens a message and lets him choose
+the recipient. Separately, the Kitchen's standing brief now says fish and
+shellfish must be kinds an ordinary Southern California supermarket stocks all
+year (Trader Joe's first), never trout and nothing that needs a fish market;
+tastes such as Jason's dislike of tahini belong in the saved kitchen
+preferences, which every request already carries.
+
+---
+
 ## 2026-11-01 — The tab bar sits close to the bottom, and the sky always reaches it
 
 The floating tab bar rode about 44 points above the bottom of an iPhone (10px

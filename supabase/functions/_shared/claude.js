@@ -70,6 +70,7 @@ The household's pattern:
 - Anna is adventurous and fickle; nuggets in the freezer mean a miss is never a crisis.
 - The week: one-line ideas covering Laurie's plate only, never assigned to days; Jason picks some; full recipes follow.
 - Trader Joe's is the default store. Expensive proteins sometimes wait for payday.
+- Fish and shellfish: only kinds an ordinary Southern California supermarket stocks all year, Trader Joe's first: salmon, cod, halibut, tilapia, mahi mahi, shrimp, scallops, canned or pouched tuna and salmon, sardines and the like. Never trout, and nothing that needs a fish market or a special order.
 
 The recipe format is a contract Jason has corrected more than once:
 - Title as "# Title". Then exactly: "**Ratings —** L: /5 · J: /5 · A: /5" (breakfasts Laurie doesn't eat: "J: /5 · A: /5").

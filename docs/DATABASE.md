@@ -220,6 +220,7 @@ sign-in link won't come back to the app.
 | `academy_goals` | Her goals: why, a picture, steps, when reached (a trophy) | The family | The family |
 | `academy_grades` | Her grades, entered by hand (QParent later): class, letter or percent, term, date | The family (the three of us) | The family; parents remove |
 | `academy_cheers` | Cheers for Anna, for anything: what for, a note, a picture, who from | The family | The family adds as themselves; parents or the cheerer remove |
+| `member_phones` | A family member's phone number (E.164), so the Kitchen can open a text to Laurie in one tap | Parents only | Parents only |
 | `parish_schedules` | Sacred Heart's week of Masses and confession as read from its website, a new row whenever it changes; when first seen and last checked | The family | Only the `parish` function |
 | `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
@@ -238,3 +239,4 @@ Migration index:
 | `20261101090000_journal` | Each person's journal: entries, notes to your future self, settings. Every policy is the writer's only, with no parent or family override (tests/migrations.test.mjs checks). |
 | `20261101090100_academy` | Anna's academy: settings, rooms, tasks, goals, grades, cheers, the family's own pictures and the private `academy` bucket (family reads; parents add pictures). |
 | `20261101120000_parish_stations_birds` | What the app reads from outside: Sacred Heart's schedules (every version), the station each place reads (the schools' seeded, home's set in Admin), and the last answer from Synoptic and eBird. The family reads; the functions write; parents choose the stations. |
+| `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |

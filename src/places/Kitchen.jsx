@@ -34,7 +34,7 @@ export default function Kitchen({ rest }) {
   const screen = view === 'recipe' && sub === 'cook' ? <CookMode data={one} slug={slug} parent={parent} />
     : view === 'recipe' ? <RecipePage data={one} slug={slug} me={me} members={family.members} parent={parent} today={today} onChanged={one.reload} />
       : view === 'add' ? <AddRecipes parent={parent} onSaved={() => navigate('/kitchen', { replace: true })} />
-        : view === 'plan' ? <PlanWeek parent={parent} me={me} today={today} />
+        : view === 'plan' ? <PlanWeek parent={parent} me={me} members={family.members} today={today} />
           : view === 'rules' ? <Rules parent={parent} me={me} members={family.members} />
             : <KitchenHome book={book} family={family} session={session} me={me} parent={parent} today={today} />
   return (

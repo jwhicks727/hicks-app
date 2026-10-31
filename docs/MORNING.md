@@ -22,7 +22,7 @@ paintings without signing in. Any copy with the database connected, hosted
 or not, shows only a sign-in screen until someone on the family list has
 signed in.
 
-## 1. The database: nine migrations, in order
+## 1. The database: ten migrations, in order
 
 Supabase dashboard › SQL Editor › New query. For each file in
 `supabase/migrations/`, oldest first, paste it in and Run:
@@ -37,6 +37,8 @@ Supabase dashboard › SQL Editor › New query. For each file in
 8. `20261101090100_academy.sql`
 9. `20261101120000_parish_stations_birds.sql` (new: if you've run the
    first eight, run just this one)
+10. `20261101183000_member_phones.sql` (new: Laurie's number, for "text the
+    list"; if you've run the first nine, run just this one)
 
 Each should say "Success. No rows returned". If one fails, stop and tell
 Claude the message: don't edit a migration that has run.

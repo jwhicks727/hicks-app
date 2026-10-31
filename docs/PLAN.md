@@ -25,6 +25,11 @@ Built in this order, each part in daily use before the next.
       colours. Settings can try another season's show.
 - [ ] A show for every season, as she paints them: Christmas, Advent,
       Lent, Easter, spring, summer, July 4th.
+- [x] Plan the week: the ideas are numbered; one tap opens Messages with the list
+      to Laurie (her number kept parents-only in the database), she answers
+      "1, 3, 8", and typing that back picks those. The Kitchen's standing
+      brief keeps fish to kinds an ordinary Southern California supermarket
+      stocks, never trout.
 - [x] Admin can remove a calendar (its dates go with it, after a question), and
       each calendar says when it was added, so a duplicate can be told from the
       original.

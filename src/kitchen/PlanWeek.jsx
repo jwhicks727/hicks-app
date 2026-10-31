@@ -9,6 +9,8 @@ import { weekOf, mergeIdeas } from '../lib/kitchen/plan.js'
 import { parseRecipe } from '../lib/kitchen/recipe.js'
 import { saveRecipes, addToFridge } from '../lib/useKitchen.js'
 import { timeWords } from './art.js'
+import { useMemberPhones } from '../lib/useMemberPhones.js'
+import { listText, smsLink, normalizePhone, picksFromReply } from '../lib/kitchen/text.js'
 
 const MEAL = { dinner: 'Dinner', breakfast: 'Breakfast', lunch: 'Lunch', snack: 'Snack', dessert: 'Dessert', other: 'Other' }
 
@@ -18,8 +20,10 @@ const MEAL = { dinner: 'Dinner', breakfast: 'Breakfast', lunch: 'Lunch', snack: 
  * breakfasts, a slow-cooker night); pick the ones to make; Claude writes them
  * in his format; save them to the cookbook and the fridge. The ideas and
  * picks are kept with the week; the written recipes on the device until saved.
+ * The ideas are numbered, so the list can be texted to Laurie in one tap and
+ * she can answer "1, 3, 8", which Jason types back to pick those.
  */
-export default function PlanWeek({ parent, me, today }) {
+export default function PlanWeek({ parent, me, members = [], today }) {
   const session = useSession()
   const week = weekOf(today)
   const plans = useWeekPlan(session, week)
@@ -28,6 +32,10 @@ export default function PlanWeek({ parent, me, today }) {
   const [written, setWritten, clearWritten] = useDraft(`kitchen.plan.written.${week}`, { recipes: [] })
   const [busy, setBusy] = useState(null), [err, setErr] = useState(null), [fridgeToo, setFridgeToo] = useState(true), [saved, setSaved] = useState(null)
   const ideas = plan ? plan.ideas : []
+  const laurie = members.find((m) => m.name === 'Laurie') || null
+  const phones = useMemberPhones(session, parent)
+  const lauriePhone = laurie ? phones.phones[laurie.id] || null : null
+  const [reply, setReply] = useState(''), [replyNote, setReplyNote] = useState(null), [number, setNumber] = useState(''), [numberNote, setNumberNote] = useState(null), [copied, setCopied] = useState(false)
   const picked = plan ? plan.picked : []
 
   if (!parent) return <Card tint="#C42D20" label="Planning the week" glyph="pot" className="span-6"><p>Jason and Laurie plan the week.</p></Card>
@@ -45,6 +53,25 @@ export default function PlanWeek({ parent, me, today }) {
     const next = picked.includes(i) ? picked.filter((x) => x !== i) : [...picked, i].sort((a, b) => a - b)
     await savePlan(plan, { picked: next, status: next.length ? 'picked' : 'ideas' }, week, me)
     plans.reload()
+  }
+  // What Laurie wrote back ("1, 3, 8") becomes the picks
+  async function pickFromReply(e) {
+    e.preventDefault()
+    const next = picksFromReply(reply, ideas.length)
+    if (!next.length) { setReplyNote(`No numbers from 1 to ${ideas.length} in that.`); return }
+    await savePlan(plan, { picked: next, status: 'picked' }, week, me)
+    setReplyNote(`Picked ${next.map((i) => i + 1).join(', ')}.`); setReply(''); plans.reload()
+  }
+  async function saveNumber(e) {
+    e.preventDefault()
+    const phone = normalizePhone(number)
+    if (!phone) { setNumberNote('A phone number with its area code, like (909) 555-1234.'); return }
+    const { error } = await phones.save(laurie.id, phone)
+    if (error) setNumberNote(/relation|does not exist|schema cache/i.test(error.message) ? 'The newest migration hasn’t been run yet (docs/MORNING.md, step 10).' : error.message)
+    else { setNumber(''); setNumberNote('Saved. The button now opens her message.') }
+  }
+  async function copyList() {
+    try { await navigator.clipboard.writeText(listText(ideas, week)); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch { setCopied(false) }
   }
   async function write() {
     const chosen = picked.map((i) => ideas[i]).filter(Boolean)
@@ -89,12 +116,37 @@ export default function PlanWeek({ parent, me, today }) {
             {ideas.map((idea, i) => (
               <li key={i}>
                 <button type="button" className="idea" aria-pressed={picked.includes(i)} onClick={() => toggle(i)}>
+                  <span className="idea-n fig" aria-hidden="true">{i + 1}</span>
                   <span className="idea-t"><b>{idea.title}</b>{idea.line && <span>{idea.line}</span>}</span>
                   <span className="idea-tags">{idea.meal && idea.meal !== 'dinner' && <em>{MEAL[idea.meal]}</em>}{idea.again && <em className="again">Again</em>}</span>
                 </button>
               </li>
             ))}
           </ul>
+          <div className="plan-text">
+            <b>Let Laurie choose</b>
+            <div className="form-actions">
+              <a className="btn ghost" href={smsLink(lauriePhone, listText(ideas, week))}>{lauriePhone ? 'Text the list to Laurie' : 'Text the list'}</a>
+              <button type="button" className="btn ghost" onClick={copyList}>{copied ? 'Copied' : 'Copy the list'}</button>
+            </div>
+            <span className="muted small">Opens your Messages with the numbered list; the message goes from your phone, not through this app.</span>
+            <form className="plan-reply" onSubmit={pickFromReply}>
+              <label>She wrote back<input inputMode="text" autoComplete="off" value={reply} onChange={(e) => setReply(e.target.value)} placeholder="1, 3, 8" /></label>
+              <button type="submit" className="btn ghost" disabled={!reply.trim()}>Pick those</button>
+            </form>
+            {replyNote && <span className="muted small" role="status">{replyNote}</span>}
+            {laurie && (
+              <details className="plan-phone" open={!lauriePhone && Boolean(numberNote)}>
+                <summary>{lauriePhone ? 'Change Laurie’s number' : 'Add Laurie’s number, so one tap opens her message'}</summary>
+                <form className="plan-reply" onSubmit={saveNumber}>
+                  <label>Her number<input type="tel" inputMode="tel" autoComplete="off" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="(909) 555-1234" /></label>
+                  <button type="submit" className="btn ghost" disabled={!number.trim()}>Save</button>
+                </form>
+                <span className="muted small">Kept in the family’s database, readable by Jason and Laurie only.</span>
+                {numberNote && <span className="muted small" role="status">{numberNote}</span>}
+              </details>
+            )}
+          </div>
           <div className="form-actions">
             <button type="button" className="btn" disabled={!picked.length || Boolean(busy)} onClick={write}>Write the {picked.length || ''} picked</button>
             <button type="button" className="btn ghost" disabled={Boolean(busy)} onClick={() => getIdeas(true)}>More ideas</button>

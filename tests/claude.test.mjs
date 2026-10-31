@@ -67,3 +67,9 @@ test('every schema is closed and names what it requires', () => {
   }
   for (const s of [IDEAS_SCHEMA, RECIPES_SCHEMA, EVENTS_SCHEMA, GARDEN_SCHEMA]) walk(s)
 })
+
+test('the kitchen brief keeps the fish to what a Southern California supermarket stocks, and never trout', async () => {
+  const { KITCHEN_BRIEF } = await import('../supabase/functions/_shared/claude.js')
+  assert.match(KITCHEN_BRIEF, /Fish and shellfish: only kinds an ordinary Southern California supermarket stocks all year/)
+  assert.match(KITCHEN_BRIEF, /Never trout/)
+})

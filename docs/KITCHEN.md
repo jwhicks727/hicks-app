@@ -23,6 +23,10 @@ and reach Claude only with Laurie's yes (CLAUDE.md, "The family's data").
   shallot-garlic oil, scallion-ginger relish, garlic confit, lemon, chili
   crisp, hot sauce) and **Anna's add-on**, the "daddy/daughter add-on" (never
   a "family upgrade"). The add-on slot may be meat; the core is pescatarian.
+- **Fish:** only kinds an ordinary Southern California supermarket stocks all year
+  (Trader Joe's first): salmon, cod, halibut, tilapia, mahi mahi, shrimp,
+  scallops, canned or pouched tuna and salmon, sardines. Never trout, and
+  nothing that needs a fish market or a special order.
 - **The week:** ten one-line ideas covering Laurie's plate only, no day
   assignments ever; Jason picks three to six; the full recipes follow;
   ratings come later, often much later. Recipes he shops for go "in the
