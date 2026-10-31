@@ -6,6 +6,37 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Calendar sources live in a Setup console, and they roll over
+
+- **The school calendars:** Kordyak is Rialto Unified (Laurie's teacher
+  calendar), Wayne Ruble is Fontana Unified (Anna's student calendar), and
+  SOAR has its own (Jason's). Three different calendars, side by side in the
+  year view.
+- **A Setup console holds every source.** Paste a link or upload a file:
+  PDF, Word, Google Doc or Sheet, a Drive folder, a Google Calendar, an iCal /
+  webcal link, a web page, a photo of a printed calendar, or a forwarded
+  email. Each is saved, can be updated and rechecked, and shows when it was
+  last read. Feeds sync on their own; documents and pictures are read into
+  dates that a person approves before they reach the calendar. A new version
+  never silently deletes the old one's events.
+- **Rollover nags:** each source knows the dates it covers. Weeks before it
+  runs out, Setup and Home ask for the next one (the job-waiting shine),
+  with a link to where it came from last time, and our phones get a reminder.
+- **Laurie's lector schedule** comes by email to her Yahoo account each
+  month. A scheduled job reads it with a Yahoo app password she creates and
+  can revoke (her yes), looks only for the schedule's sender, keeps only her
+  dates, and treats the mail as data, never instructions. Unverified: Yahoo
+  app passwords for this, the sender and the format, and whether a forwarding
+  rule could replace the login.
+- **Anna's altar serving** is arranged in a GroupMe. Once she starts, a job
+  reads it with a family member's own access, only the schedule posts, and
+  keeps only Anna's dates: other children's names are never stored.
+- **Supabase:** the family's own project ("Hicks Family" organisation, free
+  plan), in West US (North California), with new tables not exposed
+  automatically and row-level security switched on for every new table. The
+  database password lives in a password manager; every secret is listed in
+  `docs/SECRETS.md`.
+
 ## 2026-10-31 — The app gets its own repository, and a Music tab
 
 - **`jwhicks727/hicks-app`, private.** React and Vite in plain JavaScript,
