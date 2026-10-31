@@ -30,6 +30,17 @@ and write the code fresh. SOAR's code belongs to the school.
 - **Family days** (birthdays, anniversaries, Anna's adoption day, the
   angelversary) stay inside the app and its private pages. Never in an issue,
   a PR title or anything public.
+- **A journal is its writer's alone.** The database lets only the writer
+  read their pages, notes and outlets: no parent override, no family read,
+  and no Edge Function reads them, so they never reach Claude. Nothing anyone
+  has written in a journal goes into this repository, a doc, a commit, an
+  issue or a test: tests use made-up pages. A journal brought in from
+  elsewhere is turned into its import file outside the repository and handed
+  to its owner. Home shows only that a page is written or a note is waiting,
+  never a word of either (`tests/migrations.test.mjs` checks the policies).
+- **Anna's grades** are the family's only, and the academy never says a
+  word about a dip: it cheers an A or a grade that went up, and is quiet
+  otherwise.
 - Logins are held only with their owner's yes, and the app never signs in to
   Amazon (decisions log). Every secret is listed in `docs/SECRETS.md`; none is
   ever written into the repository. The app holds only the Supabase URL and
@@ -39,6 +50,14 @@ and write the code fresh. SOAR's code belongs to the school.
   child's name from a group's schedule).
 - No invented data in the real app: no stand-in numbers. If the real source
   isn't connected yet, the part says what's coming instead.
+
+## Art in the academy
+
+Every picture in Anna's academy is human-made, with its licence recorded:
+Fluent Emoji (MIT) drawn by `scripts/academy-art.mjs`, the rooms drawn in
+code, and pictures the family adds with their licence typed in
+(`docs/ACADEMY-ART.md`). Never an image generator, never a picture whose
+licence nobody wrote down.
 
 ## The look
 

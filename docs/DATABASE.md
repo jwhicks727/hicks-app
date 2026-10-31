@@ -167,11 +167,21 @@ sign-in link won't come back to the app.
 | `kitchen_preferences` | The kitchen's tastes, dislikes, pantry and equipment, every version kept | The family | Parents add a new version |
 | `week_plans` | A week's ask, the ideas Claude gave, the ones picked | The family | Parents |
 | `garden_areas` | The garden's areas: the yard, the patio, a room inside; about how big; a room's light | The family | The family; parents remove |
-| `garden_spots` | What's on an area's map: beds, boxes, pots, trees, feeders, baths, paths; where (in percent of the area) and how sunny | The family | The family; parents remove |
+| `garden_spots` | What's on an area's map: beds, boxes, pots, trees, feeders, baths, paths; where (in percent of the area) and how sunny; indoors, a pot's plant type, size and pot, for the side view | The family | The family; parents remove |
 | `garden_plants` | What grows in a spot: variety, when planted, water every N days | The family | The family |
 | `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
 | `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
 | `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move; the files in the private `paintings` bucket | The family | Parents (with her yes recorded) |
+| `journal_entries` | A person's journal: one page a day, the day's question and answer, anything else, gratitudes; whether it was brought in from elsewhere | Its writer only, not even a parent | Its writer only |
+| `journal_notes` | Notes to your future self: written, sealed until their day (a surprise day isn't shown), opened | Its writer only | Its writer only |
+| `journal_settings` | A person's journal settings: which questions, their own questions, their outlets | Its writer only | Its writer only |
+| `academy_settings` | Anna's academy: its name, motto, colours, mascot (one row) | The family | The family |
+| `academy_rooms` | Its rooms: kind, name, square on the campus, walls and floor, and what's in each (a list of pictures with their square, size, flip and colour) | The family | The family |
+| `academy_tasks` | Anna's tasks: what, which class, when due, when done (each done lights a star) | The family | The family |
+| `academy_goals` | Her goals: why, a picture, steps, when reached (a trophy) | The family | The family |
+| `academy_grades` | Her grades, entered by hand (QParent later): class, letter or percent, term, date | The family (the three of us) | The family; parents remove |
+| `academy_cheers` | Cheers for Anna, for anything: what for, a note, a picture, who from | The family | The family adds as themselves; parents or the cheerer remove |
+| `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
 
 Migration index:
 
@@ -183,3 +193,5 @@ Migration index:
 | `20261101060000_claude_and_kitchen_planning` | Claude's usage and the caps (`ai_spend()`, `ai_record()`), consents, Laurie's food rules (versioned, parents only), kitchen preferences, week plans. |
 | `20261101060100_garden` | The garden's areas, spots, plants, care log and photos, and the private `garden` bucket for the photos (family only). |
 | `20261101060200_paintings` | Laurie's paintings, behind sign-in: the table and the private bucket (family reads, parents add). |
+| `20261101090000_journal` | Each person's journal: entries, notes to your future self, settings. Every policy is the writer's only, with no parent or family override (tests/migrations.test.mjs checks). |
+| `20261101090100_academy` | Anna's academy: settings, rooms, tasks, goals, grades, cheers, the family's own pictures and the private `academy` bucket (family reads; parents add pictures). |

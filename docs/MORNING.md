@@ -20,7 +20,7 @@ step says.
 A development copy shows the paintings without signing in. A hosted copy
 never will.
 
-## 1. The database: six migrations, in order
+## 1. The database: eight migrations, in order
 
 Supabase dashboard › SQL Editor › New query. For each file in
 `supabase/migrations/`, oldest first, paste it in and Run:
@@ -31,6 +31,8 @@ Supabase dashboard › SQL Editor › New query. For each file in
 4. `20261101060000_claude_and_kitchen_planning.sql`
 5. `20261101060100_garden.sql`
 6. `20261101060200_paintings.sql`
+7. `20261101090000_journal.sql`
+8. `20261101090100_academy.sql`
 
 Each should say "Success. No rows returned". If one fails, stop and tell
 Claude the message: don't edit a migration that has run.
@@ -46,7 +48,7 @@ family days block is there too, or add them in the app later).
 Authentication › URL Configuration › Redirect URLs. Add:
 
 - `http://localhost:5173/**`
-- your Firebase address, once step 6 gives it:
+- your Firebase address, once step 8 gives it:
   `https://<project-id>.web.app/**`
 - every preview: `https://<project-id>--*.web.app/**`
 
@@ -74,13 +76,38 @@ appears on Home.
 4. **Laurie's yes:** when she signs in, Kitchen › Rules & preferences has
    her switch. Her rules go to Claude only while it's on.
 
-## 5. Paintings into private storage
+## 5. Your journal
+
+Signed in as yourself: Home › Journal (or end a sit and tap "On to your
+journal"). To bring in the journal you've kept in Google Docs: Journal ›
+"Questions, outlets, bringing a journal in" › drop in the file Claude made
+from it (`journal-import.json`, sent to you in the chat, never put in the
+repo), or download the Doc as Plain text (File › Download › .txt) and drop
+that in. It checks the dates, shows how many pages it found, and brings
+them in; days already written in the app are left alone. Your outlets come
+with it. Only you can read any of it.
+
+After it's in, delete the downloaded file from your computer if you like:
+the journal lives in the database now, and "Download my journal" gives you
+a fresh copy any time.
+
+## 6. Anna's academy
+
+The Academy tab. The first visit asks Anna to name her school and pick
+her first rooms (any of them). After that: tasks on Today light stars,
+goals have steps and end in a trophy, grades go in by hand (an A, or going
+up, gets a medal), and "Cheer Anna" works for anything. To add pictures of
+your own (an isometric pack you've bought): the pencil by the school's
+name › "Pictures the family has added", with each one's licence
+(docs/ACADEMY-ART.md).
+
+## 7. Paintings into private storage
 
 In the development copy, signed in as a parent: Life List › Laurie's
 gallery › "Move them now". From then on they're behind sign-in everywhere
 (docs/PAINTINGS-STORAGE.md).
 
-## 6. Firebase Hosting (the free Spark plan)
+## 8. Firebase Hosting (the free Spark plan)
 
 1. console.firebase.google.com › Add project › "team-hicks" (or any name;
    note the project ID it gives). Analytics: off. Plan: Spark, the free
@@ -120,7 +147,7 @@ gallery › "Move them now". From then on they're behind sign-in everywhere
 
 From here, every merge to `main` deploys the live app.
 
-## 7. The way work goes from now on
+## 9. The way work goes from now on
 
 With the family using it, each piece of work goes on its own branch with a
 draft pull request. The **Preview** workflow builds it, tests it, and posts

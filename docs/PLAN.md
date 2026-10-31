@@ -132,8 +132,17 @@ Art to check before use: Christicons (Christian line icons), the Wellcome
 Collection's public-domain saint engravings, Corpus Christi Watershed's free
 Catholic line art, the St. Nicholas Center's CC0 images.
 
-## 1b. Anna's school
+## 1b. Anna's academy (its own place)
 
+- [x] Her school, built room by room: name, motto, colours, mascot; any of
+      21 kinds of room from the start; the campus and every room arranged
+      with a tap and arrows, or a drag; detail galore (the real sky, time
+      and moon in the rooms).
+- [x] Tasks light stars; goals have steps and end in trophies; grades by
+      hand, an A or a better grade cheered; cheers for anything; the Hall of
+      Fame; a fresh cheer on Home.
+- [x] Fluent Emoji (MIT) for the things in rooms; the family's own
+      pictures with their licences.
 - [ ] Anna's grades from QParent (Fontana Unified's parent portal), and her
       school's announcements and events from ParentSquare, with flags,
       warnings and celebrations in the app: a missing assignment, a grade
@@ -141,6 +150,20 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       email notifications, an export); browser automation (Playwright) with a
       parent's own sign-in where there's no other way. Only Jason, Laurie and
       Anna see her grades. To check: each portal's terms on automated access.
+- [ ] Her clubs, teams, altar serving and Girl Scouts as rooms or
+      banners, from the calendar.
+- [ ] Rooms that grow: a second floor, a room unlocked by a goal.
+
+## 1c. The journal (from Home)
+
+- [x] Each person's own, readable by them alone; never to Claude.
+- [x] The day's question by weekday (two sets, or your own, or none),
+      anything else, numbered gratitudes; the sit leads to it.
+- [x] On this day; every page with a search; what you're grateful for most;
+      notes to your future self; your outlets.
+- [x] Bringing a journal in (the file Claude made, or a Google Doc as
+      plain text) and taking it out.
+- [ ] A gentle reminder on the phone once hosted, if wanted.
 
 ## 1b. The garden (from Home)
 
@@ -157,6 +180,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       asked.
 - [x] What to plant this month.
 - [x] What the garden gave lately reaches the Kitchen's planning.
+- [x] Rooms indoors as a side view: each pot's kind of plant, size and pot.
 - [ ] A photo timeline for each plant, side by side; a reminder pushed to a
       phone once the app is hosted.
 

@@ -6,6 +6,81 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — A private journal, after the sit
+
+Jason journals after his morning sit, and asked for the app to send him
+from one to the other.
+
+- **Each person's own.** Only its writer can read a journal: the
+  database has no parent or family override, and no Edge Function reads it,
+  so it never goes to Claude. Home says only that today's page is written or
+  that a note is waiting, never a word of either.
+- **His shape, from his own journal:** the date, the day's question and its
+  answer, anything else on his mind, then Gratitudes, numbered. Each weekday
+  has its question, from his two sets (the school year's: Set the target,
+  Reach out, Clear the friction…; and summer's), changing with the season.
+  He can pick a set, write his own seven, or have none. A child's journal
+  starts with gratitudes only.
+- **After the sit,** the end screen gives the morning's sky (when the sun
+  came up, where the moon is) and "On to your journal" until today's page
+  is written. Settings can turn that off.
+- **Looking back:** this day in other years; every page, searchable; and
+  what he's grateful for most, a cloud of the words that come back, each
+  opening the days behind it. On the journal's birthday, it says so.
+- **Notes to your future self:** written now, sealed, opened on their day
+  (or some surprise morning three to eight weeks on), waiting after a sit.
+- **Outlets:** his list of what brings him back to himself, in groups, with
+  "pick one for me".
+- **Bringing it in:** the journal he's kept in a Google Doc was read once,
+  turned into an import file outside the repository, and handed to him;
+  nothing of it is in this repository. The app also reads a
+  Doc downloaded as plain text, and gives the whole journal back as a file.
+
+## 2026-11-01 — Anna's academy
+
+Jason's long-held idea: a fantasy school designed and run by Anna, built
+room by room. A place of its own, the seventh tab.
+
+- **Isometric, and hers to build.** She names it, picks any of 21 kinds of
+  room from the start (her office, classrooms, a Hall of Fame, a library,
+  a cat café, an observatory, a chapel, a pool, a courtyard…), and arranges
+  the campus and every room: a tap and arrows on a phone, or a drag. Each
+  room comes furnished, and is full of detail: a window on the real sky, a
+  clock with the real time, the real moon in the observatory, shelves of
+  books, curtains, stained glass, string lights.
+- **Celebrating her comes first.** A task done lights a star over the
+  campus. A goal has steps and ends in a trophy. An A, or a grade better
+  than the last in that class, earns a medal or a ribbon; a dip is never
+  mentioned. Anyone can cheer her, for anything, and she can cheer herself.
+  All of it lands in the Hall of Fame, and a fresh cheer shows on Home for
+  the whole family.
+- **Art:** Microsoft's Fluent Emoji (MIT), 245 of them, drawn once to small
+  WebP files with the licence beside them; the rooms are drawn in code. The
+  family can add pictures of its own (a pack bought for her, her drawings),
+  each with its licence written down (docs/ACADEMY-ART.md).
+- Grades go in by hand until QParent is connected (docs/PLAN.md).
+
+## 2026-11-01 — Rooms indoors are plants from the side
+
+A room's plants aren't a map to arrange: they line up along the floor by
+the window, biggest first, each drawn as its kind (13 kinds), at its size,
+in its pot. The kind is guessed from the name until chosen.
+
+## 2026-11-01 — Maps in natural colours
+
+The pastel continents were the content colours, not nature's. Now land is
+green, the great deserts sand with a hint of dunes, the great forests a
+deeper green, the far north tundra, the ice and the highest snows white,
+and every big range a row of little brown peaks with white tips. Near home,
+the land runs from coastal green to desert tan, and the peaks take snow
+from November to April. Drawn simply: a hint of each formation, not a
+survey.
+
+## 2026-11-01 — A question for the dinner table
+
+Each evening, one question for the table on Home, the same for all three
+of us, never the same two nights running.
+
 ## 2026-11-01 — Ten more H icons, from fonts that are organic in themselves
 
 Jason's follow-up: no sprouts or leaves added to a letter. Instead, find

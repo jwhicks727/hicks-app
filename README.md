@@ -11,12 +11,13 @@ repository, its own database, its own look.
 
 | Place | What it is |
 |---|---|
-| **Home** | Today at a glance: the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days, the morning sit, and the garden (`/home/garden`): maps of the yard and each room's plants, what needs doing today, photos Claude can look at. |
+| **Home** | Today at a glance: the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days, a question for the dinner table, cheers for Anna, the morning sit and then each person's private journal (`/home/journal`), and the garden (`/home/garden`): maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
 | **World** | All our places on one map (around home, SoCal, the world), each with its own page, its skyline in its sky right now and a link into the phone's maps app; weather in depth; the sky, the sun and the moon; a page for each school. |
 | **Calendar** | A full calendar (day, week, month, year), synced with our Google calendars, with the Church year, Mass times, our ministries, family days, holidays, heritage days, seasons and nature woven in. |
 | **Kitchen** | Jason's cooking: the week's recipes, what's left in the fridge, a cook check before cooking. |
 | **Life List** | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off, and Laurie's gallery of her paintings. Opens on what's recent. |
 | **Jams** | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
+| **Academy** | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 
 What's built so far, and what's next: [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -62,6 +63,12 @@ Setting it all up, in order: `docs/MORNING.md`.
   `src/lib/paintings.js` and `public/paintings/`.
 - `src/kitchen/` — the cookbook, a recipe, cook mode and timers
   (`docs/KITCHEN.md`).
+- `src/academy/` — Anna's academy: the campus and rooms (drawn in code,
+  isometric), tasks, goals, grades and the Hall of Fame; its pictures are
+  `src/academy/items.js` and `public/academy/` (`docs/ACADEMY-ART.md`). It
+  loads only when opened.
+- `src/places/home/Journal.jsx` and `src/lib/journal.js` — the journal:
+  each person's own, readable by them alone.
 - `src/lib/` — plain logic with no React, so tests can run it.
   `src/lib/cal/` works out the calendar: the Church's day (`liturgy.js`),
   the saints' lines and prayers, holidays and heritage days
@@ -136,3 +143,9 @@ and added: `docs/ART-CAPTURE.md`.
   stand-in, and the one AI-made picture in the app (decisions log), until a
   human-made icon replaces it. A second option is pinned beside it in
   `docs/icon-options/`, with `scripts/make-icons.mjs` to switch.
+- **The academy:** its furniture, animals and prizes are Fluent Emoji by
+  Microsoft (MIT licence; https://github.com/microsoft/fluentui-emoji),
+  drawn to WebP by `scripts/academy-art.mjs` with the licence beside them
+  in `public/academy/`. The rooms and campus are drawn in code. Pictures
+  the family adds carry their own licence (`docs/ACADEMY-ART.md`).
+- **Indoor plants** are drawn in code (`src/places/home/PlantArt.jsx`).
