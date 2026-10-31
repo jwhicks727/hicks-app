@@ -82,6 +82,10 @@ export default function Settings() {
           <span><b>The bowl</b><span>A struck bowl begins and ends a sit</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.bell !== false} aria-label="The bowl" onClick={() => update({ bell: prefs.bell === false })}><i /></button>
         </div>
+        <div className="switch-row">
+          <span><b>From the sit to the journal</b><span>When a sit ends, “On to your journal” (until today’s page is written)</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.sitJournal !== false} aria-label="From the sit to the journal" onClick={() => update({ sitJournal: prefs.sitJournal === false })}><i /></button>
+        </div>
         <p className="muted">These stay on this device.</p>
       </Card>
 

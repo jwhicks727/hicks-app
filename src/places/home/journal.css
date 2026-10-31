@@ -1,0 +1,86 @@
+/* The journal: a quiet page of its own (src/places/home/Journal.jsx) */
+.jr-today .jr-form { gap: 16px; }
+.jr-q > span { font-weight: 600; font-size: 16px; line-height: 1.4; }
+.jr-q > span b { font-weight: 850; }
+.jr-form textarea { resize: vertical; line-height: 1.5; field-sizing: content; min-height: 44px; }
+.jr-q textarea { min-height: 88px; }
+.jr-skip { justify-self: start; min-height: 36px; padding: 0; border: 0; background: none; color: var(--muted); font-weight: 750; font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.jr-grat { border: 0; margin: 0; padding: 0; display: grid; gap: 6px; }
+.jr-grat legend { font-family: var(--font-voice); font-size: 21px; margin-bottom: 6px; }
+.jr-grat ol { margin: 0; padding-left: 26px; display: grid; gap: 8px; }
+.jr-grat li::marker { font-weight: 850; color: #7A5C9E; }
+.jr-grat textarea { min-height: 44px; }
+
+.jr-text { display: grid; gap: 10px; line-height: 1.55; overflow-wrap: anywhere; }
+.jr-tq { color: var(--muted); } .jr-tq b { color: var(--ink); }
+.jr-th { font-family: var(--font-voice); font-size: 19px; margin-top: 4px; }
+.jr-tg { margin: 0; padding-left: 24px; display: grid; gap: 6px; }
+.jr-tg li::marker { font-weight: 850; color: #7A5C9E; }
+.jr-text mark { background: color-mix(in srgb, #F2C14E 45%, transparent); color: inherit; border-radius: 2px; }
+.jr-read { display: grid; gap: 14px; }
+
+.jr-side { display: grid; gap: 14px; align-content: start; }
+.jr-otd { border-top: 1px solid var(--line); padding: 6px 0; }
+.jr-otd:first-of-type { border-top: 0; }
+.jr-otd summary { cursor: pointer; min-height: 44px; display: grid; align-content: center; list-style: none; }
+.jr-otd summary::-webkit-details-marker { display: none; }
+.jr-otd summary span { color: var(--muted); font-size: 14px; }
+.jr-otd .jr-text { font-size: 15px; padding: 4px 0 10px; }
+.jr-more { font-weight: 800; font-size: 14px; color: #5B4580; }
+.jr-links { display: grid; gap: 6px; }
+.jr-links a { display: grid; padding: 10px 12px; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 5%, var(--card)); text-decoration: none; font-weight: 800; min-height: 44px; }
+.jr-links a span { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+/* The journal's birthday, and a note from the past: the two warm moments */
+.jr-birthday { display: grid; gap: 4px; padding: 16px 18px; border-radius: var(--r-card); color: #2B1F3A; background: linear-gradient(120deg, #F6D58E, #F4B6C2 45%, #C9B6F2); box-shadow: var(--shadow-warm); }
+.jr-birthday b { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; }
+.jr-note { display: grid; gap: 12px; justify-items: start; padding: 18px; border-radius: var(--r-card); color: #FFF7EC; background: radial-gradient(120% 140% at 0% 0%, #6B5A9E, #3A2F5E 60%, #231C3D); box-shadow: var(--shadow-warm); }
+.jr-note-k { font-size: 13px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+.jr-note-b { font-family: var(--font-voice); font-size: 22px; line-height: 1.35; white-space: pre-line; overflow-wrap: anywhere; }
+.jr-note .btn { background: #FFF7EC; color: #3A2F5E; }
+.jr-note .btn.ghost { background: transparent; color: #FFF7EC; border-color: rgba(255, 247, 236, .45); }
+.jr-note.open { animation: rise .5s cubic-bezier(.2, .8, .2, 1) both; }
+
+.jr-pn { display: flex; justify-content: space-between; gap: 12px; }
+.jr-pn a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 800; color: var(--sky-ink); text-decoration: none; white-space: nowrap; }
+
+.jr-search input { font: inherit; width: 100%; min-height: 46px; padding: 8px 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+.jr-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.jr-month { font-family: var(--font-voice); font-weight: 400; font-size: 20px; padding: 14px 0 4px; }
+.jr-list a { display: grid; gap: 1px; padding: 9px 0; border-bottom: 1px solid var(--line); text-decoration: none; min-height: 44px; }
+.jr-list a span { color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.jr-cloud { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.jr-cloud button { font: inherit; font-family: var(--font-voice); font-size: calc(16px * var(--s, 1)); line-height: 1.1; min-height: 44px; padding: 6px 10px; border-radius: var(--r-control); border: 1.5px solid transparent; background: color-mix(in srgb, #C0824F calc(6% + 6% * var(--s, 1)), var(--card)); color: var(--ink); cursor: pointer; white-space: nowrap; }
+.jr-cloud button small { font-family: var(--font-ui); font-size: 12px; font-weight: 800; color: var(--muted); margin-left: 5px; }
+.jr-cloud button[aria-pressed="true"] { border-color: #7A5C9E; background: color-mix(in srgb, #7A5C9E 18%, var(--card)); }
+.jr-hits { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.jr-hits ul { margin: 4px 0 0; padding-left: 18px; color: var(--ink); font-size: 15px; display: grid; gap: 4px; }
+.jr-hits a { font-weight: 800; }
+
+.jr-sealed, .jr-read-notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.jr-sealed li { display: grid; padding: 8px 10px; border-radius: var(--r-control); background: color-mix(in srgb, #7A5C9E 8%, var(--card)); }
+.jr-sealed span, .jr-read-notes span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.jr-read-notes p { font-family: var(--font-voice); font-size: 18px; line-height: 1.4; white-space: pre-line; overflow-wrap: anywhere; }
+.jr-week { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.jr-week li { display: grid; grid-template-columns: 3em minmax(0, 1fr); gap: 0 8px; }
+.jr-week li span { font-weight: 800; color: var(--muted); grid-row: span 2; }
+.jr-cp { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+
+.jr-outlets { display: grid; gap: 14px; }
+.jr-outlets h3 { font-family: var(--font-voice); font-weight: 400; font-size: 19px; }
+.jr-outlets ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 2px; }
+.jr-pick { display: grid; padding: 12px 14px; border-radius: var(--r-control); background: linear-gradient(120deg, color-mix(in srgb, #8CC67A 30%, var(--card)), color-mix(in srgb, #F2C14E 30%, var(--card))); }
+.jr-pick span { font-size: 13px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.jr-pick b { font-family: var(--font-voice); font-weight: 400; font-size: 22px; }
+
+/* After the sit: the morning sky, and on to the journal */
+.sit-sky { font-size: 15px; line-height: 1.5; opacity: .85; max-width: 26em; text-wrap: pretty; }
+.sit-next { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.sit .btn.ghost { color: #FFF; border-color: rgba(255, 255, 255, .45); }
+.sit-note { font-weight: 800; color: #F6D58E; }
+
+@media (max-width: 959px) { .jr-cp { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .jr-note.open { animation: none; } }
+.jc-note { font-weight: 800; color: #5B4580; }
+.journal-card .btn { justify-self: start; }

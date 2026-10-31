@@ -42,3 +42,13 @@ test('every update and delete names its rows (Supabase rejects one without a whe
     }
   }
 })
+
+test('a journal is its writer’s alone: every policy on its tables names the writer, and no one else', () => {
+  const [, s] = sql.find(([f]) => f.includes('_journal.sql'))
+  const policies = [...s.matchAll(/create\s+policy\s+\w+\s+on\s+public\.(journal_\w+)[^;]+;/gi)]
+  assert.ok(policies.length >= 10)
+  for (const [p] of policies) {
+    assert.match(p, /member_id\s*=\s*\(select public\.my_member_id\(\)\)/i, p.slice(0, 80))
+    assert.doesNotMatch(p, /is_parent|is_family|\bor\b/i, `${p.slice(0, 80)}: a journal has no parent or family override`)
+  }
+})

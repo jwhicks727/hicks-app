@@ -78,3 +78,18 @@ export function moonName(phase) {
 
 // Traditional names, by the month the full moon falls in.
 export const FULL_MOON_NAMES = ['Wolf', 'Snow', 'Worm', 'Pink', 'Flower', 'Strawberry', 'Buck', 'Sturgeon', 'Corn', 'Hunter’s', 'Beaver', 'Cold']
+
+/**
+ * A line for the end of a morning sit: when the sun came (or comes) up, and
+ * where the moon is, in words. `hm` formats a Date as a clock time at home.
+ */
+export function morningSky(now, SunCalc, hm, at = HOME_TOWN) {
+  const t = SunCalc.getTimes(now, at.lat, at.lng)
+  const sun = now >= t.sunrise ? `The sun came up at ${hm(t.sunrise)}` : `The sun comes up at ${hm(t.sunrise)}`
+  const ill = SunCalc.getMoonIllumination(now), pos = SunCalc.getMoonPosition(now, at.lat, at.lng)
+  const name = moonName(ill.phase).toLowerCase()
+  const article = /^[aeiou]/.test(name) ? 'an' : 'a'
+  if (name === 'new moon') return `${sun}, and the moon is new: no moon to find today.`
+  const where = pos.altitude > 0.05 ? `still up in the ${COMPASS[Math.round(bearing(pos.azimuth) / 45) % 8]}` : 'below the horizon for now'
+  return `${sun}. The moon is ${article} ${name}, ${Math.round(ill.fraction * 100)}% lit, ${where}.`
+}

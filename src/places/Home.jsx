@@ -10,6 +10,8 @@ import RateNudge from '../kitchen/RateNudge.jsx'
 import MindfulCard from '../parts/MindfulCard.jsx'
 import Sit from '../parts/Sit.jsx'
 import Garden from './home/Garden.jsx'
+import Journal from './home/Journal.jsx'
+import JournalCard from '../parts/JournalCard.jsx'
 import GardenCard from './home/GardenCard.jsx'
 import SunsetCard from '../parts/SunsetCard.jsx'
 import DaysOffCard from '../parts/DaysOffCard.jsx'
@@ -36,6 +38,7 @@ const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'num
 export default function Home({ rest = [] }) {
   if (rest[0] === 'sit' || rest[0] === 'breathe') return <Sit />
   if (rest[0] === 'garden') return <Garden rest={rest.slice(1)} />
+  if (rest[0] === 'journal') return <Journal rest={rest.slice(1)} />
   return <HomeScreen />
 }
 
@@ -74,6 +77,7 @@ function HomeScreen() {
       <GardenCard today={today} me={me} />
       <SunsetCard />
       {prefs.mindful !== false && <MindfulCard today={today} />}
+      <JournalCard session={session} me={me} today={today} />
       <SkyToday />
       <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[
         'Kordyak, Wayne Ruble and SOAR beside home, from our chosen stations (SE685, 980SE, NGC08)',

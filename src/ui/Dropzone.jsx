@@ -15,7 +15,7 @@ export default function Dropzone({ accept = 'image/*', multiple = false, onFiles
   const ok = (f) => accept.split(',').some((a) => { a = a.trim(); return a.endsWith('/*') ? f.type.startsWith(a.slice(0, -1)) : f.type === a })
   const take = (list) => {
     const files = [...(list || [])].filter(ok)
-    if (!files.length) { setNote(accept.includes('pdf') ? 'That isn’t a picture or a PDF.' : 'That isn’t a picture.'); return false }
+    if (!files.length) { setNote(accept.includes('pdf') ? 'That isn’t a picture or a PDF.' : accept.startsWith('image') ? 'That isn’t a picture.' : 'That isn’t a file this takes.'); return false }
     setNote(null); onFiles(multiple ? files : files.slice(0, 1)); return true
   }
   // A paste anywhere on the screen, unless it's into a box being typed in

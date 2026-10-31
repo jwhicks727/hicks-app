@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
-import { goBack } from '../lib/router.js'
+import SunCalc from 'suncalc'
+import { goBack, navigate } from '../lib/router.js'
 import { usePrefs } from '../lib/prefs.js'
 import { strikeBowl, sitLineFor } from '../lib/mindful.js'
 import { todayAt } from '../lib/cal/dates.js'
-import { HOME_TOWN } from '../lib/sky.js'
+import { HOME_TOWN, morningSky } from '../lib/sky.js'
+import { useSession } from '../lib/auth.js'
+import { useJournalGlance } from '../lib/useJournalGlance.js'
 
 // /home/sit: a morning sit. One short line to clear the mind, a length
 // (ten minutes unless changed; it remembers), the bowl to begin and end,
 // and nothing else: no instructions, no guidance. The screen stays awake;
-// tapping shows or hides the time left. Back leaves it.
+// tapping shows or hides the time left. Back leaves it. At the end: the
+// morning's sky, a note from your past self if one is waiting, and on to the
+// journal (Jason writes his after he sits).
 const LENGTHS = [5, 10, 15, 20, 30]
+const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 
 export default function Sit() {
   const [prefs, update] = usePrefs()
@@ -18,7 +24,10 @@ export default function Sit() {
   const [state, setState] = useState('ready') // ready | sitting | done
   const [left, setLeft] = useState(0), [showTime, setShowTime] = useState(false), [sat, setSat] = useState(0)
   const audio = useRef(null), started = useRef(0)
-  const [text, who] = sitLineFor(todayAt(HOME_TOWN.tz, new Date()))
+  const today = todayAt(HOME_TOWN.tz, new Date())
+  const [text, who] = sitLineFor(today)
+  const session = useSession()
+  const glance = useJournalGlance(session, today, state === 'done')
   const bowl = () => { if (prefs.bell === false) return; try { audio.current = audio.current || new (window.AudioContext || window.webkitAudioContext)(); audio.current.resume?.(); strikeBowl(audio.current, 0.3) } catch { /* silent */ } }
   const finish = () => { setSat(Math.round((Date.now() - started.current) / 60000)); setState('done'); bowl() }
 
@@ -70,7 +79,14 @@ export default function Sit() {
       {state === 'done' && (
         <div className="sit-t">
           <p className="sit-line">{sat >= minutes ? `${minutes} minutes.` : `${Math.max(1, sat)} minute${sat === 1 ? '' : 's'}.`}</p>
-          <button type="button" className="btn" onClick={() => goBack('/')}>Done</button>
+          <p className="sit-sky">{morningSky(new Date(), SunCalc, (d) => hm.format(d))}</p>
+          {glance.notes > 0 && <p className="sit-note">{glance.notes === 1 ? 'A note from your past self is waiting.' : `${glance.notes} notes from your past self are waiting.`}</p>}
+          {session && prefs.sitJournal !== false && !glance.written ? (
+            <div className="sit-next">
+              <button type="button" className="btn" onClick={() => navigate('/home/journal', { replace: true })}>On to your journal ›</button>
+              <button type="button" className="btn ghost" onClick={() => goBack('/')}>Done</button>
+            </div>
+          ) : <button type="button" className="btn" onClick={() => goBack('/')}>Done</button>}
         </div>
       )}
     </div>
