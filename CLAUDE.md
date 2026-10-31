@@ -194,9 +194,15 @@ and write the code fresh. SOAR's code belongs to the school.
 - While working: `npm test` (seconds). Before a commit: `npm test` and
   `npm run build`, and a look at 390px and on a desktop for anything visible.
 - Small, finished steps go straight to `main` while the app isn't yet in
-  use. Once it's hosted and the family relies on it, each piece of work
-  goes on its own branch (`<type>/<two-or-more-words>`, e.g.
-  `feat/calendar-month-view`) and merges by pull request after its checks.
+  use. Once it's hosted (Firebase; docs/MORNING.md) and the family relies
+  on it, each piece of work goes on its own branch
+  (`<type>/<two-or-more-words>`, e.g. `feat/calendar-month-view`) with a
+  draft pull request opened at its first push. The Preview workflow posts
+  a preview link there, so it can be tried on a phone before merging.
+  Merging to `main` deploys.
+- Laurie's paintings never go in `public/` to be deployed: they live in
+  the private `paintings` bucket (docs/PAINTINGS-STORAGE.md), and
+  `firebase.json` leaves `public/paintings/` out.
 - Before merging something that touches data, sign-in, a job or a secret,
   review it the way a second developer would: one person reaching another's
   data, trusting outside input, no caps on cost, personal data sent to an

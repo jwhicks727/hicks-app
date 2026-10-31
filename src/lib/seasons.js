@@ -11,7 +11,6 @@
 
 import { keyDates } from './cal/liturgy.js'
 import { nthWeekday, addDays, parts } from './cal/dates.js'
-import { PAINTINGS } from './paintings.js'
 
 export const SEASON_ORDER = ['christmas', 'advent', 'easter', 'lent', 'muertos', 'halloween', 'thanksgiving', 'valentine', 'july4', 'back-to-school', 'summer', 'spring', 'fall', 'winter']
 
@@ -33,10 +32,6 @@ export const SEASONS = {
   fall: { label: 'Fall', accent: '#D9783A', field: ['#E0904E', '#B5502E', '#F0CFA2'] },
   winter: { label: 'Winter', accent: '#69B7FF', field: ['#69B7FF', '#B9D9F2', '#294263'] },
 }
-
-// Laurie's painting for each season: whichever of her paintings names it (src/lib/paintings.js).
-// It's the painting on Home's panel in that season.
-export const SEASON_ART = Object.fromEntries(PAINTINGS.flatMap((p) => p.seasons.map((k) => [k, p.src])).reverse())
 
 /** Each season's windows in year `y`: [{ from, to }] as 'YYYY-MM-DD', inclusive. */
 export function windowsOf(key, y) {
@@ -61,14 +56,14 @@ export function windowsOf(key, y) {
   }
 }
 
-/** The season for a 'YYYY-MM-DD' home date: { key, label, accent, field, art } (never null: winter, spring, summer or fall at the least). */
+/** The season for a 'YYYY-MM-DD' home date: { key, label, accent, field } (never null: winter, spring, summer or fall at the least). */
 export function seasonFor(date) {
   const y = parts(date)[0]
   const key = SEASON_ORDER.find((k) => windowsOf(k, y).some((w) => date >= w.from && date <= w.to)) || 'winter'
-  return { key, ...SEASONS[key], art: SEASON_ART[key] || null }
+  return { key, ...SEASONS[key] }
 }
 
 /** A season by its key, as seasonFor() gives it: for trying one on in Settings. */
 export function seasonByKey(key) {
-  return SEASONS[key] ? { key, ...SEASONS[key], art: SEASON_ART[key] || null } : null
+  return SEASONS[key] ? { key, ...SEASONS[key] } : null
 }

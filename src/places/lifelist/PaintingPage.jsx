@@ -2,7 +2,8 @@ import { Card } from '../../ui/Card.jsx'
 import { Crumb } from '../../shell/Link.jsx'
 import { navigate } from '../../lib/router.js'
 import PaintingFrame from '../../parts/PaintingFrame.jsx'
-import { PAINTINGS, paintingBySlug } from '../../lib/paintings.js'
+import { paintingBySlug } from '../../lib/paintings.js'
+import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { SEASONS, windowsOf } from '../../lib/seasons.js'
 import { showFor } from '../../lib/seasonShows.js'
 import '../../parts/paintings.css'
@@ -13,8 +14,10 @@ const dayFmt = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric',
 const said = (d) => dayFmt.format(new Date(Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10))))
 
 export default function PaintingPage({ slug }) {
-  const p = paintingBySlug(slug)
+  const { list: PAINTINGS, loaded } = usePaintings()
+  const p = paintingBySlug(slug, PAINTINGS)
   if (!p) {
+    if (!loaded) return <header className="hero span-6"><Crumb to="/lifelist/paintings">Laurie’s gallery</Crumb><h1 className="greet">…</h1></header>
     return (
       <header className="hero span-6">
         <Crumb to="/lifelist/paintings">Laurie’s gallery</Crumb>
@@ -44,7 +47,7 @@ export default function PaintingPage({ slug }) {
           {p.medium && <div><dt>Medium</dt><dd>{p.medium}</dd></div>}
           {p.size && <div><dt>Size</dt><dd>{p.size}</dd></div>}
           {p.seasons.map((s) => (
-            <div key={s}><dt>Its season</dt><dd>{SEASONS[s].label}, {windowsOf(s, y).map((w) => `${said(w.from)} to ${said(w.to)}`).join(' and ')}: it hangs on Home{showFor(s) && showFor(s).painting.slug === p.slug ? `, and ${showFor(s).what}` : ''}</dd></div>
+            <div key={s}><dt>Its season</dt><dd>{SEASONS[s].label}, {windowsOf(s, y).map((w) => `${said(w.from)} to ${said(w.to)}`).join(' and ')}: it hangs on Home{showFor(s, PAINTINGS) && showFor(s, PAINTINGS).painting.slug === p.slug ? `, and ${showFor(s, PAINTINGS).what}` : ''}</dd></div>
           ))}
           {p.flyer && <div><dt>Look closer</dt><dd>Tap the little bird and {p.flyer.name} takes a turn round the screen</dd></div>}
         </dl>

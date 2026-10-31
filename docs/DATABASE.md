@@ -171,6 +171,7 @@ sign-in link won't come back to the app.
 | `garden_plants` | What grows in a spot: variety, when planted, water every N days | The family | The family |
 | `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
 | `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
+| `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move; the files in the private `paintings` bucket | The family | Parents (with her yes recorded) |
 
 Migration index:
 
@@ -181,3 +182,4 @@ Migration index:
 | `20261031230200_event_places` | Events get a place (name, coordinates, both or neither), an outdoors switch and who made them. |
 | `20261101060000_claude_and_kitchen_planning` | Claude's usage and the caps (`ai_spend()`, `ai_record()`), consents, Laurie's food rules (versioned, parents only), kitchen preferences, week plans. |
 | `20261101060100_garden` | The garden's areas, spots, plants, care log and photos, and the private `garden` bucket for the photos (family only). |
+| `20261101060200_paintings` | Laurie's paintings, behind sign-in: the table and the private bucket (family reads, parents add). |

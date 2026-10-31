@@ -1,0 +1,50 @@
+# Laurie's paintings, behind sign-in
+
+Her paintings are for the family. Once the app is hosted, nothing of hers
+may be reachable by someone who has only its address.
+
+## The options looked at
+
+1. **Supabase Storage, a private bucket, through signed links.** Chosen.
+   - The `paintings` table holds each painting's details; the `paintings`
+     bucket holds its files.
+   - The family reads, and only the parents add or remove, by the same
+     row-level security as the rest of the data.
+   - The app asks for links that expire in a week, so a link copied out of
+     the app stops working.
+   - No new service, no second sign-in, and within Supabase's free storage
+     (1 GB) for hundreds of paintings at 2400 px.
+2. **Firebase Storage with Firebase's own security rules.** Would need
+   Firebase Authentication as a second sign-in beside Supabase's, and the
+   rules can't see who is family. Not chosen.
+3. **An Edge Function that checks the caller and streams each picture.**
+   Works, but every picture view becomes a function call, slower and
+   counted against the free tier; signed links do the same job with
+   Supabase's own storage. Not chosen.
+4. **Files in the app with an unguessable name.** Anyone with the link
+   sees the painting, and the links live forever in the built app. Not
+   chosen.
+
+## How it works
+
+- `supabase/migrations/20261101060200_paintings.sql` makes the table and the
+  private bucket. Each painting's files are `<slug>/full.jpg` (up to 2400 px)
+  and `<slug>/small.jpg` (720 px, for the gallery). A painting that moves
+  also has `flyer.png` (its bird, lifted out) and `sky.png` (her sky filled
+  in behind it), or `leaves.png` (her painted leaves on one sheet), made by
+  `scripts/lift-art.py`.
+- `src/parts/PaintingsProvider.jsx` reads them for every screen once someone
+  signs in. Signed out, a hosted app shows none.
+- **The paintings that came in with the code** (`public/paintings/`) are
+  shown only by a development copy (`npm run dev`), for building and
+  showing her. `firebase.json` leaves that folder out of every deploy
+  (`tests/paintings.test.mjs` checks).
+- **Moving them in:** in a development copy, a parent signs in and taps
+  Life List › Laurie's gallery › "Move them now". The files and their
+  details go into the bucket and the table, and from then on every copy
+  of the app reads them from there.
+- **A new painting:** Laurie's gallery › "Add a painting". Add the photo or
+  scan (docs/ART-CAPTURE.md), its title, and its season. Tick "Laurie said
+  yes": it can't be saved without that, and `said_yes_by` records who
+  ticked it. Making one move (a bird, her leaves) is a step for a
+  computer, with `scripts/lift-art.py`.

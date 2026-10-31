@@ -34,6 +34,18 @@ npm run build    # the production build, into dist/
 `.env.example` lists the settings the app will need once its database is
 connected. Copy it to `.env` (never committed) and fill it in.
 
+## Hosting
+
+The app is on Firebase Hosting (the free plan), and its data on Supabase.
+Setting it all up, in order: `docs/MORNING.md`.
+
+- **Merging to `main` deploys it** (`.github/workflows/deploy.yml`).
+- **Every pull request gets a preview link,** drafts included
+  (`.github/workflows/preview.yml`). The link is posted on the pull
+  request and lasts a week.
+- **Laurie's paintings are never in the hosted files.** They live behind
+  sign-in, in private storage (`docs/PAINTINGS-STORAGE.md`).
+
 ## Where things are
 
 - `src/places/` — one file per place, and the screens under each.

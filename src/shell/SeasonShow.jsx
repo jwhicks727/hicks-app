@@ -7,6 +7,7 @@ import { reducedMotion } from '../lib/motion.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { HOME_TOWN } from '../lib/sky.js'
 import { usePath } from '../lib/router.js'
+import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import './season-show.css'
 
 // The season's show: once a day, a moment after the app opens, something
@@ -26,25 +27,26 @@ export default function SeasonShow() {
   const key = tryKey || seasonFor(day).key
   const [run, setRun] = useState(null) // { falls, id }
   const quiet = QUIET.test(usePath())
+  const { list } = usePaintings()
 
   const start = (k) => {
-    const show = showFor(k)
+    const show = showFor(k, list)
     if (!show || reducedMotion()) return
     const falls = leafFalls(show, Number(day.replace(/-/g, '')) % 9973)
     setRun({ show, falls, id: Date.now() })
   }
   // Once a day, a moment after opening
   useEffect(() => {
-    if (quiet || prefs.seasonal === false || !showFor(key) || played(key, day)) return
+    if (quiet || prefs.seasonal === false || !showFor(key, list) || played(key, day)) return
     const t = setTimeout(() => { mark(key, day); start(key) }, 1400)
     return () => clearTimeout(t)
-  }, [key, day, prefs.seasonal, quiet]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, day, prefs.seasonal, quiet, list]) // eslint-disable-line react-hooks/exhaustive-deps
   // Again, on request
   useEffect(() => {
     const on = (e) => start((e.detail && e.detail.key) || key)
     window.addEventListener('hicks:show', on)
     return () => window.removeEventListener('hicks:show', on)
-  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, list]) // eslint-disable-line react-hooks/exhaustive-deps
   // Gone when the last leaf has fallen
   useEffect(() => {
     if (!run) return

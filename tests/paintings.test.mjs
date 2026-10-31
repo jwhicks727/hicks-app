@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, statSync } from 'node:fs'
-import { PAINTINGS, paintingBySlug, paintingFor, cropFor, boxIn, flightPoints, birdAt, along, progress } from '../src/lib/paintings.js'
-import { SEASON_ART, SEASONS, seasonByKey, seasonFor } from '../src/lib/seasons.js'
+import { PAINTINGS, paintingBySlug, paintingFor, cropFor, boxIn, flightPoints, birdAt, along, progress, toRow, fromRow, storedPaths } from '../src/lib/paintings.js'
+import { SEASONS, seasonByKey } from '../src/lib/seasons.js'
 import { SHOWS, showFor, leafFalls, showLength } from '../src/lib/seasonShows.js'
 
 const pub = (f) => new URL('../public' + f, import.meta.url)
@@ -30,8 +30,6 @@ test('every painting is here with its files, and nothing about it is guessed', (
 })
 
 test('her painting hangs in its season, and a season without one falls back to her newest', () => {
-  assert.equal(SEASON_ART.halloween, paintingBySlug('witch-and-crow').src)
-  assert.equal(seasonFor('2026-10-20').art, SEASON_ART.halloween)
   // Her leaves fall in fall; a season with none of her paintings has no show
   assert.equal(showFor('fall').painting.slug, 'witch-and-crow')
   assert.equal(showFor('christmas'), null)
@@ -76,4 +74,26 @@ test('the flight ends exactly at the bird’s place, facing as painted, wings st
   // It goes round the screen on the way: somewhere left, right, high and low of the place
   const seen = Array.from({ length: 200 }, (_, i) => along(pts, i / 199))
   assert.ok(Math.min(...seen.map((s) => s.x)) < 80 && Math.max(...seen.map((s) => s.x)) > 300 && Math.min(...seen.map((s) => s.y)) < 120)
+})
+
+test('a painting stored behind sign-in comes back in the same shape, its files by signed link', () => {
+  const p = paintingBySlug('witch-and-crow'), row = toRow(p)
+  assert.equal(row.flyer.sprite, undefined, 'no public path is stored'); assert.equal(row.leaves.sheet, undefined)
+  const paths = storedPaths(p.slug, row)
+  assert.deepEqual(Object.values(paths).sort(), ['witch-and-crow/flyer.png', 'witch-and-crow/full.jpg', 'witch-and-crow/leaves.png', 'witch-and-crow/sky.png', 'witch-and-crow/small.jpg'])
+  const urls = Object.fromEntries(Object.values(paths).map((x) => [x, 'https://signed/' + x]))
+  const back = fromRow({ ...row, seasons: row.seasons }, urls)
+  assert.equal(back.src, 'https://signed/witch-and-crow/full.jpg')
+  assert.deepEqual(back.flyer.at, p.flyer.at); assert.equal(back.flyer.sprite, 'https://signed/witch-and-crow/flyer.png')
+  assert.deepEqual(back.leaves.boxes, p.leaves.boxes)
+  assert.equal(showFor('fall', [back]).painting.slug, 'witch-and-crow')
+  assert.equal(showFor('fall', []), null, 'no paintings, no show')
+  const plain = storedPaths('new-one', { flyer: null, leaves: null })
+  assert.deepEqual(Object.keys(plain).sort(), ['small', 'src'])
+})
+
+test('the hosted app never ships her paintings: firebase.json leaves them out', async () => {
+  const { readFileSync } = await import('node:fs')
+  const fb = JSON.parse(readFileSync(new URL('../firebase.json', import.meta.url), 'utf8'))
+  assert.ok(fb.hosting.ignore.includes('paintings/**'))
 })

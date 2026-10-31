@@ -1,7 +1,8 @@
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import PaintingFrame from './PaintingFrame.jsx'
-import { PAINTINGS, paintingFor } from '../lib/paintings.js'
+import { paintingFor } from '../lib/paintings.js'
+import { usePaintings } from './PaintingsProvider.jsx'
 
 /**
  * "Paintings": one of Laurie's, beautifully clipped, opening her gallery.
@@ -9,9 +10,10 @@ import { PAINTINGS, paintingFor } from '../lib/paintings.js'
  * bird flies once a day when the panel comes into view.
  */
 export default function PaintingsCard({ season, auto = false, className = 'span-3' }) {
-  const p = paintingFor(season)
-  if (!p) return null
-  const n = PAINTINGS.length
+  const { list } = usePaintings()
+  const p = paintingFor(season, list)
+  if (!p || !p.src) return null
+  const n = list.length
   return (
     <Card className={'paint-card ' + className} tint="#C0824F" label="Paintings" glyph="star">
       <PaintingFrame painting={p} focus={p.focus} auto={auto} linkTo="/lifelist/paintings" />

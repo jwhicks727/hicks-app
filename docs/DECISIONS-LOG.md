@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Hosting on Firebase, previews on every pull request, paintings behind sign-in
+
+- **Firebase Hosting, on the free Spark plan,** serves the app; Supabase
+  keeps the data.
+- **Merging to `main` deploys.** Every pull request, drafts included, gets
+  its own preview link, posted on the pull request for a week, so work in
+  progress can be tried on a phone. Previews skip docs-only changes and
+  cancel themselves on a new push, to keep Actions minutes down.
+  Pull requests from forks never get the deploy key.
+- **Laurie's paintings live behind sign-in:** a table and a private bucket,
+  read through week-long signed links (docs/PAINTINGS-STORAGE.md has the
+  options weighed).
+  - The paintings that came in with the code show only in a development
+    copy, and `firebase.json` leaves them out of every deploy.
+  - A parent moves them into the bucket with a tap.
+  - A new one is added in her gallery, and can't be saved without "Laurie
+    said yes".
+- **The morning's setup is written down in order:** docs/MORNING.md.
+
 ## 2026-11-01 — The garden, from Home
 
 - **The garden lives under Home** (`/home/garden`), with a card on Home

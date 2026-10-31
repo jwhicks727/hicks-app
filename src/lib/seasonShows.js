@@ -7,7 +7,7 @@
 // A season with none of her paintings yet has no show; it waits for one.
 // Pure, so tests run it in Node.
 
-import { paintingBySlug } from './paintings.js'
+import { paintingBySlug, PAINTINGS } from './paintings.js'
 import { seeded } from './scenes.js'
 
 export const SHOWS = {
@@ -17,10 +17,10 @@ export const SHOWS = {
   fall: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves fall across the screen', count: 14 },
 }
 
-/** The show for a season with its painting: { key, kind, what, painting, ... }, or null. */
-export function showFor(key) {
-  const s = SHOWS[key], p = s && paintingBySlug(s.painting)
-  if (!s || !p || (s.kind === 'leaves' && !p.leaves)) return null
+/** The show for a season with its painting (from `list`, the paintings the app has): { key, kind, what, painting, ... }, or null. */
+export function showFor(key, list = PAINTINGS) {
+  const s = SHOWS[key], p = s && paintingBySlug(s.painting, list)
+  if (!s || !p || (s.kind === 'leaves' && !(p.leaves && p.leaves.sheet))) return null
   return { key, ...s, painting: p }
 }
 
