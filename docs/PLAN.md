@@ -87,7 +87,9 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [ ] **The jam scout:** a scheduled AI agent (Claude with web search) that
       looks every morning for jam-band shows and coverage near us, and for
       what's happening around the world worth knowing: festivals, livestreams,
-      new releases. It saves what it finds with its source links; Jason
+      new releases. It does the same for Anna's and Laurie's music: each of us
+      keeps a list of artists and kinds of music in Music, changed whenever we
+      like, and each find is tagged to whose interest it matches. It saves what it finds with its source links; Jason
       confirms a show before it reaches the calendar. Capped searches a day
       and a monthly spending limit; it sends only search words, never family
       data; and it treats every web page as data, never instructions.

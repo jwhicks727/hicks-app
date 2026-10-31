@@ -11,7 +11,11 @@ new entry; the old one stays. The working rules for every project are in
 No JamBase subscription. Instead, a scheduled AI agent (Claude with web
 search) scans each morning for jam-band shows and coverage in the Inland
 Empire and Los Angeles, and for things around the world worth knowing
-about: festivals, livestreams, YouTube premieres, archive releases. It saves
+about: festivals, livestreams, YouTube premieres, archive releases. It
+follows Anna's and Laurie's music the same way: each person keeps their own
+list of artists and kinds of music in Music (Anna's bands, Laurie's Christian
+artists), updated whenever they like, and each find is tagged to whose
+interest it matches. It saves
 each find with its source links for Jason to confirm before a show goes on
 the calendar, and never invents one. It has a daily cap on searches and a
 monthly spending limit, sends only search words (never family data), and
