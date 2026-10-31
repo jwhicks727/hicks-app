@@ -13,9 +13,17 @@ import { showFor } from '../lib/seasonShows.js'
  * lets its leaves fall again too.
  */
 export default function PaintingsCard({ season, auto = false, className = 'span-3' }) {
-  const { list } = usePaintings()
+  const { list, loaded } = usePaintings()
   const p = paintingFor(season, list)
-  if (!p || !p.src) return null
+  // Never silently gone: with nothing to show, the card says why (the hosted app carries none of her paintings until a parent has moved them into private storage)
+  if (!p || !p.src) {
+    if (!loaded) return null
+    return (
+      <Card className={'paint-card ' + className} tint="#C0824F" label="Paintings" glyph="star">
+        <p className="muted">Laurie’s paintings aren’t in the family’s private storage yet, so there’s nothing to show here. A parent moves them in once: docs/MORNING.md, step 7.</p>
+      </Card>
+    )
+  }
   const n = list.length
   const show = showFor(season, list)
   const leaves = show && show.painting.slug === p.slug

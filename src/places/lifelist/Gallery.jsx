@@ -30,7 +30,13 @@ export default function Gallery() {
         <span className="kicker">Painted by Laurie</span>
         <h1 className="greet">Laurie’s Gallery</h1>
       </header>
-      {loaded && !list.length && <Card tint="#C0824F" label="Not connected" glyph="star" className="span-6"><p>Laurie’s paintings are only for us, kept behind sign-in, and the database isn’t connected on this copy of the app.</p></Card>}
+      {loaded && !list.length && (
+        <Card tint="#C0824F" label={supabase ? 'Not moved in yet' : 'Not connected'} glyph="star" className="span-6">
+          <p>{supabase
+            ? 'Laurie’s paintings are kept in the family’s private storage, and none have been moved in yet. A parent does that once, from the development copy on a computer (npm run dev): this page then has a “Move them now” button (docs/MORNING.md, step 7).'
+            : 'Laurie’s paintings are only for us, kept behind sign-in, and the database isn’t connected on this copy of the app.'}</p>
+        </Card>
+      )}
       <section className="gallery-wall span-6" aria-label="Laurie’s paintings">
         {list.map((p) => (
           <Link key={p.slug} className="gallery-piece" to={'/lifelist/paintings/' + p.slug}>
