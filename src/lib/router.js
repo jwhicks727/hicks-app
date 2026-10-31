@@ -10,11 +10,13 @@
 import { useEffect, useState } from 'react'
 
 export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'lifelist', 'music']
+// Reached from Settings (and the desktop rail), not the tab bar.
+export const CONSOLES = ['settings', 'setup', 'reports']
 
 export function parsePath(pathname) {
   const parts = pathname.split('/').filter(Boolean)
-  const place = PLACES.includes(parts[0]) ? parts[0] : 'home'
-  return { place, rest: PLACES.includes(parts[0]) ? parts.slice(1) : [] }
+  const known = PLACES.includes(parts[0]) || CONSOLES.includes(parts[0])
+  return { place: known ? parts[0] : 'home', rest: known ? parts.slice(1) : [] }
 }
 
 function depth() {

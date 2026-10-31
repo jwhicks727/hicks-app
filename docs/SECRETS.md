@@ -13,5 +13,6 @@ this repository, an issue, a commit or a chat.
 | GroupMe access token | The scheduled job's secrets | The family member it belongs to | Reading the altar servers' schedule posts | Later |
 | Google sign-in (OAuth) client | Supabase auth settings | Jason | Sign-in and Google Calendar sync | Planned |
 | Synoptic token | The weather job's secrets | Jason | Our stations' readings | Planned |
-| Anthropic API key | The jam scout's secrets, with a monthly spending limit | Jason | The daily jam scout | Planned |
+| QParent and ParentSquare sign-ins | The school job's secrets | A parent (their yes) | Anna's grades and school news, where there's no feed | Planned |
+| Anthropic API key | The scouts' secrets, with a monthly spending limit | Jason | The daily jam and neighbourhood scouts | Planned |
 | eBird API key, Laurie's eBird login | The birding job's secrets | Laurie (her yes) | Her life list and nearby sightings | Planned |

@@ -24,6 +24,11 @@ export default function TabBar({ current }) {
           {label}
         </Link>
       ))}
+      <span className="rail-more">
+        <Link to="/settings" aria-current={current === 'settings' ? 'page' : undefined}>Settings</Link>
+        <Link to="/setup" aria-current={current === 'setup' ? 'page' : undefined}>Setup</Link>
+        <Link to="/reports" aria-current={current === 'reports' ? 'page' : undefined}>Reports</Link>
+      </span>
     </nav>
   )
 }

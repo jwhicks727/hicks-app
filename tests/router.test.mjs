@@ -7,6 +7,7 @@ test('every screen has an address', () => {
   assert.deepEqual(parsePath('/world/school/soar'), { place: 'world', rest: ['school', 'soar'] })
   assert.deepEqual(parsePath('/lifelist'), { place: 'lifelist', rest: [] })
   assert.deepEqual(parsePath('/music'), { place: 'music', rest: [] })
+  assert.deepEqual(parsePath('/setup'), { place: 'setup', rest: [] })
 })
 
 test('an address that names nothing opens Home', () => {

@@ -39,7 +39,10 @@ connected. Copy it to `.env` (never committed) and fill it in.
 - `src/places/` — one file per place, and the screens under each.
 - `src/parts/` — pieces shared between places (the sky today, ...).
 - `src/shell/` — the sky behind everything, the tab bar, links and Back.
+- `src/consoles/` — Settings, Setup and Reports, built from `src/registry.js`.
 - `src/lib/` — plain logic with no React, so tests can run it.
+- `supabase/migrations/` — the database, one migration at a time
+  (`docs/DATABASE.md`).
 - `docs/` — the decisions log, the design principles, the plan, and the
   clickable mockup the look was worked out in (`docs/mockup/`).
 

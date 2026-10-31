@@ -6,6 +6,48 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Settings, Setup and Reports; SOAR's rules for one developer
+
+- **Settings, Setup and Reports work the way SOAR's do:** each place
+  declares its setup sections and reports in `src/registry.js`, and they
+  appear by themselves. Setup holds the calendar sources (paste, edit, mark
+  checked, see what's going stale); Reports starts with the sources report;
+  Settings has sign-in, text size and motion. Reached from a button on Home
+  and the desktop rail.
+- **Sign-in starts with an emailed link** (Supabase's own, nothing to set
+  up), checked against the family's addresses in the database. Google
+  sign-in comes with the Calendar sync, which needs it anyway.
+- **SOAR's working rules that fit one developer** are in `CLAUDE.md`:
+  addresses and Back, touch, the layout checks, the database rules (never
+  `using (true)`, explicit grants, `where` on every update and delete, the
+  1000-row cap, the date trap), sign-in back-off and private diagnostics for
+  jobs, docs shipping with the change, and a review pass before merging
+  anything touching data or secrets. The multi-developer parts (issue
+  claims, review tiers, reviewers) are left behind. Migrations get SOAR's
+  guard tests (`tests/migrations.test.mjs`). Small finished steps go to
+  `main` until the app is in use; then branches and pull requests.
+
+## 2026-10-31 — Anna's grades and her school's news
+
+Anna's grades come in from QParent (Fontana Unified's parent portal), and
+her school's announcements and events from ParentSquare, so the app can
+flag, warn and celebrate: a missing assignment, a slipping grade, an A worth
+a cheer. Official routes first (calendar feeds, email notifications,
+exports); browser automation with a parent's own sign-in only where there's
+no other way, under the same rules as every signed-in job (24-hour back-off,
+no personal data in diagnostics). Only Jason, Laurie and Anna see her grades.
+To check: each portal's terms on automated access.
+
+## 2026-10-31 — The neighbourhood scout
+
+A second daily agent, beside the jam scout, notices restaurants and
+businesses opening and closing around home, in Redlands and in Claremont:
+the news that rarely gets an announcement. It reads local news, city
+planning and permit agendas, California ABC liquor licence applications
+(new restaurants usually file one) and public posts, never sites whose terms
+forbid it, and shows each find in World's "Around town" with its sources.
+Same caps and rules as the jam scout.
+
 ## 2026-10-31 — A jam scout instead of a paid events API
 
 No JamBase subscription. Instead, a scheduled AI agent (Claude with web

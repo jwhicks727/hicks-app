@@ -12,9 +12,17 @@ Built in this order, each part in daily use before the next.
 - [ ] The family's own Supabase project (Jason creates it; settings in `.env`).
       West US (North California); new tables not exposed automatically;
       automatic row-level security on.
-- [ ] A Setup console (admins only): every outside source the app reads,
-      pasted in once, rechecked on demand, with when it was last read and
-      when it goes stale.
+- [x] Settings (sign in by email link, text size, motion), Setup (calendar
+      sources: paste, edit, mark checked, staleness) and Reports (calendar
+      sources), all following `src/registry.js`. Home shows the rollover
+      shine when a source is due.
+- [x] The first migration (`supabase/migrations/20261031230000_foundations.sql`):
+      the family, sources and their versions, calendar events, family days,
+      with row-level security and explicit grants; guard tests for every
+      migration.
+- [ ] Run the first migration and add the family (docs/DATABASE.md).
+- [ ] Reading sources automatically: feeds nightly; documents and pictures
+      into dates someone approves.
 - [ ] Sign-in for the three of us, and the greeting by name.
 - [ ] Hosting (Firebase, as SOAR uses), and the app installable on our phones.
 
@@ -60,12 +68,29 @@ Art to check before use: Christicons (Christian line icons), the Wellcome
 Collection's public-domain saint engravings, Corpus Christi Watershed's free
 Catholic line art, the St. Nicholas Center's CC0 images.
 
+## 1b. Anna's school
+
+- [ ] Anna's grades from QParent (Fontana Unified's parent portal), and her
+      school's announcements and events from ParentSquare, with flags,
+      warnings and celebrations in the app: a missing assignment, a grade
+      slipping, an A worth a cheer. Official routes first (a calendar feed,
+      email notifications, an export); browser automation (Playwright) with a
+      parent's own sign-in where there's no other way. Only Jason, Laurie and
+      Anna see her grades. To check: each portal's terms on automated access.
+
 ## 2. World
 
 - [ ] Weather from our stations through Synoptic: Kordyak SE685, Wayne Ruble
       980SE, SOAR NGC08, home its nearest (set in the app).
 - [ ] Day by day and hour by hour, wound back and forward; school pages;
       one other place a day; NWS alerts for home and the schools.
+- [ ] **The neighbourhood scout:** a daily agent that notices new restaurants
+      and businesses opening, and ones closing, around home, in Redlands and in
+      Claremont: the kind of news that never gets an announcement. Read from
+      local news, city planning and permit agendas, California ABC liquor
+      licence applications (a new restaurant usually files one), and public
+      posts, never sites whose terms forbid it. Shown in World as "Around
+      town", each with its sources.
 
 ## 3. Life List
 
