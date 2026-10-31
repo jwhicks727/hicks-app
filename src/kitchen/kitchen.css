@@ -197,16 +197,17 @@ html[data-motion="less"] .badge.unicorn { animation: none; }
 .kchat-fab svg { width: 22px; height: 22px; }
 @media (min-width: 900px) { .kchat-fab { bottom: 28px; } }
 html.phone-landscape .kchat-fab { bottom: 12px; }
-.kchat { display: grid; gap: 10px; min-height: 60vh; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+/* A column, not a grid with set rows: the suggestions row comes and goes, and fixed rows then gave the box and its buttons the stretchy one */
+.kchat { display: flex; flex-direction: column; gap: 10px; min-height: 60vh; }
 .kchat-says { font-size: 13px; color: var(--muted); }
 .kchat-try { display: grid; gap: 8px; } .kchat-try .btn { justify-self: stretch; text-align: left; justify-content: flex-start; min-height: 44px; }
-.kchat-log { display: grid; gap: 10px; align-content: start; }
+.kchat-log { display: grid; gap: 10px; align-content: start; flex: 1 1 auto; }
 .kchat-me { justify-self: end; max-width: 85%; background: #3B2B22; color: var(--on-colour); padding: 9px 13px; border-radius: 14px 14px 4px 14px; white-space: pre-wrap; }
 .kchat-them { max-width: 95%; display: grid; gap: 8px; } .kchat-them p, .kchat-them ul { margin: 0; } .kchat-them ul { padding-left: 1.2em; } .kchat-them h3 { font-size: 17px; }
 .kchat-prop { display: grid; gap: 6px; padding: 10px 12px; border: 1.5px solid #E0662F; border-radius: 6px; background: color-mix(in srgb, #E0662F 7%, var(--card)); }
 .kchat-prop.saved { border-color: #3E7A4C; } .kchat-prop.no { opacity: .7; }
 .kchat-ok { color: #3E7A4C; font-weight: 800; }
 .kchat-busy { display: flex; gap: 8px; align-items: center; color: var(--muted); font-weight: 700; }
-.kchat-in { position: sticky; bottom: 0; display: grid; gap: 8px; background: var(--card); padding-top: 6px; }
+.kchat-in { position: sticky; bottom: 0; display: grid; gap: 8px; align-content: start; background: var(--card); padding-top: 6px; }
 .kchat-in textarea { font: inherit; width: 100%; min-height: 48px; padding: 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); resize: vertical; }
-.kchat-b { display: flex; gap: 8px; }
+.kchat-b { display: flex; gap: 8px; align-items: center; }
