@@ -110,6 +110,10 @@ and added: `docs/ART-CAPTURE.md`.
   `scripts/make-map.mjs`. The mountains and lakes near home are rough
   outlines drawn for the app. The places' skylines are generic silhouettes
   drawn in code (`src/lib/scenes.js`), no one's artwork or logo.
+- **Jam history:** shows taped on this day, from Relisten
+  (https://relisten.net), which streams the Internet Archive's Live Music
+  Archive, from bands that allow taping. Read by the browser with only the
+  date.
 - **Sightings:** an outdoor event shows what iNaturalist's observers have
   recorded nearby (https://www.inaturalist.org), each photo with its own
   observer's credit and licence as iNaturalist gives it, and a link back.

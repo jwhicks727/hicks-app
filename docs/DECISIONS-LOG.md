@@ -6,6 +6,28 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — A few surprises
+
+- **Tonight's sunset,** on Home through the afternoon. The forecast's
+  clouds at the hour of sunset (low, middle and high) read the way sky
+  watchers read them:
+  - "Likely glorious": high clouds to catch the colour and a clear
+    horizon;
+  - "Probably hidden": low cloud on the horizon;
+  - "Clean and golden": a clear sky.
+
+  It says when golden hour starts, and that it's a guess from the
+  forecast, not a promise.
+- **Days off coming,** on Home when one is within four weeks. For each of
+  us with a school calendar, it shows the next day off by name and how
+  many school days are left before it. It's read from the approved
+  no-school days, so it is only as right as the calendars.
+- **This day in jam history,** on Jams: shows taped on today's date in
+  years gone by, from Relisten and the Internet Archive. The family's
+  bands come first, the Dead first of all, each a tap from playing. The
+  shape of Relisten's answer is unverified until it's seen live; if it
+  can't be read, the card links to Relisten's own page for the day.
+
 ## 2026-11-01 — Three H icons to choose from
 
 Jason's idea: a white, blocky H in a leafy, organic style, on the gradient

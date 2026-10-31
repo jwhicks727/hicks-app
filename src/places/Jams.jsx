@@ -1,13 +1,18 @@
 import Coming from '../parts/Coming.jsx'
+import OnThisDay from '../parts/OnThisDay.jsx'
+import { todayAt } from '../lib/cal/dates.js'
+import { useNow } from '../lib/useNow.js'
 
 export default function Jams() {
+  const today = todayAt('America/Los_Angeles', useNow())
   return (
     <>
       <header className="hero span-6">
         <span className="kicker">Jam bands first</span>
         <h1 className="greet">Jams</h1>
       </header>
-      <Coming tint="#8A5BC4" glyph="music" className="span-6" title="Our music" items={[
+      <OnThisDay today={today} />
+      <Coming tint="#8A5BC4" glyph="music" className="span-3" title="Our music" items={[
         'Jam-scene shows near us, found online and added to the calendar',
         'Free live recordings from the Internet Archive, played right here',
         'Chill and relaxing music from free sources, in the same player',

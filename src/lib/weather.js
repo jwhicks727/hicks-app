@@ -8,7 +8,7 @@
 
 import { HOME_TOWN } from './sky.js'
 
-const HOURLY = ['temperature_2m', 'precipitation_probability', 'weather_code', 'wind_gusts_10m', 'is_day']
+const HOURLY = ['temperature_2m', 'precipitation_probability', 'weather_code', 'wind_gusts_10m', 'is_day', 'cloud_cover_low', 'cloud_cover_mid', 'cloud_cover_high']
 const DAILY = ['weather_code', 'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max', 'wind_gusts_10m_max', 'uv_index_max']
 const CURRENT = ['temperature_2m', 'apparent_temperature', 'relative_humidity_2m', 'weather_code', 'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m', 'is_day']
 
@@ -76,6 +76,7 @@ export function shapeForecast(json, nowIso) {
   const hours = h.time.slice(start, start + 12).map((t, i) => ({
     time: t, label: i === 0 ? 'Now' : hourWord(hourOf(t)), temp: Math.round(h.temperature_2m[start + i]),
     rain: h.precipitation_probability?.[start + i] ?? null, gusts: Math.round(h.wind_gusts_10m?.[start + i] ?? 0),
+    clouds: h.cloud_cover_low ? { low: h.cloud_cover_low[start + i], mid: h.cloud_cover_mid?.[start + i] ?? null, high: h.cloud_cover_high?.[start + i] ?? null } : null,
     ...conditions(h.weather_code[start + i], h.is_day?.[start + i] ?? 1),
   }))
   const days = d.time.map((t, i) => ({

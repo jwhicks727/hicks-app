@@ -217,6 +217,9 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [ ] Free feeds alongside it: YouTube channels' own release feeds (no key),
       new uploads in the Internet Archive's Live Music Archive, and bands'
       own tour calendars where they publish one. No JamBase.
+- [x] This day in jam history: shows taped on today's date, the family's
+      bands first, each a tap from playing on Relisten (unverified against
+      the live service).
 - [ ] Free live recordings from the Internet Archive's Live Music Archive
       (bands that allow taping), in a built-in player.
 - [ ] Chill and relaxing music from free sources (to find).

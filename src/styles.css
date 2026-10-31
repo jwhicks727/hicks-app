@@ -265,3 +265,17 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .wild li > span { font-size: 14px; color: var(--muted); }
 .wild-links { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .wild-links a { font-weight: 800; font-size: 14px; color: #3F6B2E; min-height: 32px; display: inline-flex; align-items: center; }
+
+/* Tonight's sunset */
+.sunset-band { height: 10px; border-radius: 4px; background: linear-gradient(90deg, #3B5F87, #D6664D, #E08452, #E9A962); }
+.sunset-card.hidden .sunset-band { background: linear-gradient(90deg, #8A8F9C, #B7B3B0); }
+.sunset-card.clear .sunset-band { background: linear-gradient(90deg, #E9A962, #F6D18A, #F2B8C6); }
+.sunset-grade { font-family: var(--font-voice); font-weight: 400; font-size: 24px; }
+/* Days off coming */
+.daysoff { list-style: none; margin: 0; padding: 0; display: grid; }
+.daysoff li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.daysoff i { width: 12px; height: 12px; border-radius: 50%; } .daysoff .do-t { display: grid; min-width: 0; } .daysoff .do-sub { color: var(--muted); font-size: 14px; } .daysoff em { font-style: normal; font-weight: 800; text-align: right; }
+/* This day in jam history */
+.otd { list-style: none; margin: 0; padding: 0; display: grid; }
+.otd a { display: grid; grid-template-columns: 3.4em minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 52px; text-decoration: none; color: inherit; border-bottom: 1px solid var(--line); }
+.otd-y { font-family: var(--font-display); font-size: 20px; } .otd a span { display: grid; } .otd a span span { color: var(--muted); font-size: 14px; } .otd em { font-style: normal; font-weight: 800; color: #8A5BC4; }

@@ -11,6 +11,8 @@ import MindfulCard from '../parts/MindfulCard.jsx'
 import Sit from '../parts/Sit.jsx'
 import Garden from './home/Garden.jsx'
 import GardenCard from './home/GardenCard.jsx'
+import SunsetCard from '../parts/SunsetCard.jsx'
+import DaysOffCard from '../parts/DaysOffCard.jsx'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import PaintingsCard from '../parts/PaintingsCard.jsx'
 import { seasonFor } from '../lib/seasons.js'
@@ -67,8 +69,10 @@ function HomeScreen() {
       <WeatherNow />
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
+      <DaysOffCard today={today} />
       <FridgeCard book={book} />
       <GardenCard today={today} me={me} />
+      <SunsetCard />
       {prefs.mindful !== false && <MindfulCard today={today} />}
       <SkyToday />
       <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[
