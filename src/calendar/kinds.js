@@ -24,6 +24,7 @@ export const KIND_STYLE = {
 /** Which picture an observance gets: a few have their own. */
 export function observanceGlyph(o) {
   if (o.meteors) return 'meteor'
+  if (o.eclipse) return o.eclipse.kind === 'lunar' ? 'moon' : 'sun'
   if (o.clocks) return 'clock'
   if (o.season) return o.season === 'winter' || o.season === 'autumn' ? 'leaf' : 'sun'
   return KIND_STYLE[o.group].glyph

@@ -5,7 +5,28 @@
 // and the clocks changing. Pure: tests run it in Node.
 // ============================================
 
+import SunCalc from 'suncalc'
 import { ds, addDays, nthWeekday, parts } from './dates.js'
+
+// Meeus ch. 47, the distance terms: [D, M, M', F, coefficient in metres]. The
+// largest thirty, good to a couple of hundred kilometres.
+const DIST = [[0, 0, 1, 0, -20905355], [2, 0, -1, 0, -3699111], [2, 0, 0, 0, -2955968], [0, 0, 2, 0, -569925], [0, 1, 0, 0, 48888], [0, 0, 0, 2, -3149],
+  [2, 0, -2, 0, 246158], [2, -1, -1, 0, -152138], [2, 0, 1, 0, -170733], [2, -1, 0, 0, -204586], [0, 1, -1, 0, -129620], [1, 0, 0, 0, 108743],
+  [0, 1, 1, 0, 104755], [2, 0, 0, -2, 10321], [0, 0, 1, -2, 79661], [4, 0, -1, 0, -34782], [0, 0, 3, 0, -23210], [4, 0, -2, 0, -21636],
+  [2, 1, -1, 0, 24208], [2, 1, 0, 0, 30824], [1, 0, -1, 0, -8379], [1, 1, 0, 0, -16675], [2, -1, 1, 0, -12831], [2, 0, 2, 0, -10445],
+  [4, 0, 0, 0, -11650], [2, 0, -3, 0, 14403], [0, 1, -2, 0, -7003], [2, -1, -2, 0, 10056], [1, 0, 1, 0, 6322], [2, -2, 0, 0, -9884], [0, 1, 2, 0, 5751]]
+/** The distance from the Earth's centre to the moon's, in km, at an instant. */
+export function moonDistanceKm(t) {
+  const T = ((t.getTime() + 69e3) / 864e5 + 2440587.5 - 2451545) / 36525
+  const D = rad(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T)
+  const M = rad(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T)
+  const Mp = rad(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T)
+  const F = rad(93.272095 + 483202.0175233 * T - 0.0036539 * T * T)
+  const E = 1 - 0.002516 * T - 0.0000074 * T * T
+  let r = 0
+  for (const [d, m, mp, f, c] of DIST) r += c * (Math.abs(m) === 1 ? E : m ? E * E : 1) * Math.cos(d * D + m * M + mp * Mp + f * F)
+  return 385000.56 + r / 1000
+}
 
 const TZ = 'America/Los_Angeles'
 const homeDate = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(t)
@@ -128,7 +149,11 @@ export function moonPhases(y) {
     else if (fulls[i - 1] === harvest) p.moonName = 'Hunter’s Moon'
     const sameMonth = fulls.filter((q) => parts(q.date)[1] === m)
     if (sameMonth.length === 2 && sameMonth[1] === p) p.moonName = 'Blue Moon'
+    p.km = Math.round(moonDistanceKm(p.at))
+    p.supermoon = p.km < 361524 // within about 90% of the moon's closest approach (Nolle's definition)
   })
+  const nearest = fulls.reduce((a, b) => (b.km < a.km ? b : a), fulls[0])
+  if (nearest) nearest.biggest = true
   phaseCache.set(y, out)
   return out
 }
@@ -153,3 +178,78 @@ export function clockChanges(y) {
 }
 
 export { ds, addDays }
+
+// ---- Eclipses (Meeus ch. 54) ----------------------------------------------------
+
+/**
+ * The eclipse at lunation k, if there is one: k a whole number for a new moon
+ * (an eclipse of the sun) or k + 0.5 for a full moon (of the moon).
+ * { kind: 'lunar' | 'solar', type, at, magnitude, phases }
+ */
+export function eclipseAt(k) {
+  const T = k / 1236.85
+  const jde0 = 2451550.09766 + 29.530588861 * k + 0.00015437 * T ** 2 - 0.00000015 * T ** 3 + 0.00000000073 * T ** 4
+  const E = 1 - 0.002516 * T - 0.0000074 * T ** 2
+  const M = rad(2.5534 + 29.1053567 * k - 0.0000014 * T ** 2 - 0.00000011 * T ** 3)
+  const Mp = rad(201.5643 + 385.81693528 * k + 0.0107582 * T ** 2 + 0.00001238 * T ** 3 - 0.000000058 * T ** 4)
+  const F = rad(160.7108 + 390.67050284 * k - 0.0016118 * T ** 2 - 0.00000227 * T ** 3 + 0.000000011 * T ** 4)
+  const O = rad(124.7746 - 1.56375588 * k + 0.0020672 * T ** 2 + 0.00000215 * T ** 3)
+  if (Math.abs(Math.sin(F)) > 0.36) return null
+  const sin = Math.sin, cos = Math.cos
+  const lunar = Math.abs((k % 1) - 0.5) < 0.01 || Math.abs((k % 1) + 0.5) < 0.01
+  const F1 = F - rad(0.02665) * sin(O)
+  const A1 = rad(299.77 + 0.107408 * k - 0.009173 * T ** 2)
+  const jde = jde0 + (lunar ? -0.4065 : -0.4075) * sin(Mp) + (lunar ? 0.1727 : 0.1721) * E * sin(M) + 0.0161 * sin(2 * Mp) - 0.0097 * sin(2 * F1)
+    + 0.0073 * E * sin(Mp - M) - 0.005 * E * sin(Mp + M) - 0.0023 * sin(Mp - 2 * F1) + 0.0021 * E * sin(2 * M) + 0.0012 * sin(Mp + 2 * F1)
+    + 0.0006 * E * sin(2 * Mp + M) - 0.0004 * sin(3 * Mp) - 0.0003 * E * sin(M + 2 * F1) + 0.0003 * sin(A1) - 0.0002 * E * sin(M - 2 * F1)
+    - 0.0002 * E * sin(2 * Mp - M) - 0.0002 * sin(O)
+  const P = 0.207 * E * sin(M) + 0.0024 * E * sin(2 * M) - 0.0392 * sin(Mp) + 0.0116 * sin(2 * Mp) - 0.0073 * E * sin(Mp + M) + 0.0067 * E * sin(Mp - M) + 0.0118 * sin(2 * F1)
+  const Q = 5.2207 - 0.0048 * E * cos(M) + 0.002 * E * cos(2 * M) - 0.3299 * cos(Mp) - 0.006 * E * cos(Mp + M) + 0.0041 * E * cos(Mp - M)
+  const W = Math.abs(cos(F1))
+  const g = (P * cos(F1) + Q * sin(F1)) * (1 - 0.0048 * W)
+  const u = 0.0059 + 0.0046 * E * cos(M) - 0.0182 * cos(Mp) + 0.0004 * cos(2 * Mp) - 0.0005 * cos(M + Mp)
+  const at = new Date((jde - 2440587.5) * 864e5 - 69e3)
+  const ag = Math.abs(g)
+  if (lunar) {
+    const penMag = (1.5573 + u - ag) / 0.545, umbMag = (1.0128 - u - ag) / 0.545
+    if (penMag <= 0) return null
+    const n = 0.5458 + 0.04 * cos(Mp)
+    const semi = (r) => (r > ag ? (60 / n) * Math.sqrt(r * r - g * g) : 0)
+    const span = (m) => (m ? [new Date(at - m * 60000), new Date(at.getTime() + m * 60000)] : null)
+    return {
+      kind: 'lunar', type: umbMag >= 1 ? 'total' : umbMag > 0 ? 'partial' : 'penumbral', at, magnitude: Math.round(umbMag * 1000) / 1000,
+      phases: { penumbral: span(semi(1.5573 + u)), partial: span(semi(1.0128 - u)), total: span(semi(0.4678 - u)) },
+    }
+  }
+  if (ag > 1.5433 + u) return null
+  let type = 'partial'
+  if (ag < 0.9972) type = u < 0 ? 'total' : u > 0.0047 ? 'annular' : (u < 0.00464 * Math.sqrt(1 - g * g) ? 'hybrid' : 'annular')
+  return { kind: 'solar', type, at, magnitude: type === 'partial' ? Math.round(((1.5433 + u - ag) / (0.5461 + 2 * u)) * 1000) / 1000 : null, phases: null }
+}
+
+const eclipseCache = new Map()
+/** The eclipses of year `y` (home dates). A lunar one says whether the moon is up for it at home. */
+export function eclipsesOf(y, { lat, lng } = { lat: 34.0922, lng: -117.435 }) {
+  const key = y
+  if (eclipseCache.has(key)) return eclipseCache.get(key)
+  const out = []
+  const k0 = Math.floor((y - 2000) * 12.3685) - 1
+  for (let i = 0; i < 15; i++) {
+    for (const k of [k0 + i, k0 + i + 0.5]) {
+      const e = eclipseAt(k)
+      if (!e) continue
+      e.date = homeDate(e.at)
+      if (!e.date.startsWith(String(y))) continue
+      if (e.kind === 'lunar') {
+        const up = (t) => SunCalc.getMoonPosition(t, lat, lng).altitude > 0
+        const main = e.phases.total || e.phases.partial || e.phases.penumbral
+        e.visible = up(e.at) || up(main[0]) || up(main[1])
+        e.wholeVisible = up(main[0]) && up(e.at) && up(main[1])
+      }
+      out.push(e)
+    }
+  }
+  out.sort((a, b) => a.at - b.at)
+  eclipseCache.set(key, out)
+  return out
+}

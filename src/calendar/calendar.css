@@ -127,6 +127,32 @@
 .confetti i { position: absolute; top: -12px; left: var(--x); width: 7px; height: 11px; border-radius: 1px; background: var(--c); opacity: .85; animation: confetti 4.2s linear infinite; animation-delay: var(--d); }
 @keyframes confetti { 0% { transform: translateY(0) rotate(0); } 100% { transform: translateY(160px) rotate(320deg); opacity: 0; } }
 
+/* The sky's events, illustrated */
+.astro-card { display: grid; overflow: hidden; border-radius: var(--r-card); background: #15122E; color: #F3EEFF; box-shadow: var(--shadow-warm); }
+.astro-art { display: block; width: 100%; height: auto; }
+.astro-t { display: grid; gap: 8px; padding: 14px 16px 16px; }
+.astro-t h2 { font-family: var(--font-voice); font-weight: 400; font-size: 24px; line-height: 1.15; }
+.astro-t p { color: #DCD3F2; }
+.astro-times { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.astro-times li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: var(--r-control); background: rgba(255, 255, 255, .08); }
+.astro-times b { white-space: nowrap; }
+.astro-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.astro-links a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 20px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-weight: 750; font-size: 14px; text-decoration: none; }
+.astro-card.k-season { background: #FFF6E6; color: var(--ink); }
+.astro-card.k-season .astro-t p { color: var(--muted); }
+.astro-card.k-season .astro-times li { background: rgba(224, 122, 31, .1); }
+.astro-card.k-season .astro-links a { background: rgba(224, 122, 31, .14); color: #7A3A0A; }
+.astro-star { animation: astro-twinkle 3.2s ease-in-out infinite alternate; }
+.astro-breathe { transform-box: fill-box; transform-origin: center; animation: astro-breathe 4s ease-in-out infinite alternate; }
+.astro-meteor { stroke-dasharray: 160; stroke-dashoffset: 160; animation: astro-streak 4.5s ease-in infinite; }
+@keyframes astro-twinkle { from { opacity: .25; } to { opacity: 1; } }
+@keyframes astro-breathe { from { transform: scale(.94); } to { transform: scale(1.06); } }
+@keyframes astro-streak { 0% { stroke-dashoffset: 160; opacity: 0; } 8% { opacity: 1; } 30% { stroke-dashoffset: 0; opacity: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@media (pointer: coarse) { .astro-links a { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .astro-star, .astro-breathe, .astro-meteor { animation: none; } .astro-meteor { stroke-dashoffset: 0; } }
+html[data-motion="less"] .astro-star, html[data-motion="less"] .astro-breathe, html[data-motion="less"] .astro-meteor { animation: none; }
+html[data-motion="less"] .astro-meteor { stroke-dashoffset: 0; }
+
 /* Home: today, and the family banner */
 .today-card h2 { font-size: 24px; }
 .today-pray { display: grid; gap: 6px; padding: 10px 12px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 9%, var(--card)); border-left: 3px solid var(--tint); }
@@ -183,6 +209,8 @@
   .ml-g { width: 26px; height: 26px; }
   .day-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .day-stack > .celebrate, .day-stack > .church-card, .day-stack > .day-occasion { grid-column: 1 / -1; }
+  .day-stack > .astro-card { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; grid-column: 1 / -1; }
+  .astro-card .astro-art { height: 100%; object-fit: cover; }
   .month-list-card .month-list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
   .month-list-card .month-list li:nth-child(2) { border-top: 0; }
   .year-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }

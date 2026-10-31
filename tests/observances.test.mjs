@@ -84,3 +84,36 @@ test('a switched-off group stays off', () => {
   assert.ok(!observancesOn('2026-02-04', { civil: false }).some((o) => o.group === 'civil'))
   for (const o of observancesFor(2026)) assert.ok(GROUPS[o.group], o.id)
 })
+
+test('eclipses: the kinds, the dates, and whether the moon is up at home', async () => {
+  const { eclipsesOf } = await import('../src/lib/cal/nature.js')
+  const e26 = eclipsesOf(2026)
+  assert.deepEqual(e26.map((e) => `${e.date} ${e.kind} ${e.type}`), ['2026-02-17 solar annular', '2026-03-03 lunar total', '2026-08-12 solar total', '2026-08-27 lunar partial'])
+  const mar = e26[1]
+  assert.ok(Math.abs(mar.at - Date.parse('2026-03-03T11:33Z')) < 10 * 60e3, mar.at.toISOString())
+  assert.equal(mar.visible, true); assert.equal(mar.wholeVisible, true)
+  assert.ok(mar.phases.total[1] - mar.phases.total[0] > 50 * 60e3, 'about an hour of totality')
+  assert.ok(e26[3].magnitude > 0.9 && e26[3].magnitude < 0.96, String(e26[3].magnitude))
+  assert.equal(eclipsesOf(2025).find((e) => e.date === '2025-09-07').visible, false, 'Asia’s, at our midday')
+  assert.equal(eclipsesOf(2024).find((e) => e.date === '2024-04-08').type, 'total')
+  assert.deepEqual(eclipsesOf(2027).filter((e) => e.kind === 'solar').map((e) => `${e.date} ${e.type}`), ['2027-02-06 annular', '2027-08-02 total'])
+})
+
+test('supermoons, and the biggest full moon of the year', () => {
+  const fulls = moonPhases(2026).filter((p) => p.key === 'full')
+  const big = fulls.find((p) => p.biggest)
+  assert.equal(big.date, '2026-12-23'); assert.equal(big.supermoon, true); assert.ok(big.km < 360000, String(big.km))
+  assert.equal(fulls.find((p) => p.date === '2026-05-31').supermoon, false, 'May’s blue moon is far away')
+})
+
+test('the sky’s events come with words, times and links', async () => {
+  const { astronomyOn } = await import('../src/lib/cal/astro.js')
+  const mar3 = astronomyOn('2026-03-03')
+  assert.deepEqual(mar3.map((a) => a.kind), ['eclipse-lunar', 'full'])
+  assert.equal(mar3[0].title, 'A total eclipse of the moon'); assert.equal(mar3[0].links[0][1], 'https://www.timeanddate.com/eclipse/lunar/2026-march-3')
+  assert.deepEqual(mar3[0].times.map((t) => t[0]), ['The shadow’s bite begins', 'Totality begins', 'Totality ends', 'The bite is gone'])
+  assert.match(astronomyOn('2026-12-23')[0].lines.join(' '), /biggest full moon of the year/)
+  assert.equal(astronomyOn('2026-08-12')[0].kind, 'eclipse-solar'); assert.equal(astronomyOn('2026-12-13')[0].kind, 'meteors')
+  assert.equal(astronomyOn('2026-12-21')[0].season, 'winter'); assert.deepEqual(astronomyOn('2026-11-05'), [])
+  for (const a of [...mar3, ...astronomyOn('2026-12-13'), ...astronomyOn('2026-12-21')]) for (const [, url] of a.links) assert.match(url, /^https:\/\//)
+})

@@ -70,8 +70,9 @@ where it appears and listed here:
   ingredient drawings, one file each in `public/food/`, with their path data
   rounded and a fill shape added so the app can colour each one in.
 - **Sun and moon:** worked out on the device with SunCalc (BSD licence);
-  the calendar's solstices, equinoxes and moon phases follow Jean Meeus,
-  *Astronomical Algorithms* (chapters 27 and 49), and its Hebrew and Islamic
+  the calendar's solstices, equinoxes, moon phases, the moon's distance and
+  eclipses follow Jean Meeus, *Astronomical Algorithms* (chapters 27, 47, 49
+  and 54), and its Hebrew and Islamic
   dates Dershowitz and Reingold, *Calendrical Calculations*.
 - **Weather:** the forecast is Open-Meteo's (https://open-meteo.com, data
   CC BY 4.0, credited on each weather card); alerts are the National Weather
@@ -80,7 +81,10 @@ where it appears and listed here:
   grid.
 - **Prayers:** the traditional English forms, which belong to everyone; the
   saints' one-line stories are our own.
-- **Calendar pictures:** small line icons drawn on the same 24-unit grid.
+- **Calendar pictures:** small line icons drawn on the same 24-unit grid;
+  the sky's events (moons, eclipses, meteors, the sun's paths) are drawn as
+  simple shapes in `src/calendar/AstroArt.jsx`. Their links go to NASA Space
+  Place, NASA Science, timeanddate.com and the American Meteor Society.
   Catholic and saint line art comes later, from sources still to be checked
   (`docs/PLAN.md`).
 - **Icons:** Home's sprout is Lucide's (https://lucide.dev, ISC licence); the

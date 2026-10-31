@@ -83,6 +83,12 @@ Built in this order, each part in daily use before the next.
 - [x] Family days celebrated big (a rainbow day in the month, confetti on
       the day), read from the database once signed in; holidays, civil
       rights and heritage days, seasons and nature, each with a line about it.
+- [x] The sky's events highlighted, each with a picture, what it is, its
+      times at home and links to read more (NASA Space Place, NASA,
+      timeanddate, the American Meteor Society): full moons and their names,
+      supermoons and the year's biggest, new moons, eclipses of the moon
+      (and whether it's up here) and of the sun, meteor showers, solstices
+      and equinoxes.
 - [ ] Their own art: saint and feast line art, holiday and season pictures.
 - [x] Setup keeps the family days (add, change, remove, with a proper
       question before removing) and says whose each calendar source is; a

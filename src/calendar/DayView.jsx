@@ -15,6 +15,8 @@ import { KIND_STYLE, observanceGlyph } from './kinds.js'
 import { Glyph, MoonGlyph } from './Glyph.jsx'
 import { useSwipe } from './useSwipe.js'
 import { occasionFor } from '../lib/occasions.js'
+import { astronomyOn } from '../lib/cal/astro.js'
+import AstroArt from './AstroArt.jsx'
 import { OccasionChip } from '../ui/Glow.jsx'
 
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
@@ -95,7 +97,8 @@ export default function DayView({ date, today, data, signedIn }) {
         </Card>
       )}
 
-      <SkyCard date={date} sky={sky} moon={dv.moon} />
+      {astronomyOn(date).map((a) => <AstroCard key={a.kind + a.title} event={a} />)}
+      <SkyCard date={date} sky={sky.filter((o) => !o.meteors && !o.season)} moon={dv.moon} />
 
       <Card tint="#453644" label="Our calendars" glyph="calendar" className="events-card">
         {!signedIn && <p>Sign in on the <Link to="/settings">Settings</Link> page to see the family’s own days and events.</p>}
@@ -112,6 +115,22 @@ export default function DayView({ date, today, data, signedIn }) {
         )}
       </Card>
     </div>
+  )
+}
+
+const hmDay = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, weekday: 'short', hour: 'numeric', minute: '2-digit' })
+/** A sky event, illustrated, with what it is, when, and where to read more. */
+function AstroCard({ event }) {
+  return (
+    <article className={'astro-card k-' + event.kind}>
+      <AstroArt event={event} />
+      <div className="astro-t">
+        <h2>{event.title}</h2>
+        {event.lines.map((l) => <p key={l}>{l}</p>)}
+        {event.times.length > 0 && <ul className="astro-times">{event.times.map(([l, t]) => <li key={l}><span>{l}</span><b>{hmDay.format(t)}</b></li>)}</ul>}
+        <ul className="astro-links">{event.links.map(([l, u]) => <li key={u}><a href={u} target="_blank" rel="noopener noreferrer">{l} ›</a></li>)}</ul>
+      </div>
+    </article>
   )
 }
 

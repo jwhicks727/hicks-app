@@ -10,7 +10,7 @@
 import { ds, addDays, nthWeekday, parts, MONTHS } from './dates.js'
 import { jewishHolyDays } from './hebrew.js'
 import { islamicDays } from './islamic.js'
-import { seasonsOf, METEOR_SHOWERS, clockChanges } from './nature.js'
+import { seasonsOf, METEOR_SHOWERS, clockChanges, eclipsesOf } from './nature.js'
 
 export const GROUPS = {
   holidays: { name: 'Holidays', word: 'National and California holidays, and the family ones like Mother’s Day' },
@@ -123,6 +123,11 @@ export function observancesFor(y) {
   for (const { key, date } of islamicDays(y)) out.push({ id: `${key}-${date}`, group: 'faiths', name: ISLAMIC[key][0], start: date, end: date, word: ISLAMIC[key][1], expected: true })
   for (const s of seasonsOf(y)) out.push({ id: s.key, group: 'nature', name: s.name, start: s.date, end: s.date, word: s.word, at: s.at, season: s.key })
   for (const c of clockChanges(y)) out.push({ id: c.name, group: 'nature', name: c.name, start: c.date, end: c.date, word: c.word, clocks: true })
+  for (const e of eclipsesOf(y)) {
+    const name = e.kind === 'lunar' ? `${e.type === 'total' ? 'Total' : e.type === 'partial' ? 'Partial' : 'Faint'} eclipse of the moon` : `${e.type === 'annular' ? 'Ring of fire' : e.type === 'total' ? 'Total eclipse of the sun' : `${e.type[0].toUpperCase()}${e.type.slice(1)} eclipse of the sun`}`
+    const word = e.kind === 'lunar' ? (e.visible ? 'Seen from home: look up, no glasses needed' : 'Not seen from here: the moon is down') : 'Seen far from here; never look at the sun without eclipse glasses'
+    out.push({ id: `eclipse-${e.date}-${e.kind}`, group: 'nature', name, start: e.date, end: e.date, word, eclipse: e })
+  }
   for (const m of METEOR_SHOWERS) out.push({ id: m.name, group: 'nature', name: m.name, start: ds(y, m.m, m.d), end: ds(y, m.m, m.d), word: `${m.word}. Peaks around tonight.`, meteors: true })
   out.sort((a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : 0))
   cache.set(y, out)

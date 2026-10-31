@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The sky's events, worked out and illustrated
+
+- **Eclipses are computed** (Meeus ch. 54), not listed: the kind, the time
+  of greatest eclipse and each phase, and for an eclipse of the moon whether
+  the moon is up at home for it. A solar eclipse is shown as seen far from
+  here, with a map link, because where it is seen needs more than this.
+- **Supermoons use the moon's real distance** (Meeus ch. 47): SunCalc's
+  distance keeps only the main term and can't tell one perigee from
+  another. A supermoon is within about 90% of the closest approach
+  (361,524 km); the year's nearest full moon is called the biggest.
+- **Each event gets a card on its day** with a drawn picture, a few lines of
+  what it is, its times at home and links to read more, kids' pages first
+  (NASA Space Place) so Anna can follow them too. A total eclipse of the
+  moon seen from home gets the swirling light in copper red.
+
+---
+
 ## 2026-10-31 — The Kitchen opens: Jason's recipes, read as he writes them
 
 - **The handoff is split.** `docs/KITCHEN.md` holds the pattern (one

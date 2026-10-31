@@ -37,7 +37,7 @@ const P = {
  * extra: 'flutter' (falling white), 'sparkle', 'rise' (sparks going up), or null.
  * `day` is a dayView(); `events` are that day's events; `eclipse` an eclipse on it.
  */
-export function occasionFor(day, { events = day.events || [], eclipse = null } = {}) {
+export function occasionFor(day, { events = day.events || [], eclipse = day.eclipse || null } = {}) {
   const { lit } = day
   const md = day.date.slice(5)
   const make = (key, name, palette, mode = 'swirl', extra = null) => ({ key, name, colours: P[palette], mode, extra })

@@ -34,5 +34,6 @@ export function dayView(d, { familyDays = [], events = [], groups = null, who = 
     ongoing: all.filter((o) => o.ongoing),
     moon: moonOn(d),
     events: events.filter((e) => e.starts_on <= d && e.ends_on >= d).filter(forWho(who)),
+    eclipse: (all.find((o) => o.eclipse && o.eclipse.kind === 'lunar') || {}).eclipse || null,
   }
 }
