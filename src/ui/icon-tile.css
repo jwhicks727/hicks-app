@@ -8,3 +8,40 @@
 /* A picture (rather than a line icon) gets a soft light behind it, so it never sinks into its colour */
 .itile:has(> img)::before { content: ""; position: absolute; inset: 12%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 248, 238, .62), rgba(255, 248, 238, .18) 55%, rgba(255, 248, 238, 0) 72%); pointer-events: none; }
 .itile img { position: relative; }
+
+/* ---- Flat: the apps. A solid deep colour, nearly square, an outline just inside the edge, a glow of its own colour ---- */
+.itile.flat { border-radius: max(3px, calc(var(--sz) * .12)); background: var(--k2);
+  box-shadow: 0 0 calc(var(--sz) * .34) calc(var(--sz) * -.06) color-mix(in srgb, var(--k2) 62%, transparent); transition: box-shadow .25s ease, transform .25s cubic-bezier(.2, .8, .2, 1); }
+.itile.flat::after { inset: max(2px, calc(var(--sz) * .07)); border-radius: max(2px, calc(var(--sz) * .06)); box-shadow: none; border: max(1px, calc(var(--sz) * .028)) solid color-mix(in srgb, var(--k1) 72%, transparent); transition: border-color .25s ease; }
+.itile.flat.sm::after { display: none; }
+.itile.flat svg { filter: none; width: 52%; height: 52%; }
+/* Pointed at, focused or pressed: the outline brightens, a ring appears, the glow widens (its parent says: a link, a button, a tile) */
+a:hover > .itile.flat, a:focus-visible > .itile.flat, button:hover > .itile.flat, button:focus-visible > .itile.flat { box-shadow: 0 0 0 2px color-mix(in srgb, var(--k1) 55%, transparent), 0 0 calc(var(--sz) * .5) calc(var(--sz) * -.02) color-mix(in srgb, var(--k2) 80%, transparent); transform: translateY(-1px); }
+a:hover > .itile.flat::after, a:focus-visible > .itile.flat::after { border-color: var(--k1); }
+html[data-motion="less"] .itile.flat, html[data-motion="less"] .itile.flat::after { transition: none; }
+
+/* ---- Alive: the academy's rooms keep their glossy 3D tile, and move ---- */
+.itile-alive { position: relative; flex: none; display: grid; width: var(--sz); height: var(--sz); animation: tile-float 3.8s ease-in-out var(--d, 0s) infinite alternate; }
+.itile-alive > .itile { overflow: hidden; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+.itile-alive > .itile img { animation: tile-breathe 4.6s ease-in-out var(--d, 0s) infinite; }
+/* The halo: a soft light of the tile's own colour, breathing behind it */
+.itile-halo { position: absolute; inset: -34%; z-index: -1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--k2) 70%, transparent), transparent 62%); opacity: .0; pointer-events: none; animation: tile-halo 3.8s ease-in-out var(--d, 0s) infinite; }
+/* The glint: a diagonal streak of light that crosses the tile now and then */
+.itile-glint { position: absolute; inset: -10%; z-index: 2; pointer-events: none; background: linear-gradient(112deg, transparent 38%, rgba(255, 248, 238, .62) 50%, transparent 62%); transform: translateX(-130%); animation: tile-glint 5.6s ease-in-out var(--d, 0s) infinite; }
+/* Under a pointer, or picked: it lifts and turns toward you, and the glint runs at once */
+.ac-kind:hover:not(:disabled) .itile-alive > .itile, .ac-kind:focus-visible .itile-alive > .itile { transform: perspective(260px) rotateX(9deg) rotateY(-11deg) translateY(-3px) scale(1.07); }
+.ac-kind:hover:not(:disabled) .itile-glint, .ac-kind:focus-visible .itile-glint { animation-duration: 1.4s; }
+.ac-kind[aria-pressed="true"] .itile-alive > .itile { animation: tile-select .55s cubic-bezier(.3, 1.6, .5, 1); }
+.ac-kind[aria-pressed="true"] .itile-halo { opacity: .55; animation-duration: 2.2s; }
+@keyframes tile-float { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+@keyframes tile-halo { 0%, 100% { opacity: .08; transform: scale(.86); } 50% { opacity: .5; transform: scale(1.08); } }
+@keyframes tile-breathe { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.09) rotate(-3deg); } }
+@keyframes tile-glint { 0%, 55% { transform: translateX(-130%); } 78%, 100% { transform: translateX(130%); } }
+@keyframes tile-select { 0% { transform: scale(.82) rotate(-6deg); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .itile-alive, .itile-alive > .itile img, .itile-halo, .itile-glint, .ac-kind[aria-pressed="true"] .itile-alive > .itile { animation: none; }
+  .itile-halo { opacity: .22; }
+}
+html[data-motion="less"] .itile-alive, html[data-motion="less"] .itile-alive > .itile img, html[data-motion="less"] .itile-halo, html[data-motion="less"] .itile-glint, html[data-motion="less"] .ac-kind[aria-pressed="true"] .itile-alive > .itile { animation: none; }
+html[data-motion="less"] .itile-halo { opacity: .22; }
+html[data-motion="less"] .itile-alive > .itile { transition: none; }

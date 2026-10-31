@@ -48,7 +48,7 @@ export default function TabBar({ current }) {
         </button>
         <span className="rail-apps">
           <span className="rail-apps-h">Apps</span>
-          {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={22}><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
+          {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={22} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
         </span>
         <span className="rail-more">
           <Link to="/settings" aria-current={current === 'settings' ? 'page' : undefined}>Settings</Link>

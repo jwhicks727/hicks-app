@@ -255,7 +255,7 @@ function KindButton({ kind, pressed, disabled, onClick }) {
   const k = ROOM_KINDS[kind], c = kindColours(kind)
   return (
     <button type="button" className="ac-kind" aria-pressed={pressed} disabled={disabled} onClick={onClick} style={{ '--k1': c[0], '--k2': c[1] }}>
-      <IconTile colours={c} size={52}><img src={itemSrc(k.sign)} alt="" /></IconTile>
+      <IconTile colours={c} size={52} alive><img src={itemSrc(k.sign)} alt="" /></IconTile>
       <b>{k.name}</b>
       <span>{k.blurb}</span>
       {pressed && <i className="ac-kind-tick" aria-hidden="true">✓</i>}

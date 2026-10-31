@@ -99,11 +99,15 @@ licence nobody wrote down.
   and icons on a colour use `var(--on-colour)`, never `#FFFFFF`.
   Illustrations (maps, rooms, windows, scenes) keep their own whites.
 - **A place's icon** is a cream line icon (the tab icons' 24-unit grid) on
-  a tile of its own colour, light to deep (`IconTile`, `src/ui/IconTile.jsx`;
-  the apps in `src/ui/apps.jsx`), in the mockup's muted
-  outdoor tones (plum, ochre, sea, rust, lake, moss). Only the academy is
-  brighter: its kinds of room put their Fluent Emoji picture on the same
-  tile, each in its own bright colour (`KIND_COLOURS`, `src/academy/rooms.js`).
+  a tile of its own colour (`IconTile`, `src/ui/IconTile.jsx`). The **apps**
+  (`src/ui/apps.jsx`) are *flat*: a solid deep colour in the mockup's muted
+  outdoor tones (plum, ochre, sea, rust, lake, moss), nearly square corners,
+  an outline just inside the edge and a glow of their own colour, with no
+  gradient, sheen or shadow. The **academy's kinds of room** are the one
+  glossy, 3D, bright look (`KIND_COLOURS`, `src/academy/rooms.js`), with
+  their Fluent Emoji picture, and they move (`alive`: they float, a glint
+  crosses them, a halo breathes, they lift under a pointer; transform and
+  opacity only, still under less motion).
 - A place's own class names carry its prefix (`ac-` for the academy, `jr-`
   for the journal, `g` for the garden): every stylesheet is global, and a
   bare `.celebrate` or `.flag` meets another place's.

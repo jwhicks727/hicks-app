@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Flat apps, and moving rooms
+
+The apps' icons were too soft and glossy for what they are, and too round.
+They're flat now: a solid deep colour, nearly square corners, a thin outline
+set just inside the edge and a glow of their own colour that widens when
+pointed at or focused. The academy keeps the glossy 3D tiles for its kinds
+of room, because that's Anna's and meant to be captivating, and they move:
+each floats a little, a streak of light crosses it every few seconds, a halo
+of its colour breathes behind it, and its picture breathes; under a pointer
+it lifts and turns toward you, and a picked room pops. Each starts at a
+different moment, so the grid ripples rather than pulses. All of it is
+transform and opacity, and it stops under less motion.
+
 ## 2026-11-01 — Apps, a sheet, instead of Us
 
 The fifth tab is **Apps**, and it opens a sheet rather than a page, the way

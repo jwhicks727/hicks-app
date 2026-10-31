@@ -13,7 +13,7 @@ export default function AppsSheet({ onClose }) {
       <nav className="apps-grid" aria-label="Apps">
         {APPS.map((p) => (
           <a key={p.to} href={p.to} className="apps-tile" onClick={(e) => { e.preventDefault(); onClose(); navigateFromSheet(p.to) }}>
-            <IconTile colours={p.colours} size={58}><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>
+            <IconTile colours={p.colours} size={58} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>
             <b>{p.name}</b>
             <span>{p.sub}</span>
           </a>
