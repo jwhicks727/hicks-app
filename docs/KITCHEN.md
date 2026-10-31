@@ -118,10 +118,46 @@ From the handoff, for the recipes and for whoever writes them:
   oven and broiler are all at hand. Expensive proteins sometimes wait for
   payday.
 
+## Planning the week, the rules, and asking Claude
+
+- **Plan the week** (`/kitchen/plan`, Jason and Laurie):
+  1. Ask for ideas: ten unless changed, and anything added to the ask
+     ("three breakfasts too", "a slow-cooker night", "my hands are sore
+     this week").
+  2. Claude gives one-line ideas covering Laurie's plate, never assigned to
+     days. Keepers coming back are marked "Again".
+  3. Tap the ones to make. "More ideas" adds different ones.
+  4. "Write the picked" writes them in full, in the format above.
+  5. Read them, then save them to the cookbook, and to the fridge if you
+     like.
+
+  The ask is kept on the device; the ideas and picks are kept with the
+  week (`week_plans`); written recipes stay on the device until saved.
+- **Rules & preferences** (`/kitchen/rules`):
+  - **The kitchen's preferences:** tastes, dislikes, what's loved lately,
+    the pantry, the equipment. The family reads them; the parents change
+    them.
+  - **Laurie's food rules:** only Jason and Laurie see them.
+
+  Every change is a new, dated version with a note of what changed; the
+  old ones stay.
+- **Laurie's yes:** her own switch on that screen decides whether her rules
+  go to Claude. With it off, Claude plans without them and says so.
+- **Ask, from anywhere in the Kitchen:** the red button opens a
+  conversation with Claude. It sees:
+  - what you type;
+  - the preferences;
+  - the cookbook's titles and ratings;
+  - the recipe you're on;
+  - Laurie's rules, only with her yes.
+
+  Anything it suggests saving comes as a card to confirm: a change to the
+  preferences or the rules, a recipe for the cookbook, ideas for the week.
+  The conversation stays on the device until "New".
+- **Claude is always the latest Sonnet,** within the family's budget
+  (docs/DATABASE.md, "Claude").
+
 ## Still to build
 
-- Laurie's food rules (versioned, dated, never edited in place), and
-  `check_plate`: a recipe checked against them, in a migration readable by
-  Jason and Laurie only.
-- The weekly ten ideas and pins, with keepers and unicorns among them;
-  `adapt`, the substitution engine.
+- `check_plate`: a recipe checked against Laurie's rules.
+- `adapt`, the substitution engine.

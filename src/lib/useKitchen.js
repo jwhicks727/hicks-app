@@ -57,7 +57,7 @@ export async function saveRecipes(files) {
     const { data, error } = await supabase.from('recipes').upsert(row, { onConflict: 'slug' }).select('id').single()
     if (error) { results.push({ title: r.title, error: error.message }); continue }
     if (r.laurie) await supabase.from('recipe_private').upsert({ recipe_id: data.id, laurie_plate: r.laurie.slice(0, 8000), updated_at: new Date().toISOString() }, { onConflict: 'recipe_id' })
-    results.push({ title: r.title, slug: r.slug, ok: true })
+    results.push({ title: r.title, slug: r.slug, id: data.id, ok: true })
   }
   return results
 }

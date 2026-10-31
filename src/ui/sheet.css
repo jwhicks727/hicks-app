@@ -1,0 +1,18 @@
+/* A sheet: from the bottom on a phone, from the side on a desktop (src/ui/Sheet.jsx) */
+.sheet-scrim { position: fixed; inset: 0; z-index: 70; background: rgba(28, 18, 12, .42); display: flex; align-items: flex-end; justify-content: center; animation: sheet-fade .25s ease both; }
+.sheet { width: 100%; max-height: min(92vh, 92dvh); display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--card); color: var(--ink); border-radius: 12px 12px 0 0; box-shadow: 0 -12px 40px -16px rgba(0, 0, 0, .6); outline: none;
+  padding-bottom: env(safe-area-inset-bottom, 0px); animation: sheet-up .32s cubic-bezier(.2, .8, .2, 1) both; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 8px 18px; border-bottom: 1px solid var(--line); }
+.sheet-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.sheet-body { overflow-y: auto; overscroll-behavior: contain; padding: 14px 16px 18px; display: grid; gap: 12px; align-content: start; }
+@media (min-width: 900px) {
+  .sheet-scrim.side { justify-content: flex-end; align-items: stretch; }
+  .sheet-scrim.side .sheet { width: 440px; max-height: none; height: 100%; border-radius: 12px 0 0 12px; animation-name: sheet-in; }
+  .sheet-scrim:not(.side) { align-items: center; }
+  .sheet-scrim:not(.side) .sheet { width: min(640px, 92vw); border-radius: 12px; }
+}
+@keyframes sheet-fade { from { opacity: 0; } }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } }
+@keyframes sheet-in { from { transform: translateX(40px); opacity: 0; } }
+html[data-motion="less"] .sheet, html[data-motion="less"] .sheet-scrim { animation: none; }
+@media (prefers-reduced-motion: reduce) { .sheet, .sheet-scrim { animation: none; } }

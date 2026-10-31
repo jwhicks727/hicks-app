@@ -157,6 +157,17 @@ and write the code fresh. SOAR's code belongs to the school.
   a check before writing; a captured snapshot is only worth keeping if the
   read path prefers it.
 
+## Claude in the app
+
+- The app reaches Claude only through the `claude` Edge Function, and
+  always uses **the latest Sonnet**, found from Anthropic's Models API.
+  Never write a model version into the app or a function
+  (`tests/claude.test.mjs`). A new task is added to `TASKS` in
+  `supabase/functions/_shared/claude.js`, with who may ask it, and the
+  screen that asks says first what it sends.
+- Whatever Claude suggests changing is a proposal, confirmed on screen by
+  someone in the family; it never writes to the database itself.
+
 ## Jobs that read the outside world
 
 - Scheduled jobs and scouts (Supabase scheduled functions, or one GitHub

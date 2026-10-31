@@ -54,6 +54,13 @@ export default function KitchenHome({ book, family, session, me, parent, today }
       <header className="hero span-6">
         <span className="kicker">Kitchen</span>
         <h1 className="greet">What’s cooking</h1>
+        {signedIn && (
+          <div className="kitchen-acts">
+            {parent && <Link className="btn" to="/kitchen/plan">Plan the week</Link>}
+            <Link className="btn ghost on-sky" to="/kitchen/rules">Rules &amp; preferences</Link>
+            {parent && <Link className="btn ghost on-sky" to="/kitchen/add">Add recipes</Link>}
+          </div>
+        )}
       </header>
       {!signedIn && <Card tint="#C42D20" label="The cookbook" glyph="pot" className="span-6"><p>Sign in on the <Link to="/settings">Settings</Link> page to see our recipes.</p></Card>}
       {signedIn && (

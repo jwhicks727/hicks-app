@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The Kitchen's week, its rules, and Claude to talk to
+
+- **The whole weekly workflow is in the app** (docs/KITCHEN.md):
+  1. Ask for ideas: a number, and free words added to the ask, like
+     breakfasts.
+  2. Pick from them, and ask for more if you like.
+  3. Have the picks written in Jason's format.
+  4. Save them to the cookbook and the fridge.
+- **The preferences and Laurie's food rules can be changed any time,** each
+  change kept as a dated version. The rules stay Jason's and Laurie's
+  alone, and go to Claude only while Laurie's own switch says yes.
+- **Claude is a tap away anywhere in the Kitchen.** It proposes and the
+  family confirms: nothing it suggests is saved until someone says so on
+  screen.
+- **The model is always "the latest Sonnet",** looked up from Anthropic's
+  Models API each half-day. The app never names a version, so it keeps up
+  with Anthropic's releases without a change here. That holds everywhere
+  the app uses Claude.
+
 ## 2026-11-01 — Anything can come in as a picture, a paste or a drop
 
 - **One way in, everywhere a file or a picture goes** (`src/ui/Dropzone.jsx`):
