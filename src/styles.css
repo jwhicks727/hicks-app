@@ -92,7 +92,7 @@ button { font: inherit; }
 .t-calendar { --tw: #3E7A4C; --tc: var(--chapel); }
 .t-kitchen { --tw: #F03E2F; --tc: var(--kitchen); }
 .t-lifelist { --tw: #5F8A4A; --tc: var(--journal); }
-.t-music { --tw: #8A5BC4; --tb: linear-gradient(90deg, #F03E2F, #F2C14E, #5FA85A, #4A7FD6, #8A5BC4); }
+.t-jams { --tw: #8A5BC4; --tb: linear-gradient(90deg, #F03E2F, #F2C14E, #5FA85A, #4A7FD6, #8A5BC4); }
 .brand { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -201,3 +201,29 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .btn.danger { background: #A33A1C; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 3px 0 #5E1F0C, 0 10px 18px -12px rgba(60, 30, 10, .7); }
 .form-row.three { grid-template-columns: minmax(0, 1.4fr) minmax(0, .8fr) minmax(0, 1fr); }
 .source.fam-src { border-left-color: #F2C14E; } .source.fam-src.k-remember { border-left-color: #6B4A8E; }
+
+/* Weather */
+.wx-now { display: flex; gap: 14px; align-items: center; }
+.wx-now > div { display: grid; gap: 2px; min-width: 0; }
+.wx-temp { font-family: var(--font-display); font-weight: 400; font-size: 52px; line-height: 1; white-space: nowrap; }
+.wx-icon { display: block; flex: none; }
+.wx-hours { list-style: none; margin: 0 -4px; padding: 2px 4px 6px; display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.wx-hours li { flex: none; width: 54px; scroll-snap-align: start; display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 8%, var(--card)); }
+.wx-hours b { white-space: nowrap; }
+.wx-h { font-size: 12px; font-weight: 800; white-space: nowrap; }
+.wx-rain { font-size: 12px; font-weight: 800; color: #2F5FA8; white-space: nowrap; }
+.wx-alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.wx-alerts li { padding: 8px 12px; border-radius: var(--r-control); border-left: 4px solid var(--sev); background: color-mix(in srgb, var(--sev) 10%, var(--card)); }
+.wx-alerts summary { cursor: pointer; min-height: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; }
+.wx-alerts summary span { font-size: 14px; color: var(--muted); }
+.wx-alerts p { margin-top: 6px; font-size: 14px; }
+.wx-credit { font-size: 12px; color: var(--muted); }
+.wx-week { list-style: none; margin: 0; padding: 0; display: grid; }
+.wx-week li { display: grid; grid-template-columns: 46px 30px 38px minmax(40px, 1fr) 38px; grid-template-areas: "d i lo bar hi" ". . note note note"; align-items: center; gap: 0 8px; padding: 7px 0; border-top: 1px solid var(--line); }
+.wx-week li:first-child { border-top: 0; }
+.wx-day { grid-area: d; font-weight: 800; } .wx-week .wx-icon { grid-area: i; }
+.wx-lo { grid-area: lo; text-align: right; color: var(--muted); font-weight: 700; white-space: nowrap; } .wx-hi { grid-area: hi; font-weight: 800; white-space: nowrap; }
+.wx-bar { grid-area: bar; position: relative; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 8%, var(--card)); }
+.wx-bar i { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: linear-gradient(90deg, #6FA8DC, #F2C14E, #E0662F); }
+.wx-note { grid-area: note; font-size: 13px; color: var(--muted); }
+.wx-note:empty { display: none; }

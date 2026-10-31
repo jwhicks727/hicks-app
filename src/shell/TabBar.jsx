@@ -9,9 +9,9 @@ const ICONS = {
   calendar: <g {...S}><rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /><path d="M12 12.3v6.2M9.7 14.4h4.6" /></g>,
   kitchen: <g {...S}><ellipse cx="8" cy="7" rx="3.2" ry="4.2" /><path d="M8 11.2V21" /><path d="M16 3v6a2 2 0 0 0 2 2M20 3v6a2 2 0 0 1-2 2v10M18 3v5" /></g>,
   lifelist: <g {...S}><path d="M3 15c3 0 5-2 6-5 1-3 3-5 6-5 2 0 3 1 3 3l3 1-3 1c0 4-3 7-8 7H6z" /><path d="M9 20l1-3M12 20l1-3" /></g>,
-  music: <g {...S}><path d="M9 18V6l11-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="17.5" cy="16" r="2.5" /></g>,
+  jams: <g {...S}><path d="M9 18V6l11-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="17.5" cy="16" r="2.5" /></g>,
 }
-const TABS = [['home', 'Home'], ['world', 'World'], ['calendar', 'Calendar'], ['kitchen', 'Kitchen'], ['lifelist', 'Life List'], ['music', 'Music']]
+const TABS = [['home', 'Home'], ['world', 'World'], ['calendar', 'Calendar'], ['kitchen', 'Kitchen'], ['lifelist', 'Life List'], ['jams', 'Jams']]
 
 /** A floating rounded bar on a phone; a side rail on a computer. */
 export default function TabBar({ current }) {

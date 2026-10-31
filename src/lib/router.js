@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from 'react'
 
-export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'lifelist', 'music']
+export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'lifelist', 'jams']
 // Reached from Settings (and the desktop rail), not the tab bar.
 export const CONSOLES = ['settings', 'setup', 'reports']
 

@@ -16,7 +16,7 @@ repository, its own database, its own look.
 | **Calendar** | A full calendar (day, week, month, year), synced with our Google calendars, with the Church year, Mass times, our ministries, family days, holidays, heritage days, seasons and nature woven in. |
 | **Kitchen** | Jason's cooking: the week's recipes, what's left in the fridge, a cook check before cooking. |
 | **Life List** | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off, her paintings. Opens on what's recent. |
-| **Music** | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
+| **Jams** | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 
 What's built so far, and what's next: [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -75,4 +75,6 @@ where it appears and listed here:
   Catholic and saint line art comes later, from sources still to be checked
   (`docs/PLAN.md`).
 - **Icons:** Home's sprout is Lucide's (https://lucide.dev, ISC licence); the
-  other tab icons are drawn on the same 24-unit grid.
+  other tab icons are drawn on the same 24-unit grid. The home-screen icon
+  (`public/icons/`) is that sprout on the evening sky, named "Team Hicks" by
+  `public/manifest.webmanifest`.

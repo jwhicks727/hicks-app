@@ -135,13 +135,13 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       format and data model come into this repository; Laurie's own food
       rules go to the database (they are health information).
 
-## 5. Music
+## 5. Jams
 
 - [ ] **The jam scout:** a scheduled AI agent (Claude with web search) that
       looks every morning for jam-band shows and coverage near us, and for
       what's happening around the world worth knowing: festivals, livestreams,
       new releases. It does the same for Anna's and Laurie's music: each of us
-      keeps a list of artists and kinds of music in Music, changed whenever we
+      keeps a list of artists and kinds of music in Jams, changed whenever we
       like, and each find is tagged to whose interest it matches. It saves what it finds with its source links; Jason
       confirms a show before it reaches the calendar. Capped searches a day
       and a monthly spending limit; it sends only search words, never family

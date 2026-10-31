@@ -20,7 +20,7 @@ export const REGISTRY = [
   { key: 'lifelist', name: 'Life List', colour: '#5F8A4A',
     setup: [{ key: 'ebird', title: 'Laurie’s eBird account (her yes)', ready: false }],
     reports: [] },
-  { key: 'music', name: 'Music', colour: '#8A5BC4',
+  { key: 'jams', name: 'Jams', colour: '#8A5BC4',
     setup: [{ key: 'artists', title: 'Our favourite artists', ready: false }, { key: 'scouts', title: 'The daily scouts', ready: false }],
     reports: [] },
 ]

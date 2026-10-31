@@ -1,0 +1,16 @@
+{
+  "name": "Team Hicks",
+  "short_name": "Team Hicks",
+  "description": "The Hicks family's home: the day, the calendar, the kitchen, our life list and our jams.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F1DCC0",
+  "theme_color": "#6E9ED6",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Music is Jams; Team Hicks on the home screen
+
+- **The Music tab is called Jams** (address `/jams`): more us, and jam bands
+  come first there anyway.
+- **Added to a phone's home screen, the app is "Team Hicks"** with the
+  sprout on the evening sky as its icon (`public/manifest.webmanifest`,
+  `public/icons/`). It opens full screen, like an app. This needs the app
+  hosted on https first (still to decide: Firebase or Netlify).
+
+---
+
 ## 2026-10-31 — Calendar feeds are read by a Supabase Edge Function
 
 - **Feeds first.** Most school systems, Google Calendar and Outlook publish

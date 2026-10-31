@@ -6,12 +6,12 @@ import World from './places/World.jsx'
 import Calendar from './places/Calendar.jsx'
 import Kitchen from './places/Kitchen.jsx'
 import LifeList from './places/LifeList.jsx'
-import Music from './places/Music.jsx'
+import Jams from './places/Jams.jsx'
 import Settings from './consoles/Settings.jsx'
 import Setup from './consoles/Setup.jsx'
 import Reports from './consoles/Reports.jsx'
 
-const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, lifelist: LifeList, music: Music, settings: Settings, setup: Setup, reports: Reports }
+const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, lifelist: LifeList, jams: Jams, settings: Settings, setup: Setup, reports: Reports }
 
 export default function App() {
   const path = usePath()
