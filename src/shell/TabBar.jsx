@@ -51,7 +51,7 @@ export default function TabBar({ current }) {
           {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={30} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
         </span>
         <span className="rail-more">
-          {TOOLS.map((t) => <Link key={t.key} to={t.to} aria-current={current === t.key ? 'page' : undefined}><IconTile colours={t.colours} size={28} flat><svg viewBox="0 0 24 24">{t.icon}</svg></IconTile>{t.name}</Link>)}
+          {TOOLS.map((t) => <Link key={t.key} to={t.to} aria-current={current === t.key ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true">{t.icon}</svg>{t.name}</Link>)}
         </span>
       </nav>
       {open && <AppsSheet onClose={() => setOpen(false)} />}

@@ -1,0 +1,11 @@
+/* The sign-in gate: the wordmark and one card, over the sky of the hour */
+.gate { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; display: grid; align-content: center; justify-items: center; gap: 18px; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.gate-brand { font-family: var(--font-brand); font-size: 46px; line-height: 1.1; text-align: center; color: var(--sky-ink, var(--ink)); }
+.gate-card { width: min(100%, 420px); display: grid; gap: 12px; padding: 20px 18px; border-radius: var(--r-card); background: var(--card); color: var(--ink); box-shadow: var(--shadow-warm); }
+.gate-card h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; }
+.gate-card p { margin: 0; overflow-wrap: anywhere; }
+.gate-card .form { display: grid; gap: 12px; }
+.gate-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.gate-link { padding: 8px 0; border: 0; background: none; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; text-align: left; }
+.gate-quiet { margin: 0; color: var(--sky-ink, var(--ink)); font-weight: 700; }
+@media (orientation: landscape) and (max-height: 500px) { .gate { align-content: start; padding-top: 12px; gap: 8px; } .gate-brand { font-size: 32px; } }

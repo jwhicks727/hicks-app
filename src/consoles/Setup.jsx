@@ -12,7 +12,6 @@ import { useSources, todayAtHome } from '../lib/useSources.js'
 import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
 import { REGISTRY } from '../registry.js'
 import { Card } from '../ui/Card.jsx'
-import { Link } from '../shell/Link.jsx'
 
 const KIND_NAME = Object.fromEntries(SOURCE_KINDS.map(([k, n]) => [k, n]))
 const FEEDS = ['ical', 'google_calendar'] // read by the read-sources function; the rest wait for document reading
@@ -86,8 +85,8 @@ export default function Setup() {
     return (
       <>
         <header className="hero span-6"><span className="kicker">Team Hicks</span><h1 className="greet">Admin</h1></header>
-        <Card tint="#453644" label="Sign in first" glyph="star" className="span-6">
-          <p>Admin is for Jason and Laurie. <Link to="/settings">Sign in from Settings</Link>.</p>
+        <Card tint="#453644" label="Not connected" glyph="star" className="span-6">
+          <p>Admin is for Jason and Laurie, and the database isn’t connected on this copy of the app.</p>
         </Card>
       </>
     )

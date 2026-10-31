@@ -41,6 +41,11 @@ and write the code fresh. SOAR's code belongs to the school.
 - **Anna's grades** are the family's only, and the academy never says a
   word about a dip: it cheers an A or a grade that went up, and is quiet
   otherwise.
+- **The whole app is behind sign-in** (`src/shell/Gate.jsx`,
+  `src/lib/gate.js`, `tests/gate.test.mjs`): until the database says the
+  address is on the family list, the only screen is the sign-in one, and
+  nothing outside it renders or reads the database. A new screen is inside
+  the gate by default; never add a route that shows without it.
 - Logins are held only with their owner's yes, and the app never signs in to
   Amazon (decisions log). Every secret is listed in `docs/SECRETS.md`; none is
   ever written into the repository. The app holds only the Supabase URL and
@@ -104,7 +109,8 @@ licence nobody wrote down.
   (`src/ui/apps.jsx`) are *flat*: a solid deep colour in the mockup's muted
   outdoor tones (plum, ochre, sea, rust, lake, moss), nearly square corners,
   an outline just inside the edge and a glow of their own colour, with no
-  gradient, sheen or shadow. The **academy's kinds of room** are the one
+  gradient, sheen or shadow. Settings, Admin and Reports are the exception:
+  plain line icons with no tile, like the tabs'. The **academy's kinds of room** are the one
   glossy, 3D, bright look (`KIND_COLOURS`, `src/academy/rooms.js`), with
   their Fluent Emoji picture, and they move (`alive`: they float, a glint
   crosses them, a halo breathes, they lift under a pointer; transform and

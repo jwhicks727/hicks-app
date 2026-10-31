@@ -6,6 +6,30 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The whole app is behind sign-in
+
+Reversing the first arrangement, where each screen asked for a sign-in for
+itself and Settings held the form: nothing in the app shows until someone
+has signed in and the database says the address is on the family list
+(`is_family()`, the same check every table makes). Before that there is one
+screen, the wordmark and an email box; no tab bar, no places, no calls to
+the database. A signed-in address that isn't ours sees only "Not on the
+family list" and a way to sign out. The email brings a link and a code: the
+link for a browser, the code for the installed app, because on an iPhone a
+link opens Safari and signs in Safari rather than the app. A development
+copy with no database connected still shows the app, so it can be looked at
+before anything is set up; a hosted copy built without the database's
+address says so rather than showing the app. A sign-in failure says what it
+tried to reach, because "Failed to fetch" almost always means the address
+the app was built with is wrong.
+
+## 2026-11-01 — Settings, Admin and Reports are plain icons
+
+Settings, Admin and Reports had a grey tile each, which made them look like
+more apps. They are plain line icons now, like Home and Calendar, at the
+foot of the Apps sheet and of the rail. (This reverses "one quiet slate" in
+the entry below on Admin; the apps keep their coloured tiles.)
+
 ## 2026-11-01 — The live address is hicks.web.app
 
 The Firebase project (`hicks-app-1b1a5`) has a Hosting site of its own,

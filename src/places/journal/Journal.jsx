@@ -36,7 +36,7 @@ export default function Journal({ rest = [] }) {
     return (
       <>
         <header className="hero span-6"><span className="kicker">Only yours</span><h1 className="greet">Journal</h1></header>
-        <Card tint="#7A5C9E" label="Sign in first" glyph="star" className="span-6"><p>Each of us has a journal only they can read. <Link to="/settings">Sign in from Settings</Link> to open yours.</p></Card>
+        <Card tint="#7A5C9E" label="Not connected" glyph="star" className="span-6"><p>Each of us has a journal only they can read, kept in the database, and the database isn’t connected on this copy of the app.</p></Card>
       </>
     )
   }

@@ -35,7 +35,7 @@ export default function Garden({ rest = [] }) {
     return (
       <>
         <header className="hero span-6"><span className="kicker">Yard and rooms</span><h1 className="greet">The Garden</h1></header>
-        <Card tint="#5F8A4A" label="Sign in first" glyph="star" className="span-6"><p>The Garden is ours alone: <Link to="/settings">sign in from Settings</Link>.</p></Card>
+        <Card tint="#5F8A4A" label="Not connected" glyph="star" className="span-6"><p>The Garden is kept in the database, and the database isn’t connected on this copy of the app.</p></Card>
       </>
     )
   }

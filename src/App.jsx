@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { parsePath, usePath } from './lib/router.js'
 import Sky from './shell/Sky.jsx'
+import Gate from './shell/Gate.jsx'
+import { useGate } from './lib/useGate.js'
 import SeasonShow from './shell/SeasonShow.jsx'
 import { PaintingsProvider } from './parts/PaintingsProvider.jsx'
 import TabBar from './shell/TabBar.jsx'
@@ -20,7 +22,15 @@ const Academy = lazy(() => import('./academy/Academy.jsx'))
 
 const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, journal: Journal, garden: Garden, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, admin: Setup, reports: Reports }
 
+// Nothing shows until someone has signed in and is on the family list
+// (src/lib/gate.js): not the tab bar, not a place, not a card.
 export default function App() {
+  const gate = useGate()
+  if (gate.state !== 'open') return <Gate gate={gate} />
+  return <Inside />
+}
+
+function Inside() {
   const path = usePath()
   const { place, rest } = parsePath(path)
   const Screen = SCREENS[place]

@@ -17,8 +17,10 @@ step says.
    season › Halloween › Play it.
 4. Her Gallery: Apps › The Gallery.
 
-A development copy shows the paintings without signing in. A hosted copy
-never will.
+A development copy with no `.env` (no database connected) shows the
+paintings without signing in. Any copy with the database connected, hosted
+or not, shows only a sign-in screen until someone on the family list has
+signed in.
 
 ## 1. The database: nine migrations, in order
 
@@ -63,8 +65,22 @@ Then Authentication › URL Configuration › Redirect URLs. Add:
 And, on the same page, set **Site URL** to `https://hicks.web.app`: a
 sign-in link that can't find its redirect falls back to it.
 
-Then open the app (`npm run dev`), Settings › sign in, and check your name
-appears on Home.
+Then, for the sign-in code (the installed app can't use the link: on an
+iPhone the link opens Safari, which signs in Safari, not the app),
+Authentication › Emails › Templates › Magic link: add a line to the
+message, `<p>Or type this code: {{ .Token }}</p>`, and Save. The sign-in
+screen asks for the code after it sends the email.
+
+The built-in email sender is limited to a few emails an hour; if the
+sign-in screen says there were too many, wait, or add your own sender under
+Authentication › Emails › SMTP Settings.
+
+Then open the app (`npm run dev`, or https://hicks.web.app), enter your
+address on the sign-in screen, and check your name appears on Home. When
+all three of you have signed in once, Authentication › Sign In / Providers
+› turn off "Allow new users to sign up": from then on only addresses
+already made can sign in, on top of the family list every screen already
+checks.
 
 ## 4. Claude
 

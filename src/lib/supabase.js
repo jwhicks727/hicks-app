@@ -7,3 +7,5 @@ const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = url && key ? createClient(url, key) : null
+/** The address the app was built to talk to (public: it ships in the app), for saying what it couldn't reach. */
+export const supabaseHost = (() => { try { return url ? new URL(url).host : '' } catch { return '' } })()

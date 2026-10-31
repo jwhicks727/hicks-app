@@ -21,14 +21,14 @@ export const APPS = [
 ]
 
 // The tools: Settings, Admin and Reports, at the foot of the Apps sheet and
-// of the computer's rail. One quiet slate for all three, so they read as the
-// app's own tools rather than more apps. (The wrench is Lucide's, ISC.)
-const TOOL_COLOURS = ['#AEB8C2', '#56616D']
+// of the computer's rail. Plain line icons like the tabs', with no tile and
+// no colour, so they read as the app's own tools rather than more apps.
+// (The wrench is Lucide's, ISC.)
 export const TOOLS = [
-  { key: 'settings', to: '/settings', name: 'Settings', sub: 'This device', colours: TOOL_COLOURS,
+  { key: 'settings', to: '/settings', name: 'Settings', sub: 'This device',
     icon: <g {...S}><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h3M11 12h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="12" r="2" /><circle cx="9" cy="17" r="2" /></g> },
-  { key: 'admin', to: '/admin', name: 'Admin', sub: 'Sources and days', colours: TOOL_COLOURS,
+  { key: 'admin', to: '/admin', name: 'Admin', sub: 'Sources and days',
     icon: <g {...S}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z" /></g> },
-  { key: 'reports', to: '/reports', name: 'Reports', sub: 'At a glance', colours: TOOL_COLOURS,
+  { key: 'reports', to: '/reports', name: 'Reports', sub: 'At a glance',
     icon: <g {...S}><path d="M4 20h16" /><path d="M7 16.5v-5M12 16.5v-9M17 16.5v-6.5" /></g> },
 ]

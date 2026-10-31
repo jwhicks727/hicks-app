@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { useSession, sendSignInLink, signOut } from '../lib/auth.js'
+import { useSession, signOut } from '../lib/auth.js'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
@@ -12,8 +12,6 @@ import { todayAt } from '../lib/cal/dates.js'
 
 export default function Settings() {
   const session = useSession()
-  const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(null)
   const [prefs, update] = usePrefs()
   const [tryKey, setTry] = useSeasonTry()
   const { list: paintings } = usePaintings()
@@ -33,17 +31,6 @@ export default function Settings() {
             <p>Signed in as <b>{session.user.email}</b>.</p>
             <button type="button" className="btn ghost" onClick={() => signOut()}>Sign out</button>
           </>
-        )}
-        {supabase && session === null && (
-          <form className="form" onSubmit={async (e) => {
-            e.preventDefault()
-            const { error } = await sendSignInLink(email.trim())
-            setSent(error ? { ok: false, text: error.message } : { ok: true, text: 'Check your email for a sign-in link.' })
-          }}>
-            <label>Your email<input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-            <button type="submit" className="btn">Email me a sign-in link</button>
-            {sent && <p className={sent.ok ? 'ok' : 'err'} role="status">{sent.text}</p>}
-          </form>
         )}
       </Card>
 

@@ -16,7 +16,12 @@ export function useSession() {
 
 /** Email a sign-in link. Only the family's addresses can see anything once in. */
 export function sendSignInLink(email) {
-  return supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/settings' } })
+  return supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/' } })
+}
+
+/** Sign in with the code from the email: it works inside the installed app, where a link would open the browser instead. */
+export function signInWithCode(email, token) {
+  return supabase.auth.verifyOtp({ email, token, type: 'email' })
 }
 
 /** Signing out also forgets anything half-typed on this device. */

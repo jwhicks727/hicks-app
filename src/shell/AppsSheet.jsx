@@ -23,7 +23,7 @@ export default function AppsSheet({ onClose }) {
       <nav className="apps-tools" aria-label="Tools">
         {TOOLS.map((t) => (
           <a key={t.to} href={t.to} onClick={(e) => { e.preventDefault(); onClose(); navigateFromSheet(t.to) }}>
-            <IconTile colours={t.colours} size={34} flat><svg viewBox="0 0 24 24">{t.icon}</svg></IconTile>
+            <svg viewBox="0 0 24 24" aria-hidden="true">{t.icon}</svg>
             <b>{t.name}</b>
           </a>
         ))}
