@@ -52,8 +52,8 @@ export default function Campus({ rooms, n, colours = [], stars = 0, newStars = 0
       {/* The flag at the back */}
       <g>
         <line x1="0" y1="2" x2="0" y2="-92" stroke="#D8D2C8" strokeWidth="3" />
-        <path d="M2 -90 h34 l-8 9 l8 9 h-34 Z" fill={green} stroke={dark} strokeWidth="1.5" className="flag" />
-        <rect x="2" y="-80" width="34" height="3" fill={gold} className="flag" />
+        <path d="M2 -90 h34 l-8 9 l8 9 h-34 Z" fill={green} stroke={dark} strokeWidth="1.5" className="ac-flag" />
+        <rect x="2" y="-80" width="34" height="3" fill={gold} className="ac-flag" />
       </g>
       {things.map((x) => (x.room ? <Building key={x.id} r={x} picked={selected === x.id} arranging={arranging} roof={dark} trim={gold} onTap={() => (arranging ? onSelect(x.id) : onOpen(x.id))} /> : (
         <image key={`s${x.i}-${x.j}`} href={itemSrc(x.k)} x={mid(x.i, x.j).x - x.s / 2} y={mid(x.i, x.j).y - x.s * 0.9} width={x.s} height={x.s} pointerEvents="none" />

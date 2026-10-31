@@ -6,11 +6,9 @@
 .pmap-card { --pm-sea-a: #3F8FB8; --pm-sea-b: #73BFD1; --pm-wave: rgba(255, 255, 255, .2); --pm-land: #9CC77F; --pm-coast: #5C7A48; --pm-grid: rgba(255, 255, 255, .18); --pm-night: #1D2466; --pm-frame: #E9F2EE; --pm-peak: #A07A55; --pm-peak-edge: #5E432C;
   --pm-green: #9CC77F; --pm-forest: #5F9A4C; --pm-desert: #DCC294; --pm-dune: #C9A874; --pm-tundra: #C3C99F; --pm-ice: #F6F9FA;
   --pm-coast-a: #8EC46E; --pm-coast-b: #B4BE80; --pm-coast-c: #D4BC8E; --pm-lake: #5BB4D6; }
-@media (prefers-color-scheme: dark) {
-  .pmap-card { --pm-sea-a: #123A4D; --pm-sea-b: #1C5560; --pm-wave: rgba(255, 255, 255, .08); --pm-land: #3F5E37; --pm-coast: #A9C48F; --pm-grid: rgba(180, 220, 220, .1); --pm-night: #050818; --pm-frame: #1A2A30; --pm-peak: #7A5E44; --pm-peak-edge: #D2B48C;
+:root[data-theme="dark"] .pmap-card { --pm-sea-a: #123A4D; --pm-sea-b: #1C5560; --pm-wave: rgba(255, 255, 255, .08); --pm-land: #3F5E37; --pm-coast: #A9C48F; --pm-grid: rgba(180, 220, 220, .1); --pm-night: #050818; --pm-frame: #1A2A30; --pm-peak: #7A5E44; --pm-peak-edge: #D2B48C;
     --pm-green: #3F5E37; --pm-forest: #2C4A28; --pm-desert: #6E5A3E; --pm-dune: #85704E; --pm-tundra: #55604A; --pm-ice: #B9C4CA;
     --pm-coast-a: #3F6236; --pm-coast-b: #5A5E36; --pm-coast-c: #6E5A3E; --pm-lake: #2E7A96; }
-}
 .fig { white-space: nowrap; }
 
 /* How far to look: a sliding pill, three ways */

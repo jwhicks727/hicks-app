@@ -1,15 +1,28 @@
 import { useEffect, useState } from 'react'
 
 // Settings kept on this device only: they're conveniences, never the
-// family's data. Text size, motion, which calendar kinds show, whose days.
+// family's data. Text size, motion, light or dark, which calendar kinds
+// show, whose days.
 const KEY = 'teamhicks.prefs'
 const EVENT = 'teamhicks:prefs'
 
 export function readPrefs() { try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return {} } }
 
+// Light or dark: chosen, or the device's own (followed as it changes, at
+// sunset on a phone set to Automatic). index.html sets it before the first
+// paint the same way, so the app never flashes the wrong one.
+const darkDevice = () => Boolean(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+export const themeOf = (p = readPrefs()) => (p.theme === 'dark' || p.theme === 'light' ? p.theme : darkDevice() ? 'dark' : 'light')
+let following = false
+
 export function applyPrefs(p = readPrefs()) {
   document.documentElement.dataset.textSize = p.textSize || 'normal'
   document.documentElement.dataset.motion = p.motion || 'device'
+  document.documentElement.dataset.theme = themeOf(p)
+  if (!following && window.matchMedia) {
+    following = true
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => applyPrefs())
+  }
 }
 
 /** [prefs, update]: update merges and is shared by every screen that reads them. */

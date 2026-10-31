@@ -47,10 +47,15 @@ export default function Settings() {
         )}
       </Card>
 
-      <Card tint="#4A7FD6" label="Reading and motion" glyph="sunmoon" className="span-3">
+      <Card tint="#4A7FD6" label="Reading, light and motion" glyph="sunmoon" className="span-3">
         <fieldset className="choice-row"><legend>Text size</legend>
           {[['normal', 'Normal'], ['large', 'Large'], ['xlarge', 'Extra large']].map(([k, l]) => (
             <button key={k} type="button" aria-pressed={(prefs.textSize || 'normal') === k} onClick={() => update({ textSize: k })}>{l}</button>
+          ))}
+        </fieldset>
+        <fieldset className="choice-row"><legend>Light or dark</legend>
+          {[['device', 'Like this device'], ['light', 'Light'], ['dark', 'Dark']].map(([k, l]) => (
+            <button key={k} type="button" aria-pressed={(prefs.theme || 'device') === k} onClick={() => update({ theme: k })}>{l}</button>
           ))}
         </fieldset>
         <fieldset className="choice-row"><legend>Motion</legend>

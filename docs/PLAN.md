@@ -7,6 +7,8 @@ Built in this order, each part in daily use before the next.
 - [x] Five tabs, the same for everyone: Home, Calendar, Kitchen, World and
       Us, which holds the journal, the academy, Life List, the gallery, Jams
       and the garden (2026-11-01).
+- [x] Light and dark, chosen in Settings or following the device
+      (2026-11-01).
 
 - [x] The repository, the look (tokens, fonts, cards), the six places, the
       sky of the hour behind everything, the floating tab bar and desktop rail.

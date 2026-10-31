@@ -55,6 +55,11 @@
 .plant-art { display: block; max-width: 100%; height: auto; overflow: visible; transition: transform .25s ease; }
 .pots-name { position: absolute; bottom: 0; left: 0; right: 0; display: grid; text-align: center; font-size: 11px; line-height: 1.2; color: #FFF6E8; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
 .pots-name span { display: none; }
+/* Dark: the room after sundown, its window the evening's */
+:root[data-theme="dark"] .pots, :root[data-theme="dark"] .pots.light-bright { --pa-wall: #3A3129; background: linear-gradient(180deg, #3D332A, #342B23); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); }
+:root[data-theme="dark"] .pots.light-low { --pa-wall: #2F2822; background: linear-gradient(180deg, #312922, #2A231D); }
+:root[data-theme="dark"] .pots-window { border-color: #D9CBB4; background: linear-gradient(180deg, #2E3A66, #6B5A7E 70%, #C98A6A); }
+:root[data-theme="dark"] .pot-preview { background: linear-gradient(180deg, #3D332A, #342B23 calc(100% - 12px), #7A5A3C calc(100% - 12px)); }
 .pots-none { padding: 30px 8px 40px; position: relative; }
 .pots.mini { padding-top: 14px; min-height: 110px; justify-content: flex-start; }
 .pots.mini .pots-window { width: 46px; height: 34px; border-width: 3px; top: 8px; right: 10px; }

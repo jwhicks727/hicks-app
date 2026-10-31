@@ -76,7 +76,7 @@
 .week { display: grid; gap: 10px; touch-action: pan-y; animation: rise .45s cubic-bezier(.2, .8, .2, 1) both; }
 .dblock { position: relative; isolation: isolate; display: grid; gap: 10px; align-content: start; padding: 12px 14px; border-radius: var(--r-card); background: var(--card); box-shadow: var(--shadow-warm); border-left: 5px solid var(--lc); min-width: 0; }
 .dblock.today { outline: 3px solid var(--ink); outline-offset: 2px; }
-.dblock.celebrate-day { background: linear-gradient(120deg, #FFF1D6, #FFE6DD 50%, #F1E8FF); }
+.dblock.celebrate-day { background: linear-gradient(120deg, color-mix(in srgb, #FFC56B 16%, var(--card)), color-mix(in srgb, #FF9B7A 14%, var(--card)) 50%, color-mix(in srgb, #B9A6FF 14%, var(--card))); }
 .dblock-head { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 10px; align-items: center; color: inherit; text-decoration: none; min-height: 44px; }
 .dtitle { display: grid; min-width: 0; } .dtitle b { font-weight: 850; line-height: 1.25; } .dtitle .plain { font-weight: 600; font-size: 14px; color: var(--muted); } .dtitle span { font-size: 13px; color: var(--muted); }
 .items { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
@@ -138,10 +138,10 @@
 .astro-times b { white-space: nowrap; }
 .astro-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .astro-links a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 20px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-weight: 750; font-size: 14px; text-decoration: none; }
-.astro-card.k-season { background: #FFF6E6; color: var(--ink); }
+.astro-card.k-season { background: color-mix(in srgb, #FFC56B 10%, var(--card)); color: var(--ink); }
 .astro-card.k-season .astro-t p { color: var(--muted); }
 .astro-card.k-season .astro-times li { background: rgba(224, 122, 31, .1); }
-.astro-card.k-season .astro-links a { background: rgba(224, 122, 31, .14); color: #7A3A0A; }
+.astro-card.k-season .astro-links a { background: rgba(224, 122, 31, .14); color: color-mix(in srgb, #7A3A0A 70%, var(--ink)); }
 .astro-star { animation: astro-twinkle 3.2s ease-in-out infinite alternate; }
 .astro-breathe { transform-box: fill-box; transform-origin: center; animation: astro-breathe 4s ease-in-out infinite alternate; }
 .astro-meteor { stroke-dasharray: 160; stroke-dashoffset: 160; animation: astro-streak 4.5s ease-in infinite; }

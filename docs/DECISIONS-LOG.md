@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Light and dark
+
+There's a dark mode, chosen in Settings (Light, Dark, or like this device,
+which follows a phone set to switch at sunset). The paper cards turn to a
+warm dark brown, buttons to cream, and the hour's sky stays behind
+everything, dimmed to evening, so dark still shows the time of day. The
+maps have their own dark colours; the rooms, scenes and Laurie's paintings
+keep theirs. The theme is set before the first paint, so the app never
+flashes the wrong one.
+
 ## 2026-11-01 — Five tabs: Home, Calendar, Kitchen, World, Us
 
 Seven tabs was too many for a phone (six was already the most it held

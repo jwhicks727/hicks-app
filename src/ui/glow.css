@@ -62,7 +62,7 @@
 .oc-name { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.1; }
 .oc-sub { font-weight: 700; color: var(--muted); }
 .oc-more { justify-self: start; margin-top: 6px; min-height: 40px; display: inline-flex; align-items: center; font-weight: 800; color: var(--ink); }
-.mode-liquid .occasion-card { background: linear-gradient(135deg, #FFF8EE, #FFEFF8 50%, #EEF7FF); }
+.mode-liquid .occasion-card { background: linear-gradient(135deg, var(--card), color-mix(in srgb, #FF9BD8 8%, var(--card)) 50%, color-mix(in srgb, #9FDBFF 10%, var(--card))); }
 
 /* Less motion: the colours, still */
 .calm .glow-spin, .calm .blob, .calm .occasion-dot { animation: none !important; }

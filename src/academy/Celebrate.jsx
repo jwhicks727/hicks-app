@@ -18,11 +18,11 @@ export default function Celebrate({ moment, onDone, colours = [] }) {
   const calm = reducedMotion()
   const palette = [...colours, ...COLOURS]
   return createPortal(
-    <div className="celebrate" onClick={onDone} role="status" aria-live="polite">
+    <div className="ac-joy" onClick={onDone} role="status" aria-live="polite">
       {!calm && Array.from({ length: moment.big ? 90 : 44 }, (_, k) => (
         <i key={k} style={{ '--x': `${(k * 37) % 100}vw`, '--d': `${1.6 + ((k * 13) % 17) / 10}s`, '--w': `${(k * 7) % 5 - 2}`, '--delay': `${((k * 11) % 9) / 20}s`, background: palette[k % palette.length], borderRadius: k % 3 ? '1px' : '50%' }} />
       ))}
-      <div className="celebrate-card">
+      <div className="ac-joy-card">
         {moment.prize && <img src={moment.prize.startsWith('http') ? moment.prize : itemSrc(moment.prize)} alt="" width="72" height="72" />}
         <b>{moment.title}</b>
         {moment.line && <span>{moment.line}</span>}

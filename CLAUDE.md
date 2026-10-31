@@ -85,6 +85,19 @@ licence nobody wrote down.
   opacity only: no blur.
 - Every stylesheet lands in one bundle: an animation name is never reused
   (`tests/css-guard.test.mjs`).
+- **Light and dark.** Settings chooses Light, Dark or the device's own
+  (`src/lib/prefs.js` sets `html[data-theme]`; `index.html` sets it before
+  the first paint). Colours are tokens (`--card`, `--ink`, `--muted`,
+  `--line`, `--steady`) redefined under `:root[data-theme="dark"]`; never a
+  `prefers-color-scheme` query of your own (`tests/css-guard.test.mjs`). A
+  tinted background mixes its tint into the card
+  (`color-mix(in srgb, #F2C14E 22%, var(--card))`) rather than naming a
+  light colour, so it turns with the theme. A fixed light background keeps
+  a fixed dark text colour with it. Illustrations (rooms, maps, scenes) keep
+  their own colours. Check a new screen in both.
+- A place's own class names carry its prefix (`ac-` for the academy, `jr-`
+  for the journal, `g` for the garden): every stylesheet is global, and a
+  bare `.celebrate` or `.flag` meets another place's.
 - Art is human-made, with its source and licence recorded in README.md. No
   AI-made art. The one exception is the home-screen icon, a stand-in Jason
   chose (decisions log, 2026-10-31); don't add others. Laurie's paintings replace photos wherever she has painted the

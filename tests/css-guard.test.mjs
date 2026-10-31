@@ -24,3 +24,8 @@ test('no @keyframes name is defined twice across the stylesheets', () => {
 test('no blur filter: iPhones repaint one slowly (CLAUDE.md, The look)', () => {
   for (const f of files) assert.doesNotMatch(readFileSync(f, 'utf8'), /filter:\s*blur\(|backdrop-filter:\s*blur\((?:[3-9]\d|\d{3})/, f)
 })
+
+test('dark follows the app’s own setting (html[data-theme]), never the device’s query directly', () => {
+  // src/lib/prefs.js sets data-theme from Settings, or from the device when that's the choice
+  for (const f of files) assert.doesNotMatch(readFileSync(f, 'utf8'), /prefers-color-scheme/, `${f}: use :root[data-theme="dark"] instead`)
+})
