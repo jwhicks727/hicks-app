@@ -209,7 +209,7 @@ html[data-motion="less"] .astro-meteor { stroke-dashoffset: 0; }
   .ml-g { width: 26px; height: 26px; }
   .day-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .day-stack > .celebrate, .day-stack > .church-card, .day-stack > .day-occasion { grid-column: 1 / -1; }
-  .day-stack > .astro-card { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; grid-column: 1 / -1; }
+  .day-stack > .astro-card, .day-stack > .glow-wrap > .astro-card { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; grid-column: 1 / -1; }
   .astro-card .astro-art { height: 100%; object-fit: cover; }
   .month-list-card .month-list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
   .month-list-card .month-list li:nth-child(2) { border-top: 0; }

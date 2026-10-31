@@ -13,7 +13,7 @@ import { useSession } from '../lib/auth.js'
 import { useFamily, useEvents } from '../lib/useCalendar.js'
 import { dayView } from '../lib/cal/day.js'
 import { occasionFor } from '../lib/occasions.js'
-import { OccasionChip } from '../ui/Glow.jsx'
+import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 import { todayAt } from '../lib/cal/dates.js'
 import '../calendar/calendar.css'
 
@@ -39,12 +39,12 @@ export default function Home() {
         <span className="eyebrow">{sun}</span>
         {/* Each of us by name once signed in; the wall will greet Team Hicks. */}
         <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
-        <OccasionChip occasion={occasion} day={today} />
       </header>
       <RolloverShine />
-      <FamilyBanner today={today} days={family.days} />
+      <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />
+      {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <WeatherNow />
-      <TodayCard today={today} hour={hour} />
+      <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
       <FridgeCard session={session} />
       <SkyToday />
       <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[

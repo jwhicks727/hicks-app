@@ -31,8 +31,14 @@ const P = {
   bloodMoon: ['#8B2E16', '#C4501F', '#E07A3F', '#3A0F08'],
 }
 
+// Which card an occasion lights: its event's, the family's, the Church's, the sky's, or the day's others.
+const ON = { family: 'family', show: 'event', christmas: 'church', easter: 'church', pentecost: 'church', sacredHeart: 'church', guadalupe: 'church', advent: 'church', feast: 'church', eclipse: 'sky', summer: 'sky', winter: 'sky' }
+
+const showTime = (e) => (e.starts_at ? new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' }).format(new Date(e.starts_at)) : null)
+
 /**
- * The occasion of a day, or null: { key, name, colours, mode, extra }.
+ * The occasion of a day, or null: { key, name, colours, mode, extra, sub, href }.
+ * `sub` is a line under the name; `href` where its card leads (an event's page).
  * mode: 'swirl' (colours chasing round the edge) or 'liquid' (a light show).
  * extra: 'flutter' (falling white), 'sparkle', 'rise' (sparks going up), or null.
  * `day` is a dayView(); `events` are that day's events; `eclipse` an eclipse on it.
@@ -40,12 +46,12 @@ const P = {
 export function occasionFor(day, { events = day.events || [], eclipse = day.eclipse || null } = {}) {
   const { lit } = day
   const md = day.date.slice(5)
-  const make = (key, name, palette, mode = 'swirl', extra = null) => ({ key, name, colours: P[palette], mode, extra })
+  const make = (key, name, palette, mode = 'swirl', extra = null, more = {}) => ({ key, name, colours: P[palette], mode, extra, sub: null, href: null, on: ON[key] || 'day', ...more })
   const fam = day.family.find((f) => f.kind !== 'remember')
-  if (fam) return make('family', fam.title, 'rainbow', 'swirl', 'sparkle')
+  if (fam) return make('family', fam.title, 'rainbow', 'swirl', 'sparkle', { sub: fam.line || null })
   const show = events.find((e) => e.kind === 'show')
-  if (show) return make('show', show.title, 'psychedelic', 'liquid')
-  if (md === '12-25' || md === '12-24') return make('christmas', md === '12-24' ? 'Christmas Eve' : 'Christmas', 'christmas', 'swirl', 'flutter')
+  if (show) return make('show', show.title, 'psychedelic', 'liquid', null, { sub: [showTime(show), show.place && show.place.split(',')[0]].filter(Boolean).join(' · ') || null, href: show.id ? `/calendar/event/${show.id}` : null })
+  if (md === '12-25' || md === '12-24') return make('christmas', md === '12-24' ? 'Christmas Eve' : 'Christmas', 'christmas', 'swirl', 'flutter', { sub: md === '12-25' ? 'The Nativity of the Lord' : 'The vigil of the Nativity' })
   if (lit.key === 'easter') return make('easter', 'Easter', 'easter', 'swirl', 'sparkle')
   if (lit.key === 'pentecost') return make('pentecost', 'Pentecost', 'fire', 'swirl', 'rise')
   if (lit.key === 'sacredHeart') return make('sacredHeart', 'The Sacred Heart, our parish’s feast', 'sacredHeart', 'swirl', 'rise')
@@ -53,7 +59,7 @@ export function occasionFor(day, { events = day.events || [], eclipse = day.ecli
   if (eclipse && eclipse.type === 'total' && eclipse.visible) return make('eclipse', 'A total eclipse of the moon tonight', 'bloodMoon')
   if (lit.season === 'advent' && lit.rank === 'sunday') return make('advent', lit.name, lit.colour === 'rose' ? 'gaudete' : 'advent')
   if (['principal', 'solemnity'].includes(lit.rank) && lit.key !== 'ashWednesday' && !/Holy Week|Palm Sunday/.test(lit.name)) {
-    return make('feast', lit.name, lit.colour === 'red' ? 'red' : 'white', 'swirl', lit.colour === 'red' ? 'rise' : 'sparkle')
+    return make('feast', lit.name, lit.colour === 'red' ? 'red' : 'white', 'swirl', lit.colour === 'red' ? 'rise' : 'sparkle', { sub: lit.rankWords })
   }
   const obs = new Set(day.observances.map((o) => o.id))
   if (md === '01-01' || md === '12-31') return make('newYear', md === '01-01' ? 'New Year’s Day' : 'New Year’s Eve', 'newYear', 'swirl', 'sparkle')

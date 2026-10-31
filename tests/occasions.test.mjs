@@ -13,9 +13,11 @@ test('the family’s own days get the rainbow, first of all', () => {
 })
 
 test('a concert is a light show', () => {
-  const events = [{ id: 1, title: 'The String Cheese Incident', kind: 'show', starts_on: '2026-12-05', ends_on: '2026-12-05' }]
+  const events = [{ id: 'e1', title: 'The String Cheese Incident', kind: 'show', starts_on: '2026-12-05', ends_on: '2026-12-05', starts_at: '2026-12-06T04:00:00Z', place: 'The Wiltern, Los Angeles' }]
   const o = occ('2026-12-05', { events })
   assert.equal(o.mode, 'liquid'); assert.equal(o.name, 'The String Cheese Incident')
+  assert.equal(o.sub, '8:00 PM · The Wiltern'); assert.equal(o.href, '/calendar/event/e1'); assert.equal(o.on, 'event')
+  assert.equal(occ('2026-12-25').on, 'church'); assert.equal(occ('2026-10-31').on, 'day'); assert.equal(occ('2026-12-21').on, 'sky')
 })
 
 test('Christmas is red and green with fluttering white; the Church’s feasts wear its colours', () => {

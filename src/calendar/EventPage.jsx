@@ -13,6 +13,9 @@ import { moonName } from '../lib/sky.js'
 import WeatherIcon from '../parts/WeatherIcon.jsx'
 import { MoonGlyph } from './Glyph.jsx'
 import { KIND_STYLE } from './kinds.js'
+import { GlowWrap } from '../ui/Glow.jsx'
+import { occasionFor } from '../lib/occasions.js'
+import { dayView } from '../lib/cal/day.js'
 
 const day = (d) => { const [y, m, dd] = parts(d); return `${WEEKDAYS[new Date(Date.UTC(y, m - 1, dd)).getUTCDay()].slice(0, 3)} ${MONTHS[m - 1].slice(0, 3)} ${dd}` }
 const hm = (iso, tz = 'America/Los_Angeles') => new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
@@ -126,12 +129,14 @@ export default function EventPage({ state, members, parent, today }) {
         <span className="eyebrow">{[who && `${who.name}’s`, ev.place, soon > 0 ? `in ${soon} ${soon === 1 ? 'day' : 'days'}` : soon === 0 ? 'today' : null].filter(Boolean).join(' · ')}</span>
       </header>
       {(ev.notes || ev.lat != null || !ev.source_id) && (
+        <GlowWrap occasion={ev.kind === 'show' ? occasionFor(dayView(ev.starts_on, { events: [ev] })) : null} day={ev.starts_on} className="span-6">
         <Card tint={style.colour} label="The details" glyph="calendar" className="span-6">
           {ev.notes && <p className="pre-line">{ev.notes}</p>}
           {ev.lat != null && <a className="btn ghost" href={`https://www.openstreetmap.org/?mlat=${ev.lat}&mlon=${ev.lng}#map=12/${ev.lat}/${ev.lng}`} target="_blank" rel="noopener noreferrer">On the map ›</a>}
           {!ev.source_id && <div className="form-actions"><Link className="btn ghost" to={`/calendar/event/${ev.id}/edit`}>Change it</Link>{parent && <button type="button" className="btn ghost" onClick={() => setRemoving(true)}>Remove it</button>}</div>}
           {ev.source_id && <p className="muted small">From one of the calendars in Setup: change it there.</p>}
         </Card>
+        </GlowWrap>
       )}
       {ev.outdoors && ev.lat != null && (
         <>

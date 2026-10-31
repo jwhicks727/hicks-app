@@ -17,7 +17,7 @@ import { useSwipe } from './useSwipe.js'
 import { occasionFor } from '../lib/occasions.js'
 import { astronomyOn } from '../lib/cal/astro.js'
 import AstroArt from './AstroArt.jsx'
-import { OccasionChip } from '../ui/Glow.jsx'
+import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 const hourNow = () => Number(new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' }).format(new Date()))
@@ -32,17 +32,22 @@ export default function DayView({ date, today, data, signedIn }) {
   const swipe = useSwipe(() => navigate(calPath('day', stepDate('day', date, 1)), { replace: true }), () => navigate(calPath('day', stepDate('day', date, -1)), { replace: true }))
   const celebrate = dv.family.filter((f) => f.kind !== 'remember'), remember = dv.family.filter((f) => f.kind === 'remember')
   const others = dv.observances.filter((o) => o.group !== 'nature'), sky = dv.observances.filter((o) => o.group === 'nature')
+  const occasion = occasionFor(dv)
+  const on = (where) => (occasion && occasion.on === where ? occasion : null)
+  const astro = astronomyOn(date)
   const cyc = cycles(date), sundayReadings = dow(date) === 0 || ['solemnity', 'principal', 'triduum'].includes(lit.rank)
   return (
     <div className="day-stack span-6" {...swipe} key={date}>
-      <OccasionChip occasion={occasionFor(dv)} day={date} className="day-occasion" />
-      {celebrate.map((f) => (
-        <article key={f.id || f.title} className="celebrate">
+      {occasion && (occasion.on === 'event' || (occasion.on === 'day' && !others.length) || (occasion.on === 'sky' && !astro.length)) && <OccasionCard occasion={occasion} day={date} className="day-occasion" />}
+      {celebrate.map((f, i) => (
+        <GlowWrap key={f.id || f.title} occasion={i === 0 && occasion && occasion.key === 'family' ? occasion : null} day={date} className="day-occasion">
+        <article className="celebrate">
           {!reducedMotion() && <span className="confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, i) => <i key={i} style={{ '--x': `${(i * 5.6 + 2).toFixed(1)}%`, '--d': `${(i % 6) * 0.7}s`, '--c': CONFETTI[i % 6] }} />)}</span>}
           <span className="cel-when">{date === today ? 'Today is' : date > today ? 'Coming up' : 'This day'}</span>
           <b className="cel-t">{f.title}</b>
           {f.line && <span className="cel-sub">{f.line}</span>}
         </article>
+        </GlowWrap>
       ))}
       {remember.map((f) => (
         <Card key={f.id || f.title} tint="#6B4A8E" label={f.title} glyph="candle" className="remember">
@@ -51,6 +56,7 @@ export default function DayView({ date, today, data, signedIn }) {
         </Card>
       ))}
 
+      <GlowWrap occasion={on('church')} day={date} className="day-occasion">
       <Card tint={lit.colourHex} label="In the Church" glyph="calendar" tag={COLOUR_NAMES[lit.colour]} className="church-card">
         <h2>{lit.name}</h2>
         <p className="lit-meta">{[!['Weekday', 'Sunday'].includes(lit.rankWords) && lit.rankWords, SEASON_NAMES[lit.season].replace(/^the /, 'The '), sundayReadings ? `Sunday readings, Year ${cyc.sunday}` : `Weekday readings, Year ${cyc.weekday}`].filter(Boolean).join(' · ')}</p>
@@ -73,6 +79,7 @@ export default function DayView({ date, today, data, signedIn }) {
         </div>
         <Link className="btn ghost" to={`/calendar/day/${date}/readings`}>The day’s readings ›</Link>
       </Card>
+      </GlowWrap>
 
       <Card tint="#B8322A" label={`At ${PARISH.name}`} glyph="calendar" tag={PARISH.town} className="parish-card">
         {parish.note && <p className="nudge">{parish.note}</p>}
@@ -82,6 +89,7 @@ export default function DayView({ date, today, data, signedIn }) {
       </Card>
 
       {(others.length > 0 || dv.ongoing.some((o) => o.group !== 'nature')) && (
+        <GlowWrap occasion={on('day')} day={date}>
         <Card tint="#E0662F" label="Also today" glyph="star" className="also-card">
           {others.length > 0 && <ul className="obs">
             {others.map((o) => (
@@ -95,9 +103,10 @@ export default function DayView({ date, today, data, signedIn }) {
             <p className={others.length ? 'ongoing' : 'ongoing alone'}>Still going: {dv.ongoing.filter((o) => o.group !== 'nature').map((o) => `${o.name} (${spanWords(o)})`).join('; ')}</p>
           )}
         </Card>
+        </GlowWrap>
       )}
 
-      {astronomyOn(date).map((a) => <AstroCard key={a.kind + a.title} event={a} />)}
+      {astro.map((a, i) => <GlowWrap key={a.kind + a.title} occasion={i === 0 ? on('sky') : null} day={date} className="day-occasion"><AstroCard event={a} /></GlowWrap>)}
       <SkyCard date={date} sky={sky.filter((o) => !o.meteors && !o.season)} moon={dv.moon} />
 
       <Card tint="#453644" label="Our calendars" glyph="calendar" className="events-card">

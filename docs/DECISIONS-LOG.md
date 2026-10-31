@@ -6,6 +6,20 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The swirling light wraps the occasion's card, not the screen
+
+Jason saw it fill the screen's edges and asked for it on the event's card
+only. It now swirls round the one card the occasion belongs to (a halo just
+outside its edge and a bright rim on it, with snow, sparks or a light show
+inside), then settles to a still rim in the occasion's colours: a concert's
+own card, the family day's celebration, the Church card on a feast, the
+day's observances on a holiday, the sky card for a solstice or an eclipse.
+A separate occasion card appears only when there's no card to light (a
+concert, or a day whose kind is switched off). This replaces the edge of the
+screen and the chip of the entry below.
+
+---
+
 ## 2026-10-31 — The home-screen icon, for now
 
 Jason reworked the sprout icon in ChatGPT and asked for it to be used for
