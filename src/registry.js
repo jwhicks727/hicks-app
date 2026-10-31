@@ -23,4 +23,7 @@ export const REGISTRY = [
   { key: 'jams', name: 'Jams', colour: '#8A5BC4',
     setup: [{ key: 'artists', title: 'Our favourite artists', ready: false }, { key: 'scouts', title: 'The daily scouts', ready: false }],
     reports: [] },
+  { key: 'academy', name: 'Academy', colour: '#3FA34D',
+    setup: [{ key: 'pictures', title: 'Pictures we add (each with its licence)', ready: true }, { key: 'qparent', title: 'Grades from QParent', ready: false }],
+    reports: [] },
 ]

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { parsePath, usePath } from './lib/router.js'
 import Sky from './shell/Sky.jsx'
 import SeasonShow from './shell/SeasonShow.jsx'
@@ -12,8 +13,10 @@ import Jams from './places/Jams.jsx'
 import Settings from './consoles/Settings.jsx'
 import Setup from './consoles/Setup.jsx'
 import Reports from './consoles/Reports.jsx'
+// Anna's academy loads when it's opened: its rooms and pictures are only for there
+const Academy = lazy(() => import('./academy/Academy.jsx'))
 
-const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, lifelist: LifeList, jams: Jams, settings: Settings, setup: Setup, reports: Reports }
+const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, setup: Setup, reports: Reports }
 
 export default function App() {
   const path = usePath()
@@ -27,7 +30,7 @@ export default function App() {
         <div className="app">
           <TabBar current={place} />
           <main className="screen" key={place}>
-            <Screen rest={rest} />
+            <Suspense fallback={null}><Screen rest={rest} /></Suspense>
           </main>
         </div>
       </>
