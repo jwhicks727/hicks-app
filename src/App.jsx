@@ -10,13 +10,14 @@ import Calendar from './places/Calendar.jsx'
 import Kitchen from './places/Kitchen.jsx'
 import LifeList from './places/LifeList.jsx'
 import Jams from './places/Jams.jsx'
+import Us from './places/Us.jsx'
 import Settings from './consoles/Settings.jsx'
 import Setup from './consoles/Setup.jsx'
 import Reports from './consoles/Reports.jsx'
 // Anna's academy loads when it's opened: its rooms and pictures are only for there
 const Academy = lazy(() => import('./academy/Academy.jsx'))
 
-const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, setup: Setup, reports: Reports }
+const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, us: Us, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, setup: Setup, reports: Reports }
 
 export default function App() {
   const path = usePath()

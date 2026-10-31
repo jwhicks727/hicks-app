@@ -14,12 +14,12 @@ import { PROMPT_SETS, SET_CHOICES, LATER, promptFor, seasonSet, longDate, blankE
 import { useJournal, saveEntry, removeEntry, addNote, openNote, removeNote, saveSettings, importEntries } from '../../lib/useJournal.js'
 import './journal.css'
 
-// /home/journal               today's page, a note from your past self, this day in other years
-// /home/journal/<yyyy-mm-dd>   one day's page
-// /home/journal/look-back      every page, newest first, with a search
-// /home/journal/grateful       what comes up most in the gratitudes
-// /home/journal/notes          notes to your future self
-// /home/journal/settings       the questions, your outlets, bringing a journal in
+// /us/journal               today's page, a note from your past self, this day in other years
+// /us/journal/<yyyy-mm-dd>   one day's page
+// /us/journal/look-back      every page, newest first, with a search
+// /us/journal/grateful       what comes up most in the gratitudes
+// /us/journal/notes          notes to your future self
+// /us/journal/settings       the questions, your outlets, bringing a journal in
 // Only its writer can read a journal: the database returns no one else's rows.
 const DAY = /^\d{4}-\d{2}-\d{2}$/
 const PRIVATE = 'Only you can read this: not the rest of the family, and not Claude.'
@@ -35,7 +35,7 @@ export default function Journal({ rest = [] }) {
   if (!session || (family.loaded && !me)) {
     return (
       <>
-        <header className="hero span-6"><Crumb to="/">Home</Crumb><span className="kicker">Home</span><h1 className="greet">Journal</h1></header>
+        <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">Journal</h1></header>
         <Card tint="#7A5C9E" label="Sign in first" glyph="star" className="span-6"><p>Each of us has a journal only they can read. <Link to="/settings">Sign in from Settings</Link> to open yours.</p></Card>
       </>
     )
@@ -49,7 +49,7 @@ export default function Journal({ rest = [] }) {
   return <JournalHome {...props} />
 }
 
-const Head = ({ title, crumb = ['/', 'Home'] }) => (
+const Head = ({ title, crumb = ['/us', 'Us'] }) => (
   <header className="hero span-6">
     <Crumb to={crumb[0]}>{crumb[1]}</Crumb>
     <span className="kicker">Only you can read this</span>
@@ -89,7 +89,7 @@ function JournalHome({ j, me, today }) {
               <details key={e.on_date} className="jr-otd">
                 <summary><b>{years === 1 ? 'A year ago' : `${years} years ago`}</b><span>{longDate(e.on_date)}</span></summary>
                 <EntryText e={e} />
-                <Link to={`/home/journal/${e.on_date}`} className="jr-more">Open that day ›</Link>
+                <Link to={`/us/journal/${e.on_date}`} className="jr-more">Open that day ›</Link>
               </details>
             ))}
           </Card>
@@ -97,10 +97,10 @@ function JournalHome({ j, me, today }) {
         <Card tint="#5F8A4A" label="Your journal" glyph="pot">
           {j.entries.length > 0 && <div className="figures"><div><b>{j.entries.length}</b><span>pages</span></div><div><b>{grats}</b><span>gratitudes</span></div></div>}
           <nav className="jr-links" aria-label="Your journal">
-            <Link to="/home/journal/look-back">Look back<span>Every page, and a search</span></Link>
-            <Link to="/home/journal/grateful">What you’re grateful for<span>What comes up most</span></Link>
-            <Link to="/home/journal/notes">Notes to Future {me ? me.name : 'you'}<span>Written now, opened on their day</span></Link>
-            <Link to="/home/journal/settings">Questions, outlets, bringing a journal in<span>How your journal works</span></Link>
+            <Link to="/us/journal/look-back">Look back<span>Every page, and a search</span></Link>
+            <Link to="/us/journal/grateful">What you’re grateful for<span>What comes up most</span></Link>
+            <Link to="/us/journal/notes">Notes to Future {me ? me.name : 'you'}<span>Written now, opened on their day</span></Link>
+            <Link to="/us/journal/settings">Questions, outlets, bringing a journal in<span>How your journal works</span></Link>
           </nav>
           <button type="button" className="btn ghost" onClick={() => setOutlets(true)}>Need an outlet?</button>
         </Card>
@@ -202,16 +202,16 @@ function DayPage({ j, me, date, today }) {
   const [gone, setGone] = useState(false)
   return (
     <>
-      <Head title={longDate(date)} crumb={['/home/journal', 'Journal']} />
+      <Head title={longDate(date)} crumb={['/us/journal', 'Journal']} />
       <Card tint="#7A5C9E" label={date === today ? 'Today' : agoWords(date, today).replace(/^./, (c) => c.toUpperCase())} glyph="star" className="span-6">
         {!j.loaded ? <p className="muted">Opening…</p> : (entry || date <= today) ? <Entry key={date + (entry ? entry.id : '')} j={j} me={me} date={date} entry={entry} /> : <p className="muted">That day hasn’t come yet.</p>}
         {entry && <button type="button" className="jr-skip" onClick={() => setGone(true)}>Remove this page</button>}
       </Card>
       <nav className="jr-pn span-6" aria-label="Other pages">
-        {older ? <Link to={`/home/journal/${older.on_date}`}>‹ {short(older.on_date)}</Link> : <span />}
-        {newer ? <Link to={`/home/journal/${newer.on_date}`}>{short(newer.on_date)} ›</Link> : <span />}
+        {older ? <Link to={`/us/journal/${older.on_date}`}>‹ {short(older.on_date)}</Link> : <span />}
+        {newer ? <Link to={`/us/journal/${newer.on_date}`}>{short(newer.on_date)} ›</Link> : <span />}
       </nav>
-      {gone && <Confirm title="Remove this page?" yes="Remove it" danger onNo={() => setGone(false)} onYes={async () => { await removeEntry(entry.id); setGone(false); j.reload(); navigate('/home/journal', { replace: true }) }}>{longDate(date)} goes for good. Nobody else could see it, and nobody can bring it back.</Confirm>}
+      {gone && <Confirm title="Remove this page?" yes="Remove it" danger onNo={() => setGone(false)} onYes={async () => { await removeEntry(entry.id); setGone(false); j.reload(); navigate('/us/journal', { replace: true }) }}>{longDate(date)} goes for good. Nobody else could see it, and nobody can bring it back.</Confirm>}
     </>
   )
 }
@@ -226,7 +226,7 @@ function LookBack({ j, today }) {
   let month = ''
   return (
     <>
-      <Head title="Look back" crumb={['/home/journal', 'Journal']} />
+      <Head title="Look back" crumb={['/us/journal', 'Journal']} />
       <Card tint="#7A5C9E" label={q ? `${list.length} ${list.length === 1 ? 'page' : 'pages'} with “${q.trim()}”` : `${j.entries.length} pages`} glyph="calendar" className="span-6">
         <label className="jr-search"><span className="sr">Search your journal</span><input type="search" value={q} onChange={(e) => { setQ(e.target.value); setShown(60) }} placeholder="Search your journal" /></label>
         <ul className="jr-list">
@@ -235,7 +235,7 @@ function LookBack({ j, today }) {
             return (
               <li key={e.on_date}>
                 {head && <h3 className="jr-month">{MONTHS[+m.slice(5) - 1]} {m.slice(0, 4)}</h3>}
-                <Link to={`/home/journal/${e.on_date}`}>
+                <Link to={`/us/journal/${e.on_date}`}>
                   <b>{longDate(e.on_date)}</b>
                   <span>{e.prompt_title || (e.gratitudes && e.gratitudes[0]) || (e.reflection || '').slice(0, 90)}</span>
                 </Link>
@@ -257,7 +257,7 @@ function Grateful({ j }) {
   const hits = word ? entriesWithWord(j.entries, word) : []
   return (
     <>
-      <Head title="What you’re grateful for" crumb={['/home/journal', 'Journal']} />
+      <Head title="What you’re grateful for" crumb={['/us/journal', 'Journal']} />
       <Card tint="#C0824F" label="What comes up most" glyph="star" className="span-6">
         {!words.length && <p className="muted">Once there are a few weeks of gratitudes, the ones that come back again and again show here.</p>}
         <div className="jr-cloud">
@@ -273,7 +273,7 @@ function Grateful({ j }) {
           <ul className="jr-hits">
             {hits.slice(0, 80).map((e) => (
               <li key={e.on_date}>
-                <Link to={`/home/journal/${e.on_date}`}><b>{longDate(e.on_date)}</b></Link>
+                <Link to={`/us/journal/${e.on_date}`}><b>{longDate(e.on_date)}</b></Link>
                 <ul>{e.gratitudes.filter((g) => entriesWithWord([{ gratitudes: [g] }], word).length).map((g, i) => <li key={i}>{g}</li>)}</ul>
               </li>
             ))}
@@ -297,7 +297,7 @@ function Notes({ j, me, today }) {
   }
   return (
     <>
-      <Head title={`Notes to Future ${me ? me.name : 'you'}`} crumb={['/home/journal', 'Journal']} />
+      <Head title={`Notes to Future ${me ? me.name : 'you'}`} crumb={['/us/journal', 'Journal']} />
       <Card tint="#7A5C9E" label="Write one" glyph="star" className="span-4">
         <p className="muted">Write to yourself now; it stays sealed until its day, then waits for you at the end of a morning sit and at the top of your journal.</p>
         <div className="form">
@@ -326,7 +326,7 @@ function Notes({ j, me, today }) {
 function Outlets({ list }) {
   const [pick, setPick] = useState(null)
   const all = list.flatMap((g) => g.items.map((i) => [g.title, i]))
-  if (!list.length) return <p className="muted">Your outlets are the things that bring you back to yourself: reading, music, a walk. Add them in <Link to="/home/journal/settings">the journal’s settings</Link>.</p>
+  if (!list.length) return <p className="muted">Your outlets are the things that bring you back to yourself: reading, music, a walk. Add them in <Link to="/us/journal/settings">the journal’s settings</Link>.</p>
   return (
     <div className="jr-outlets">
       <button type="button" className="btn" onClick={() => setPick(all[Math.floor(Math.random() * all.length)])}>Pick one for me</button>
@@ -343,7 +343,7 @@ function JournalSettings({ j, me, today }) {
   const save = async (patch) => { const { error } = await saveSettings({ prompt_set: choice, outlets: s.outlets || [], prompts: s.prompts || null, ...patch }, me); setMsg(error ? error.message : 'Saved.'); j.reload() }
   return (
     <>
-      <Head title="How your journal works" crumb={['/home/journal', 'Journal']} />
+      <Head title="How your journal works" crumb={['/us/journal', 'Journal']} />
       <Card tint="#7A5C9E" label="The day’s question" glyph="calendar" className="span-6">
         <fieldset className="choice-row"><legend>Which questions</legend>
           {Object.entries(SET_CHOICES).map(([k, label]) => <button key={k} type="button" aria-pressed={choice === k} onClick={() => save({ prompt_set: k })}>{label}</button>)}

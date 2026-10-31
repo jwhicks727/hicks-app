@@ -9,13 +9,11 @@ import FridgeCard from '../parts/FridgeCard.jsx'
 import RateNudge from '../kitchen/RateNudge.jsx'
 import MindfulCard from '../parts/MindfulCard.jsx'
 import Sit from '../parts/Sit.jsx'
-import Garden from './home/Garden.jsx'
-import Journal from './home/Journal.jsx'
 import JournalCard from '../parts/JournalCard.jsx'
 import TableCard from '../parts/TableCard.jsx'
 import AcademyCard from '../parts/AcademyCard.jsx'
 import { atTable } from '../lib/table.js'
-import GardenCard from './home/GardenCard.jsx'
+import GardenCard from './us/GardenCard.jsx'
 import SunsetCard from '../parts/SunsetCard.jsx'
 import DaysOffCard from '../parts/DaysOffCard.jsx'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
@@ -40,8 +38,6 @@ const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'num
 
 export default function Home({ rest = [] }) {
   if (rest[0] === 'sit' || rest[0] === 'breathe') return <Sit />
-  if (rest[0] === 'garden') return <Garden rest={rest.slice(1)} />
-  if (rest[0] === 'journal') return <Journal rest={rest.slice(1)} />
   return <HomeScreen />
 }
 

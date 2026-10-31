@@ -2,12 +2,14 @@ import Coming from '../parts/Coming.jsx'
 import OnThisDay from '../parts/OnThisDay.jsx'
 import { todayAt } from '../lib/cal/dates.js'
 import { useNow } from '../lib/useNow.js'
+import { Crumb } from '../shell/Link.jsx'
 
 export default function Jams() {
   const today = todayAt('America/Los_Angeles', useNow())
   return (
     <>
       <header className="hero span-6">
+        <Crumb to="/us">Us</Crumb>
         <span className="kicker">Jam bands first</span>
         <h1 className="greet">Jams</h1>
       </header>

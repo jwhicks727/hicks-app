@@ -78,7 +78,7 @@ appears on Home.
 
 ## 5. Your journal
 
-Signed in as yourself: Home › Journal (or end a sit and tap "On to your
+Signed in as yourself: Us › Journal (or end a sit and tap "On to your
 journal"). To bring in the journal you've kept in Google Docs: Journal ›
 "Questions, outlets, bringing a journal in" › drop in the file Claude made
 from it (`journal-import.json`, sent to you in the chat, never put in the
@@ -93,7 +93,7 @@ a fresh copy any time.
 
 ## 6. Anna's academy
 
-The Academy tab. The first visit asks Anna to name her school and pick
+Us › The Academy. The first visit asks Anna to name her school and pick
 her first rooms (any of them). After that: tasks on Today light stars,
 goals have steps and end in a trophy, grades go in by hand (an A, or going
 up, gets a medal), and "Cheer Anna" works for anything. To add pictures of

@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Five tabs: Home, Calendar, Kitchen, World, Us
+
+Seven tabs was too many for a phone (six was already the most it held
+well), and the app keeps growing. Now there are five, the same for all
+three of us: the four places we share, and **Us**, which holds everything
+that's ours: the journal, Anna's academy, Life List, Laurie's gallery,
+Jams and the garden. Life List, Jams and the academy keep their own
+addresses, and the Us tab stays lit inside them; the journal and the
+garden moved from under Home to `/us/journal` and `/us/garden`, though
+their cards stay on Home and the sit still leads to the journal. On a
+computer the rail lists what's under Us beneath it.
+
+A tab of each person's own (the academy for Anna, Life List for Laurie,
+Jams for Jason) was considered and set aside: Jason wanted the bar the same
+for everyone, with Us as the way in. This replaces the seventh tab added for
+the academy earlier the same day.
+
 ## 2026-11-01 — The icon: Agbalumo's H
 
 Jason picked number 7 of the ten font H's: Agbalumo, a typeface named for

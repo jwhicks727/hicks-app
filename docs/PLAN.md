@@ -4,6 +4,10 @@ Built in this order, each part in daily use before the next.
 
 ## 0. Foundations — started 2026-10-31
 
+- [x] Five tabs, the same for everyone: Home, Calendar, Kitchen, World and
+      Us, which holds the journal, the academy, Life List, the gallery, Jams
+      and the garden (2026-11-01).
+
 - [x] The repository, the look (tokens, fonts, cards), the six places, the
       sky of the hour behind everything, the floating tab bar and desktop rail.
 - [x] Addresses for every screen, and Back that walks real history.
@@ -132,7 +136,7 @@ Art to check before use: Christicons (Christian line icons), the Wellcome
 Collection's public-domain saint engravings, Corpus Christi Watershed's free
 Catholic line art, the St. Nicholas Center's CC0 images.
 
-## 1b. Anna's academy (its own place)
+## 1b. Anna's academy (under Us)
 
 - [x] Her school, built room by room: name, motto, colours, mascot; any of
       21 kinds of room from the start; the campus and every room arranged
@@ -154,7 +158,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       banners, from the calendar.
 - [ ] Rooms that grow: a second floor, a room unlocked by a goal.
 
-## 1c. The journal (from Home)
+## 1c. The journal (under Us)
 
 - [x] Each person's own, readable by them alone; never to Claude.
 - [x] The day's question by weekday (two sets, or your own, or none),
@@ -165,7 +169,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       plain text) and taking it out.
 - [ ] A gentle reminder on the phone once hosted, if wanted.
 
-## 1b. The garden (from Home)
+## 1d. The garden (under Us)
 
 - [x] Maps of the yard and of each room's plants: beds, boxes, pots, trees,
       the hummingbird feeder, the bird bath, paths. Arranged by dragging,

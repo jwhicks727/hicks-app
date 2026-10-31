@@ -1,7 +1,7 @@
 // ============================================
 // router.js -- every screen has an address, and Back goes back
 // ============================================
-// /home, /world, /calendar, /kitchen, /lifelist, /jams, /academy, and below each the thing open
+// /home, /world, /calendar, /kitchen, /us (and /lifelist, /jams, /academy), and below each the thing open
 // on it (/world/school/soar). Filters, sorts and layouts stay out of the
 // address. Each in-app step stores its depth in history.state, so an in-app
 // Back walks the same history as the browser's Back and the phone's gesture,
@@ -9,7 +9,10 @@
 
 import { useEffect, useState } from 'react'
 
-export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'lifelist', 'jams', 'academy']
+export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'us', 'lifelist', 'jams', 'academy']
+// The tab bar's five: Home, Calendar, Kitchen, World and Us. Life List, Jams and the
+// academy are reached from Us, and light its tab while they're open.
+export const UNDER_US = ['us', 'lifelist', 'jams', 'academy']
 // Reached from Settings (and the desktop rail), not the tab bar.
 export const CONSOLES = ['settings', 'setup', 'reports']
 

@@ -16,7 +16,7 @@ export default function GardenCard({ today, me }) {
   return (
     <Card tint="#5F8A4A" label="The garden" glyph="star" tag={care.length ? `${care.length} today` : undefined} className="span-3 gcard-care">
       {g.areas.length ? <CareList care={care} today={today} me={me} onDone={g.reload} limit={3} /> : <p>Map the yard’s beds, boxes and pots, and the plants inside room by room: what to water when, and a look at any photo.</p>}
-      <Link className="btn ghost" to="/home/garden">{g.areas.length ? 'Open the garden ›' : 'Start the garden ›'}</Link>
+      <Link className="btn ghost" to="/us/garden">{g.areas.length ? 'Open the garden ›' : 'Start the garden ›'}</Link>
     </Card>
   )
 }

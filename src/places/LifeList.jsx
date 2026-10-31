@@ -2,6 +2,7 @@ import Coming from '../parts/Coming.jsx'
 import PaintingsCard from '../parts/PaintingsCard.jsx'
 import Gallery from './lifelist/Gallery.jsx'
 import PaintingPage from './lifelist/PaintingPage.jsx'
+import { Crumb } from '../shell/Link.jsx'
 
 // /lifelist                          everything we've seen and done
 // /lifelist/paintings                Laurie's gallery
@@ -11,6 +12,7 @@ export default function LifeList({ rest = [] }) {
   return (
     <>
       <header className="hero span-6">
+        <Crumb to="/us">Us</Crumb>
         <span className="kicker">Everything we’ve seen and done</span>
         <h1 className="greet">Life List</h1>
       </header>

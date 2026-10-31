@@ -83,7 +83,7 @@ export default function Sit() {
           {glance.notes > 0 && <p className="sit-note">{glance.notes === 1 ? 'A note from your past self is waiting.' : `${glance.notes} notes from your past self are waiting.`}</p>}
           {session && prefs.sitJournal !== false && !glance.written ? (
             <div className="sit-next">
-              <button type="button" className="btn" onClick={() => navigate('/home/journal', { replace: true })}>On to your journal ›</button>
+              <button type="button" className="btn" onClick={() => navigate('/us/journal', { replace: true })}>On to your journal ›</button>
               <button type="button" className="btn ghost" onClick={() => goBack('/')}>Done</button>
             </div>
           ) : <button type="button" className="btn" onClick={() => goBack('/')}>Done</button>}

@@ -1,4 +1,5 @@
 import { Link } from './Link.jsx'
+import { UNDER_US } from '../lib/router.js'
 
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
 const ICONS = {
@@ -12,20 +13,29 @@ const ICONS = {
   jams: <g {...S}><path d="M9 18V6l11-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="17.5" cy="16" r="2.5" /></g>,
   // A schoolhouse with a flag on top: Anna's academy
   academy: <g {...S}><path d="M3.5 20.5h17M5 20.5V11l7-4.5 7 4.5v9.5" /><path d="M10 20.5v-4.5h4v4.5" /><path d="M12 6.5V2.5l3.5 1.2L12 5" /><circle cx="12" cy="11.5" r="1.4" /></g>,
+  // Us: the three of us, two tall and one smaller
+  us: <g {...S}><circle cx="6.5" cy="7.5" r="2.4" /><circle cx="17.5" cy="7.5" r="2.4" /><circle cx="12" cy="11.3" r="1.9" /><path d="M2.5 19.5c0-3.3 1.8-5.5 4-5.5 1.2 0 2.2.5 3 1.4M21.5 19.5c0-3.3-1.8-5.5-4-5.5-1.2 0-2.2.5-3 1.4M8.6 20.5c0-2.6 1.5-4.4 3.4-4.4s3.4 1.8 3.4 4.4" /></g>,
 }
-const TABS = [['home', 'Home'], ['world', 'World'], ['calendar', 'Calendar'], ['kitchen', 'Kitchen'], ['lifelist', 'Life List'], ['jams', 'Jams'], ['academy', 'Academy']]
+const TABS = [['home', 'Home'], ['calendar', 'Calendar'], ['kitchen', 'Kitchen'], ['world', 'World'], ['us', 'Us']]
+// Under Us on a computer's rail, where there's room to list them
+const UNDER = [['/us/journal', 'Journal'], ['/academy', 'The Academy'], ['/lifelist', 'Life List'], ['/jams', 'Jams'], ['/us/garden', 'The garden']]
 
-/** A floating rounded bar on a phone; a side rail on a computer. */
+/** A floating rounded bar of five on a phone; a side rail on a computer, with what's under Us. */
 export default function TabBar({ current }) {
+  const lit = UNDER_US.includes(current) ? 'us' : current
+  const path = window.location.pathname
   return (
     <nav className="tabs" aria-label="Places">
       <span className="brand">Team Hicks</span>
       {TABS.map(([key, label]) => (
-        <Link key={key} to={key === 'home' ? '/' : '/' + key} className={'tab t-' + key} aria-current={current === key ? 'page' : undefined}>
+        <Link key={key} to={key === 'home' ? '/' : '/' + key} className={'tab t-' + key} aria-current={lit === key ? 'page' : undefined}>
           <svg viewBox="0 0 24 24" aria-hidden="true">{ICONS[key]}</svg>
           {label}
         </Link>
       ))}
+      <span className="rail-under">
+        {UNDER.map(([to, label]) => <Link key={to} to={to} aria-current={path === to || path.startsWith(to + '/') ? 'page' : undefined}>{label}</Link>)}
+      </span>
       <span className="rail-more">
         <Link to="/settings" aria-current={current === 'settings' ? 'page' : undefined}>Settings</Link>
         <Link to="/setup" aria-current={current === 'setup' ? 'page' : undefined}>Setup</Link>

@@ -79,7 +79,7 @@ button { font: inherit; }
 
 /* The tab bar floats on a phone; a side rail on a computer */
 .tabs { position: fixed; z-index: 20; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; padding: 6px;
+  max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 6px;
   background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 4px rgba(90, 50, 20, .08), 0 18px 36px -14px rgba(60, 30, 10, .55); }
 .tab { position: relative; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-bottom: 6px; border-radius: 9px; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
 .tab svg { width: 24px; height: 24px; }
@@ -92,8 +92,9 @@ button { font: inherit; }
 .t-kitchen { --tw: #F03E2F; --tc: var(--kitchen); }
 .t-lifelist { --tw: #5F8A4A; --tc: var(--journal); }
 .t-jams { --tw: #8A5BC4; --tb: linear-gradient(90deg, #F03E2F, #F2C14E, #5FA85A, #4A7FD6, #8A5BC4); }
-.t-academy { --tw: #3FA34D; --tc: #1C5A2A; --tb: linear-gradient(90deg, #1C2B22, #3FA34D, #F2C14E); }
+.t-us { --tw: #C0824F; --tc: #8A4E22; --tb: linear-gradient(90deg, #F2C14E, #E0662F, #C0824F); }
 .brand { display: none; }
+.rail-under { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .screen > * { animation-name: fade-in; animation-duration: .4s; }
@@ -108,6 +109,10 @@ button { font: inherit; }
   .brand { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.1; padding: 4px 10px 12px; }
   .tab { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 0 12px; font-size: 15px; min-height: 46px; border-radius: var(--r-control); }
   .tab[aria-current="page"]::before { top: 10px; bottom: 10px; left: 0; right: auto; width: 4px; height: auto; }
+  /* What's under Us, listed beneath it */
+  .rail-under { display: grid; gap: 1px; margin: -2px 0 2px 34px; }
+  .rail-under a { padding: 6px 10px; font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none; border-radius: var(--r-control); }
+  .rail-under a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, #C0824F 14%, var(--card)); }
   .screen { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; align-items: start; }
   .screen > * { grid-column: span 6; }
   .span-2 { grid-column: span 2 !important; } .span-3 { grid-column: span 3 !important; } .span-4 { grid-column: span 4 !important; }
@@ -287,3 +292,10 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .home-cheer > span { display: grid; min-width: 0; }
 .home-cheer small { font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .home-cheer b { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; overflow-wrap: anywhere; }
+
+/* Us: everything that's ours, beyond the four shared tabs (src/places/Us.jsx) */
+.ours { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 10px; }
+.ours-tile { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 18px 8px; min-height: 44px; border-radius: var(--r-control); text-decoration: none; text-align: center; background: color-mix(in srgb, var(--ink) 4%, var(--card)); }
+.ours-tile:hover { background: color-mix(in srgb, #C0824F 12%, var(--card)); }
+.ours-tile b { font-size: 17px; line-height: 1.2; margin-top: 6px; }
+.ours-tile span { font-size: 13px; color: var(--muted); line-height: 1.2; }
