@@ -97,3 +97,17 @@ test('the hosted app never ships her paintings: firebase.json leaves them out', 
   const fb = JSON.parse(readFileSync(new URL('../firebase.json', import.meta.url), 'utf8'))
   assert.ok(fb.hosting.ignore.includes('paintings/**'))
 })
+
+test('leading down: the page follows the bird to a place below the fold, and leaves one in view alone', async () => {
+  const { leadTo, followAt } = await import('../src/lib/paintings.js')
+  assert.equal(leadTo(0, 400, 844, 2000), 0) // comfortably in view: no scroll
+  assert.equal(leadTo(0, 1100, 844, 2000), Math.round(1100 - 844 * 0.48)) // below the fold: its place comes to about mid-screen
+  assert.equal(leadTo(0, 1500, 844, 500), 500) // a short page: as far as it goes
+  assert.equal(leadTo(300, -200, 844, 2000), 0) // above: back up, never past the top
+  assert.equal(followAt(0), 0)
+  assert.equal(followAt(0.28), 0) // nothing while the bird is still at the top
+  assert.equal(followAt(0.78), 1) // arrived before the landing
+  assert.equal(followAt(1), 1)
+  let last = 0
+  for (let t = 0; t <= 1; t += 0.05) { const f = followAt(t); assert.ok(f >= last - 1e-12); last = f }
+})

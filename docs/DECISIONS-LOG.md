@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The crow starts at the top and leads you down
+
+The crow used to wait until the painting was well in view, so on a phone it
+began only after you had scrolled to the witch and the effect was lost. Now,
+once a day on each device, it starts a second after Home opens, flies over
+the top of the page, and as it dives the page glides down with it, so the
+witch is centred as it lands. Anything the person does (a scroll, a touch, a
+key) ends the gliding at once and the crow lands where the painting now is.
+It is slower again, nine seconds, and still flaps at its natural rate. Under
+less motion, nothing moves.
+
 ## 2026-11-01 — Sign in with a password; the emailed link is the backup
 
 The first sign-in on a phone hit Supabase's email limit: its built-in sender

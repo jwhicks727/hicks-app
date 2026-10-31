@@ -83,6 +83,17 @@ export function along(pts, u) {
   return { x: k(p0.x, p1.x, p2.x, p3.x), y: k(p0.y, p1.y, p2.y, p3.y), dx: dk(p0.x, p1.x, p2.x, p3.x), dy: dk(p0.y, p1.y, p2.y, p3.y) }
 }
 
+/** Where to scroll so the bird's place (its y on screen now) sits about mid-screen; unchanged if it is already comfortably in view. */
+export function leadTo(scrollY, placeY, vh, maxScroll) {
+  if (placeY >= vh * 0.15 && placeY <= vh * 0.72) return scrollY
+  return Math.round(Math.max(0, Math.min(maxScroll, scrollY + placeY - vh * 0.48)))
+}
+/** How far the page has followed the bird by time t (0-1) of the flight: nothing at first, then a smooth ride down, done before the landing. */
+export function followAt(t) {
+  const x = Math.min(1, Math.max(0, (t - 0.28) / 0.5))
+  return x * x * (3 - 2 * x)
+}
+
 /** How far along the path at time t (0-1): brisk at first, slowing to land. */
 export const progress = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 1.7)
 

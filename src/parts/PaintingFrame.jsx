@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from '../shell/Link.jsx'
-import { cropFor, boxIn, flightPoints, birdAt } from '../lib/paintings.js'
+import { cropFor, boxIn, flightPoints, birdAt, leadTo, followAt } from '../lib/paintings.js'
 import { reducedMotion } from '../lib/motion.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { HOME_TOWN } from '../lib/sky.js'
@@ -10,14 +10,16 @@ import './paintings.css'
 // One of Laurie's paintings, cropped to `focus` and filling its frame. If the
 // painting has a flyer (its crow), the bird can leave the painting, fly round
 // the screen, loop, and come home to its place, small and far off at first
-// and growing as it nears. With `auto` it does that once
-// a day when the frame is first well in view; the small bird button sends it
+// and growing as it nears. With `auto` it does that once a day, a moment after
+// the page opens, wherever the painting is: if it is further down, the page
+// glides down with the bird and arrives as it lands (unless the person scrolls
+// or touches first). The small bird button sends it
 // again, and so does a "hicks:fly" event naming its painting (the Home
 // card's Play again, which also drops the season's leaves). At rest the painting is always her painting, whole and unaltered:
 // while the bird is away, a patch of her own sky covers its place; when it
 // lands, the patch fades and the cut-out lifts away, leaving the painting.
 
-const FLIGHT_MS = 7000 // a touch slower than it was (5600)
+const FLIGHT_MS = 9000 // slower than it was (5600, then 7000)
 const KEY = 'teamhicks.flights'
 const playedToday = (slug, day) => { try { return (JSON.parse(localStorage.getItem(KEY)) || {})[slug] === day } catch { return false } }
 const markPlayed = (slug, day) => { try { const m = JSON.parse(localStorage.getItem(KEY)) || {}; m[slug] = day; localStorage.setItem(KEY, JSON.stringify(m)) } catch { /* fine */ } }
@@ -42,13 +44,17 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
   const [blink, setBlink] = useState(false) // under less motion: the bird fades away and back
   const away = waiting || (flying && !home) || blink
 
-  // Fly once the frame is well in view, so its landing place is on screen
+  // Fly a moment after the page opens, once the bird's picture is ready: from the top, leading down to the painting
+  const [lead, setLead] = useState(false)
   useEffect(() => {
-    if (!waiting || !frame.current) return
-    const io = new IntersectionObserver(([e]) => { if (e.intersectionRatio >= 0.6) { io.disconnect(); setWaiting(false); setFlying(true) } }, { threshold: [0, 0.3, 0.6, 0.9, 1] })
-    io.observe(frame.current)
-    return () => io.disconnect()
-  }, [waiting])
+    if (!waiting || !flyer) return undefined
+    let live = true
+    const img = new Image()
+    img.src = flyer.sprite
+    const ready = new Promise((ok) => { img.onload = ok; img.onerror = ok; setTimeout(ok, 2500) })
+    const timer = setTimeout(async () => { await ready; if (live) { setLead(true); setWaiting(false); setFlying(true) } }, 1200)
+    return () => { live = false; clearTimeout(timer) }
+  }, [waiting]) // eslint-disable-line react-hooks/exhaustive-deps -- reads the bird's picture once
 
   const crop = size ? cropFor(p, size.W, size.H, focus) : null
   const target = () => {
@@ -58,7 +64,7 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
   const fly = () => {
     if (flying || waiting || blink) return
     if (reducedMotion()) { setBlink(true); setTimeout(() => setBlink(false), 1200); return }
-    setHome(false); setFlying(true)
+    setLead(false); setHome(false); setFlying(true)
   }
   const flyRef = useRef(fly)
   flyRef.current = fly
@@ -85,23 +91,35 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14c3-1 5-3 6.5-6 1 2.5 2.2 3.8 4 4.2L19 8l-1.2 4.6L21 14l-4 .6c-1.6 2.6-4.5 3.9-8 3.4l-2.5 2 .6-3C5 16.4 3.7 15.4 3 14z" fill="currentColor" /></svg>
         </button>
       )}
-      {flying && <Flight flyer={flyer} target={target} onLanded={landed} />}
+      {flying && <Flight flyer={flyer} target={target} onLanded={landed} lead={lead} />}
     </div>
   )
 }
 
 /** The bird in flight, drawn over everything (a portal), moved by transforms only. */
-function Flight({ flyer, target, onLanded }) {
+function Flight({ flyer, target, onLanded, lead }) {
   const el = useRef(null)
   useEffect(() => {
     const vw = window.innerWidth, vh = window.innerHeight
-    const t0 = target(), to0 = { x: t0.left + t0.width / 2, y: t0.top + t0.height / 2 }
+    const t0 = target()
+    let to0 = { x: t0.left + t0.width / 2, y: t0.top + t0.height / 2 }
+    // Leading down: if its place is further down the page, the page follows the bird there,
+    // so the path is drawn to where the place will be; a scroll or a touch ends the following
+    const y0 = window.scrollY
+    const y1 = lead ? leadTo(y0, to0.y, vh, Math.max(0, document.documentElement.scrollHeight - vh)) : y0
+    const follows = y1 !== y0
+    if (follows) to0 = { x: to0.x, y: to0.y - (y1 - y0) }
+    let taken = false
+    const take = () => { taken = true }
+    const EVENTS = ['wheel', 'touchstart', 'keydown', 'pointerdown']
+    if (follows) EVENTS.forEach((ev) => window.addEventListener(ev, take, { passive: true }))
     const pts = flightPoints(vw, vh, to0)
     const ratio = t0.height / t0.width
     let raf = 0, start = 0, done = false
     const step = (now) => {
       if (!start) start = now
       const t = Math.min(1, (now - start) / FLIGHT_MS)
+      if (follows && !taken) window.scrollTo({ top: y0 + (y1 - y0) * followAt(t), left: 0, behavior: 'instant' })
       const box = target(), to = { x: box.left + box.width / 2, y: box.top + box.height / 2 }
       const b = birdAt(pts, t, { ms: FLIGHT_MS, land: box.width, faces: flyer.faces })
       // If the page scrolls on the way, the path bends to where its place is now
@@ -117,7 +135,7 @@ function Flight({ flyer, target, onLanded }) {
       else if (!done) { done = true; onLanded() }
     }
     raf = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf)
+    return () => { cancelAnimationFrame(raf); EVENTS.forEach((ev) => window.removeEventListener(ev, take)) }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return createPortal(<img ref={el} className="pf-flight" src={flyer.sprite} alt="" draggable="false" />, document.body)
 }
