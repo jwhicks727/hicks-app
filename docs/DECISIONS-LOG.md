@@ -6,6 +6,50 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Our places on one map, and each in its own sky
+
+- **World opens on a map of all our places**, at three sizes: Around home
+  (the valley towns, the schools, the parish, Big Bear), SoCal (adds
+  Anaheim, Long Beach and San Diego) and The world (Kona, Washington, New
+  York, Paris, Beijing). Places too close together to tell apart at a size
+  become one pin that zooms in when tapped. Changing size flies between
+  them. The size picked is a layout, so it stays out of the address.
+- **Names sit in bands above and below the map,** each joined to its pin by
+  a thin line, so a crowded valley stays readable on a phone; a name is a
+  tap to the place's own page. The same places are listed under the map.
+- **Stylised, not detailed:** land and sea from Natural Earth's outlines
+  (public domain), simplified once by `scripts/make-map.mjs` and kept as a
+  small file loaded only with the map. The world shows its night side as it
+  is now and dashed paths from home; the mountains near home are drawn the
+  way an old illustrated map would, rows of little peaks from rough
+  outlines, with Mount Baldy and San Gorgonio white in winter, and the
+  lakes (Big Bear, Arrowhead, Perris, Elsinore, Diamond Valley, the Salton
+  Sea) to scale.
+- **A pin is a town, not a street.** Places in one town fan out round it.
+  Home is the town, as everywhere, and has no maps link.
+- **Each place has a page** (`/world/place/<slug>`): its own skyline in its
+  sky right now, the time there, how far it is, sunrise and sunset, the
+  weather there (Open-Meteo, the town's coordinates only), and **Open in
+  Maps** and **Directions**, which open the phone's own maps app: Apple
+  Maps on an iPhone, iPad or Mac, the Android maps app, Google Maps
+  elsewhere. Next and previous step through the places without adding to
+  history. Home's page lists everywhere else, measured from home.
+- **The skylines are drawn in code from generic shapes:** the decided ones
+  (Big Bear, Paris, Kona, New York, Washington, Beijing, San Diego, Long
+  Beach, San Dimas) and the rest: Fontana's mountains, palms and eucalyptus
+  windbreaks; each school with its flag; the mission church; Redlands'
+  groves and a Victorian; Claremont's clock tower and the Village; the
+  Arrowhead above San Bernardino. Windows light after dark, clouds come
+  with cloudy weather, the Eiffel Tower is gold from nightfall to a quarter
+  to midnight and sparkles for five minutes on the hour.
+- **Anaheim hints, never copies:** a generic fairy-tale castle, a craggy
+  snow-topped peak, a Ferris wheel, a monorail running behind the castle,
+  palms, and fireworks from 8 to 10 at night. No characters, ears, logos or
+  park names on screen; only the maps search names the resort, so the
+  phone finds it.
+- Questions back to the family: why each place matters, in their words, to
+  replace the plain descriptions; and whether any place is missing.
+
 ## 2026-10-31 — Wild seasons, and Thich Nhat Hanh
 
 - **Nature's seasons near us,** as windows ("usually"), each linking to the

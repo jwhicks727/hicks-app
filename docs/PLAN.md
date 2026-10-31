@@ -135,10 +135,16 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       week) and the National Weather Service's alerts, on Home and World,
       with a word when the Santa Anas blow. Only the town's coordinates are
       sent.
+- [x] All our places on one map, at three sizes (around home, SoCal, the
+      world), with a page for each: its skyline in its own sky, the time and
+      weather there, how far, and Open in Maps / Directions in the phone's
+      own maps app (`src/lib/places.js`, `src/places/world/`).
+- [ ] Why each place matters, in the family's words, on its card.
 - [ ] Weather from our stations through Synoptic: Kordyak SE685, Wayne Ruble
       980SE, SOAR NGC08, home its nearest (set in the app).
-- [ ] Day by day and hour by hour, wound back and forward; school pages;
-      one other place a day; NWS alerts for home and the schools.
+- [ ] Day by day and hour by hour, wound back and forward; school pages
+      (the school's place page grows its station and recess flags); one of
+      our places on World each day; NWS alerts for home and the schools.
 - [ ] **The neighbourhood scout:** a daily agent that notices new restaurants
       and businesses opening, and ones closing, around home, in Redlands and in
       Claremont: the kind of news that never gets an announcement. Read from

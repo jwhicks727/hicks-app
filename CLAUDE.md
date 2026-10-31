@@ -21,6 +21,9 @@ and write the code fresh. SOAR's code belongs to the school.
   Home is set inside the app and kept in the family's database. In code, home
   is the town (`HOME_TOWN` in `src/lib/sky.js`), and the station nearest the
   house is never named next to it.
+- **Our places are towns or public buildings** (`src/lib/places.js`): a
+  maps link searches for a name, never an address, and home has none
+  (`tests/places.test.mjs`).
 - **Laurie's food rules are health information.** Only Jason and Laurie see
   them; they never reach the wall; Claude receives them only with Laurie's
   yes, said on screen. They live in the database, never in this repository.

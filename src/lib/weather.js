@@ -23,6 +23,20 @@ export function alertsUrl({ lat, lng } = HOME_TOWN) {
   return `https://api.weather.gov/alerts/active?point=${lat.toFixed(4)},${lng.toFixed(4)}`
 }
 
+/** Right now at one of our places (its town's centre), in its own time zone. */
+export function placeNowUrl({ lat, lng }) {
+  const q = new URLSearchParams({
+    latitude: lat.toFixed(3), longitude: lng.toFixed(3), current: 'temperature_2m,weather_code,is_day', daily: 'temperature_2m_max,temperature_2m_min',
+    temperature_unit: 'fahrenheit', timezone: 'auto', forecast_days: '1',
+  })
+  return `https://api.open-meteo.com/v1/forecast?${q}`
+}
+export function shapePlaceNow(json) {
+  const c = json && json.current, d = json && json.daily
+  if (!c) return null
+  return { temp: Math.round(c.temperature_2m), high: d ? Math.round(d.temperature_2m_max[0]) : null, low: d ? Math.round(d.temperature_2m_min[0]) : null, ...conditions(c.weather_code, c.is_day) }
+}
+
 // WMO weather codes, as Open-Meteo gives them: [words, picture]
 const CODES = {
   0: ['Clear', 'clear'], 1: ['Mostly clear', 'clear'], 2: ['Partly cloudy', 'partly'], 3: ['Cloudy', 'cloudy'],
