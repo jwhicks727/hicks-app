@@ -10,7 +10,7 @@
 import { ds, addDays, nthWeekday, parts, MONTHS } from './dates.js'
 import { jewishHolyDays } from './hebrew.js'
 import { islamicDays } from './islamic.js'
-import { seasonsOf, METEOR_SHOWERS, clockChanges, eclipsesOf } from './nature.js'
+import { seasonsOf, METEOR_SHOWERS, clockChanges, eclipsesOf, moonPhases } from './nature.js'
 
 export const GROUPS = {
   holidays: { name: 'Holidays', word: 'National and California holidays, and the family ones like Mother’s Day' },
@@ -19,6 +19,8 @@ export const GROUPS = {
   faiths: { name: 'Our neighbours’ holy days', word: 'Jewish, Muslim and Lunar New Year days' },
   nature: { name: 'Seasons and sky', word: 'Solstices, equinoxes, meteor showers and the clocks changing' },
   birding: { name: 'Birding', word: 'Big Days, the backyard count and the Christmas count' },
+  wild: { name: 'Wild seasons', word: 'Big Bear’s eagles, monarchs, whales, wildflowers, migration nights' },
+  mindful: { name: 'Mindful days', word: 'Thich Nhat Hanh’s Continuation Day, Vesak, Bodhi Day, Nirvana Day' },
   fun: { name: 'Small joys', word: 'Pi Day, Groundhog Day, Jerry’s birthday and the like' },
 }
 
@@ -87,6 +89,24 @@ const LIST = [
   ['october-big-day', 'birding', 'October Big Day', nth(10, 6, 2), 'The autumn Big Day, with the migrants passing through'],
   ['cbc', 'birding', 'Christmas Bird Count', span(fixed(12, 14), (y) => ds(y + 1, 1, 5)), 'The oldest bird count of all, since 1900: each circle picks one day'],
   ['bird-day', 'birding', 'National Bird Day', fixed(1, 5), 'A day for the birds, literally'],
+  // Wild seasons: when these usually happen near us, with who watches them [.., links]
+  ['eagles', 'wild', 'Big Bear’s eagles are nesting', span(fixed(1, 1), fixed(6, 15)), 'Jackie and Shadow, the bald eagles above Big Bear Lake, usually lay their eggs in January and raise chicks into spring: the nest cam shows it all', [['The eagle cam', 'https://www.friendsofbigbearvalley.org/']]],
+  ['monarchs', 'wild', 'Monarchs winter on the coast', span(fixed(11, 1), (y) => ds(y + 1, 2, 28)), 'Western monarch butterflies cluster in coastal eucalyptus and pines; volunteers count them around Thanksgiving and New Year', [['The western monarch counts', 'https://www.westernmonarchcount.org/']]],
+  ['whales', 'wild', 'Gray whales pass the coast', span(fixed(12, 1), (y) => ds(y + 1, 5, 15)), 'Down to Baja in winter and back north in spring, mothers and calves last; watch from Point Vicente or a whale-watching boat', [['The gray whale census', 'https://www.acs-la.org/']]],
+  ['wildflowers', 'wild', 'Wildflower season', span(fixed(2, 15), fixed(4, 30)), 'The deserts bloom first, then the poppies; after a wet winter, a superbloom', [['Wildflower reports', 'https://www.desertusa.com/wildflo/wildupdates.html'], ['Theodore Payne’s wildflower hotline', 'https://theodorepayne.org/']]],
+  ['poppy-day', 'wild', 'California Poppy Day', fixed(4, 6), 'The state flower’s own day'],
+  ['elephant-seals', 'wild', 'Elephant seal pups', span(fixed(12, 20), (y) => ds(y + 1, 3, 15)), 'Pups are born on the beach at Piedras Blancas, near San Simeon, from late December', [['Friends of the Elephant Seal', 'https://www.elephantseal.org/']]],
+  ['grunion', 'wild', 'Grunion runs', span(fixed(3, 1), fixed(8, 31)), 'Small silver fish come ashore to spawn on the nights after full and new moons; the state posts the expected runs', [['Expected grunion runs', 'https://wildlife.ca.gov/Conservation/Marine/Grunion']]],
+  ['migration-spring', 'wild', 'Spring migration nights', span(fixed(3, 15), fixed(5, 31)), 'Millions of birds fly over at night; BirdCast forecasts the big nights, and mornings after are best for Laurie', [['Tonight’s migration forecast', 'https://birdcast.info/']]],
+  ['migration-fall', 'wild', 'Fall migration nights', span(fixed(8, 15), fixed(11, 15)), 'The birds head south over us at night; BirdCast forecasts the big nights', [['Tonight’s migration forecast', 'https://birdcast.info/']]],
+  ['fall-colour', 'wild', 'Fall colour in the Eastern Sierra', span(fixed(9, 20), fixed(10, 31)), 'The aspens turn gold up the 395, high groves first', [['Where the colour is', 'https://californiafallcolor.com/']]],
+  ['hummingbirds', 'wild', 'Anna’s hummingbirds are nesting', span(fixed(12, 1), (y) => ds(y + 1, 3, 31)), 'Named for a duchess, not our Anna: they nest in winter here, nests the size of a walnut', [['Anna’s hummingbird', 'https://www.allaboutbirds.org/guide/Annas_Hummingbird']]],
+  // Mindful days (Plum Village and the wider Buddhist year)
+  ['thay-continuation', 'mindful', 'Thich Nhat Hanh’s Continuation Day', fixed(10, 11), 'Thay was born on October 11, 1926; Plum Village calls a birthday a Continuation Day, because a cloud never dies, it becomes rain'],
+  ['thay-remembered', 'mindful', 'Thich Nhat Hanh remembered', fixed(1, 22), 'Thay passed into his next form on January 22, 2022, at his root temple in Huế'],
+  ['vesak', 'mindful', 'Vesak', (y) => moonPhases(y).find((p) => p.key === 'full' && p.date.slice(5, 7) === '05')?.date || null, 'The Buddha’s birth, awakening and passing, kept on the full moon of May'],
+  ['bodhi-day', 'mindful', 'Bodhi Day', fixed(12, 8), 'The Buddha’s awakening under the bodhi tree, as Zen keeps it'],
+  ['nirvana-day', 'mindful', 'Nirvana Day', fixed(2, 15), 'The Buddha’s passing, a day to remember impermanence'],
   // Small joys
   ['groundhog', 'fun', 'Groundhog Day', fixed(2, 2), 'Six more weeks of winter, or not'],
   ['pi', 'fun', 'Pi Day', fixed(3, 14), '3.14: pie for dinner is mathematically justified'],
@@ -114,11 +134,11 @@ const cache = new Map()
 export function observancesFor(y) {
   if (cache.has(y)) return cache.get(y)
   const out = []
-  for (const [id, group, name, when, word] of LIST) {
+  for (const [id, group, name, when, word, links] of LIST) {
     const w = when(y)
     if (!w) continue
     const [start, end] = Array.isArray(w) ? w : [w, w]
-    out.push({ id, group, name, start, end, word: typeof word === 'function' ? word(y) : word })
+    out.push({ id, group, name, start, end, word: typeof word === 'function' ? word(y) : word, links: links || null })
   }
   for (const { key, date } of islamicDays(y)) out.push({ id: `${key}-${date}`, group: 'faiths', name: ISLAMIC[key][0], start: date, end: date, word: ISLAMIC[key][1], expected: true })
   for (const s of seasonsOf(y)) out.push({ id: s.key, group: 'nature', name: s.name, start: s.date, end: s.date, word: s.word, at: s.at, season: s.key })

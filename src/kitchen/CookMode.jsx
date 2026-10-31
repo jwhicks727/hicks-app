@@ -7,6 +7,7 @@ import { Inline, Prose } from './Inline.jsx'
 import { parsed, PEOPLE } from './art.js'
 import { useSwipe } from '../calendar/useSwipe.js'
 import Timers from './Timers.jsx'
+import { DISHES } from '../lib/mindful.js'
 
 /** Keeps the screen awake while cooking, where the phone allows it. */
 function useWakeLock() {
@@ -63,6 +64,7 @@ export default function CookMode({ data, slug, parent }) {
             <p className="cm-n">Plate it</p>
             {plating && <div className="cm-plating"><Prose text={plating.body} /></div>}
             <div className="cm-plates">{plates.map(([k, t, b]) => <div key={k} className="plate" style={{ '--p': PEOPLE[k].colour }}><h3>{t}</h3><Prose text={b} /></div>)}</div>
+            <blockquote className="mindful-q cm-dishes">“{DISHES[0]}”<span>{DISHES[1]}, {DISHES[2]}</span></blockquote>
           </>
         )}
       </main>

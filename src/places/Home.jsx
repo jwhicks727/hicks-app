@@ -7,6 +7,9 @@ import RolloverShine from '../parts/RolloverShine.jsx'
 import TodayCard from '../parts/TodayCard.jsx'
 import FridgeCard from '../parts/FridgeCard.jsx'
 import RateNudge from '../kitchen/RateNudge.jsx'
+import MindfulCard from '../parts/MindfulCard.jsx'
+import Breathe from '../parts/Breathe.jsx'
+import { usePrefs } from '../lib/prefs.js'
 import { useCookbook } from '../lib/useKitchen.js'
 import { WeatherNow } from '../parts/WeatherCard.jsx'
 import FamilyBanner from '../parts/FamilyBanner.jsx'
@@ -24,7 +27,13 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, weekd
 const hourFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' })
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 
-export default function Home() {
+export default function Home({ rest = [] }) {
+  if (rest[0] === 'breathe') return <Breathe />
+  return <HomeScreen />
+}
+
+function HomeScreen() {
+  const [prefs] = usePrefs()
   const now = useNow()
   const session = useSession()
   const family = useFamily(session)
@@ -52,6 +61,7 @@ export default function Home() {
       <WeatherNow />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
       <FridgeCard book={book} />
+      {prefs.mindful !== false && <MindfulCard today={today} />}
       <SkyToday />
       <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[
         'Kordyak, Wayne Ruble and SOAR beside home, from our chosen stations (SE685, 980SE, NGC08)',

@@ -17,6 +17,7 @@ import { useSwipe } from './useSwipe.js'
 import { occasionFor } from '../lib/occasions.js'
 import { astronomyOn } from '../lib/cal/astro.js'
 import AstroArt from './AstroArt.jsx'
+import WildNow from '../parts/WildNow.jsx'
 import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
@@ -31,7 +32,7 @@ export default function DayView({ date, today, data, signedIn }) {
   const parish = parishDay(date, lit, liturgicalDay(addDays(date, 1)))
   const swipe = useSwipe(() => navigate(calPath('day', stepDate('day', date, 1)), { replace: true }), () => navigate(calPath('day', stepDate('day', date, -1)), { replace: true }))
   const celebrate = dv.family.filter((f) => f.kind !== 'remember'), remember = dv.family.filter((f) => f.kind === 'remember')
-  const others = dv.observances.filter((o) => o.group !== 'nature'), sky = dv.observances.filter((o) => o.group === 'nature')
+  const others = dv.observances.filter((o) => o.group !== 'nature' && o.group !== 'wild'), sky = dv.observances.filter((o) => o.group === 'nature')
   const occasion = occasionFor(dv)
   const on = (where) => (occasion && occasion.on === where ? occasion : null)
   const astro = astronomyOn(date)
@@ -88,7 +89,7 @@ export default function DayView({ date, today, data, signedIn }) {
         <p className="muted small">Mass times from {PARISH.source.replace(/^The /, 'the ')}, not yet checked with the parish.</p>
       </Card>
 
-      {(others.length > 0 || dv.ongoing.some((o) => o.group !== 'nature')) && (
+      {(others.length > 0 || dv.ongoing.some((o) => o.group !== 'nature' && o.group !== 'wild')) && (
         <GlowWrap occasion={on('day')} day={date}>
         <Card tint="#E0662F" label="Also today" glyph="star" className="also-card">
           {others.length > 0 && <ul className="obs">
@@ -99,14 +100,15 @@ export default function DayView({ date, today, data, signedIn }) {
               </li>
             ))}
           </ul>}
-          {dv.ongoing.filter((o) => o.group !== 'nature').length > 0 && (
-            <p className={others.length ? 'ongoing' : 'ongoing alone'}>Still going: {dv.ongoing.filter((o) => o.group !== 'nature').map((o) => `${o.name} (${spanWords(o)})`).join('; ')}</p>
+          {dv.ongoing.filter((o) => o.group !== 'nature' && o.group !== 'wild').length > 0 && (
+            <p className={others.length ? 'ongoing' : 'ongoing alone'}>Still going: {dv.ongoing.filter((o) => o.group !== 'nature' && o.group !== 'wild').map((o) => `${o.name} (${spanWords(o)})`).join('; ')}</p>
           )}
         </Card>
         </GlowWrap>
       )}
 
       {astro.map((a, i) => <GlowWrap key={a.kind + a.title} occasion={i === 0 ? on('sky') : null} day={date} className="day-occasion"><AstroCard event={a} /></GlowWrap>)}
+      <WildNow date={date} className="" title={date === today ? 'Wild right now' : 'In season then'} />
       <SkyCard date={date} sky={sky.filter((o) => !o.meteors && !o.season)} moon={dv.moon} />
 
       <Card tint="#453644" label="Our calendars" glyph="calendar" className="events-card">

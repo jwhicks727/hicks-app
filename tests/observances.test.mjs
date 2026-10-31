@@ -117,3 +117,12 @@ test('the sky’s events come with words, times and links', async () => {
   assert.equal(astronomyOn('2026-12-21')[0].season, 'winter'); assert.deepEqual(astronomyOn('2026-11-05'), [])
   for (const a of [...mar3, ...astronomyOn('2026-12-13'), ...astronomyOn('2026-12-21')]) for (const [, url] of a.links) assert.match(url, /^https:\/\//)
 })
+
+test('wild seasons and mindful days, with who to read', async () => {
+  const on = (id, y) => observancesFor(y).find((o) => o.id === id)
+  assert.deepEqual([on('eagles', 2027).start, on('eagles', 2027).end], ['2027-01-01', '2027-06-15'])
+  assert.equal(on('monarchs', 2026).end, '2027-02-28'); assert.match(on('monarchs', 2026).links[0][1], /^https:\/\/www\.westernmonarchcount\.org/)
+  assert.ok(observancesOn('2027-01-10').some((o) => o.id === 'whales' && o.ongoing), 'last winter’s whales are still passing in January')
+  assert.equal(on('vesak', 2026).start, '2026-05-01'); assert.equal(on('thay-continuation', 2026).start, '2026-10-11')
+  for (const o of observancesFor(2026)) for (const [, url] of o.links || []) assert.match(url, /^https:\/\//, o.id)
+})

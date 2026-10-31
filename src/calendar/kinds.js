@@ -11,6 +11,8 @@ export const KIND_STYLE = {
   nature: { colour: '#3BA3A8', glyph: 'leaf' },
   birding: { colour: '#5F8A4A', glyph: 'bird' },
   fun: { colour: '#E85D9A', glyph: 'note' },
+  wild: { colour: '#5F8A4A', glyph: 'leaf' },
+  mindful: { colour: '#B5658F', glyph: 'lotus' },
   moon: { colour: '#6F7FB8', glyph: 'moon' },
   event: { colour: '#6E5B4B', glyph: 'dot' },
   school: { colour: '#D9A520', glyph: 'school' },

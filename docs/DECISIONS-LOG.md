@@ -6,6 +6,30 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Wild seasons, and Thich Nhat Hanh
+
+- **Nature's seasons near us,** as windows ("usually"), each linking to the
+  people who watch them: Big Bear's nesting bald eagles, Jackie and Shadow
+  (their cam); western monarchs on the coast (the Thanksgiving and New
+  Year's counts); gray whales passing; wildflower season and superblooms;
+  elephant seal pups; grunion runs; spring and fall migration nights
+  (BirdCast, for Laurie); fall colour up the 395; Anna's hummingbirds
+  nesting; California Poppy Day. A "Wild right now" card in World and on
+  each day; a group Settings can switch off.
+- **Jason likes Thich Nhat Hanh a lot.** A mindful moment on Home: a line of
+  Thay's each day (and a few from Max Müller's 1881 *Dhammapada*, which
+  belongs to everyone), with the book it's from. His words are his
+  publishers', so they stay short, credited and private to the family. A
+  Breathe screen at its own address: a circle in for four, out for six, his
+  gatha "Breathing in, I calm my body. Breathing out, I smile.", one, three
+  or five minutes, a bowl the phone strikes itself at the start and end.
+  His Continuation Day (October 11, the angelversary too), his remembrance
+  (January 22), Vesak on May's full moon, Bodhi Day and Nirvana Day, as
+  "Mindful days". Cook mode ends with his line about washing the dishes.
+  The mindful moment and the bowl each have a switch in Settings.
+
+---
+
 ## 2026-10-31 — Many shared calendars, each event once, with a readable title
 
 - **Shown once:** an event that arrives from several of the calendars we

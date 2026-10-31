@@ -82,6 +82,10 @@ where it appears and listed here:
 - **Sightings:** an outdoor event shows what iNaturalist's observers have
   recorded nearby (https://www.inaturalist.org), each photo with its own
   observer's credit and licence as iNaturalist gives it, and a link back.
+- **Mindfulness:** short lines from Thich Nhat Hanh's books, credited to
+  each and read privately by the family (his words are his publishers',
+  Parallax Press and Plum Village); lines from Max Müller's 1881 translation
+  of the *Dhammapada* (public domain). The bowl is made by the phone.
 - **Prayers:** the traditional English forms, which belong to everyone; the
   saints' one-line stories are our own.
 - **Calendar pictures:** small line icons drawn on the same 24-unit grid;

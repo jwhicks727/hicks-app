@@ -197,6 +197,10 @@ celebrates them the way it celebrates everything else: woven into the
 places, quietly, never mixed into the Church's own cards, and only for those
 who want it. A sketch for the next session; the questions come first.
 
+**Built (2026-10-31):** Thay's line of the day and the Breathe screen on
+Home, the Mindful days in the calendar, the dishes in cook mode. Settled:
+Jason likes Thich Nhat Hanh a lot. Still to settle below.
+
 **To settle first**
 
 - Which traditions or teachers speak to him (Zen, Plum Village and Thich

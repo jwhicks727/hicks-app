@@ -58,6 +58,14 @@ export default function Settings() {
           <span><b>The season’s colours</b><span>Now: {seasonFor(todayAt()).label}. A light wash over the sky, after the Church year and the holidays</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.seasonal !== false} aria-label="The season’s colours" onClick={() => update({ seasonal: prefs.seasonal === false })}><i /></button>
         </div>
+        <div className="switch-row">
+          <span><b>A mindful moment on Home</b><span>A line from Thich Nhat Hanh each day, and a pause to breathe</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.mindful !== false} aria-label="A mindful moment on Home" onClick={() => update({ mindful: prefs.mindful === false })}><i /></button>
+        </div>
+        <div className="switch-row">
+          <span><b>The bowl</b><span>A struck bowl starts and ends a breathing pause</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.bell !== false} aria-label="The bowl" onClick={() => update({ bell: prefs.bell === false })}><i /></button>
+        </div>
         <p className="muted">These stay on this device.</p>
       </Card>
 
