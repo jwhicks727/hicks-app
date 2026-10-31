@@ -241,3 +241,16 @@ New since the first sitting. Each part works on its own; skip any for now.
    Home shows the week's birds round town right after the weather, the
    notable ones first in green.
 
+   If the card shows a message instead, it says what's missing:
+
+   | The card says | It means | Do |
+   |---|---|---|
+   | "isn't set up yet: it needs its function deployed and the eBird key set" | The `birds` function isn't deployed, or has no key. A function that isn't deployed answers with nothing the browser can read, so this is also what an undeployed one looks like. | Run both commands above. `npx supabase secrets list --project-ref <project-ref>` shows which secrets are set (names only). |
+   | "eBird didn't accept the key" | The key was copied wrong or made for something else. | Copy it again from ebird.org/api/keygen and run `secrets set` again. |
+   | "couldn't be reached just now" | eBird or Supabase didn't answer. | Nothing: it asks again within the hour. |
+
+   If a function is deployed and still shows nothing, Supabase › Edge
+   Functions › the function › Logs says why. A line about `outside_cache`
+   means the ninth migration (step 1) hasn't been run: the function still
+   works, but forgets between visits and asks the service every time.
+

@@ -1,5 +1,6 @@
 import { Card } from '../ui/Card.jsx'
 import { useStations } from '../lib/useOutside.js'
+import { outsideWords } from '../lib/outsideErrors.js'
 import { besideHome, readAgo, seriesRange, mesowestUrl } from '../lib/stationWords.js'
 import { fromDirection } from '../lib/weather.js'
 
@@ -35,7 +36,7 @@ export default function StationCard({ place }) {
   if (st.error) {
     return (
       <Card className="span-3" tint={place.colour} label="Its own station" glyph="weather">
-        <p className="muted">{st.error === 'setup' ? 'The school’s own weather station shows here once Synoptic’s token is in (docs/MORNING.md).' : 'The stations couldn’t be reached just now.'}</p>
+        <p className="muted">{outsideWords('stations', st)}</p>
       </Card>
     )
   }

@@ -17,7 +17,7 @@ export const NEAR_KM = 15, NOTABLE_KM = 30, DAYS = 7
 const at = (u, p) => { const x = new URL(u); for (const [k, v] of Object.entries(p)) x.searchParams.set(k, String(v)); return x.toString() }
 export const recentUrl = ({ lat, lng }) => at(EBIRD, { lat: lat.toFixed(2), lng: lng.toFixed(2), dist: NEAR_KM, back: DAYS, maxResults: 300 })
 export const notableUrl = ({ lat, lng }) => at(EBIRD + '/notable', { lat: lat.toFixed(2), lng: lng.toFixed(2), dist: NOTABLE_KM, back: DAYS, detail: 'simple', maxResults: 100 })
-export const inatUrl = (sci) => at('https://api.inaturalist.org/v1/taxa', { q: sci, rank: 'species,subspecies', per_page: 1 })
+export const inatUrl = (sci) => at('https://api.inaturalist.org/v1/taxa', { q: sci, rank: 'species', per_page: 1 })
 
 const CODE = /^[a-z0-9]{3,12}$/
 const clean = (s, n = 120) => String(s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n)
