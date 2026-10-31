@@ -29,7 +29,7 @@
 .gphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
 .gphoto { position: relative; display: block; aspect-ratio: 1; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, #5F8A4A 12%, var(--card)); border: 0; padding: 0; cursor: pointer; }
 .gphoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.gphoto em { position: absolute; left: 4px; bottom: 4px; font-style: normal; font-size: 11px; font-weight: 800; color: #FFF; background: rgba(0, 0, 0, .45); padding: 1px 6px; border-radius: 3px; }
+.gphoto em { position: absolute; left: 4px; bottom: 4px; font-style: normal; font-size: 11px; font-weight: 800; color: var(--on-colour); background: rgba(0, 0, 0, .45); padding: 1px 6px; border-radius: 3px; }
 .gbig { width: 100%; max-height: 60vh; object-fit: contain; border-radius: 6px; background: #1D1A17; min-height: 120px; }
 .glook { display: grid; gap: 6px; padding: 12px; border-radius: 6px; background: color-mix(in srgb, #5F8A4A 8%, var(--card)); border-left: 4px solid #5F8A4A; }
 .glook.watch { border-left-color: #E8B04A; } .glook.trouble { border-left-color: #D9463A; }

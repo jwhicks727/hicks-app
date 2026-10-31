@@ -87,7 +87,7 @@
 @media (min-width: 900px) { .scene { height: 300px; } }
 @media (orientation: landscape) and (max-height: 500px) { .scene { height: 170px; } }
 .place-now { position: absolute; left: 16px; top: 14px; display: grid; gap: 2px; color: #2B2019; text-shadow: 0 1px 0 rgba(255, 255, 255, .45); }
-.place-now.dark { color: #FFF; text-shadow: 0 1px 8px rgba(0, 0, 0, .45); }
+.place-now.dark { color: var(--on-colour); text-shadow: 0 1px 8px rgba(0, 0, 0, .45); }
 .place-clock { font-family: var(--font-display); font-size: 44px; line-height: 1; }
 .place-day { font-weight: 800; font-size: 14px; }
 .place-wx { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; }

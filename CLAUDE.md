@@ -95,11 +95,15 @@ licence nobody wrote down.
   light colour, so it turns with the theme. A fixed light background keeps
   a fixed dark text colour with it. Illustrations (rooms, maps, scenes) keep
   their own colours. Check a new screen in both.
-- **A place's icon** is a white line icon (the tab icons' 24-unit grid) on
+- **The app's white is cream** (`#FFF8EE`, the paper of the cards): words
+  and icons on a colour use `var(--on-colour)`, never `#FFFFFF`.
+  Illustrations (maps, rooms, windows, scenes) keep their own whites.
+- **A place's icon** is a cream line icon (the tab icons' 24-unit grid) on
   a tile of its own colour, light to deep (`IconTile`, `src/ui/IconTile.jsx`;
-  the places under Us in `src/ui/usPlaces.jsx`). The academy's kinds of room
-  put their Fluent Emoji picture on the same tile, each kind in its own
-  colour (`KIND_COLOURS`, `src/academy/rooms.js`).
+  the places under Us in `src/ui/usPlaces.jsx`), in the mockup's muted
+  outdoor tones (plum, ochre, sea, rust, lake, moss). Only the academy is
+  brighter: its kinds of room put their Fluent Emoji picture on the same
+  tile, each in its own bright colour (`KIND_COLOURS`, `src/academy/rooms.js`).
 - A place's own class names carry its prefix (`ac-` for the academy, `jr-`
   for the journal, `g` for the garden): every stylesheet is global, and a
   bare `.celebrate` or `.flag` meets another place's.

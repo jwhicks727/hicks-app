@@ -10,7 +10,7 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 .pf-link { position: absolute; inset: 0; z-index: 1; }
 .pf-link:focus-visible { outline: 3px solid #FFF; outline-offset: -5px; }
 /* The replay: a quiet little bird in the corner, a full tap target around it */
-.pf-fly { position: absolute; z-index: 2; right: 2px; bottom: 2px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; color: #FFF; cursor: pointer; opacity: .55; transition: opacity .2s ease; }
+.pf-fly { position: absolute; z-index: 2; right: 2px; bottom: 2px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; color: var(--on-colour); cursor: pointer; opacity: .55; transition: opacity .2s ease; }
 .pf-fly svg { width: 15px; height: 15px; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .55)); }
 .pf-fly:hover, .pf-fly:focus-visible { opacity: 1; }
 .pf-fly:disabled { opacity: 0; cursor: default; }

@@ -137,7 +137,7 @@
 .astro-times li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: var(--r-control); background: rgba(255, 255, 255, .08); }
 .astro-times b { white-space: nowrap; }
 .astro-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.astro-links a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 20px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-weight: 750; font-size: 14px; text-decoration: none; }
+.astro-links a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 20px; background: rgba(255, 255, 255, .12); color: var(--on-colour); font-weight: 750; font-size: 14px; text-decoration: none; }
 .astro-card.k-season { background: color-mix(in srgb, #FFC56B 10%, var(--card)); color: var(--ink); }
 .astro-card.k-season .astro-t p { color: var(--muted); }
 .astro-card.k-season .astro-times li { background: rgba(224, 122, 31, .1); }
@@ -158,7 +158,7 @@ html[data-motion="less"] .astro-meteor { stroke-dashoffset: 0; }
 .today-pray { display: grid; gap: 6px; padding: 10px 12px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 9%, var(--card)); border-left: 3px solid var(--tint); }
 .today-also { font-weight: 700; font-size: 15px; }
 .home-celebrate { text-decoration: none; }
-.remember-banner { display: grid; gap: 2px; padding: 14px 16px; border-radius: var(--r-card); text-decoration: none; color: #FFFFFF; background: linear-gradient(120deg, #4B3766, #6B4A8E 60%, #8C6BAE); box-shadow: var(--shadow-warm); }
+.remember-banner { display: grid; gap: 2px; padding: 14px 16px; border-radius: var(--r-card); text-decoration: none; color: var(--on-colour); background: linear-gradient(120deg, #4B3766, #6B4A8E 60%, #8C6BAE); box-shadow: var(--shadow-warm); }
 .remember-banner b { font-family: var(--font-display); font-weight: 400; font-size: 24px; }
 
 /* The year */

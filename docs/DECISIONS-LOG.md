@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Outdoor tones, and cream for white
+
+Us's tiles came down from bright to the mockup's own muted, outdoor tones:
+the journal plum, the academy ochre, Life List deep sea, the gallery rust,
+Jams lake blue, the garden moss. The academy's kinds of room stay bright:
+it's Anna's, and it's meant to be loud. And the app's white is its cream
+again everywhere words or icons sit on a colour (buttons, chips, the
+icons, the switches' knobs, the shine), as `--on-colour`, where some had
+drifted to pure white.
+
 ## 2026-11-01 — Icons on coloured tiles
 
 The Us page's emoji were swapped for line icons drawn like the tab bar's,
