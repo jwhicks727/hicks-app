@@ -138,11 +138,12 @@ and added: `docs/ART-CAPTURE.md`.
   (`docs/PLAN.md`).
 - **Icons:** Home's sprout is Lucide's (https://lucide.dev, ISC licence); the
   other tab icons are drawn on the same 24-unit grid. The home-screen icon
-  (`public/icons/`, named "Team Hicks" by `public/manifest.webmanifest`) is,
-  for now, Jason's ChatGPT rework of that sprout on the evening sky: a
-  stand-in, and the one AI-made picture in the app (decisions log), until a
-  human-made icon replaces it. A second option is pinned beside it in
-  `docs/icon-options/`, with `scripts/make-icons.mjs` to switch.
+  (`public/icons/`, named "Team Hicks" by `public/manifest.webmanifest`) is
+  the letter H set in Agbalumo (Sorkin Type, SIL Open Font License, from
+  Google Fonts), white on the evening sky, drawn by
+  `scripts/draw-h-icons.cjs` (with a maskable version for Android's circle)
+  and sized by `scripts/make-icons.mjs`. The other options, including the
+  ChatGPT sprouts it replaced, are in `docs/icon-options/`.
 - **The academy:** its furniture, animals and prizes are Fluent Emoji by
   Microsoft (MIT licence; https://github.com/microsoft/fluentui-emoji),
   drawn to WebP by `scripts/academy-art.mjs` with the licence beside them

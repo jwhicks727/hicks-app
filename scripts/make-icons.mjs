@@ -14,13 +14,16 @@ import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 
 const SOURCE = path.resolve(process.argv[2] || 'docs/icon-options/sprout-outline.png')
+// A maskable picture drawn for it (<name>-maskable.png beside it) is used as it is; otherwise one is made
+const MASKABLE = SOURCE.replace(/\.png$/, '-maskable.png')
+const maskSrc = fs.existsSync(MASKABLE) ? 'data:image/png;base64,' + fs.readFileSync(MASKABLE).toString('base64') : null
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'icons')
 // The repository's own Playwright if installed, else one installed for the whole computer.
 const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)('playwright'))
 
 const b = await chromium.launch(); const p = await b.newPage()
   const src = 'data:image/png;base64,' + fs.readFileSync(SOURCE).toString('base64');
-  const out = await p.evaluate(async (src) => {
+  const out = await p.evaluate(async ([src, maskSrc]) => {
     const img = new Image(); img.src = src; await img.decode();
     // Downscale by halves for clean edges
     const scaled = (size) => {
@@ -30,6 +33,14 @@ const b = await chromium.launch(); const p = await b.newPage()
     }
     const res = {}
     for (const [name, size] of [['icon-512.png', 512], ['icon-192.png', 192], ['apple-touch-icon.png', 180], ['favicon-32.png', 32]]) res[name] = scaled(size).toDataURL('image/png')
+    if (maskSrc) {
+      const mi = new Image(); mi.src = maskSrc; await mi.decode()
+      const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); x.imageSmoothingQuality = 'high'
+      const half = document.createElement('canvas'); half.width = half.height = Math.round(mi.width / 2); half.getContext('2d').drawImage(mi, 0, 0, half.width, half.height)
+      x.drawImage(half, 0, 0, 512, 512)
+      res['icon-maskable-512.png'] = c.toDataURL('image/png')
+      return res
+    }
     // Maskable: the icon at 78% on its own sky, so a circle crop keeps the whole sprout
     const big = document.createElement('canvas'); big.width = big.height = img.width; const bx = big.getContext('2d'); bx.drawImage(img, 0, 0)
     const left = bx.getImageData(4, 0, 1, img.height).data, right = bx.getImageData(img.width - 5, 0, 1, img.height).data
@@ -55,7 +66,7 @@ const b = await chromium.launch(); const p = await b.newPage()
     m5.drawImage(half, 0, 0, 512, 512)
     res['icon-maskable-512.png'] = m512.toDataURL('image/png')
     return res
-  }, src);
+  }, [src, maskSrc]);
   for (const [name, url] of Object.entries(out)) fs.writeFileSync(path.join(OUT, name), Buffer.from(url.split(',')[1], 'base64'))
   await b.close();
   console.log(Object.keys(out).join(', '))

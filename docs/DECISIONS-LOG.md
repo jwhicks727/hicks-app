@@ -6,6 +6,15 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The icon: Agbalumo's H
+
+Jason picked number 7 of the ten font H's: Agbalumo, a typeface named for
+the African star apple (agbalumo in Yoruba), white on the evening sky. It
+replaces the ChatGPT sprout, so the app's icon is no longer AI-made. Its
+Android version is drawn from the font too, the H a little smaller on the
+same sky, rather than shrinking the picture onto an extended sky, which
+left a seam around the glow.
+
 ## 2026-11-01 — A private journal, after the sit
 
 Jason journals after his morning sit, and asked for the app to send him

@@ -3,6 +3,9 @@
 // after them are the letter H as set in a font that is organic in itself, nothing added to it.
 // Usage: node scripts/draw-h-icons.cjs [fonts] (needs Playwright, as scripts/make-icons.mjs does; "fonts"
 // redraws only the ten). The fonts come from Google Fonts, all under the SIL Open Font License.
+// node scripts/draw-h-icons.cjs maskable h-agbalumo draws one font option's Android "maskable" icon,
+// <name>-maskable.png: the same sky with the H smaller, inside the circle a phone may crop to, which
+// scripts/make-icons.mjs uses when it's beside the picture it's given.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const BG = `<defs>
@@ -67,7 +70,8 @@ async function sheet(p, names, labels, file, cols) {
 
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1024, height: 1024 } });
-  const onlyFonts = process.argv[2] === 'fonts';
+  const onlyFonts = process.argv[2] === 'fonts' || process.argv[2] === 'maskable';
+  const maskable = process.argv[2] === 'maskable' ? process.argv[3] : null;
   for (const [name, art] of Object.entries(onlyFonts ? {} : OPTIONS)) {
     await p.setContent(`<html><head><link href="https://fonts.googleapis.com/css2?family=Caprasimo&display=block" rel="stylesheet"><style>body{margin:0}</style></head><body><svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">${BG}${art}</svg></body></html>`);
     await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(400);
@@ -78,6 +82,8 @@ async function sheet(p, names, labels, file, cols) {
   // The fonts: measure the ink of each one's H on a canvas, then scale and place it into BOX
   await p.setViewportSize({ width: 1024, height: 1024 });
   for (const [name, family] of FONTS) {
+    if (maskable && name !== maskable) continue;
+    const box = maskable ? { w: BOX.w * 0.66, h: BOX.h * 0.66, cx: 512, cy: 518 } : BOX;
     await p.setContent(`<html><head><link href="https://fonts.googleapis.com/css2?family=${family.replace(/ /g, '+')}&display=block" rel="stylesheet"><style>body{margin:0}</style></head><body></body></html>`);
     const ink = await p.evaluate(async (f) => {
       await document.fonts.load(`1000px "${f}"`, 'H');
@@ -88,14 +94,14 @@ async function sheet(p, names, labels, file, cols) {
       return { x: x0 - 600, y: y0 - 1700, w: x1 - x0 + 1, h: y1 - y0 + 1 };
     }, family);
     if (ink.w <= 0) throw new Error(family + ' drew nothing');
-    const k = Math.min(BOX.w / ink.w, BOX.h / ink.h);
-    const tx = BOX.cx - (ink.x + ink.w / 2) * k, ty = BOX.cy - (ink.y + ink.h / 2) * k;
+    const k = Math.min(box.w / ink.w, box.h / ink.h);
+    const tx = box.cx - (ink.x + ink.w / 2) * k, ty = box.cy - (ink.y + ink.h / 2) * k;
     await p.evaluate(({ bg, f, k, tx, ty, w }) => {
       document.body.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">${bg}<g filter="url(#sh)"><text x="${tx}" y="${ty}" font-family="${f}" font-size="${1000 * k}" fill="${w}">H</text></g></svg>`;
     }, { bg: BG, f: family, k, tx, ty, w: W });
     await p.waitForTimeout(200);
-    await p.screenshot({ path: out(name) });
+    await p.screenshot({ path: out(maskable ? name + '-maskable' : name) });
   }
-  await sheet(p, FONTS.map((f) => f[0]), FONTS.map((f, i) => `${i + 1} · ${f[1]}`), 'compare-h2', 5);
+  if (!maskable) await sheet(p, FONTS.map((f) => f[0]), FONTS.map((f, i) => `${i + 1} · ${f[1]}`), 'compare-h2', 5);
   await b.close();
 })();

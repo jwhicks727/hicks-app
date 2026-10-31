@@ -6,7 +6,7 @@ stand-ins until a human-made icon replaces them (docs/DECISIONS-LOG.md).
 
 | Picture | Status |
 |---|---|
-| `sprout-outline.png` | In use |
+| `sprout-outline.png` | In use until 2026-11-01; set aside for the Agbalumo H |
 | `sprout-leafy.png` | Pinned, then set aside: too busy at home-screen size (Jason) |
 | `h-sprout.png` | A white, blocky H with a seedling rising from its crossbar (Jason's idea, 2026-11-01): to choose from |
 | `h-leaf.png` | An H whose stems are two tall leaves, joined by a vine: to choose from |
@@ -17,7 +17,7 @@ stand-ins until a human-made icon replaces them (docs/DECISIONS-LOG.md).
 | `h-bubbles.png` | Rubik Bubbles' H: foam, or a cumulus cloud building |
 | `h-hanalei.png` | Hanalei Fill's H: two stalks of bamboo, knuckled at every node |
 | `h-darumadrop.png` | Darumadrop One's H: ink soaking into paper fibre, every edge ragged |
-| `h-agbalumo.png` | Agbalumo's H: named for the African star apple, with ripe, swelling curves |
+| `h-agbalumo.png` | **In use** (Jason's pick, 2026-11-01). Agbalumo's H: named for the African star apple, with ripe, swelling curves. `h-agbalumo-maskable.png` is its Android version, the H smaller so a circle crop keeps it |
 | `h-beastly.png` | Rubik Beastly's H: furred, or a thistle head |
 | `h-akaya.png` | Akaya Kanadaka's H: two knobbly twigs, lashed together |
 | `h-moonrocks.png` | Rubik Moonrocks' H: pumice, stone full of holes |
