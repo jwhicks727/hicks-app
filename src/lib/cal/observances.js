@@ -20,7 +20,7 @@ export const GROUPS = {
   nature: { name: 'Seasons and sky', word: 'Solstices, equinoxes, meteor showers and the clocks changing' },
   birding: { name: 'Birding', word: 'Big Days, the backyard count and the Christmas count' },
   wild: { name: 'Wild seasons', word: 'Big Bear’s eagles, monarchs, whales, wildflowers, migration nights' },
-  mindful: { name: 'Mindful days', word: 'Thich Nhat Hanh’s Continuation Day, Vesak, Bodhi Day, Nirvana Day' },
+  mindful: { name: 'Mindful days', word: 'Vesak and Bodhi Day, each with a small practice' },
   fun: { name: 'Small joys', word: 'Pi Day, Groundhog Day, Jerry’s birthday and the like' },
 }
 
@@ -102,11 +102,9 @@ const LIST = [
   ['fall-colour', 'wild', 'Fall colour in the Eastern Sierra', span(fixed(9, 20), fixed(10, 31)), 'The aspens turn gold up the 395, high groves first', [['Where the colour is', 'https://californiafallcolor.com/']]],
   ['hummingbirds', 'wild', 'Anna’s hummingbirds are nesting', span(fixed(12, 1), (y) => ds(y + 1, 3, 31)), 'Named for a duchess, not our Anna: they nest in winter here, nests the size of a walnut', [['Anna’s hummingbird', 'https://www.allaboutbirds.org/guide/Annas_Hummingbird']]],
   // Mindful days (Plum Village and the wider Buddhist year)
-  ['thay-continuation', 'mindful', 'Thich Nhat Hanh’s Continuation Day', fixed(10, 11), 'Thay was born on October 11, 1926; Plum Village calls a birthday a Continuation Day, because a cloud never dies, it becomes rain'],
-  ['thay-remembered', 'mindful', 'Thich Nhat Hanh remembered', fixed(1, 22), 'Thay passed into his next form on January 22, 2022, at his root temple in Huế'],
-  ['vesak', 'mindful', 'Vesak', (y) => moonPhases(y).find((p) => p.key === 'full' && p.date.slice(5, 7) === '05')?.date || null, 'The Buddha’s birth, awakening and passing, kept on the full moon of May'],
-  ['bodhi-day', 'mindful', 'Bodhi Day', fixed(12, 8), 'The Buddha’s awakening under the bodhi tree, as Zen keeps it'],
-  ['nirvana-day', 'mindful', 'Nirvana Day', fixed(2, 15), 'The Buddha’s passing, a day to remember impermanence'],
+  // Only two, so each one means something; a small practice for each (decisions log, 2026-11-01)
+  ['vesak', 'mindful', 'Vesak', (y) => moonPhases(y).find((p) => p.key === 'full' && p.date.slice(5, 7) === '05')?.date || null, 'The Buddha’s birth, awakening and passing, all kept on the full moon of May. A practice: light a lamp at dusk, and do one kindness no one sees'],
+  ['bodhi-day', 'mindful', 'Bodhi Day', fixed(12, 8), 'The day the Buddha woke up under the bodhi tree, as Zen keeps it: he had resolved not to rise until he saw clearly. A practice: sit a little longer this morning'],
   // Small joys
   ['groundhog', 'fun', 'Groundhog Day', fixed(2, 2), 'Six more weeks of winter, or not'],
   ['pi', 'fun', 'Pi Day', fixed(3, 14), '3.14: pie for dinner is mathematically justified'],

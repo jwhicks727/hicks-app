@@ -212,9 +212,11 @@ celebrates them the way it celebrates everything else: woven into the
 places, quietly, never mixed into the Church's own cards, and only for those
 who want it. A sketch for the next session; the questions come first.
 
-**Built (2026-10-31):** Thay's line of the day and the Breathe screen on
-Home, the Mindful days in the calendar, the dishes in cook mode. Settled:
-Jason likes Thich Nhat Hanh a lot. Still to settle below.
+**Built (2026-11-01):** the morning sit on Home (`/home/sit`): one line to
+clear the mind and a timer, ten minutes unless changed; a line from the
+teaching each day, and on Sundays a word on one idea with one small thing to
+try; two Buddhist days on the calendar (Vesak, Bodhi Day), each with a
+practice. Teaching stays light: Jason reads about it and doesn't practise.
 
 **To settle first**
 

@@ -233,17 +233,29 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 /* A mindful moment, and the breathing pause */
 .mindful-q { margin: 0; display: grid; gap: 8px; font-family: var(--font-voice); font-size: 19px; line-height: 1.4; text-wrap: pretty; }
 .mindful-q span { font-family: var(--font-ui); font-size: 13px; font-weight: 700; color: var(--muted); }
+.mindful-teach { display: grid; gap: 6px; }
+.mindful-kicker { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.mindful-teach b { font-family: var(--font-voice); font-weight: 400; font-size: 22px; line-height: 1.2; }
+.mindful-try span { font-weight: 800; }
 .cm-dishes { font-size: 16px; padding: 12px 14px; border-radius: var(--r-control); background: color-mix(in srgb, #C98AB5 10%, var(--card)); }
-.breathe { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; align-content: center; gap: 36px; padding: max(24px, env(safe-area-inset-top, 0px)) 24px max(24px, env(safe-area-inset-bottom, 0px)); background: radial-gradient(120% 80% at 50% 110%, #F4C79A, #C9A1B4 45%, #6F7FB8 80%, #3C4475); color: #FFFFFF; text-align: center; }
-.breathe-x { position: absolute; top: max(16px, env(safe-area-inset-top, 0px)); right: 16px; }
-.breathe-circle { width: min(62vw, 300px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #FFF6E8, #F6D3B5 45%, rgba(246, 211, 181, .2) 70%, transparent 72%); transform: scale(.62); transition: transform 4s ease-in-out; }
-.breathe-circle.in { transform: scale(1); transition-duration: 4s; }
-.breathe-circle.out { transform: scale(.62); transition-duration: 6s; }
-.breathe-circle.calm, html[data-motion="less"] .breathe-circle { transition: none; transform: scale(.85); }
-.breathe-t { display: grid; gap: 14px; justify-items: center; max-width: 30em; }
-.breathe-line { font-family: var(--font-voice); font-size: 26px; line-height: 1.25; text-wrap: balance; }
-.breathe-left { font-variant-numeric: tabular-nums; font-weight: 800; opacity: .85; }
-.breathe .choice-row button { background: rgba(255, 255, 255, .18); color: #FFFFFF; border-color: rgba(255, 255, 255, .4); }
+.sit { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; align-content: center; gap: 30px; padding: max(24px, env(safe-area-inset-top, 0px)) 24px max(24px, env(safe-area-inset-bottom, 0px)); background: radial-gradient(120% 80% at 50% 110%, #E8B48E, #A985A0 45%, #4F5C8F 80%, #262C52); color: #FFFFFF; text-align: center; transition: background 2s ease; }
+.sit-sitting, .sit-done { background: radial-gradient(120% 90% at 50% 100%, #3A3460, #1C1B33 60%, #0F0E1E); }
+.sit-x { position: absolute; top: max(16px, env(safe-area-inset-top, 0px)); right: 16px; }
+.sit-t { display: grid; gap: 16px; justify-items: center; max-width: 30em; }
+.sit-line { font-family: var(--font-voice); font-size: 28px; line-height: 1.25; text-wrap: balance; }
+.sit .btn { justify-self: center; }
+.sit-who { font-size: 14px; font-weight: 700; opacity: .8; margin-top: -8px; }
+.sit-len { display: flex; align-items: center; gap: 18px; margin-top: 10px; }
+.sit-min { font-weight: 700; white-space: nowrap; } .sit-min b { font-family: var(--font-display); font-weight: 400; font-size: 48px; line-height: 1; margin-right: 4px; }
+.sit-step { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .12); color: #FFF; font-size: 24px; line-height: 1; cursor: pointer; }
+.sit .choice-row button { background: rgba(255, 255, 255, .14); color: #FFFFFF; border-color: rgba(255, 255, 255, .35); min-width: 48px; }
+.sit .choice-row button[aria-pressed="true"] { background: rgba(255, 255, 255, .9); color: #262C52; }
+.sit-ring { width: min(64vw, 280px); }
+.sit-ring circle { fill: none; stroke-width: 1.2; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.sit-ring-bg { stroke: rgba(255, 255, 255, .1); } .sit-ring-fg { stroke: rgba(255, 230, 200, .45); transition: stroke-dashoffset .5s linear; }
+.sit-left { position: absolute; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px; opacity: 0; transition: opacity .6s ease; }
+.sit-left.on { opacity: .7; }
+.sit-end { position: absolute; bottom: max(28px, env(safe-area-inset-bottom, 0px)); min-height: 44px; padding: 0 18px; border: 0; background: none; color: rgba(255, 255, 255, .45); font-weight: 700; cursor: pointer; }
 .breathe .choice-row button[aria-pressed="true"] { background: #FFFFFF; color: #3C4475; }
 .breathe .muted { color: rgba(255, 255, 255, .8); }
 

@@ -6,6 +6,34 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — A morning sit, and the teaching taken lightly
+
+- **The breathing pause becomes the morning sit** (`/home/sit`): one short
+  line to clear the mind and a timer, nothing else. The lines are from the
+  Dhammapada, the suttas, old Zen sayings and Thay. It's ten minutes
+  unless changed: a −/+ by the minute, with 5, 10, 15, 20 or 30 a tap
+  away, and it remembers the last length. The bowl sounds at the start
+  and end. The screen stays awake and dark; a faint ring fills as the time
+  goes, and a tap shows or hides the minutes left. "End" stops early.
+  There are no breathing instructions; Jason sits ten minutes most
+  mornings and doesn't need guiding.
+- **The teaching comes lightly, for someone who reads about Buddhism and
+  doesn't practise it as a religion:**
+  - On Sundays, Home's mindful card gives a word on one idea, in a few
+    plain sentences, with one small thing to try that week. The ideas are
+    impermanence, the middle way, interbeing, loving-kindness, the four
+    noble truths, right speech, beginner's mind, equanimity, sympathetic
+    joy, compassion, the present moment and the three jewels.
+  - Other days it gives a line.
+- **Only two Buddhist days on the calendar,** so each means something:
+  - Vesak, on May's full moon;
+  - Bodhi Day, on December 8.
+
+  Each says what it is and offers a small practice. Thich Nhat Hanh's
+  Continuation Day, his remembrance and Nirvana Day are gone from the
+  calendar.
+- **The season's show never plays over a sit, or over cook mode.**
+
 ## 2026-11-01 — Seasons move instead of colouring the sky
 
 This reverses the seasonal wash of 2026-10-31.

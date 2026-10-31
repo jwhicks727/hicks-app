@@ -8,7 +8,7 @@ import TodayCard from '../parts/TodayCard.jsx'
 import FridgeCard from '../parts/FridgeCard.jsx'
 import RateNudge from '../kitchen/RateNudge.jsx'
 import MindfulCard from '../parts/MindfulCard.jsx'
-import Breathe from '../parts/Breathe.jsx'
+import Sit from '../parts/Sit.jsx'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import PaintingsCard from '../parts/PaintingsCard.jsx'
 import { seasonFor } from '../lib/seasons.js'
@@ -30,7 +30,7 @@ const hourFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour:
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 
 export default function Home({ rest = [] }) {
-  if (rest[0] === 'breathe') return <Breathe />
+  if (rest[0] === 'sit' || rest[0] === 'breathe') return <Sit />
   return <HomeScreen />
 }
 

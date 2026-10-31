@@ -123,6 +123,17 @@ test('wild seasons and mindful days, with who to read', async () => {
   assert.deepEqual([on('eagles', 2027).start, on('eagles', 2027).end], ['2027-01-01', '2027-06-15'])
   assert.equal(on('monarchs', 2026).end, '2027-02-28'); assert.match(on('monarchs', 2026).links[0][1], /^https:\/\/www\.westernmonarchcount\.org/)
   assert.ok(observancesOn('2027-01-10').some((o) => o.id === 'whales' && o.ongoing), 'last winter’s whales are still passing in January')
-  assert.equal(on('vesak', 2026).start, '2026-05-01'); assert.equal(on('thay-continuation', 2026).start, '2026-10-11')
+  assert.equal(on('vesak', 2026).start, '2026-05-01'); assert.equal(on('bodhi-day', 2026).start, '2026-12-08')
   for (const o of observancesFor(2026)) for (const [, url] of o.links || []) assert.match(url, /^https:\/\//, o.id)
+})
+
+test('the sit opens with one short line; the teaching comes lightly, on Sundays', async () => {
+  const { sitLineFor, teachingFor, SIT_LINES, TEACHINGS } = await import('../src/lib/mindful.js')
+  assert.ok(SIT_LINES.includes(sitLineFor('2026-11-02')))
+  for (const [line, who] of SIT_LINES) assert.ok(line.length < 120 && who, line)
+  assert.equal(teachingFor('2026-11-02'), null, 'a Monday has none')
+  assert.ok(TEACHINGS.includes(teachingFor('2026-11-01')), 'a Sunday has one')
+  assert.notEqual(teachingFor('2026-11-01').name, teachingFor('2026-11-08').name, 'a different one each week')
+  const mindful = observancesFor(2026).filter((o) => o.group === 'mindful')
+  assert.deepEqual(mindful.map((o) => o.id).sort(), ['bodhi-day', 'vesak'], 'only two Buddhist days, so each means something')
 })

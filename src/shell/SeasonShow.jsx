@@ -6,12 +6,15 @@ import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import { reducedMotion } from '../lib/motion.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { HOME_TOWN } from '../lib/sky.js'
+import { usePath } from '../lib/router.js'
 import './season-show.css'
 
 // The season's show: once a day, a moment after the app opens, something
 // from one of Laurie's paintings moves across the screen (her leaves fall).
 // Drawn over everything, never taking a tap; transforms and opacity only;
-// nothing under less motion. Settings can play it again ("hicks:show").
+// nothing under less motion, and never over a sit or cook mode, where the
+// screen is meant to be still. Settings can play it again ("hicks:show").
+const QUIET = /^\/home\/(sit|breathe)|\/cook$/
 const KEY = 'teamhicks.shows'
 const played = (k, day) => { try { return (JSON.parse(localStorage.getItem(KEY)) || {})[k] === day } catch { return true } }
 const mark = (k, day) => { try { const m = JSON.parse(localStorage.getItem(KEY)) || {}; m[k] = day; localStorage.setItem(KEY, JSON.stringify(m)) } catch { /* fine */ } }
@@ -22,6 +25,7 @@ export default function SeasonShow() {
   const day = todayAt(HOME_TOWN.tz, new Date())
   const key = tryKey || seasonFor(day).key
   const [run, setRun] = useState(null) // { falls, id }
+  const quiet = QUIET.test(usePath())
 
   const start = (k) => {
     const show = showFor(k)
@@ -31,10 +35,10 @@ export default function SeasonShow() {
   }
   // Once a day, a moment after opening
   useEffect(() => {
-    if (prefs.seasonal === false || !showFor(key) || played(key, day)) return
+    if (quiet || prefs.seasonal === false || !showFor(key) || played(key, day)) return
     const t = setTimeout(() => { mark(key, day); start(key) }, 1400)
     return () => clearTimeout(t)
-  }, [key, day, prefs.seasonal]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, day, prefs.seasonal, quiet]) // eslint-disable-line react-hooks/exhaustive-deps
   // Again, on request
   useEffect(() => {
     const on = (e) => start((e.detail && e.detail.key) || key)
@@ -48,7 +52,7 @@ export default function SeasonShow() {
     return () => clearTimeout(t)
   }, [run])
 
-  if (!run) return null
+  if (!run || quiet) return null
   const { show, falls } = run
   const [sw, sh] = show.painting.leaves.size
   return createPortal(
