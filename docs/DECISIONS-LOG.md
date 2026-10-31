@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Keepers, unicorns, the week's two lists, and asking for ratings
+
+- **All 4s and 5s make a keeper; three 5s make a unicorn.** Keepers and
+  unicorns come back on "Make it again" after three weeks uncooked, unicorns
+  first; a unicorn is celebrated with the swirling light in pastel rainbow
+  and a horn badge, and the light plays the moment the third 5 is given.
+- **Not a grocery list:** Jason writes his by hand. The week's picks give two
+  reminders beside it, Must buy and Check the pantry (with the fridge's
+  staples counted as pantry), sorted by the words of each ingredient and
+  merged across dishes.
+- **Each of us is asked to rate,** for four days after a dinner is cooked,
+  until we do or say "Not now" (the shine of a job waiting). Phone
+  notifications would need the app installed and hosted first.
+
+---
+
 ## 2026-10-31 — The year's colours, after SOAR's seasonal schedule
 
 - **A seasonal wash over the sky,** following the shape of SOAR's schedule

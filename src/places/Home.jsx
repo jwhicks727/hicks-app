@@ -6,6 +6,8 @@ import Coming from '../parts/Coming.jsx'
 import RolloverShine from '../parts/RolloverShine.jsx'
 import TodayCard from '../parts/TodayCard.jsx'
 import FridgeCard from '../parts/FridgeCard.jsx'
+import RateNudge from '../kitchen/RateNudge.jsx'
+import { useCookbook } from '../lib/useKitchen.js'
 import { WeatherNow } from '../parts/WeatherCard.jsx'
 import FamilyBanner from '../parts/FamilyBanner.jsx'
 import { Link } from '../shell/Link.jsx'
@@ -29,6 +31,7 @@ export default function Home() {
   const me = email && family.members.find((m) => (m.email || '').toLowerCase() === email)
   const today = todayAt(HOME_TOWN.tz, now), hour = +hourFmt.format(now)
   const { events } = useEvents(session, today, today)
+  const book = useCookbook(session)
   const occasion = occasionFor(dayView(today, { familyDays: family.days, events }))
   const t = SunCalc.getTimes(now, HOME_TOWN.lat, HOME_TOWN.lng)
   const sun = now < t.sunset ? `sunset ${hm.format(t.sunset)}` : `sunrise ${hm.format(SunCalc.getTimes(new Date(now.getTime() + 864e5), HOME_TOWN.lat, HOME_TOWN.lng).sunrise)}`
@@ -41,11 +44,12 @@ export default function Home() {
         <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
       </header>
       <RolloverShine />
+      <RateNudge book={book} me={me} today={today} />
       <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <WeatherNow />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
-      <FridgeCard session={session} />
+      <FridgeCard book={book} />
       <SkyToday />
       <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[
         'Kordyak, Wayne Ruble and SOAR beside home, from our chosen stations (SE685, 980SE, NGC08)',

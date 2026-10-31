@@ -162,6 +162,9 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       recipe page (three plates, cook check, ingredient pictures, timed
       steps, start-by time, ratings), cook mode, timers, the fridge and its
       Home card. Runs once `20261031230100_kitchen` has run.
+- [x] Keepers and unicorns (celebrated, and back on "Make it again"); the
+      week's Must buy and Check the pantry lists; each of us asked to rate
+      in the days after a dinner.
 - [ ] Laurie's food rules and `check_plate`; the weekly ten ideas and pins;
       `adapt`, the substitution engine.
 

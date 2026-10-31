@@ -13,6 +13,8 @@ import { FoodIcon, RecipeArt } from './FoodIcon.jsx'
 import { Inline, Prose } from './Inline.jsx'
 import { parsed, timeWords, PEOPLE } from './art.js'
 import Timers from './Timers.jsx'
+import { standing as standingOf } from '../lib/kitchen/week.js'
+import { StandingBadge, UnicornGlow } from './Unicorn.jsx'
 
 const SECTION_ICON = { Plating: 'star', Heat: 'weather', Herbs: 'bird', Texture: 'star', 'Trader Joe’s shortcuts': 'pot', Notes: 'calendar', 'Why it works': 'star' }
 const GROUP_NAMES = (groups) => groups.map((g, i) => {
@@ -42,12 +44,15 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const daysIn = fridge ? Math.max(0, Math.round((Date.parse(today) - Date.parse(fridge.added_on)) / 864e5)) : 0
   const check = cookCheck(r.groups, daysIn).slice(0, 5)
   const art = recipe.art && recipe.art.length ? recipe.art : []
+  const st = standingOf(ratings, members)
   return (
     <>
       <div className="span-6 recipe-top"><Crumb to="/kitchen">Kitchen</Crumb></div>
-      <article className="recipe-hero span-6">
+      <UnicornGlow standing={st} slug={slug} title={r.title} today={today} className="span-6">
+      <article className={'recipe-hero span-6' + (st.unicorn ? ' is-unicorn' : '')}>
         <RecipeArt names={art} />
         <div className="rh-t">
+          <StandingBadge standing={st} />
           <h1>{r.title}</h1>
           <p className="rh-meta">
             {r.total != null && <span className="chip"><b>{timeWords(r.total)}</b>{r.handsOn != null && ` · ${timeWords(r.handsOn)} hands-on`}</span>}
@@ -68,6 +73,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
           )}
         </div>
       </article>
+      </UnicornGlow>
 
       <Card tint="#F2C14E" label="Ratings" glyph="star" className="span-2 ratings-card">
         {['L', 'J', 'A'].map((k) => {

@@ -6,18 +6,20 @@ import { artFor } from './kitchen/food.js'
 
 /** Every recipe (without its body), with ratings and what's in the fridge. */
 export function useCookbook(session) {
-  const [state, setState] = useState({ recipes: [], ratings: [], fridge: [], loaded: false, error: null })
+  const [state, setState] = useState({ recipes: [], ratings: [], fridge: [], cooked: [], loaded: false, error: null })
   const [n, setN] = useState(0)
   useEffect(() => {
     let live = true
-    if (!supabase || !session) { setState({ recipes: [], ratings: [], fridge: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
+    if (!supabase || !session) { setState({ recipes: [], ratings: [], fridge: [], cooked: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
+    const since = new Date(Date.now() - 180 * 864e5).toISOString().slice(0, 10)
     Promise.all([
       fetchAll(() => supabase.from('recipes').select('id, slug, title, total_minutes, hands_on_minutes, serves, tags, art, created_at').order('title').order('id')),
       fetchAll(() => supabase.from('recipe_ratings').select('recipe_id, member_id, stars').order('id')),
       supabase.from('fridge').select('id, recipe_id, added_on, status, done_on').eq('status', 'waiting').order('added_on'),
-    ]).then(([r, g, f]) => {
+      fetchAll(() => supabase.from('fridge').select('id, recipe_id, done_on').eq('status', 'cooked').gte('done_on', since).order('done_on').order('id')),
+    ]).then(([r, g, f, c]) => {
       if (!live) return
-      setState({ recipes: r.data || [], ratings: g.data || [], fridge: f.data || [], loaded: true, error: (r.error || g.error || f.error || {}).message || null })
+      setState({ recipes: r.data || [], ratings: g.data || [], fridge: f.data || [], cooked: c.data || [], loaded: true, error: (r.error || g.error || f.error || c.error || {}).message || null })
     })
     return () => { live = false }
   }, [session, n])
@@ -66,3 +68,16 @@ export async function rate(recipeId, memberId, stars) {
 export async function addToFridge(recipeId, today) { return supabase.from('fridge').insert({ recipe_id: recipeId, added_on: today }) }
 export async function finishFridge(fridgeId, status, today) { return supabase.from('fridge').update({ status, done_on: today }).eq('id', fridgeId) }
 export async function removeRecipe(recipeId) { return supabase.from('recipes').delete().eq('id', recipeId) }
+
+/** The files of the week's picked recipes, for the week's lists. */
+export function useRecipeBodies(session, ids) {
+  const [bodies, setBodies] = useState([])
+  const key = ids.join(',')
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session || !ids.length) { setBodies([]); return undefined }
+    supabase.from('recipes').select('id, title, body').in('id', ids).then(({ data }) => { if (live) setBodies(data || []) })
+    return () => { live = false }
+  }, [session, key]) // eslint-disable-line react-hooks/exhaustive-deps
+  return bodies
+}

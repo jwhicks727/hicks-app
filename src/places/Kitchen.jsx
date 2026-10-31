@@ -28,5 +28,5 @@ export default function Kitchen({ rest }) {
   if (view === 'recipe' && sub === 'cook') return <CookMode data={one} slug={slug} parent={parent} />
   if (view === 'recipe') return <RecipePage data={one} slug={slug} me={me} members={family.members} parent={parent} today={today} onChanged={one.reload} />
   if (view === 'add') return <AddRecipes parent={parent} onSaved={() => navigate('/kitchen', { replace: true })} />
-  return <KitchenHome book={book} family={family} signedIn={Boolean(session)} parent={parent} today={today} />
+  return <KitchenHome book={book} family={family} session={session} me={me} parent={parent} today={today} />
 }

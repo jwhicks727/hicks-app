@@ -1,12 +1,10 @@
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
-import { useCookbook } from '../lib/useKitchen.js'
 import { RecipeArt } from '../kitchen/FoodIcon.jsx'
 import '../kitchen/kitchen.css'
 
 /** Home: the recipes still in the fridge this week. Only while there are some. */
-export default function FridgeCard({ session }) {
-  const book = useCookbook(session)
+export default function FridgeCard({ book }) {
   const waiting = book.fridge.map((f) => book.recipes.find((r) => r.id === f.recipe_id)).filter(Boolean)
   if (!waiting.length) return null
   return (

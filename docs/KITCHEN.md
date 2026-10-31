@@ -83,6 +83,20 @@ exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
   before the phone closed the app is still right; each chimes and buzzes
   once.
 - **Home** shows what's still in the fridge, only while something is.
+- **Keepers and unicorns.** A recipe everyone who rated it gave 4 or 5 (two
+  of us at least) is a keeper; all three of us giving it 5 is a unicorn,
+  celebrated with its own light and badge, and again the moment the third 5
+  lands. Both come back on "Make it again" once they haven't been cooked in
+  three weeks, unicorns first (`src/lib/kitchen/week.js`).
+- **This week's two lists, not a grocery list.** Jason writes his own. Once
+  the week's dishes are picked ("Add to this week"), the Kitchen gives
+  **Must buy** (produce and herbs, protein, fresh dairy and bread: what the
+  dishes can't do without) and **Check the pantry** (fridge staples like
+  miso, Parmesan and chili crisp; the freezer; the shelves), each line saying
+  which dish needs how much. Ticks stay on the device for the week.
+- **Rating, after.** For four days after a dinner is cooked, each of us is
+  asked "How was it?" on Home and in the Kitchen, with stars to tap, until
+  we've rated it or said "Not now".
 
 ## Technique worth keeping
 
@@ -109,4 +123,5 @@ From the handoff, for the recipes and for whoever writes them:
 - Laurie's food rules (versioned, dated, never edited in place), and
   `check_plate`: a recipe checked against them, in a migration readable by
   Jason and Laurie only.
-- The weekly ten ideas and pins; `adapt`, the substitution engine.
+- The weekly ten ideas and pins, with keepers and unicorns among them;
+  `adapt`, the substitution engine.
