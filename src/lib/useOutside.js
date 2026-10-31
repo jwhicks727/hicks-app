@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { useSession } from './auth.js'
+import { outsideProblem } from './outsideErrors.js'
 
 // The stations and the birds: asked of their Edge Functions (which keep the
 // last answer and ask the outside services at most every quarter hour and
@@ -17,10 +18,7 @@ async function ask(name) {
   asking[name] = true
   const { data, error } = await supabase.functions.invoke(name, { body: {} })
   asking[name] = false
-  const status = error && error.context && error.context.status
-  const v = error
-    ? { error: status === 503 || status === 404 ? 'setup' : 'unreachable' }
-    : data && data.error && !data.at ? { error: data.error } : data
+  const v = outsideProblem({ error, data, online: typeof navigator === 'undefined' || navigator.onLine !== false }) || data
   kept[name] = { data: v, at: Date.now() }
   ;(subs[name] || new Set()).forEach((f) => f(v))
 }

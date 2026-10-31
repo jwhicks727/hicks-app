@@ -19,6 +19,7 @@ const TOWN = { lat: 34.0922, lng: -117.435 } // Fontana's centre, as src/lib/sky
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
 const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
 let lastFail = 0
+let memory: { data: Record<string, unknown>, at: number } | null = null // if the table can't be read or written, this instance still remembers
 const photos = new Map<string, unknown>() // kept in this instance: a species' photo rarely changes
 
 const get = async (url: string, headers: Record<string, string> = {}) => {
@@ -38,8 +39,10 @@ Deno.serve(async (req) => {
   if (!KEY || !SERVICE_KEY) return reply(503, { error: 'The birds aren’t set up yet' })
 
   const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } })
-  const { data: kept } = await db.from('outside_cache').select('data, fetched_at').eq('key', 'birds').maybeSingle()
-  if (kept && Date.now() - Date.parse(kept.fetched_at) < KEEP_MS) return reply(200, kept.data)
+  const { data: row, error: readErr } = await db.from('outside_cache').select('data, fetched_at').eq('key', 'birds').maybeSingle()
+  if (readErr) console.error('outside_cache read:', readErr.message) // the newest migration hasn't been run
+  const kept = row ? { data: row.data as Record<string, unknown>, at: Date.parse(row.fetched_at) } : memory
+  if (kept && Date.now() - kept.at < KEEP_MS) return reply(200, kept.data)
   if (Date.now() - lastFail < 10 * 60e3) return reply(200, kept ? { ...kept.data, stale: true } : { error: 'eBird couldn’t be reached just now' })
 
   try {
@@ -51,7 +54,9 @@ Deno.serve(async (req) => {
       ;(b as Record<string, unknown>).photo = photos.get(b.sci)
     }
     const data = { at: Date.now(), species }
-    await db.from('outside_cache').upsert({ key: 'birds', data, fetched_at: new Date().toISOString() })
+    memory = { data, at: Date.now() }
+    const { error: writeErr } = await db.from('outside_cache').upsert({ key: 'birds', data, fetched_at: new Date().toISOString() })
+    if (writeErr) console.error('outside_cache write:', writeErr.message)
     return reply(200, data)
   } catch (e) {
     lastFail = Date.now()

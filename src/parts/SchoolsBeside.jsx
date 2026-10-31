@@ -1,5 +1,6 @@
 import { Link } from '../shell/Link.jsx'
 import { useStations } from '../lib/useOutside.js'
+import { outsideWords } from '../lib/outsideErrors.js'
 import { besideHome, readAgo } from '../lib/stationWords.js'
 
 const SCHOOLS = [['kordyak', 'Kordyak', 'Laurie'], ['ruble', 'Wayne Ruble', 'Anna'], ['soar', 'SOAR', 'Jason']]
@@ -12,7 +13,8 @@ const SCHOOLS = [['kordyak', 'Kordyak', 'Laurie'], ['ruble', 'Wayne Ruble', 'Ann
 export default function SchoolsBeside({ homeTemp }) {
   const st = useStations()
   if (!st || st.error) {
-    if (st && st.error === 'setup') return <p className="muted small wx-schools-note">The schools’ own stations appear here once Synoptic’s token is in (docs/MORNING.md).</p>
+    // A parent can act on "not set up" and on what the service said; a dropped connection says nothing
+    if (st && (st.error === 'setup' || st.error === 'said')) return <p className="muted small wx-schools-note">{outsideWords('stations', st)}</p>
     return null
   }
   const places = st.places || {}

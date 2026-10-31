@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { Sheet } from '../ui/Sheet.jsx'
 import { useBirds } from '../lib/useOutside.js'
+import { outsideWords } from '../lib/outsideErrors.js'
 import { useSession } from '../lib/auth.js'
 import { seenWhen, ebirdSpeciesUrl, ebirdChecklistUrl } from '../lib/birdWords.js'
 import { todayAtHome } from '../lib/useSources.js'
@@ -22,7 +23,7 @@ export default function BirdsCard({ className = 'span-3' }) {
   return (
     <Card tint="#2E7F86" label="Birds around us" glyph="bird" tag={list.length ? `${list.length} this week` : undefined} className={className + ' birds-card'}>
       {!b && <p className="muted">Looking at this week’s sightings…</p>}
-      {b && b.error && <p className="muted">{b.error === 'setup' ? 'This week’s birds round town appear here once the eBird key is in (docs/MORNING.md).' : 'eBird couldn’t be reached just now.'}</p>}
+      {b && b.error && <p className="muted" role="status">{outsideWords('birds', b)}</p>}
       {list.length > 0 && (
         <>
           <ul className="bd-grid">

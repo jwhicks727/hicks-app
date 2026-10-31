@@ -20,6 +20,7 @@ const TOKEN = Deno.env.get('SYNOPTIC_TOKEN') ?? ''
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
 const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
 let lastFail = 0
+let memory: { data: Record<string, unknown>, at: number } | null = null // if the table can't be read or written, this instance still remembers
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
@@ -32,12 +33,14 @@ Deno.serve(async (req) => {
   if (!TOKEN || !SERVICE_KEY) return reply(503, { error: 'The stations aren’t set up yet' })
 
   const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } })
-  const { data: kept } = await db.from('outside_cache').select('data, fetched_at').eq('key', 'stations').maybeSingle()
+  const { data: row, error: readErr } = await db.from('outside_cache').select('data, fetched_at').eq('key', 'stations').maybeSingle()
+  if (readErr) console.error('outside_cache read:', readErr.message) // the newest migration hasn't been run
+  const kept = row ? { data: row.data as Record<string, unknown>, at: Date.parse(row.fetched_at) } : memory
   const { data: rows, error: rowsErr } = await db.from('weather_stations').select('place, stid, fallback, updated_at')
   if (rowsErr || !rows) return reply(500, { error: 'The stations couldn’t be read' })
   // A change in Admin since the last answer asks again at once
-  const changed = kept && rows.some((r) => Date.parse(r.updated_at) > Date.parse(kept.fetched_at))
-  if (kept && !changed && Date.now() - Date.parse(kept.fetched_at) < KEEP_MS) return reply(200, kept.data)
+  const changed = kept && rows.some((r) => Date.parse(r.updated_at) > kept.at)
+  if (kept && !changed && Date.now() - kept.at < KEEP_MS) return reply(200, kept.data)
   if (Date.now() - lastFail < 5 * 60e3) return reply(200, kept ? { ...kept.data, stale: true } : { error: 'Synoptic couldn’t be reached just now' })
 
   const stids = rows.flatMap((r) => [r.stid, r.fallback]).filter(Boolean)
@@ -52,7 +55,9 @@ Deno.serve(async (req) => {
       return reply(200, kept ? { ...kept.data, stale: true, error: why } : { error: why })
     }
     const data = { at: Date.now(), places: choose(rows, shapeStations(json, Date.now())) }
-    await db.from('outside_cache').upsert({ key: 'stations', data, fetched_at: new Date().toISOString() })
+    memory = { data, at: Date.now() }
+    const { error: writeErr } = await db.from('outside_cache').upsert({ key: 'stations', data, fetched_at: new Date().toISOString() })
+    if (writeErr) console.error('outside_cache write:', writeErr.message)
     return reply(200, data)
   } catch {
     lastFail = Date.now()
