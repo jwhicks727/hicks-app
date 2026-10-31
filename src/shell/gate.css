@@ -7,5 +7,8 @@
 .gate-card .form { display: grid; gap: 12px; }
 .gate-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .gate-link { padding: 8px 0; border: 0; background: none; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; text-align: left; }
+.gate-code { display: grid; gap: 10px; }
+.gate-code summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.gate-code[open] summary { margin-bottom: 2px; }
 .gate-quiet { margin: 0; color: var(--sky-ink, var(--ink)); font-weight: 700; }
 @media (orientation: landscape) and (max-height: 500px) { .gate { align-content: start; padding-top: 12px; gap: 8px; } .gate-brand { font-size: 32px; } }
