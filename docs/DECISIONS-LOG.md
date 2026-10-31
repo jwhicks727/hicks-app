@@ -6,6 +6,15 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Upright headings: Caprasimo, not Shrikhand
+
+Jason didn't want italic headings. Shrikhand is a slanted face, so the
+greeting, place names and screen titles now use Caprasimo, the upright,
+curvy Cooper-style face already used for big numbers. Shrikhand is dropped.
+Nunito stays for everything read or tapped.
+
+---
+
 ## 2026-10-31 — Settings, Setup and Reports; SOAR's rules for one developer
 
 - **Settings, Setup and Reports work the way SOAR's do:** each place

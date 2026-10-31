@@ -44,8 +44,9 @@ and write the code fresh. SOAR's code belongs to the school.
 - The sky of the hour sits behind everything; cards are warm paper with a
   blush of their place's colour; corners are nearly square (4px controls,
   6px cards; the floating tab bar is the one rounded exception).
-- Fonts: Shrikhand for the loud moments, Caprasimo for headings and big
-  numbers, Nunito for everything read or tapped. Never a font SOAR uses
+- Fonts: Caprasimo (upright, curvy, Cooper-like) for headings, the loud
+  moments and big numbers; Nunito for everything read or tapped. No slanted
+  or italic headings. Never a font SOAR uses
   (Fraunces, Instrument Sans, Russo One, Atkinson Hyperlegible), and no
   handwriting faces.
 - Colour means something: each place has its own. A shine in a place's own

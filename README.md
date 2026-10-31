@@ -52,8 +52,7 @@ Every picture the app uses is human-made: Laurie's paintings, our own
 photos, or free libraries whose licences allow it. Each source is credited
 where it appears and listed here:
 
-- **Fonts:** Nunito, Caprasimo and Shrikhand from Google Fonts (SIL Open Font
-  Licence).
+- **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence).
 - **Food pictures** (from the next phase): the Food Icon Pack by Michael
   Bollin, https://foodiconpack.com, CC BY 4.0, coloured in.
 - **Sun and moon:** worked out on the device with SunCalc (BSD licence).
