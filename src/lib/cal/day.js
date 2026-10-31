@@ -17,7 +17,7 @@ export function moonOn(d) {
 }
 
 /** Is this row for this person (or for everyone)? `who` null means everyone's. */
-export const forWho = (who) => (row) => !who || !row.for_whom || row.for_whom === who
+export const forWho = (who) => (row) => !who || !row.for_whom || row.for_whom === who || (row.also_for || []).includes(who)
 
 /**
  * One day: { date, lit, family, observances, ongoing, moon, events }.

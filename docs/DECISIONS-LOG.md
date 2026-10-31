@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Many shared calendars, each event once, with a readable title
+
+- **Shown once:** an event that arrives from several of the calendars we
+  share (an invitation on two of ours, a district event copied into a
+  school's) is the same event when it has the same feed id on the same day,
+  or the same tidied title at the same time. Ours wins over a feed's copy;
+  it still counts for everyone whose calendar it came from, so "whose days"
+  finds it. Two schools' days off are never merged, whatever they're called.
+- **Readable titles,** for display only (the feed's own words stay stored,
+  so the rules can improve): "Invitation:", "FW:" and the like come off,
+  Google's "@ Fri Nov 6 6pm…" tails and email addresses go, a leading
+  [district] tag goes, and SHOUTING becomes Title Case while acronyms (PTA,
+  IEP, SOAR, MPR) stay. A title a person wrote is left alone
+  (`src/lib/cal/tidy.js`, tested).
+
+---
+
 ## 2026-10-31 — Keepers, unicorns, the week's two lists, and asking for ratings
 
 - **All 4s and 5s make a keeper; three 5s make a unicorn.** Keepers and

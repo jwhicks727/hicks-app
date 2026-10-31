@@ -28,6 +28,8 @@ Built in this order, each part in daily use before the next.
       address): the `read-sources` Edge Function, nightly and on "Read now",
       keeping every reading and never deleting an event (to deploy:
       docs/DATABASE.md, "Reading calendar feeds").
+- [x] Every event once across the calendars we share, with tidy, readable
+      titles (display only; the feeds' words stay stored).
 - [ ] Reading documents and pictures into dates someone approves.
 - [ ] Sign-in for the three of us (built: the email link), and the
       greeting by name (built: Home greets whoever is signed in).

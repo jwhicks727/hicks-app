@@ -15,6 +15,7 @@ import { useSession } from '../lib/auth.js'
 import { useFamily, useEvents } from '../lib/useCalendar.js'
 import { dayView } from '../lib/cal/day.js'
 import { occasionFor } from '../lib/occasions.js'
+import { dedupeEvents } from '../lib/cal/tidy.js'
 import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 import { todayAt } from '../lib/cal/dates.js'
 import '../calendar/calendar.css'
@@ -30,7 +31,8 @@ export default function Home() {
   const email = session && session.user.email ? session.user.email.toLowerCase() : null
   const me = email && family.members.find((m) => (m.email || '').toLowerCase() === email)
   const today = todayAt(HOME_TOWN.tz, now), hour = +hourFmt.format(now)
-  const { events } = useEvents(session, today, today)
+  const { events: rawEvents } = useEvents(session, today, today)
+  const events = dedupeEvents(rawEvents)
   const book = useCookbook(session)
   const occasion = occasionFor(dayView(today, { familyDays: family.days, events }))
   const t = SunCalc.getTimes(now, HOME_TOWN.lat, HOME_TOWN.lng)
