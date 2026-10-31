@@ -136,10 +136,15 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 4. Kitchen
 
-- [ ] The week's recipes, the fridge, the cook check, ratings, the plates.
-      The meal-planning spec is split first: the planning rules, recipe
-      format and data model come into this repository; Laurie's own food
-      rules go to the database (they are health information).
+- [x] The meal-planning handoff split: the pattern, the weekly rhythm, the
+      recipe format and the design are in `docs/KITCHEN.md`; Laurie's food
+      rules stay out of the repository.
+- [x] Recipes from Jason's Obsidian files (paste or open several), the
+      recipe page (three plates, cook check, ingredient pictures, timed
+      steps, start-by time, ratings), cook mode, timers, the fridge and its
+      Home card. Runs once `20261031230100_kitchen` has run.
+- [ ] Laurie's food rules and `check_plate`; the weekly ten ideas and pins;
+      `adapt`, the substitution engine.
 
 ## 5. Jams
 

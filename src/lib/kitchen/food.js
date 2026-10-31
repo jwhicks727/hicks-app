@@ -1,0 +1,109 @@
+// ============================================
+// food.js -- each ingredient's picture and colour (the Food Icon Pack, CC BY
+// 4.0, in public/food/), and how long fresh things keep (the cook check).
+// ============================================
+
+// Every icon in public/food/, by file name.
+export const ICONS = new Set('achiote_paste acorn_squash active_dry_yeast adobo_sauce adzuki_beans agar agave ajvar allspice almond_flour almonds amaranth amchur anchovy annatto_seeds apple apple_cider_vinegar applesauce apricot arborio_rice artichoke arugula asafoetida asiago asparagus avocado avocado_oil baby_corn bacon baking_powder baking_soda balsamic_vinegar bamboo_shoots banana banana_blossom barley basil basmati_rice bay_leaf bbq_sauce beef beef_broth beef_ribs beer beet bell_pepper berries black_beans black_eyed_peas black_pepper black_vinegar blackberry blue_cheese blueberry bluefish bok_choy bonito brazil_nuts bread_flour brie broccoli brown_rice brown_sugar brussels_sprouts buckwheat bulgur burrata butter buttermilk butternut_squash cabbage cake_flour calamansi camembert cannellini_beans canola_oil cantaloupe capers caraway cardamom carp carrot cashews cassava catfish cauliflower cayenne celeriac celery cheddar cherry cherry_tomato chia_seeds chicken chicken_broth chickpeas chili_pepper chili_powder chimichurri chives chocolate_chips chorizo cilantro cinnamon clams cloves_spice cocoa_powder coconut coconut_cream coconut_flour coconut_milk coconut_oil cod coffee collard_greens comte coriander_seed corn corn_syrup cornichons cornmeal cornstarch cotija cottage_cheese couscous crab cranberry cranberry_sauce crawfish cream cream_cheese creme_fraiche cucumber cumin_seed currant curry_leaf curry_paste_massaman curry_powder daikon dashi_powder date dijon_mustard dill doubanjiang dragon_fruit duck durian dutch_oven edam edamame eel egg_white egg_yolk eggplant eggs elderberry emmental endive enoki espresso farro fava_beans fennel fenugreek_seed feta fig fish_sauce fish_stock flax_seeds flounder flour fontina frisee furikake galangal garam_masala garlic gelatin ghee ginger goat_cheese goat_meat gochugaru gochujang goose gooseberry gorgonzola gouda grape grapefruit grapeseed_oil great_northern_beans greek_yogurt green_beans green_jackfruit ground_beef ground_lamb ground_pork gruyere guava habanero haddock halibut halloumi ham harissa havarti hazelnuts hearts_of_palm heavy_cream hemp_seeds herbes_de_provence herring hoisin hominy honey honeydew horseradish horseradish_sauce hot_sauce hummus instant_yeast jackfruit jalapeno jasmine_rice jicama kaffir_lime_leaf kale kefir ketchup kidney_beans kimchi kiwi kohlrabi kombu labneh lamb lard lasagna_sheet leek lemon lemongrass lentils lettuce lime lobster lychee macadamia mackerel malanga manchego mango mango_chutney mangosteen maple_syrup margarine marjoram mascarpone mayonnaise milk millet mint mirin miso molasses monkfish monterey_jack morel mozzarella muenster mung_beans mushroom mussels mustard napa_cabbage nigella_seed nopales nori nutmeg oaxaca_cheese octopus okra olive_oil onion onion_powder orange oregano oyster_mushroom oyster_sauce oysters pancetta paneer_indian panko papaya paprika parmesan parsley parsnip passion_fruit pasta pastry_flour peach peanut_oil peanuts pear pecans pecorino persimmon pesto pickles pickling_spice pike pine_nuts pineapple pinto_beans pistachios plantain plantain_flour plum poblano polenta pollock pomegranate poppy_seed pork pork_ribs potato powdered_sugar prawns prosciutto provolone pumpkin pumpkin_seeds quinoa rabbit raclette radicchio radish rambutan ramen_noodles raspberry red_cabbage red_onion red_wine_vinegar rice rice_noodles rice_wine_vinegar ricotta rockfish roquefort rose_water rosemary saffron sage sake salami salmon salt sambal_oelek sardine sauerkraut sausage scallion scallops schmaltz sea_bass seaweed_salad_veg sesame_oil sesame_seeds sheet_pan sherry_vinegar shiitake shiso shrimp skillet slow_cooker smelt smoked_salt snap_peas snow_peas soba sour_cream soy_milk soy_sauce spinach squid sriracha star_anise star_fruit steak_beef stevia stilton strawberry sugar sumac sunflower_oil sweet_chili_sauce sweet_potato swiss_cheese swordfish tahini taleggio tamari tamarind_paste tapenade tapioca tarragon tea teff tempeh teriyaki thyme tilapia tofu tomatillo tomato tomato_chutney tomato_juice trout truffle truffle_oil tuna turkey turmeric turmeric_root turnip udon vanilla_bean vanilla_extract veal vegetable_oil vegetable_stock venison vermouth wakame walnut_oil walnuts wasabi water water_chestnuts watermelon white_pepper white_wine_vinegar whitefish whole_wheat_flour wild_rice wine_red wine_white wok worcestershire yellow_squash yellowtail yogurt yuca yuzu zucchini '.trim().split(' '))
+
+// Said our way, before any name match: "green onions" are scallions, not onions.
+const FIRST = [
+  [/\bgreen onions?\b|\bspring onions?\b/, 'scallion'], [/\bshallots?\b/, 'onion'], [/\bchili crisp\b|\bred pepper flakes\b|\bchile\b|\bchiles\b|\bchilies\b/, 'chili_pepper'],
+  [/\b(kosher|flaky|sea) salt\b/, 'salt'], [/\bextra[- ]virgin\b|\bevoo\b/, 'olive_oil'], [/\bmicrowave rice|rice pouch/, 'rice'],
+]
+// When nothing else matched.
+const SYNONYMS = [
+  [/\b(vegetable|veggie) (stock|broth)\b|\bstock\b/, 'vegetable_stock'],
+  [/\bspaghetti|linguine|penne|rigatoni|orzo|fusilli|bucatini|orecchiette\b/, 'pasta'], [/\bnoodles?\b/, 'rice_noodles'],
+  [/\bslaw\b|\bcoleslaw\b/, 'cabbage'], [/\bgreens\b/, 'spinach'], [/\bchard\b/, 'collard_greens'], [/\bherbs?\b/, 'parsley'], [/\bcheese\b/, 'cheddar'],
+  [/\bpeppers?\b(?! flakes)/, 'bell_pepper'], [/\bsquash\b/, 'butternut_squash'], [/\bbeans\b/, 'black_beans'], [/\bfish\b/, 'cod'], [/\bchicken nuggets?\b/, 'chicken'],
+]
+
+/** The icon for an ingredient line's item, or null: the longest name it contains, plurals too. */
+export function iconFor(item) {
+  const t = ' ' + String(item).toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[^a-z\s-]/g, ' ').replace(/-/g, ' ').replace(/\s+/g, ' ') + ' '
+  for (const [re, name] of FIRST) if (re.test(t)) return name
+  let best = null
+  for (const name of ICONS) {
+    const words = name.replace(/_/g, ' ')
+    if (words.length <= (best ? best.replace(/_/g, ' ').length : 0)) continue
+    if (new RegExp(` ${words}(s|es)? `).test(t) || (words.endsWith('y') && t.includes(' ' + words.slice(0, -1) + 'ies '))) best = name
+  }
+  if (best) return best
+  for (const [re, name] of SYNONYMS) if (re.test(t) && ICONS.has(name)) return name
+  return null
+}
+
+const FAMILIES = [
+  [/salmon|trout|shrimp|prawns|lobster|crab|crawfish|smoked/, '#F7A386'],
+  [/cod|halibut|tilapia|sea_bass|haddock|pollock|flounder|rockfish|monkfish|swordfish|tuna|mackerel|sardine|anchovy|catfish|whitefish|scallops|squid|octopus|clams|mussels|oysters|yellowtail|snapper|fish|eel|herring|smelt|carp|pike|bluefish/, '#C9DCEB'],
+  [/spinach|kale|arugula|lettuce|bok_choy|collard|basil|parsley|cilantro|dill|chives|mint|tarragon|oregano|thyme|rosemary|sage|marjoram|scallion|leek|celery|cucumber|zucchini|green_beans|snap_peas|snow_peas|broccoli|asparagus|edamame|avocado|lime|okra|brussels|fennel|pesto|shiso|curry_leaf|kaffir|lemongrass|matcha|tomatillo|jalapeno|poblano|cabbage|napa|kohlrabi|artichoke|frisee|endive|nori|wakame|kiwi|pistachio|pea|bay_leaf|cornichons|pickles|capers|wasabi|seaweed|green/, '#A9D48F'],
+  [/carrot|sweet_potato|butternut|pumpkin|acorn|orange|apricot|mango|papaya|cantaloupe|peach|persimmon|turmeric|paprika|cayenne|curry|harissa|gochugaru|achiote|annatto|saffron|habanero|kabocha|yam/, '#F6BC57'],
+  [/tomato|bell_pepper|chili|strawberry|raspberry|beet|radish|red_cabbage|cranberry|pomegranate|watermelon|apple|cherry|gochujang|sriracha|ketchup|red_onion|sambal|chorizo|salami|doubanjiang|adobo|grapefruit|currant|rose|radicchio|red/, '#F08A7A'],
+  [/corn|lemon|banana|egg|pineapple|yellow_squash|butter|mustard|honey|ghee|polenta|cornmeal|yuzu|calamansi|star_fruit|plantain|chickpea|hummus|mango_chutney/, '#F8D25A'],
+  [/eggplant|blueberry|plum|grape|blackberry|fig|elderberry|purple|ube|taro|dragon_fruit|wine_red|balsamic/, '#B9A3D9'],
+  [/milk|cream|yogurt|ricotta|mozzarella|burrata|feta|goat_cheese|paneer|labneh|kefir|mascarpone|cottage|creme|sour_cream|mayonnaise|brie|camembert|halloumi|coconut|tofu|white/, '#F4E9CF'],
+  [/cheddar|gouda|gruyere|parmesan|pecorino|manchego|swiss|fontina|provolone|asiago|comte|emmental|havarti|edam|monterey|muenster|oaxaca|cotija|raclette|taleggio|stilton|gorgonzola|roquefort|blue_cheese/, '#F5D98B'],
+  [/beef|pork|bacon|ham|chicken|turkey|sausage|lamb|duck|veal|venison|goose|rabbit|goat_meat|prosciutto|pancetta|steak|ribs/, '#E8A890'],
+]
+/** The colour that fills an ingredient's drawing. */
+export function colourFor(name) {
+  if (!name) return '#EBD9B4'
+  for (const [re, c] of FAMILIES) if (re.test(name)) return c
+  return '#E6CC9C' // grains, beans, nuts, sauces, spices: warm wheat
+}
+
+// How long fresh things keep in our fridge, and how to tell: [match, days, what, how to tell].
+export const KEEPS = [
+  [/scallops?\b/, 2, 'Scallops', 'Sweet-smelling, firm and glossy; no sour smell or milky liquid.'],
+  [/\b(salmon|cod|halibut|trout|tilapia|sea bass|snapper|fish|tuna|swordfish|mahi)\b/, 2, 'Fresh fish', 'Smells clean and briny, never fishy; the flesh is firm and springs back.'],
+  [/\b(shrimp|prawns|lobster|crab|clams|mussels)\b/, 2, 'Shellfish', 'Clean, sea-sweet smell; firm, not slimy. Frozen and still hard keeps for months.'],
+  [/\bbean sprouts?\b/, 2, 'Bean sprouts', 'Crisp and white; no brown tips or sour smell.'],
+  [/\b(cilantro|basil|parsley|dill|chives|tarragon|chervil)\b/, 5, 'Tender herbs', 'Leaves green and perky, with no slime or black spots.'],
+  [/\b(spinach|arugula|lettuce|mixed greens|spring mix|watercress|bok choy|chard|microgreens)\b/, 4, 'Leafy greens', 'Leaves crisp; no slimy, yellow or see-through patches.'],
+  [/\b(avocados?)\b/, 3, 'Avocado', 'Gives a little when pressed; not mushy, no sour smell.'],
+  [/\b(berries|raspberr|strawberr|blackberr|blueberr)/, 4, 'Berries', 'Firm and dry; no mould where they touch.'],
+  [/\b(mushrooms?|shiitake|oyster mushrooms?|enoki|cremini)\b/, 5, 'Mushrooms', 'Dry and firm; no slime or dark wet spots.'],
+  [/\b(fresh mozzarella|burrata|ricotta)\b/, 5, 'Fresh cheese', 'Clean and milky; no sour smell.'],
+  [/\b(corn on the cob|fresh corn|ears? of corn)\b/, 3, 'Fresh corn', 'Husks green and snug; kernels plump and milky when pressed.'],
+  [/\b(zucchini|summer squash|yellow squash)\b/, 5, 'Summer squash', 'Firm and glossy; no soft or wrinkled ends.'],
+  [/\b(asparagus|snap peas|snow peas|green beans)\b/, 4, 'Spring greens', 'Snap cleanly; tips tight, not slimy.'],
+  [/\b(tomato(es)?|cherry tomatoes)\b/, 5, 'Tomatoes', 'Firm with a little give; no wrinkles or leaks.'],
+  [/\b(scallions?|green onions?)\b/, 8, 'Scallions', 'Green tops firm, not slimy or yellow.'],
+  [/\b(cucumbers?)\b/, 7, 'Cucumber', 'Firm all the way to the ends.'],
+  [/\b(broccoli|cauliflower|brussels)\b/, 7, 'Brassicas', 'Tight and green or white; no yellowing or dark spots.'],
+  [/\b(fennel)\b/, 7, 'Fennel', 'Bulb firm and white; fronds not slimy.'],
+  [/\b(tempeh)\b/, 10, 'Tempeh', 'Inside its date; white or grey spots are fine, wet or pink ones aren’t.'],
+  [/\b(tofu)\b/, 30, 'Tofu, unopened', 'Inside its date; the package isn’t puffed up.'],
+  [/\b(ginger)\b/, 21, 'Ginger', 'Firm, not shrivelled or soft.'],
+  [/\b(lemons?|limes?|oranges?)\b/, 21, 'Citrus', 'Firm and fragrant.'],
+]
+
+/** A recipe's three pictures, from its parsed groups: the protein first, then the produce. */
+export function artFor(parsed) {
+  const order = [parsed.groups[1] || [], parsed.groups[0] || [], ...parsed.groups.slice(2)]
+  const out = []
+  for (const g of order) for (const ing of g) {
+    const n = iconFor(ing.item)
+    if (n && !out.includes(n) && !/^(salt|black_pepper|olive_oil|water|vegetable_oil|canola_oil)$/.test(n)) out.push(n)
+    if (out.length === 3) return out
+  }
+  return out
+}
+
+/**
+ * The cook check: the fresh things in a recipe, fastest to spoil first, given
+ * how many days it has been in the fridge. [{ what, item, days, left, tell }]
+ */
+export function cookCheck(groups, daysInFridge = 0) {
+  const seen = new Set(), out = []
+  for (const g of groups) for (const ing of g) {
+    const t = ing.item.toLowerCase()
+    if (/\bfrozen\b|\bcanned\b|\bdried\b|\bjarred\b|\bpaste\b|\bpowder\b|\bground\b(?! (beef|pork|lamb|turkey))/.test(t)) continue
+    const k = KEEPS.find(([re]) => re.test(t))
+    if (!k || seen.has(k[2])) continue
+    seen.add(k[2])
+    out.push({ what: k[2], item: ing.item, days: k[1], left: k[1] - daysInFridge, tell: k[3] })
+  }
+  return out.sort((a, b) => a.left - b.left)
+}

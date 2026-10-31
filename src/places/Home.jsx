@@ -5,6 +5,7 @@ import SkyToday from '../parts/SkyToday.jsx'
 import Coming from '../parts/Coming.jsx'
 import RolloverShine from '../parts/RolloverShine.jsx'
 import TodayCard from '../parts/TodayCard.jsx'
+import FridgeCard from '../parts/FridgeCard.jsx'
 import { WeatherNow } from '../parts/WeatherCard.jsx'
 import FamilyBanner from '../parts/FamilyBanner.jsx'
 import { Link } from '../shell/Link.jsx'
@@ -44,6 +45,7 @@ export default function Home() {
       <FamilyBanner today={today} days={family.days} />
       <WeatherNow />
       <TodayCard today={today} hour={hour} />
+      <FridgeCard session={session} />
       <SkyToday />
       <Coming tint="#3BA3A8" glyph="weather" title="Our world, next" items={[
         'Kordyak, Wayne Ruble and SOAR beside home, from our chosen stations (SE685, 980SE, NGC08)',

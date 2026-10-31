@@ -6,6 +6,30 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The Kitchen opens: Jason's recipes, read as he writes them
+
+- **The handoff is split.** `docs/KITCHEN.md` holds the pattern (one
+  dinner, three finishes; the daddy/daughter add-on), the weekly rhythm, the
+  recipe format contract and the design. Laurie's food rules, and anything
+  that names them, stay out of the repository.
+- **Recipes are Jason's Obsidian files,** pasted or opened several at once,
+  read exactly to the format, with gentle warnings where a file strays. The
+  file is kept as written, so it can always be read again; a new reading
+  with the same title replaces the old.
+- **"Laurie's plate" is kept apart** (`recipe_private`), readable by Jason
+  and Laurie only: it says what was kept off her plate, which is her health
+  information. Anna sees Jason's plate and her add-on.
+- **Built for a tired cook:** start-by time from when we want to eat, timers
+  on every timed step that survive the phone closing the app, cook mode with
+  the screen kept awake, the cook check, and an "Easy on the hands" filter
+  for days his hands hurt.
+- **Each of us rates only our own row,** enforced by the database
+  (`my_member_id()`), and the scores show as L, J and A, as in the files.
+- **The kitchen migration is named a minute after the foundations** (which
+  were named ahead of time, for 23:00 UTC), so the two run in order.
+
+---
+
 ## 2026-10-31 — The swirling light, in colours that mean something
 
 Jason asked for occasional, wild, swirling light like a phone assistant's

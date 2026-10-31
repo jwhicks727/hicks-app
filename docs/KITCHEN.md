@@ -1,0 +1,112 @@
+# The Kitchen
+
+Jason's cooking, as he ran it in his meal-planning chat since mid-2026 and as
+the app now holds it. This is the part of that handoff that belongs in the
+repository: the household's pattern, the weekly rhythm, the recipe format and
+the Kitchen's design. **Laurie's food rules are not here.** They are health
+information: they live in the database, readable by Jason and Laurie only,
+and reach Claude only with Laurie's yes (CLAUDE.md, "The family's data").
+
+## The household and the pattern
+
+- **Jason** cooks: confident, well equipped, often tired, sometimes with sore
+  hands. When his hands hurt, the week leans on the sheet pan, slow cooker,
+  Instant Pot, no-cook, pre-cut and frozen produce, scissors over knives and
+  parchment. The cookbook's "Easy on the hands" filter finds those recipes.
+- **Laurie's** plate is the core of every dinner, never a compromise dish.
+- **Anna**, 11, is adventurous and fickle; nuggets in the freezer mean a miss
+  is never a crisis.
+- **One dinner, three finishes:** the core dish satisfies Laurie completely;
+  each other plate gets one simple addition. Every recipe ends with
+  **Laurie's plate** (protein, and what was kept off), **Jason's plate**
+  (where the alliums, acid and heat live: his crispy shallots and
+  shallot-garlic oil, scallion-ginger relish, garlic confit, lemon, chili
+  crisp, hot sauce) and **Anna's add-on**, the "daddy/daughter add-on" (never
+  a "family upgrade"). The add-on slot may be meat; the core is pescatarian.
+- **The week:** ten one-line ideas covering Laurie's plate only, no day
+  assignments ever; Jason picks three to six; the full recipes follow;
+  ratings come later, often much later. Recipes he shops for go "in the
+  fridge" and leave it when cooked.
+
+## The recipe format
+
+A contract: Jason has corrected deviations more than once, and the app reads
+exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
+
+- `lowercase-with-dashes.md`, title as `# H1`.
+- Near the top, exactly: `**Ratings —** L: /5 · J: /5 · A: /5` (breakfasts
+  Laurie doesn't eat: `J: /5 · A: /5`).
+- **Total time**, padded generously, with hands-on time in parentheses;
+  **Serves**.
+- One ingredient list, grouped by single blank lines with no headers:
+  produce and fresh herbs; protein; the per-person add-ons; pantry, spices
+  and refrigerated. Precise amounts (oz, cups, Tbsp, tsp), never "1
+  package", never pre-prepped forms ("cucumber, chopped": the chopping is a
+  step). Chat previews collapse the blank lines; Obsidian, and the app, keep
+  them.
+- Steps as literal bold numbers in plain paragraphs, never a Markdown
+  ordered list: `**1. (3 min)** Heat the oven…`. A time on every step;
+  amounts repeated inline and bold ("add the **2 Tbsp curry paste**"); prep
+  woven in at the smart moment; every ingredient used in a step; grams beside
+  volume for baking.
+- Closing sections, in this order, leaving out what doesn't apply:
+  **Plating**, **Laurie's plate**, **Jason's plate**, **Anna's add-on**,
+  **Heat**, **Herbs** (cilantro only where the cuisine fits, always on the
+  side, always with an alternate), **Texture**, **Trader Joe's shortcuts**,
+  **Notes**, **Why it works** (the technique argument, naming the one step
+  that decides it).
+- Voice: technique-forward and opinionated, like Bittman or NYT Cooking.
+  Mechanisms, not just instructions. No padding: he reads fast and cooks
+  tired.
+
+## How the app holds it
+
+- **Recipes** are stored as the file Jason writes, less Laurie's plate,
+  which is split out into `recipe_private` (parents only). A recipe opened
+  again from Obsidian with the same title replaces the old one.
+- **The recipe page** (`/kitchen/recipe/<slug>`): its three pictures (the
+  Food Icon Pack, coloured in to each drawing's own outline), time and
+  hands-on time, "Dinner at … start by …", ratings (each of us taps only our
+  own), the three plates, the **cook check**, ingredients with their
+  pictures to tick off as they come out, steps with a timer on each time,
+  then the closing sections, Why it works set apart.
+- **The cook check** lists the fresh things most likely to have turned,
+  fastest first, from how long each keeps and how many days the recipe has
+  been in the fridge, with how to tell (`KEEPS` in
+  `src/lib/kitchen/food.js`). "Good" or "Gone" for each; a gone one says to
+  swap it or pick more up.
+- **Cook mode** (`…/cook`): one step at a time in big type, its timer a tap
+  away, the ingredients a tap away, the screen kept awake; swipe or the big
+  buttons to move; Back leaves it. It ends on the plating and the three
+  plates.
+- **Timers** are kept on the device as their end times, so one started
+  before the phone closed the app is still right; each chimes and buzzes
+  once.
+- **Home** shows what's still in the fridge, only while something is.
+
+## Technique worth keeping
+
+From the handoff, for the recipes and for whoever writes them:
+
+- Convection: reduce 25°F **or** cut time 25%, never both; convect roast
+  browns better than convect bake.
+- Oven bacon: cold start, 400°F, 17–22 min, foil and parchment, no rack.
+- Roast frozen vegetables from frozen at 400–425°F.
+- Salt summer squash and blot it before it meets heat; salt anything
+  sweet-vegetable harder than feels right.
+- Scallops: cold-water thaw, bone-dry, ten minutes on paper towels.
+  Lobster tails: thaw fully, butterfly with shears, 135–140°F.
+- Tofu: never press. Super-firm, drained, patted dry, four minutes
+  undisturbed. Seitan: tear, don't cut.
+- Bloom dry spice and curry paste 60–90 seconds in fat; give a long braise a
+  second hit of spice at the end.
+- Trader Joe's is the default store; slow cooker, Instant Pot, convection
+  oven and broiler are all at hand. Expensive proteins sometimes wait for
+  payday.
+
+## Still to build
+
+- Laurie's food rules (versioned, dated, never edited in place), and
+  `check_plate`: a recipe checked against them, in a migration readable by
+  Jason and Laurie only.
+- The weekly ten ideas and pins; `adapt`, the substitution engine.

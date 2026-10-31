@@ -41,6 +41,8 @@ connected. Copy it to `.env` (never committed) and fill it in.
 - `src/shell/` — the sky behind everything, the tab bar, links and Back.
 - `src/consoles/` — Settings, Setup and Reports, built from `src/registry.js`.
 - `src/calendar/` — the calendar's day, week, month and year views.
+- `src/kitchen/` — the cookbook, a recipe, cook mode and timers
+  (`docs/KITCHEN.md`).
 - `src/lib/` — plain logic with no React, so tests can run it.
   `src/lib/cal/` works out the calendar: the Church's day (`liturgy.js`),
   the saints' lines and prayers, holidays and heritage days
@@ -63,8 +65,10 @@ photos, or free libraries whose licences allow it. Each source is credited
 where it appears and listed here:
 
 - **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence).
-- **Food pictures** (from the next phase): the Food Icon Pack by Michael
-  Bollin, https://foodiconpack.com, CC BY 4.0, coloured in.
+- **Food pictures:** the Food Icon Pack by Michael Bollin,
+  https://foodiconpack.com, CC BY 4.0 (`public/food/LICENSE.txt`): its
+  ingredient drawings, one file each in `public/food/`, with their path data
+  rounded and a fill shape added so the app can colour each one in.
 - **Sun and moon:** worked out on the device with SunCalc (BSD licence);
   the calendar's solstices, equinoxes and moon phases follow Jean Meeus,
   *Astronomical Algorithms* (chapters 27 and 49), and its Hebrew and Islamic

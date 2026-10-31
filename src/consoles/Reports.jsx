@@ -4,6 +4,7 @@ import { staleness, SOURCE_KINDS } from '../lib/sources.js'
 import { REGISTRY } from '../registry.js'
 import { useFamily } from '../lib/useCalendar.js'
 import { upcoming } from '../lib/cal/family.js'
+import { useCookbook } from '../lib/useKitchen.js'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 
@@ -50,7 +51,30 @@ function FamilyDaysReport({ session }) {
     </div>
   )
 }
-const BUILT = { 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport }
+function CookbookReport({ session }) {
+  const book = useCookbook(session)
+  if (!session) return <p><Link to="/settings">Sign in</Link> to see it.</p>
+  if (book.error) return <p className="err">{book.error}</p>
+  if (!book.loaded) return <p className="muted">Loading…</p>
+  const avg = book.recipes.map((r) => { const rs = book.ratings.filter((x) => x.recipe_id === r.id); return { r, n: rs.length, avg: rs.length ? rs.reduce((a, x) => a + x.stars, 0) / rs.length : null } })
+  const top = avg.filter((x) => x.avg != null).sort((a, b) => b.avg - a.avg || b.n - a.n).slice(0, 3)
+  return (
+    <div className="report">
+      <div className="figures">
+        <div><b>{book.recipes.length}</b><span>recipes</span></div>
+        <div><b>{avg.filter((x) => x.n).length}</b><span>rated</span></div>
+        <div><b>{book.fridge.length}</b><span>in the fridge</span></div>
+      </div>
+      {top.length > 0 && (
+        <table className="table">
+          <thead><tr><th>Favourites</th><th className="num">Average</th></tr></thead>
+          <tbody>{top.map((x) => <tr key={x.r.id}><td><Link to={`/kitchen/recipe/${x.r.slug}`}>{x.r.title}</Link></td><td className="num">{x.avg.toFixed(1)} of 5</td></tr>)}</tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+const BUILT = { 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
 
 export default function Reports() {
   const session = useSession()

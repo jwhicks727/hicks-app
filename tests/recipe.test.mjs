@@ -1,0 +1,104 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { parseRecipe, parseIngredient, minutesIn, inline, sharedBody, easyOnHands, slugOf } from '../src/lib/kitchen/recipe.js'
+
+// An example in the format (docs/KITCHEN.md), written for the test: not one of ours.
+const RECIPE = `# Miso-Glazed Salmon with Roasted Squash
+
+**Ratings —** L: /5 · J: 4/5 · A: /5
+
+**Total time:** 50 min (20 min hands-on) · **Serves:** 3
+
+- 1 ½ lb delicata squash
+- 4 scallions
+- 1 Tbsp fresh ginger
+
+- 1 lb salmon fillets, skin on
+
+- 2 Tbsp chili crisp (Jason’s plate)
+- 1 cup cooked rice (Anna’s add-on)
+
+- 2 Tbsp white miso
+- 1 Tbsp maple syrup
+- ½ tsp kosher salt
+
+**1. (5 min)** Heat the oven to 425°F with a sheet pan inside. Halve the squash and scoop the seeds.
+
+**2. (25 min)** Slice the squash into half-moons, toss with **½ tsp kosher salt**, and roast until browned at the edges.
+
+**3. (3 min)** Whisk **2 Tbsp white miso** with **1 Tbsp maple syrup** and **1 Tbsp fresh ginger**.
+
+**4. (12 min)** Brush the salmon with the glaze and roast beside the squash until it flakes.
+
+**Plating —** Squash first, salmon on top, glaze spooned over.
+
+**Laurie’s plate —** About 30 g protein. Nothing to add: it’s all hers.
+
+**Jason’s plate —** Chili crisp and the scallions, sliced thin.
+
+**Anna’s add-on —** Rice under hers.
+
+**Why it works —** Salting the squash harder than feels right is the step that decides it: it’s mostly water.
+`
+
+test('a recipe in the format reads into its parts', () => {
+  const r = parseRecipe(RECIPE)
+  assert.equal(r.title, 'Miso-Glazed Salmon with Roasted Squash'); assert.equal(r.slug, 'miso-glazed-salmon-with-roasted-squash')
+  assert.deepEqual(r.ratings, { L: null, J: 4, A: null })
+  assert.equal(r.total, 50); assert.equal(r.handsOn, 20); assert.equal(r.serves, 3)
+  assert.equal(r.groups.length, 4); assert.equal(r.groups[1][0].item, 'salmon fillets, skin on'); assert.equal(r.groups[0][0].amount, '1 ½'); assert.equal(r.groups[0][0].unit, 'lb')
+  assert.equal(r.steps.length, 4); assert.equal(r.steps[1].minutes, 25); assert.match(r.steps[1].text, /\*\*½ tsp kosher salt\*\*/)
+  assert.deepEqual(r.sections.map((s) => s.name), ['Plating', 'Jason’s plate', 'Anna’s add-on', 'Why it works'])
+  assert.equal(r.laurie, 'About 30 g protein. Nothing to add: it’s all hers.')
+  assert.deepEqual(r.warnings, [])
+})
+
+test('Laurie’s plate is kept out of the file everyone reads', () => {
+  const body = sharedBody(RECIPE)
+  assert.doesNotMatch(body, /Laurie’s plate|30 g protein/)
+  assert.match(body, /Jason’s plate/); assert.match(body, /Why it works/)
+  assert.equal(parseRecipe(body).laurie, null)
+})
+
+test('times, amounts and inline words', () => {
+  assert.equal(minutesIn('1 hr 10 min'), 70); assert.equal(minutesIn('45 minutes'), 45); assert.equal(minutesIn('1½ hours'), 90); assert.equal(minutesIn('10–12 min'), 12); assert.equal(minutesIn('soon'), null)
+  assert.deepEqual(parseIngredient('- 2 Tbsp white miso'), { amount: '2', unit: 'Tbsp', item: 'white miso', text: '2 Tbsp white miso' })
+  assert.equal(parseIngredient('- 8 oz super-firm tofu').unit, 'oz'); assert.equal(parseIngredient('- Flaky salt, to finish').amount, '')
+  assert.deepEqual(inline('add the **2 Tbsp curry paste** and *stir*'), [{ text: 'add the ' }, { text: '2 Tbsp curry paste', bold: true }, { text: ' and ' }, { text: 'stir', italic: true }])
+  assert.deepEqual(inline('<img src=x onerror=alert(1)>'), [{ text: '<img src=x onerror=alert(1)>' }], 'markup stays text')
+  assert.equal(slugOf('Crème Brûlée & Friends!'), 'creme-brulee-and-friends')
+})
+
+test('a file that strays still reads, with gentle warnings', () => {
+  const r = parseRecipe('# Quick noodles\n\n- 8 oz soba\n\n1. Boil the soba.\n2. (2 min) Drain.\n')
+  assert.equal(r.steps.length, 2); assert.ok(r.warnings.some((w) => /bold number/.test(w))); assert.ok(r.warnings.some((w) => /ratings/.test(w)))
+})
+
+test('easy on the hands', () => {
+  assert.equal(easyOnHands('Sheet pan, parchment, frozen broccoli'), true)
+  assert.equal(easyOnHands('Dice the onion finely and julienne the carrots.'), false)
+})
+
+test('each ingredient finds its picture and a colour', async () => {
+  const { iconFor, colourFor, ICONS } = await import('../src/lib/kitchen/food.js')
+  assert.ok(ICONS.size > 400)
+  assert.equal(iconFor('salmon fillets, skin on'), 'salmon'); assert.equal(iconFor('delicata squash'), 'butternut_squash')
+  assert.equal(iconFor('white miso'), 'miso'); assert.equal(iconFor('green onions, thinly sliced'), 'scallion'); assert.equal(iconFor('scallions'), 'scallion')
+  assert.equal(iconFor('extra-virgin olive oil'), 'olive_oil'); assert.equal(iconFor('soy sauce'), 'soy_sauce'); assert.equal(iconFor('red onion'), 'red_onion')
+  assert.equal(iconFor('cherry tomatoes'), 'cherry_tomato'); assert.equal(iconFor('baby bok choy'), 'bok_choy'); assert.equal(iconFor('blueberries'), 'blueberry')
+  assert.equal(iconFor('chili crisp'), 'chili_pepper'); assert.equal(iconFor('xanthan gum'), null)
+  assert.equal(colourFor('salmon'), '#F7A386'); assert.equal(colourFor('scallion'), '#A9D48F'); assert.equal(colourFor('miso'), '#E6CC9C')
+})
+
+test('the cook check puts what spoils first, first', async () => {
+  const { cookCheck } = await import('../src/lib/kitchen/food.js')
+  const groups = [[{ item: 'cilantro' }, { item: 'scallions' }, { item: 'frozen shrimp' }, { item: 'avocados' }], [{ item: 'salmon fillets' }], [{ item: 'white miso' }, { item: 'limes' }]]
+  const c = cookCheck(groups, 2)
+  assert.deepEqual(c.map((x) => x.what), ['Fresh fish', 'Avocado', 'Tender herbs', 'Scallions', 'Citrus'])
+  assert.equal(c[0].left, 0); assert.match(c[0].tell, /briny/)
+})
+
+test('a recipe’s three pictures: protein first, never the salt', async () => {
+  const { artFor } = await import('../src/lib/kitchen/food.js')
+  assert.deepEqual(artFor(parseRecipe(RECIPE)), ['salmon', 'butternut_squash', 'scallion'])
+})

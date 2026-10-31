@@ -116,9 +116,14 @@ sign-in link won't come back to the app.
 | `source_versions` | Each reading of a source, kept as history | The family | Parents add; nobody changes |
 | `calendar_events` | Events from sources and from us; "proposed" until approved when read from a document | The family | The family; parents remove |
 | `family_days` | Birthdays, anniversaries, Anna's adoption day, the angelversary | The family | Parents |
+| `recipes` | Jason's recipe files, less Laurie's plate; their three pictures | The family | Parents |
+| `recipe_private` | Each recipe's "Laurie's plate" (protein, what was kept off) | Parents only | Parents |
+| `recipe_ratings` | Our 1–5 ratings, one each per recipe | The family | Each of us, our own only (`my_member_id()`) |
+| `fridge` | The recipes bought for this week, until cooked | The family | Parents |
 
 Migration index:
 
 | Migration | What it does |
 |---|---|
 | `20261031230000_foundations` | The family, sources and their versions, calendar events, family days; `is_family()`, `is_parent()`; row-level security and grants. |
+| `20261031230100_kitchen` | Recipes, Laurie's plate kept apart, ratings, the fridge; `my_member_id()`. Named a minute after the foundations so it runs after them. |

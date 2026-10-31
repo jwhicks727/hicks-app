@@ -16,7 +16,7 @@ export const REGISTRY = [
       { key: 'family-days', title: 'Family days', blurb: 'The days we keep, and what’s coming next', ready: true }] },
   { key: 'kitchen', name: 'Kitchen', colour: '#F03E2F',
     setup: [{ key: 'food-rules', title: 'Food rules (Jason and Laurie only)', ready: false }],
-    reports: [] },
+    reports: [{ key: 'cookbook', title: 'The cookbook', blurb: 'Our recipes, how they’re rated, and the favourites', ready: true }] },
   { key: 'lifelist', name: 'Life List', colour: '#5F8A4A',
     setup: [{ key: 'ebird', title: 'Laurie’s eBird account (her yes)', ready: false }],
     reports: [] },
