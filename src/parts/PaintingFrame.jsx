@@ -17,7 +17,7 @@ import './paintings.css'
 // while the bird is away, a patch of her own sky covers its place; when it
 // lands, the patch fades and the cut-out lifts away, leaving the painting.
 
-const FLIGHT_MS = 5600
+const FLIGHT_MS = 7000 // a touch slower than it was (5600)
 const KEY = 'teamhicks.flights'
 const playedToday = (slug, day) => { try { return (JSON.parse(localStorage.getItem(KEY)) || {})[slug] === day } catch { return false } }
 const markPlayed = (slug, day) => { try { const m = JSON.parse(localStorage.getItem(KEY)) || {}; m[slug] = day; localStorage.setItem(KEY, JSON.stringify(m)) } catch { /* fine */ } }
