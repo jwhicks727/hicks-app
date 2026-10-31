@@ -21,6 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Check the settings are in
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+        run: |
+          # A build without them would ship an app that says the database isn't connected
+          for name in SUPABASE_URL SUPABASE_KEY PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::A GitHub variable is empty: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY and FIREBASE_PROJECT_ID (Settings › Secrets and variables › Actions › Variables; docs/MORNING.md, step 8)"
+              exit 1
+            fi
+          done
       - uses: actions/checkout@v4
         with: { persist-credentials: false }
       - uses: actions/setup-node@v4
@@ -34,6 +47,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_HICKS_APP_1B1A5 }}
           projectId: ${{ vars.FIREBASE_PROJECT_ID }}
           expires: 7d

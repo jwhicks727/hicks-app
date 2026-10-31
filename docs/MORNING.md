@@ -57,8 +57,11 @@ Then Authentication › URL Configuration › Redirect URLs. Add:
 
 - `http://localhost:5173/**`
 - your Firebase address, once step 8 gives it:
-  `https://<project-id>.web.app/**`
-- every preview: `https://<project-id>--*.web.app/**`
+  `https://hicks.web.app/**`
+- every preview: `https://hicks--*.web.app/**`
+
+And, on the same page, set **Site URL** to `https://hicks.web.app`: a
+sign-in link that can't find its redirect falls back to it.
 
 Then open the app (`npm run dev`), Settings › sign in, and check your name
 appears on Home.
@@ -132,21 +135,29 @@ app), signed in as a parent: Apps › The Gallery › "Move them now". From then
    firebase deploy --only hosting
    ```
 
-   (This build reads your `.env`: check it's filled in first.) The address
-   it prints is the app. Add it to the redirect URLs (step 3).
+   (This build reads your `.env`: check it's filled in first.) The app
+   lives on the Hosting site `hicks` (`"site": "hicks"` in `firebase.json`),
+   at https://hicks.web.app. Add it to the redirect URLs (step 3).
    On your phone, open it in Safari, then Share › Add to Home Screen: Team
    Hicks, with its icon.
 4. **For previews and automatic deploys,** run
    `firebase init hosting:github` and answer:
    - the repository: `jwhicks727/hicks-app`;
    - set up the workflow files? **No** (they're in `.github/workflows/`
-     already);
-   - but **let it create the service account secret**. If it names the
-     secret anything other than `FIREBASE_SERVICE_ACCOUNT`, rename it in
-     GitHub › Settings › Secrets and variables › Actions.
+     already). If it made any (`firebase-hosting-merge.yml`,
+     `firebase-hosting-pull-request.yml`), delete them, or every merge
+     deploys twice;
+   - but **let it create the service account secret**. It names it for the
+     project (`FIREBASE_SERVICE_ACCOUNT_<PROJECT_ID>`); the Deploy and
+     Preview workflows accept that name for this project's id
+     (`hicks-app-1b1a5`) and `FIREBASE_SERVICE_ACCOUNT`. A different
+     project id needs its secret's name in both workflows.
+   - If `firebase init` rewrote `firebase.json`, put the repository's back
+     (`git checkout firebase.json`): the public directory is `dist`, the
+     single-page rewrite and the paintings exclusion are in it.
 
    In the same place, under Variables, add:
-   - `FIREBASE_PROJECT_ID`: the project ID;
+   - `FIREBASE_PROJECT_ID`: the project ID (`hicks-app-1b1a5`);
    - `VITE_SUPABASE_URL`: the Supabase URL;
    - `VITE_SUPABASE_ANON_KEY`: the publishable key.
 

@@ -6,6 +6,15 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The live address is hicks.web.app
+
+The Firebase project (`hicks-app-1b1a5`) has a Hosting site of its own,
+`hicks`, so the app lives at https://hicks.web.app rather than at the
+project's default address, and `firebase.json` names it. The deploy key is
+the secret `firebase init hosting:github` made, which it names for the
+project, so the workflows accept that name as well as the plain one rather
+than asking for a rename that can't be done without the key's value.
+
 ## 2026-11-01 — Mass times from the parish's own website
 
 Sacred Heart's times come from sacredheartrc.org, read once a day by the

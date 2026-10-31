@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "hicks",
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "paintings/**"],
     "rewrites": [{ "source": "**", "destination": "/index.html" }],
