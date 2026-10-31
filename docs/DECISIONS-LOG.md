@@ -6,6 +6,12 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The wordmark in the icon's font
+
+"Team Hicks" at the top of the rail is set in Agbalumo, the font of the
+home-screen icon's H, so the name and the icon match. It's the one place
+Agbalumo is used; headings stay Caprasimo.
+
 ## 2026-11-01 — Flat apps, and moving rooms
 
 The apps' icons were too soft and glossy for what they are, and too round.

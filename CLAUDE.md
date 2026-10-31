@@ -68,7 +68,8 @@ licence nobody wrote down.
   6px cards; the floating tab bar is the one rounded exception).
 - Fonts: Caprasimo (upright, curvy, Cooper-like) for headings, the loud
   moments and big numbers; Nunito for everything read or tapped. No slanted
-  or italic headings. Never a font SOAR uses
+  or italic headings. The one exception is the wordmark "Team Hicks", set in
+  Agbalumo (`--font-brand`) to match the home-screen icon, and nothing else. Never a font SOAR uses
   (Fraunces, Instrument Sans, Russo One, Atkinson Hyperlegible), and no
   handwriting faces.
 - Colour means something: each place has its own. A shine in a place's own

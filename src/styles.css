@@ -12,6 +12,7 @@
   --font-ui: Nunito, "Segoe UI", system-ui, sans-serif;
   --font-voice: Caprasimo, "Cooper Black", Georgia, serif;
   --font-display: Caprasimo, "Cooper Black", Georgia, serif;
+  --font-brand: Agbalumo, Caprasimo, Georgia, serif; /* the wordmark only, the icon's own font */
   --tabbar: 64px;
   --shadow-warm: inset 0 1px 0 rgba(255, 255, 255, .55), 0 2px 4px rgba(90, 50, 20, .07), 0 16px 32px -22px rgba(90, 45, 10, .6);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .9 -.32'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
@@ -116,7 +117,7 @@ button { font: inherit; }
   body { padding: 24px 24px 40px; }
   .app { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px; align-items: start; }
   .tabs { position: sticky; top: 24px; left: auto; right: auto; bottom: auto; max-width: none; margin: 0; grid-template-columns: 1fr; gap: 4px; padding: 12px; border: 0; border-radius: var(--r-card); }
-  .brand { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.1; padding: 4px 10px 12px; }
+  .brand { display: block; font-family: var(--font-brand); font-weight: 400; font-size: 30px; line-height: 1.1; padding: 2px 10px 12px; letter-spacing: .005em; }
   .tab { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 0 12px; font-size: 15px; min-height: 46px; border-radius: var(--r-control); }
   .tab[aria-current="page"]::before { top: 10px; bottom: 10px; left: 0; right: auto; width: 4px; height: auto; }
   /* The apps, listed under their heading; the Apps button is the phone's */

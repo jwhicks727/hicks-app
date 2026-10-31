@@ -106,7 +106,9 @@ photos, or free libraries whose licences allow it. Each source is credited
 where it appears and listed here. How Laurie's paintings are photographed
 and added: `docs/ART-CAPTURE.md`.
 
-- **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence).
+- **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence). The
+  wordmark "Team Hicks" is set in Agbalumo (Sorkin Type, SIL Open Font Licence,
+  from Google Fonts), the home-screen icon's own font.
 - **Food pictures:** the Food Icon Pack by Michael Bollin,
   https://foodiconpack.com, CC BY 4.0 (`public/food/LICENSE.txt`): its
   ingredient drawings, one file each in `public/food/`, with their path data
