@@ -102,11 +102,14 @@ and write the code fresh. SOAR's code belongs to the school.
   wrap, and decide on motion with `src/lib/motion.js` and the
   `html[data-motion]` setting, never a fresh `matchMedia` of your own.
 - Every sheet or pop-up has its own close and closes on a tap outside or
-  Escape; a yes/no is a proper dialog, never `window.confirm()`.
+  Escape; a yes/no is `Confirm` (`src/ui/Confirm.jsx`), never
+  `window.confirm()`. An overlay is drawn at the top of the page (a portal):
+  inside a card, the card's entrance animation pins it to the card.
 - Half-done work survives interruption: iOS closes the installed app in the
   background, so anything someone types into, or that takes more than one
   tap (a cook check, a new source), keeps its draft on the device until it's
-  finished or cancelled.
+  finished or cancelled (`useDraft`, `src/lib/useDraft.js`; drafts are
+  cleared on sign-out).
 
 ## The database (Supabase)
 

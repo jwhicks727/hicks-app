@@ -2,6 +2,8 @@ import { useSession } from '../lib/auth.js'
 import { useSources, todayAtHome } from '../lib/useSources.js'
 import { staleness, SOURCE_KINDS } from '../lib/sources.js'
 import { REGISTRY } from '../registry.js'
+import { useFamily } from '../lib/useCalendar.js'
+import { upcoming } from '../lib/cal/family.js'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 
@@ -27,7 +29,28 @@ function SourcesReport({ session }) {
     </div>
   )
 }
-const BUILT = { 'calendar/sources': SourcesReport }
+function FamilyDaysReport({ session }) {
+  const family = useFamily(session)
+  if (!session) return <p><Link to="/settings">Sign in</Link> to see it.</p>
+  if (family.error) return <p className="err">{family.error}</p>
+  if (!family.loaded) return <p className="muted">Loading…</p>
+  const next = upcoming(todayAtHome(), family.days, 3)
+  return (
+    <div className="report">
+      <div className="figures">
+        <div><b>{family.days.filter((d) => d.kind !== 'remember').length}</b><span>to celebrate</span></div>
+        <div><b>{family.days.filter((d) => d.kind === 'remember').length}</b><span>to remember</span></div>
+      </div>
+      {next.length > 0 && (
+        <table className="table">
+          <thead><tr><th>Next</th><th className="num">In</th></tr></thead>
+          <tbody>{next.map((d) => <tr key={d.id}><td>{d.title}{d.line ? ` · ${d.line}` : ''}</td><td className="num">{d.inDays === 0 ? 'today' : `${d.inDays} days`}</td></tr>)}</tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+const BUILT = { 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport }
 
 export default function Reports() {
   const session = useSession()

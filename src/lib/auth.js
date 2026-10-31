@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
+import { clearDrafts } from './useDraft.js'
 
 /** The signed-in session, or null; `undefined` while it's still being read. */
 export function useSession() {
@@ -18,6 +19,8 @@ export function sendSignInLink(email) {
   return supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/settings' } })
 }
 
+/** Signing out also forgets anything half-typed on this device. */
 export function signOut() {
+  clearDrafts()
   return supabase.auth.signOut()
 }

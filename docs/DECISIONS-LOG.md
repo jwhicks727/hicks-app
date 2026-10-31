@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — Family days in Setup; each source says whose it is
+
+- **Family days can be kept in the app** (Setup → Family days), not only in
+  the SQL editor. Parents add, change and remove them; removing asks first,
+  in the app's own dialog. A day with a year counts it ("Turning 12",
+  "25th anniversary: silver"); a remembered day shows its own line and the
+  Eternal Rest prayer.
+- **Home celebrates from two days before** with the rainbow banner, and on
+  a day we remember shows a quiet violet one.
+- **Each calendar source says whose it is,** which is how the year view
+  knows a school calendar's school (Laurie's is Kordyak, Anna's Wayne Ruble,
+  Jason's SOAR), and how "whose days" filters a school's days off.
+- **Half-typed forms are kept on the device** until saved or cancelled, and
+  every draft is cleared on sign-out.
+
+---
+
 ## 2026-10-31 — The calendar works out its own days
 
 - **The Church year is computed here, not by romcal.** Running an outside

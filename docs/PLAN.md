@@ -23,7 +23,8 @@ Built in this order, each part in daily use before the next.
 - [ ] Run the first migration and add the family (docs/DATABASE.md).
 - [ ] Reading sources automatically: feeds nightly; documents and pictures
       into dates someone approves.
-- [ ] Sign-in for the three of us, and the greeting by name.
+- [ ] Sign-in for the three of us (built: the email link), and the
+      greeting by name (built: Home greets whoever is signed in).
 - [ ] Hosting (Firebase, as SOAR uses), and the app installable on our phones.
 
 ## 1. Calendar
@@ -80,6 +81,12 @@ Built in this order, each part in daily use before the next.
       the day), read from the database once signed in; holidays, civil
       rights and heritage days, seasons and nature, each with a line about it.
 - [ ] Their own art: saint and feast line art, holiday and season pictures.
+- [x] Setup keeps the family days (add, change, remove, with a proper
+      question before removing) and says whose each calendar source is; a
+      half-typed entry survives the phone closing the app. Reports shows the
+      family days kept and the next ones.
+- [x] Home opens with the family day banner (two days ahead), Today in the
+      Church with an invitation to pray, and the Masses still to come.
 - [ ] Concerts as special events with their ticket and scrapbook.
 
 Art to check before use: Christicons (Christian line icons), the Wellcome

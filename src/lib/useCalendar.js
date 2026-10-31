@@ -15,6 +15,7 @@ export async function fetchAll(build, size = 1000) {
 /** The family, their days, and the calendar sources (which school is whose), once per sign-in. */
 export function useFamily(session) {
   const [state, setState] = useState({ members: [], days: [], sources: [], loaded: false, error: null })
+  const [n, setN] = useState(0)
   useEffect(() => {
     let live = true
     if (!supabase || !session) { setState({ members: [], days: [], sources: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
@@ -28,8 +29,8 @@ export function useFamily(session) {
       setState({ members: m.data || [], days: d.data || [], sources: s.data || [], loaded: true, error })
     })
     return () => { live = false }
-  }, [session])
-  return state
+  }, [session, n])
+  return { ...state, reload: () => setN((x) => x + 1) }
 }
 
 /** Approved events that touch the days from `from` to `to`. */

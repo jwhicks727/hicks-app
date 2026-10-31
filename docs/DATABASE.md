@@ -25,22 +25,29 @@ insert into public.family_members (name, email, role, colour) values
   ('Anna',   '<Anna''s sign-in address>',   'child',  '#2E8B3E');
 ```
 
-Then the family days (they live in the database, not in code):
+Then the family days. They live in the database, not in code: add them in
+the app (Setup → Family days, once a parent has signed in), or all at once
+here. The years are counted for you ("Turning 12", "25th anniversary:
+silver"); `note` is the line under a day with no year to count.
 
 ```sql
-insert into public.family_days (title, month, day, year, kind, for_whom)
-select v.title, v.month, v.day, v.year, v.kind, m.id
+insert into public.family_days (title, month, day, year, kind, for_whom, note)
+select v.title, v.month, v.day, v.year, v.kind, m.id, v.note
 from (values
-  ('Anna''s adoption day', 11, 1, 2015, 'celebrate', 'Anna'),
-  ('Jason and Laurie''s dating anniversary', 1, 3, 1999, 'celebrate', null),
-  ('Wedding anniversary', 7, 27, 2002, 'celebrate', null),
-  ('Jason''s birthday', 6, 30, 1980, 'celebrate', 'Jason'),
-  ('Laurie''s birthday', 8, 30, 1979, 'celebrate', 'Laurie'),
-  ('Anna''s birthday', 7, 15, 2015, 'celebrate', 'Anna'),
-  ('Angelversary: remembering Jason''s dad', 10, 11, null, 'remember', 'Jason')
-) as v(title, month, day, year, kind, who)
+  ('Anna''s adoption day', 11, 1, 2015, 'celebrate', 'Anna', null),
+  ('Jason and Laurie''s dating anniversary', 1, 3, 1999, 'celebrate', null, null),
+  ('Wedding anniversary', 7, 27, 2002, 'celebrate', null, null),
+  ('Jason''s birthday', 6, 30, 1980, 'celebrate', 'Jason', null),
+  ('Laurie''s birthday', 8, 30, 1979, 'celebrate', 'Laurie', null),
+  ('Anna''s birthday', 7, 15, 2015, 'celebrate', 'Anna', null),
+  ('Angelversary', 10, 11, null, 'remember', 'Jason', 'Remembering Jason''s dad')
+) as v(title, month, day, year, kind, who, note)
 left join public.family_members m on m.name = v.who;
 ```
+
+Each calendar source in Setup has a "Whose is it": mark Kordyak's calendar
+as Laurie's, Wayne Ruble's as Anna's and SOAR's as Jason's, and the year
+view lines up their days off.
 
 ## Signing in
 
