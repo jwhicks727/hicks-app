@@ -6,6 +6,33 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Ten more H icons, from fonts that are organic in themselves
+
+Jason's follow-up: no sprouts or leaves added to a letter. Instead, find
+fonts that already have something organic about them, however subtle, and
+cast the net wide. About 120 display faces on Google Fonts were tried as a
+plain white H on the icon's gradient. These ten are organic, read at
+home-screen size, and aren't plain; they are side by side in
+`compare-h2.png`:
+
+1. **Matemasie:** a seed opening into its first two leaves (and a heart).
+2. **Rubik Microbe:** built of cells.
+3. **Rubik Wet Paint:** still wet, dripping off the brush.
+4. **Rubik Bubbles:** foam, or a cumulus cloud building.
+5. **Hanalei Fill:** two stalks of bamboo, knuckled at every node.
+6. **Darumadrop One:** ink soaking into paper fibre, every edge ragged.
+7. **Agbalumo:** named for the African star apple, with ripe, swelling
+   curves.
+8. **Rubik Beastly:** furred, or a thistle head.
+9. **Akaya Kanadaka:** two knobbly twigs, lashed together.
+10. **Rubik Moonrocks:** pumice, stone full of holes.
+
+Each is the font's own H, nothing added, scaled into the same box as the
+first three (`scripts/draw-h-icons.cjs`). All ten are under the SIL Open
+Font License (read from each font file), which lets a picture of a letter
+be used as an icon. Rubik Puddles and Moirai One were set aside because
+their hairline outlines vanish at home-screen size.
+
 ## 2026-11-01 — Our crucifixes, illustrated, on the days about the Cross
 
 - **The family's own crucifixes** appear on the Church card on the days

@@ -1,7 +1,8 @@
-// Draws the three "H" home-screen icon options in docs/icon-options/ (decisions log, 2026-11-01).
-// Usage: node scripts/draw-h-icons.cjs (needs Playwright, as scripts/make-icons.mjs does). Simple shapes drawn
-// in code on the current icon's gradient, and the app's own Caprasimo for option C.
-// Three home-screen icon options: a white, blocky, leafy H on the current icon's sky.
+// Draws the "H" home-screen icon options in docs/icon-options/ (decisions log, 2026-11-01): a white H on the
+// current icon's sky. The first three are simple shapes drawn in code (and the app's own Caprasimo); the ten
+// after them are the letter H as set in a font that is organic in itself, nothing added to it.
+// Usage: node scripts/draw-h-icons.cjs [fonts] (needs Playwright, as scripts/make-icons.mjs does; "fonts"
+// redraws only the ten). The fonts come from Google Fonts, all under the SIL Open Font License.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const BG = `<defs>
@@ -40,18 +41,61 @@ const OPTIONS = {
     <path d="M706 266 C 690 240, 684 212, 690 190" fill="none" stroke="${W}" stroke-width="18" stroke-linecap="round"/>
   </g>`,
 };
+// The ten fonts: each one's H, fitted into the same box, centred a little below the middle as the others are
+const FONTS = [
+  ['h-matemasie', 'Matemasie', 'A seed opening into its first two leaves (and a heart)'],
+  ['h-microbe', 'Rubik Microbe', 'Built of cells, like something under a microscope'],
+  ['h-wetpaint', 'Rubik Wet Paint', 'Still wet, dripping off the brush'],
+  ['h-bubbles', 'Rubik Bubbles', 'Foam, or a cumulus cloud building'],
+  ['h-hanalei', 'Hanalei Fill', 'Two stalks of bamboo, knuckled at every node'],
+  ['h-darumadrop', 'Darumadrop One', 'Ink soaking into paper fibre, every edge ragged'],
+  ['h-agbalumo', 'Agbalumo', 'Named for the African star apple: ripe, swelling curves'],
+  ['h-beastly', 'Rubik Beastly', 'Furred, or a thistle head'],
+  ['h-akaya', 'Akaya Kanadaka', 'Two knobbly twigs, lashed together'],
+  ['h-moonrocks', 'Rubik Moonrocks', 'Pumice: stone full of holes'],
+];
+const BOX = { w: 640, h: 600, cx: 512, cy: 526 };
+const out = (n) => require('path').join(__dirname, '..', 'docs', 'icon-options', n + '.png');
+
+async function sheet(p, names, labels, file, cols) {
+  const imgs = names.map((n) => 'data:image/png;base64,' + fs.readFileSync(out(n)).toString('base64'));
+  await p.setViewportSize({ width: cols * 280 + 48, height: 400 });
+  await p.setContent(`<body style="margin:0;background:#1D1A2E;font:700 17px Nunito,system-ui;color:#fff;padding:24px;display:grid;grid-template-columns:repeat(${cols},1fr);gap:28px 24px;text-align:center">${imgs.map((s, i) => `<div><img src="${s}" style="width:220px;border-radius:48px;display:block;margin:0 auto 14px"><img src="${s}" style="width:60px;border-radius:14px"><div style="margin-top:8px">${labels[i]}</div></div>`).join('')}</body>`);
+  await p.waitForTimeout(300);
+  await p.screenshot({ path: out(file), fullPage: true });
+}
+
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1024, height: 1024 } });
-  for (const [name, art] of Object.entries(OPTIONS)) {
+  const onlyFonts = process.argv[2] === 'fonts';
+  for (const [name, art] of Object.entries(onlyFonts ? {} : OPTIONS)) {
     await p.setContent(`<html><head><link href="https://fonts.googleapis.com/css2?family=Caprasimo&display=block" rel="stylesheet"><style>body{margin:0}</style></head><body><svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">${BG}${art}</svg></body></html>`);
     await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(400);
-    await p.screenshot({ path: require('path').join(__dirname, '..', 'docs', 'icon-options', name + '.png') });
+    await p.screenshot({ path: out(name) });
   }
-  // Side by side, at home-screen size and large, with the current one
-  const imgs = ['sprout-outline', 'h-sprout', 'h-leaf', 'h-caprasimo'].map((n) => 'data:image/png;base64,' + fs.readFileSync(require('path').join(__dirname, '..', 'docs', 'icon-options', n + '.png')).toString('base64'));
-  await p.setViewportSize({ width: 1180, height: 520 });
-  await p.setContent(`<body style="margin:0;background:#1D1A2E;font:700 18px Nunito,system-ui;color:#fff;padding:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center">${imgs.map((s, i) => `<div><img src="${s}" style="width:240px;border-radius:52px;display:block;margin:0 auto 14px"><img src="${s}" style="width:60px;border-radius:14px"><div style="margin-top:8px">${['Now (sprout)', 'A · Sprouting H', 'B · Leaf H', 'C · Caprasimo H'][i]}</div></div>`).join('')}</body>`);
-  await p.waitForTimeout(300);
-  await p.screenshot({ path: require('path').join(__dirname, '..', 'docs', 'icon-options') + '/compare-h.png' });
+  if (!onlyFonts) await sheet(p, ['sprout-outline', 'h-sprout', 'h-leaf', 'h-caprasimo'], ['Now (sprout)', 'A · Sprouting H', 'B · Leaf H', 'C · Caprasimo H'], 'compare-h', 4);
+
+  // The fonts: measure the ink of each one's H on a canvas, then scale and place it into BOX
+  await p.setViewportSize({ width: 1024, height: 1024 });
+  for (const [name, family] of FONTS) {
+    await p.setContent(`<html><head><link href="https://fonts.googleapis.com/css2?family=${family.replace(/ /g, '+')}&display=block" rel="stylesheet"><style>body{margin:0}</style></head><body></body></html>`);
+    const ink = await p.evaluate(async (f) => {
+      await document.fonts.load(`1000px "${f}"`, 'H');
+      const c = document.createElement('canvas'); c.width = c.height = 2400; const x = c.getContext('2d');
+      x.font = `1000px "${f}"`; x.fillText('H', 600, 1700);
+      const d = x.getImageData(0, 0, 2400, 2400).data; let x0 = 2400, y0 = 2400, x1 = -1, y1 = -1;
+      for (let y = 0; y < 2400; y++) for (let i = 0; i < 2400; i++) if (d[(y * 2400 + i) * 4 + 3] > 8) { if (i < x0) x0 = i; if (i > x1) x1 = i; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      return { x: x0 - 600, y: y0 - 1700, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+    }, family);
+    if (ink.w <= 0) throw new Error(family + ' drew nothing');
+    const k = Math.min(BOX.w / ink.w, BOX.h / ink.h);
+    const tx = BOX.cx - (ink.x + ink.w / 2) * k, ty = BOX.cy - (ink.y + ink.h / 2) * k;
+    await p.evaluate(({ bg, f, k, tx, ty, w }) => {
+      document.body.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">${bg}<g filter="url(#sh)"><text x="${tx}" y="${ty}" font-family="${f}" font-size="${1000 * k}" fill="${w}">H</text></g></svg>`;
+    }, { bg: BG, f: family, k, tx, ty, w: W });
+    await p.waitForTimeout(200);
+    await p.screenshot({ path: out(name) });
+  }
+  await sheet(p, FONTS.map((f) => f[0]), FONTS.map((f, i) => `${i + 1} · ${f[1]}`), 'compare-h2', 5);
   await b.close();
 })();
