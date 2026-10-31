@@ -71,6 +71,13 @@ Authentication › Emails › Templates › Magic link: add a line to the
 message, `<p>Or type this code: {{ .Token }}</p>`, and Save. The sign-in
 screen asks for the code after it sends the email.
 
+Each of you then sets a password: sign in once (the emailed link is fine),
+then Settings › Your password, and from then on sign in with your email and
+that password, on the computer and the phone, with no email. In Supabase,
+Authentication › Sign In / Providers › Email, set **Minimum password
+length** to 10 (the app asks for 10 too; the wording of that setting is
+unverified).
+
 The built-in email sender is limited to a few emails an hour; if the
 sign-in screen says there were too many, wait, or add your own sender under
 Authentication › Emails › SMTP Settings.

@@ -31,8 +31,9 @@ Built in this order, each part in daily use before the next.
       with her yes; a painting she'd rather not have public waits for private
       storage behind sign-in, since anything in `public/` can be fetched by
       its address once hosted.
-- [x] Everything behind sign-in: a sign-in screen (email link or code) is
-      all there is until the address is on the family list.
+- [x] Everything behind sign-in: a sign-in screen (email and password, with
+      an emailed link or code as the backup) is all there is until the
+      address is on the family list. Passwords are set in Settings.
 - [x] Settings (text size, motion), Admin (calendar
       sources: paste, edit, mark checked, staleness) and Reports (calendar
       sources), all following `src/registry.js`. Home shows the rollover

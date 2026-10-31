@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabaseHost } from '../lib/supabase.js'
-import { sendSignInLink, signInWithCode, signOut } from '../lib/auth.js'
+import { sendSignInLink, signInWithCode, signInWithPassword, signOut } from '../lib/auth.js'
 import { signInProblem, codeOf } from '../lib/gate.js'
 import { useDraft } from '../lib/useDraft.js'
 import Sky from './Sky.jsx'
@@ -51,16 +51,26 @@ export default function Gate({ gate }) {
 }
 
 function SignIn() {
+  // Only the email is kept on the device (a draft); the password never is
   const [draft, setDraft] = useDraft('signin.email', { email: '' })
-  const [step, setStep] = useState('email') // email, then code
+  const [step, setStep] = useState('password') // password; or code, once a link has been asked for
   const [busy, setBusy] = useState(false)
+  const [password, setPassword] = useState('')
+  const [show, setShow] = useState(false)
   const [code, setCode] = useState('')
   const [note, setNote] = useState(null) // { ok, text }
   const email = draft.email.trim()
   useEffect(() => { setNote(null) }, [step])
 
-  const send = async (e) => {
+  const withPassword = async (e) => {
     e.preventDefault()
+    setBusy(true)
+    const { error } = await signInWithPassword(email, password).catch((x) => ({ error: x }))
+    setBusy(false)
+    if (error) setNote({ ok: false, text: signInProblem(error.message, supabaseHost) })
+  }
+  const sendLink = async () => {
+    if (!/.+@.+\..+/.test(email)) { setNote({ ok: false, text: 'Type your email first.' }); return }
     setBusy(true)
     const { error } = await sendSignInLink(email).catch((x) => ({ error: x }))
     setBusy(false)
@@ -92,7 +102,7 @@ function SignIn() {
           </form>
         </details>
         <div className="gate-row">
-          <button type="button" className="gate-link" onClick={() => { setCode(''); setStep('email') }}>Use another address, or send it again</button>
+          <button type="button" className="gate-link" onClick={() => { setCode(''); setStep('password') }}>Back to the password</button>
         </div>
       </section>
     )
@@ -100,12 +110,21 @@ function SignIn() {
   return (
     <section className="gate-card">
       <h1>Just for the family</h1>
-      <p>Sign in with your email and we’ll send you a link.</p>
-      <form className="form" onSubmit={send}>
-        <label>Your email<input type="email" required autoComplete="email" autoCapitalize="none" spellCheck="false" value={draft.email} onChange={(e) => setDraft({ email: e.target.value })} /></label>
-        <button type="submit" className="btn" disabled={busy}>{busy ? 'Sending…' : 'Email me a sign-in link'}</button>
+      <p>Sign in with your email and password.</p>
+      <form className="form" onSubmit={withPassword}>
+        <label>Your email<input type="email" required autoComplete="username" autoCapitalize="none" spellCheck="false" value={draft.email} onChange={(e) => setDraft({ email: e.target.value })} /></label>
+        <label>Password
+          <span className="gate-pw">
+            <input type={show ? 'text' : 'password'} required autoComplete="current-password" autoCapitalize="none" spellCheck="false" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <button type="button" className="gate-show" onClick={() => setShow(!show)} aria-pressed={show}>{show ? 'Hide' : 'Show'}</button>
+          </span>
+        </label>
+        <button type="submit" className="btn" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
         {note && <p className={note.ok ? 'ok' : 'err'} role="status">{note.text}</p>}
       </form>
+      <div className="gate-row">
+        <button type="button" className="gate-link" disabled={busy} onClick={sendLink}>No password yet, or forgot it? Email me a sign-in link</button>
+      </div>
     </section>
   )
 }

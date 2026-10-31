@@ -29,6 +29,7 @@ export function gateState({ configured, dev = false, session, family }) {
 /** A sign-in problem in words a person can act on. `host` is the database's address the app was built with. */
 export function signInProblem(message, host = '') {
   const m = String(message || '')
+  if (/invalid login credentials/i.test(m)) return 'That email and password don’t match. No password yet? Email yourself a sign-in link, then set one in Settings.'
   if (/rate limit|too many/i.test(m)) return 'Too many emails just now. Wait a few minutes and try again.'
   if (/failed to fetch|load failed|networkerror|network request/i.test(m)) {
     return `Couldn’t reach the database${host ? ` at ${host}` : ''}. Check the connection. If this is the first time, the address the app was built with may be wrong: it should be the project’s own address, https://<project>.supabase.co.`
@@ -42,4 +43,25 @@ export function signInProblem(message, host = '') {
 export function codeOf(text) {
   const d = String(text || '').replace(/\D/g, '')
   return d.length >= 6 && d.length <= 10 ? d : null
+}
+
+export const MIN_PASSWORD = 10
+
+/** What is wrong with a new password and its repeat, or null. */
+export function passwordIssue(password, again, email = '') {
+  const p = String(password || '')
+  if (p.length < MIN_PASSWORD) return `Use at least ${MIN_PASSWORD} characters. A few words in a row is easy to remember and hard to guess.`
+  if (p !== String(again || '')) return 'The two don’t match.'
+  if (email && p.toLowerCase() === String(email).toLowerCase()) return 'The password can’t be your email address.'
+  return null
+}
+
+/** Why Supabase refused a new password, in words a person can act on. */
+export function passwordProblem(message) {
+  const m = String(message || '')
+  if (/same password|different from the old/i.test(m)) return 'That’s already your password.'
+  if (/reauthentic|recent|log(ged)? in again/i.test(m)) return 'Sign out and sign in again, then try once more: changing a password needs a recent sign-in.'
+  if (/at least|too short|weak|pwned|leaked|characters/i.test(m)) return m
+  if (/rate limit|too many/i.test(m)) return 'Too many tries just now. Wait a few minutes.'
+  return m || 'That didn’t work. Try again.'
 }

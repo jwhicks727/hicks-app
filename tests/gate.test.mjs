@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { gateState, signInProblem, codeOf } from '../src/lib/gate.js'
+import { gateState, signInProblem, codeOf, passwordIssue, passwordProblem } from '../src/lib/gate.js'
 
 const session = { user: { id: 'u1', email: 'a@example.com' } }
 
@@ -45,4 +45,23 @@ test('the app puts the gate in front of every screen, and the gate holds no plac
   const gate = readFileSync(new URL('../src/shell/Gate.jsx', import.meta.url), 'utf8')
   assert.ok(!gate.includes('type the code from the same email'), 'the screen must not promise a code the email may not hold')
   for (const place of ['TabBar', 'PaintingsProvider', 'Home', 'supabase.from']) assert.ok(!gate.includes(place), `the gate shows ${place}`)
+})
+
+test('a wrong password says what to do, and a new one has to be long enough and typed twice', () => {
+  assert.match(signInProblem('Invalid login credentials'), /Email yourself a sign-in link, then set one in Settings/)
+  assert.match(passwordIssue('short', 'short'), /at least 10/)
+  assert.equal(passwordIssue('three words here', 'three words here'), null)
+  assert.match(passwordIssue('three words here', 'three words there'), /don’t match/)
+  assert.match(passwordIssue('me@example.com', 'me@example.com', 'ME@example.com'), /email address/)
+  assert.match(passwordProblem('New password should be different from the old password.'), /already your password/)
+  assert.match(passwordProblem('Password should be at least 12 characters.'), /at least 12/)
+  assert.match(passwordProblem('AuthApiError: reauthentication needed'), /sign in again/)
+})
+
+test('the password is never kept on the device: only the email is a draft', () => {
+  const gate = readFileSync(new URL('../src/shell/Gate.jsx', import.meta.url), 'utf8')
+  assert.doesNotMatch(gate, /useDraft\([^)]*password/i)
+  assert.doesNotMatch(gate, /localStorage|sessionStorage/)
+  const form = readFileSync(new URL('../src/consoles/PasswordForm.jsx', import.meta.url), 'utf8')
+  assert.doesNotMatch(form, /useDraft|localStorage|sessionStorage/)
 })

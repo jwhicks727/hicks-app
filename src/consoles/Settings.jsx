@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { useSession, signOut } from '../lib/auth.js'
 import { Card } from '../ui/Card.jsx'
+import PasswordForm from './PasswordForm.jsx'
 import { Link } from '../shell/Link.jsx'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import { GROUPS } from '../lib/cal/observances.js'
@@ -30,6 +31,7 @@ export default function Settings() {
           <>
             <p>Signed in as <b>{session.user.email}</b>.</p>
             <button type="button" className="btn ghost" onClick={() => signOut()}>Sign out</button>
+            <PasswordForm email={session.user.email} />
           </>
         )}
       </Card>

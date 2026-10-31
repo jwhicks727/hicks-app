@@ -45,7 +45,10 @@ and write the code fresh. SOAR's code belongs to the school.
   `src/lib/gate.js`, `tests/gate.test.mjs`): until the database says the
   address is on the family list, the only screen is the sign-in one, and
   nothing outside it renders or reads the database. A new screen is inside
-  the gate by default; never add a route that shows without it.
+  the gate by default; never add a route that shows without it. People sign
+  in with an email and a password; an emailed link (or its code) is the
+  backup. The password is never kept on the device: a draft holds only the
+  email (`tests/gate.test.mjs`).
 - Logins are held only with their owner's yes, and the app never signs in to
   Amazon (decisions log). Every secret is listed in `docs/SECRETS.md`; none is
   ever written into the repository. The app holds only the Supabase URL and

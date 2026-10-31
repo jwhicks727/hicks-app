@@ -6,6 +6,18 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Sign in with a password; the emailed link is the backup
+
+The first sign-in on a phone hit Supabase's email limit: its built-in sender
+allows only a few emails an hour, and an emailed link also opens the
+browser rather than the installed app on an iPhone. So the main way in is an
+email address and a password (Supabase knows people by email, so the email
+is the username), which costs no email, works in the installed app, and
+can be remembered by the phone's password manager. The emailed link, or
+its code, stays as the way in for anyone with no password yet or who has
+forgotten it. A password is set in Settings once signed in. The device
+keeps none of it: only the email is remembered as a draft.
+
 ## 2026-11-01 — Back to main, for the moment
 
 The day the app went live was also the day of the most setup, with many
