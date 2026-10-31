@@ -5,6 +5,11 @@ import { useNow } from '../../lib/useNow.js'
 import { reducedMotion } from '../../lib/motion.js'
 import { PLACES, STOPS, STOP_ORDER, RANGES, PEAKS, LAKES, pinsAt, fitCamera, viewBoxFor, toScreen, project, nearWeight, tween, layoutLabels, peakGlyphs, nightPath, milesBetween } from '../../lib/places.js'
 import { HOME_TOWN } from '../../lib/sky.js'
+import { DESERTS, FORESTS, ICE, BANDS, smoothRing, bandRect, rangePoints } from '../../lib/formations.js'
+
+// The formations, made once: smooth outlines in world-map units
+const SHAPES = { desert: DESERTS.map(([n, r]) => [n, smoothRing(r)]), forest: FORESTS.map(([n, r]) => [n, smoothRing(r)]), ice: ICE.map(([n, r]) => [n, smoothRing(r)]) }
+const RANGE_POINTS = rangePoints()
 
 // All our places on one map, at three sizes: around home, Southern
 // California, the world. Each place is a pin with its name in a band above
@@ -122,7 +127,20 @@ export default function PlacesMap() {
       }
     }
   }
-  const winter = (() => { const m = now.getMonth() + 1; return m === 12 || m <= 4 })()
+  // Snow on the high peaks from November to April
+  const winter = (() => { const m = now.getMonth() + 1; return m >= 11 || m <= 4 })()
+  // The world's mountain ranges as little peaks, a few px apart at any zoom
+  let wpeaks = []
+  if (ready && w < 0.95) {
+    const { W, H } = size, gap = 9, kept = []
+    for (const r of RANGE_POINTS) {
+      const [x, y] = toScreen('world', cam, W, H, data.NEAR, r.lat, r.lng)
+      if (x < -10 || y < -10 || x > W + 10 || y > H + 10) continue
+      if (kept.some(([a, b]) => Math.abs(a - x) < gap && Math.abs(b - y) < gap * 0.7)) continue
+      kept.push([x, y, r.big])
+    }
+    wpeaks = kept
+  }
   const labels = ready && !moving ? layoutLabels(pins.map((p) => ({ id: p.slug, x: spots[p.slug].x, y: spots[p.slug].y, w: dims.w[p.slug] || 90 })), { W: size.W, H: size.H, rows: rowsAt(stop), rowH }) : {}
   const home = spots['group-socal'] || spots.home
 
@@ -145,12 +163,22 @@ export default function PlacesMap() {
               <defs>
                 <linearGradient id="pm-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="pm-sea-a" /><stop offset="1" className="pm-sea-b" /></linearGradient>
                 <pattern id="pm-waves" width="14" height="8" patternUnits="userSpaceOnUse"><path d="M0 5q3.5-3 7 0t7 0" className="pm-wave" /></pattern>
+                <pattern id="pm-dune-lines" width="9" height="6" patternUnits="userSpaceOnUse"><path d="M1 4q2.2-2.2 4.4 0" className="pm-dunes" vectorEffect="non-scaling-stroke" /></pattern>
                 <linearGradient id="pm-near-land" x1="0" y1="1" x2="1" y2="0"><stop offset="0" className="pm-coast-a" /><stop offset=".5" className="pm-coast-b" /><stop offset="1" className="pm-coast-c" /></linearGradient>
               </defs>
               <rect x="-1000" y="0" width="3000" height={data.WORLD.height} fill="url(#pm-sea)" />
               <path className="pm-grid" d={[...Array(13)].map((_, i) => `M${(i * 1000) / 12} 0V${data.WORLD.height}`).join('') + [...Array(5)].map((_, i) => `M-1000 ${((84 - (60 - i * 30)) / 360) * 1000}H2000`).join('')} vectorEffect="non-scaling-stroke" />
               <rect x="-1000" y="0" width="3000" height={data.WORLD.height} fill="url(#pm-waves)" />
               {Object.entries(data.WORLD.regions || {}).map(([k, d]) => <path key={k} className={'pm-r pm-r-' + k} d={d} />)}
+              <clipPath id="pm-landclip">{Object.entries(data.WORLD.regions || {}).map(([k, d]) => <path key={k} d={d} />)}</clipPath>
+              <g clipPath="url(#pm-landclip)">
+                {BANDS.map(([k, a, b], i) => { const r = bandRect(a, b); return <rect key={i} className={'pm-f-' + k} {...r} /> })}
+                {SHAPES.forest.map(([n, d]) => <path key={n} className="pm-f-forest" d={d} />)}
+                {SHAPES.desert.map(([n, d]) => <path key={n} className="pm-f-desert" d={d} />)}
+                <rect x="-1000" y="0" width="3000" height={data.WORLD.height} fill="url(#pm-dune-lines)" clipPath="url(#pm-desertclip)" />
+                {SHAPES.ice.map(([n, d]) => <path key={n} className="pm-f-ice" d={d} />)}
+              </g>
+              <clipPath id="pm-desertclip">{SHAPES.desert.map(([n, d]) => <path key={n} d={d} />)}</clipPath>
               <path className="pm-land pm-coastline" d={data.WORLD.land} vectorEffect="non-scaling-stroke" />
               <path className="pm-night" d={nightPath(now)} />
             </svg>
@@ -161,6 +189,10 @@ export default function PlacesMap() {
               {LAKES.map((l) => { const [x, y] = project('near', l.lat, l.lng, data.NEAR); return <ellipse key={l.name} className="pm-lake" cx={x} cy={y} rx={l.rx * data.NEAR.cos0 * data.NEAR.k} ry={l.ry * data.NEAR.k} transform={`rotate(${l.tilt} ${x} ${y})`} vectorEffect="non-scaling-stroke" /> })}
             </svg>
             <svg className="pm-over" viewBox={`0 0 ${size.W} ${size.H}`} aria-hidden="true">
+              <g className="pm-wpeaks" style={{ opacity: 1 - w }}>
+                <path d={wpeaks.map(([x, y, big]) => { const s = big ? 1.25 : 1; return `M${(x - 4 * s).toFixed(1)} ${(y + 2.6 * s).toFixed(1)}L${x.toFixed(1)} ${(y - 3.2 * s).toFixed(1)}L${(x + 4 * s).toFixed(1)} ${(y + 2.6 * s).toFixed(1)}Z` }).join('')} />
+                <path className="pm-snow" d={wpeaks.map(([x, y, big]) => { const s = big ? 1.25 : 1; return `M${(x - 1.6 * s).toFixed(1)} ${(y - 0.9 * s).toFixed(1)}L${x.toFixed(1)} ${(y - 3.2 * s).toFixed(1)}L${(x + 1.6 * s).toFixed(1)} ${(y - 0.9 * s).toFixed(1)}Z` }).join('')} />
+              </g>
               <g className="pm-peaks" style={{ opacity: w }}>
                 <path d={peaks.map(([x, y]) => `M${(x - 4.5 * g).toFixed(1)} ${(y + 3 * g).toFixed(1)}L${x.toFixed(1)} ${(y - 3 * g).toFixed(1)}L${(x + 4.5 * g).toFixed(1)} ${(y + 3 * g).toFixed(1)}Z`).join('')} />
                 {bigPeaks.map((b) => <path key={b.name} d={`M${b.xy[0] - 8 * g} ${b.xy[1] + 5 * g}L${b.xy[0]} ${b.xy[1] - 6 * g}L${b.xy[0] + 8 * g} ${b.xy[1] + 5 * g}Z`} />)}
