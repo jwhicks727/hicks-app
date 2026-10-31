@@ -15,6 +15,10 @@ Built in this order, each part in daily use before the next.
 - [x] The year's colours: a light seasonal wash over the sky (the Church's
       seasons, the holidays, the four seasons), with a slot for one of
       Laurie's paintings per season once scanned.
+- [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), each
+      with her yes; a painting she'd rather not have public waits for private
+      storage behind sign-in, since anything in `public/` can be fetched by
+      its address once hosted.
 - [x] Settings (sign in by email link, text size, motion), Setup (calendar
       sources: paste, edit, mark checked, staleness) and Reports (calendar
       sources), all following `src/registry.js`. Home shows the rollover

@@ -66,7 +66,8 @@ connected. Copy it to `.env` (never committed) and fill it in.
 
 Every picture the app uses is human-made: Laurie's paintings, our own
 photos, or free libraries whose licences allow it. Each source is credited
-where it appears and listed here:
+where it appears and listed here. How Laurie's paintings are photographed
+and added: `docs/ART-CAPTURE.md`.
 
 - **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence).
 - **Food pictures:** the Food Icon Pack by Michael Bollin,
