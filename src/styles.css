@@ -316,6 +316,9 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .apps-tile b { font-size: 15px; line-height: 1.2; }
 .apps-tile span { font-size: 12px; color: var(--muted); line-height: 1.25; }
 html[data-motion="less"] .apps-tile { transition: none; }
+/* The Apps sheet stands above the tab bar, which stays in view and works (the bar is about 66px tall, 10px up) */
+.sheet-scrim:has(.apps-sheet) { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+.sheet-scrim:has(.apps-sheet) .sheet { max-height: 100%; padding-bottom: 0; }
 /* The tools at the sheet's foot: Settings, Admin, Reports */
 .apps-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line); }
 .apps-tools a { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 8px; border-radius: var(--r-control); text-decoration: none; color: var(--ink); }

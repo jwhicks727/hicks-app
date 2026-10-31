@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from './Link.jsx'
-import { APP_PLACES } from '../lib/router.js'
+import { APP_PLACES, navigateFromSheet } from '../lib/router.js'
 import IconTile from '../ui/IconTile.jsx'
 import { APPS, TOOLS } from '../ui/apps.jsx'
 import AppsSheet from './AppsSheet.jsx'
@@ -32,9 +32,19 @@ export default function TabBar({ current }) {
   const [open, setOpen] = useState(false)
   const inApp = APP_PLACES.includes(current)
   const path = window.location.pathname
+  // The tab bar stays in view under the Apps sheet and still works: a tab closes the
+  // sheet and goes there in the sheet's own step of history, so Back has no dead step
+  const fromSheet = (e) => {
+    if (!open) return
+    const a = e.target.closest && e.target.closest('a.tab')
+    if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    e.preventDefault()
+    setOpen(false)
+    navigateFromSheet(a.getAttribute('href'))
+  }
   return (
     <>
-      <nav className="tabs" aria-label="Places">
+      <nav className="tabs" aria-label="Places" onClickCapture={fromSheet}>
         <span className="brand">Team Hicks</span>
         {TABS.map(([key, label]) => (
           <Link key={key} to={key === 'home' ? '/' : '/' + key} className={'tab t-' + key} aria-current={current === key ? 'page' : undefined}>
@@ -42,7 +52,7 @@ export default function TabBar({ current }) {
             {label}
           </Link>
         ))}
-        <button type="button" className={'tab t-apps' + (inApp ? ' lit' : '')} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <button type="button" className={'tab t-apps' + (inApp ? ' lit' : '')} aria-haspopup="dialog" aria-expanded={open} onClick={() => (open ? window.history.back() : setOpen(true))}>
           <svg viewBox="0 0 24 24" aria-hidden="true">{ICONS.apps}</svg>
           Apps
         </button>
