@@ -10,6 +10,7 @@ const STARTER = `Store: Trader Joe's, mostly.
 Equipment: slow cooker, Instant Pot, convection oven, broiler, sheet pans.
 Jason's hands: some weeks they're sore; then lean on the sheet pan, slow cooker, pre-cut and frozen produce, scissors over knives.
 Anna: adventurous and fickle; nuggets in the freezer for a miss.
+Dislikes (none of these, ever):
 Loved lately:
 Not again for a while:
 In the pantry now:`
@@ -72,7 +73,7 @@ function Versioned({ title, tint, rows, canEdit, about, starter = '', draftKey, 
     <Card tint={tint} label={title} glyph={secret ? 'candle' : 'pot'} tag={latest ? `v${rows.length} · ${when(latest.created_at)}` : undefined} className="span-3">
       <p className="muted">{about}</p>
       {children}
-      {!edit && (latest ? <div className="versioned">{latest.body}</div> : <p className="muted">Nothing saved yet.</p>)}
+      {!edit && (latest ? <div className="versioned">{latest.body}</div> : <p className="muted">Nothing saved yet. {secret ? 'Type or paste them here: they stay in the database, and only go to Claude with her yes.' : 'This is kept in the database, not in the app’s code, so it starts empty: write it fresh, or paste what you had from before, and every plan and every chat will go by it.'}</p>)}
       {edit && (
         <div className="form">
           <label>{latest ? 'The new version' : 'The first version'}<textarea rows={10} maxLength={20000} value={edit.body} onChange={(e) => setEdit({ ...edit, body: e.target.value })} /></label>
