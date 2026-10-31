@@ -38,7 +38,7 @@ export default function WeekView({ date, today, data }) {
                 ))}
               </ul>
             )}
-            <p className="mass-line"><b>Mass</b> {parish.mass.map((t, i) => <span key={t}>{i > 0 && ' · '}<span className="nw">{t}</span></span>)}{parish.confession && <> · <b>Confession</b> <span className="nw">{parish.confession}</span></>}</p>
+            <p className="mass-line"><b>Mass</b> {parish.mass.map((t, i) => { const [, at, what] = t.match(/^(\d{1,2}:\d\d [AP]M),?\s*(.*)$/) || [null, t, '']; return <span key={t}>{i > 0 && ' · '}<span className="nw">{at}</span>{what && ` ${what}`}</span> })}{parish.confession && <> · <b>Confession</b> <span className="nw">{parish.confession}</span></>}</p>
           </article>
         )
       })}
