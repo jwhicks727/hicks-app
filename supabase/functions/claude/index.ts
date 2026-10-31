@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
     // ---- The week's ideas -------------------------------------------------------------
     if (body.task === 'plan-week') {
       const ctx = await kitchenContext(db, true)
-      const msg = await ask({ ...base, system: [{ type: 'text', text: KITCHEN_BRIEF, cache_control: { type: 'ephemeral' } }, { type: 'text', text: kitchenNow({ today: today(), ...ctx }) }], messages: [{ role: 'user', content: planAsk({ count: body.count, asked: body.asked, avoid: ctx.recipes.map((r: { title: string }) => r.title) }) }] })
+      const msg = await ask({ ...base, system: [{ type: 'text', text: KITCHEN_BRIEF, cache_control: { type: 'ephemeral' } }, { type: 'text', text: kitchenNow({ today: today(), ...ctx }) }], messages: [{ role: 'user', content: planAsk({ count: body.count, asked: body.asked, skip: body.skip, avoid: ctx.recipes.map((r: { title: string }) => r.title) }) }] })
       await record(msg)
       return refused(msg) ? reply(200, { ideas: [] }) : reply(200, { ...(jsonOf(msg) ?? { ideas: [] }), model: id })
     }

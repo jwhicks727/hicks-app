@@ -130,7 +130,14 @@ From the handoff, for the recipes and for whoever writes them:
      this week").
   2. Claude gives one-line ideas covering Laurie's plate, never assigned to
      days. Keepers coming back are marked "Again".
-  3. Tap the ones to make. "More ideas" adds different ones.
+  3. Tap the ones to make. Tend the list as you go: "Add an idea" asks
+     for one more and puts it at the end; "Refresh the list" keeps the
+     picked ones where they are and swaps every other one for something
+     new; the ✕ beside an idea takes it off at once, with an Undo for a
+     few seconds rather than a question. New ideas never repeat one on the
+     list or one taken off it this visit. "Start over with new ideas"
+     wipes the list, so it asks first (the old list stays in the
+     database as that week's earlier version).
   4. "Write the picked" writes them in full, in the format above.
   5. Read them, then save them to the cookbook, and to the fridge if you
      like.

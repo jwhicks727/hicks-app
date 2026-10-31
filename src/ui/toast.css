@@ -1,0 +1,22 @@
+/* The undo line above the tab bar, and the busy pill at the top (Toast.jsx). */
+.toast { position: fixed; z-index: 40; left: 50%; bottom: calc(var(--tab-bottom) + var(--tabbar) + 12px); transform: translateX(-50%);
+  width: min(480px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 16px; border-radius: var(--r-card);
+  background: var(--steady); color: var(--on-steady); box-shadow: 0 16px 40px -14px rgba(30, 15, 5, .65); animation: toast-in .28s cubic-bezier(.2, .8, .2, 1) both; }
+.toast-t { flex: 1; min-width: 0; padding: 8px 0; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.toast-do, .toast-x { flex: none; min-height: 44px; border: 0; border-radius: var(--r-control); background: transparent; color: inherit; font: inherit; cursor: pointer; display: grid; place-items: center; }
+.toast-do { padding: 0 14px; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.toast-x { width: 44px; opacity: .8; }
+.toast-do:hover, .toast-x:hover { background: color-mix(in srgb, var(--on-steady) 12%, transparent); }
+.toast-do:focus-visible, .toast-x:focus-visible { outline: 3px solid var(--on-steady); outline-offset: -3px; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+.working { position: fixed; z-index: 40; top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: fit-content; max-width: 480px; margin: 0 auto;
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: var(--r-card);
+  background: var(--steady); color: var(--on-steady); font-weight: 800; line-height: 1.3; box-shadow: 0 12px 30px -12px rgba(30, 15, 5, .6); animation: working-in .28s cubic-bezier(.2, .8, .2, 1) both; }
+.working-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex: none; animation: working-pulse 1.2s ease-in-out infinite; }
+@keyframes working-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+@keyframes working-pulse { 50% { opacity: .25; transform: scale(.7); } }
+/* A computer has the side rail rather than the tab bar, so the toast sits near the bottom */
+@media (min-width: 960px) { .toast { bottom: 24px; } }

@@ -25,6 +25,9 @@ Built in this order, each part in daily use before the next.
       colours. Settings can try another season's show.
 - [ ] A show for every season, as she paints them: Christmas, Advent,
       Lent, Easter, spring, summer, July 4th.
+- [x] Plan the week, tended a little at a time: add one idea, refresh the
+      ones not picked, or take one off with its ✕ and an Undo; starting
+      over asks first, and what's under way shows at the top of the screen.
 - [x] Plan the week: the ideas are numbered; one tap opens Messages with the list
       to Laurie (her number kept parents-only in the database), she answers
       "1, 3, 8", and typing that back picks those. The Kitchen's standing

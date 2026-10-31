@@ -6,6 +6,21 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Plan the week: one idea at a time, Undo instead of asking
+
+"More ideas" asked for another ten, and ten more was never wanted. Jason's
+call: two smaller moves instead. "Add an idea" asks Claude for exactly one;
+"Refresh the list" keeps the picked ideas in their places and swaps the
+rest. Each idea has a ✕ that takes it off at once, with an Undo toast for a
+few seconds rather than a yes/no question; only "Start over", which wipes
+the whole list, asks first. The busy line ("Asking for ideas…") moved from
+the bottom of the page to a pill at the top of the screen, so it is seen
+from wherever the button was tapped. New ideas are told what is on the list
+and what was taken off it this visit, so none comes straight back.
+
+The undo toast is written fresh for this app (`src/ui/Toast.jsx`): the idea
+came from SOAR, the code did not.
+
 ## 2026-11-01 — Laurie's food rules no longer need her sign-off to reach Claude
 
 Reversing the earlier rule that Claude receives Laurie's food rules only while

@@ -187,6 +187,11 @@ licence nobody wrote down.
   Escape; a yes/no is `Confirm` (`src/ui/Confirm.jsx`), never
   `window.confirm()`. An overlay is drawn at the top of the page (a portal):
   inside a card, the card's entrance animation pins it to the card.
+- Taking one small thing away (an idea off a list) happens at once, with an
+  Undo (`Toast`, `src/ui/Toast.jsx`), never a question; wiping a whole list
+  asks first with `Confirm`. Something under way that takes a while shows
+  at the top of the screen (`Working`, same file), not at the end of the
+  page.
 - Half-done work survives interruption: iOS closes the installed app in the
   background, so anything someone types into, or that takes more than one
   tap (a cook check, a new source), keeps its draft on the device until it's

@@ -58,6 +58,11 @@ test('who may ask what: the planning is the parents’; the rules tool only when
   assert.match(kitchenNow({ today: '2026-11-01' }), /aren’t part of this conversation/)
   assert.match(kitchenNow({ today: '2026-11-01', rules: 'No X' }), /private to Jason and Laurie/)
   assert.match(planAsk({ count: 50, asked: 'and three breakfasts' }), /^Give 20 .*three breakfasts/s)
+  assert.match(planAsk({ count: 1 }), /^Give one one-line dinner idea for/)
+  const skip = planAsk({ count: 1, skip: ['Miso salmon', '', 'x'.repeat(500), ...Array.from({ length: 80 }, (_, i) => `Idea ${i}`)] })
+  assert.match(skip, /taken off it \(give different ones\): Miso salmon; x{160};/)
+  assert.doesNotMatch(skip, /Idea 58/)
+  assert.doesNotMatch(planAsk({ count: 3, skip: 'not a list' }), /taken off/)
 })
 
 test('every schema is closed and names what it requires', () => {

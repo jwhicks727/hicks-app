@@ -153,11 +153,13 @@ export function checkHistory(messages) {
 }
 
 // ---- The asks that aren't a conversation ----------------------------------------------
-export function planAsk({ count = 10, asked = '', avoid = [] }) {
+export function planAsk({ count = 10, asked = '', avoid = [], skip = [] }) {
   const n = Math.max(1, Math.min(20, Number(count) || 10))
-  return `Give ${n} one-line dinner ideas for this week, covering Laurie's plate only, never assigned to days.` +
+  const no = (Array.isArray(skip) ? skip : []).map((t) => String(t).trim().slice(0, 160)).filter(Boolean).slice(0, 60)
+  return `Give ${n === 1 ? 'one one-line dinner idea' : `${n} one-line dinner ideas`} for this week, covering Laurie's plate only, never assigned to days.` +
     (asked ? ` Also: ${String(asked).slice(0, 1500)}` : '') +
     (avoid.length ? `\nRecently cooked (vary from these unless they're keepers): ${avoid.slice(0, 40).join('; ')}` : '') +
+    (no.length ? `\nAlready on this week's list, or taken off it (give different ones): ${no.join('; ')}` : '') +
     '\nMark again: true for any that is one of their keepers coming back. Make every idea specific enough to picture.'
 }
 export function writeAsk({ ideas = [] }) {

@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card } from '../ui/Card.jsx'
+import { Confirm } from '../ui/Confirm.jsx'
+import { Toast, Working } from '../ui/Toast.jsx'
 import { Crumb, Link } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
 import { useDraft } from '../lib/useDraft.js'
 import { askClaude } from '../lib/claude.js'
 import { useWeekPlan, savePlan } from '../lib/useKitchenPlan.js'
-import { weekOf, mergeIdeas } from '../lib/kitchen/plan.js'
+import { weekOf, mergeIdeas, removeIdea, restoreIdea, refreshIdeas, notPicked } from '../lib/kitchen/plan.js'
 import { parseRecipe } from '../lib/kitchen/recipe.js'
 import { saveRecipes, addToFridge } from '../lib/useKitchen.js'
 import { timeWords } from './art.js'
@@ -13,6 +15,7 @@ import { useMemberPhones } from '../lib/useMemberPhones.js'
 import { listText, smsLink, normalizePhone, picksFromReply } from '../lib/kitchen/text.js'
 
 const MEAL = { dinner: 'Dinner', breakfast: 'Breakfast', lunch: 'Lunch', snack: 'Snack', dessert: 'Dessert', other: 'Other' }
+const statusOf = (picked) => (picked.length ? 'picked' : 'ideas')
 
 /**
  * /kitchen/plan: the week, the way Jason has always run it. Ask for some
@@ -22,6 +25,10 @@ const MEAL = { dinner: 'Dinner', breakfast: 'Breakfast', lunch: 'Lunch', snack: 
  * picks are kept with the week; the written recipes on the device until saved.
  * The ideas are numbered, so the list can be texted to Laurie in one tap and
  * she can answer "1, 3, 8", which Jason types back to pick those.
+ *
+ * The list is tended a little at a time: add one more idea, refresh the ones
+ * not picked, or take one off with its ✕ (an Undo, never a question). Only
+ * starting over, which wipes the list, asks first.
  */
 export default function PlanWeek({ parent, me, members = [], today }) {
   const session = useSession()
@@ -31,36 +38,110 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   const [ask, setAsk] = useDraft('kitchen.plan.ask', { count: 10, asked: '' })
   const [written, setWritten, clearWritten] = useDraft(`kitchen.plan.written.${week}`, { recipes: [] })
   const [busy, setBusy] = useState(null), [err, setErr] = useState(null), [fridgeToo, setFridgeToo] = useState(true), [saved, setSaved] = useState(null)
-  const ideas = plan ? plan.ideas : []
   const laurie = members.find((m) => m.name === 'Laurie') || null
   const phones = useMemberPhones(session, parent)
   const lauriePhone = laurie ? phones.phones[laurie.id] || null : null
   const [reply, setReply] = useState(''), [replyNote, setReplyNote] = useState(null), [number, setNumber] = useState(''), [numberNote, setNumberNote] = useState(null), [copied, setCopied] = useState(false)
-  const picked = plan ? plan.picked : []
+  const [wiping, setWiping] = useState(false), [undo, setUndo] = useState(null), [arrived, setArrived] = useState([])
+  // Titles taken off the list or swapped out on this visit, so a new idea doesn't bring one back
+  const [setAside, setSetAside] = useState([])
+
+  // The list as just changed here, shown at once and built on by the next tap,
+  // until the saved copy has been read back. Saves go one after another.
+  const [view, setView] = useState(null)
+  const pending = useRef(null), row = useRef(null), inFlight = useRef(0), queue = useRef(Promise.resolve(true))
+  useEffect(() => { if (!inFlight.current) { setView(null); pending.current = null; row.current = null } }, [plans.rows])
+  useEffect(() => { if (!arrived.length) return undefined; const t = setTimeout(() => setArrived([]), 1600); return () => clearTimeout(t) }, [arrived])
+  const shown = view || (plan ? { ideas: plan.ideas || [], picked: plan.picked || [] } : { ideas: [], picked: [] })
+  const { ideas, picked } = shown
+  const spare = notPicked(ideas, picked)
 
   if (!parent) return <Card tint="#C42D20" label="Planning the week" glyph="pot" className="span-6"><p>Jason and Laurie plan the week.</p></Card>
 
-  async function getIdeas(more = false) {
-    setBusy(more ? 'Asking for more…' : 'Asking for ideas…'); setErr(null)
-    const res = await askClaude('plan-week', { count: ask.count, asked: ask.asked + (more && ideas.length ? `\nAlready on the list (give different ones): ${ideas.map((i) => i.title).join('; ')}` : '') })
+  const now = () => pending.current || shown
+  const aside = (titles) => setSetAside((s) => [...s, ...titles].slice(-40))
+  const skipFor = (list) => [...list.map((i) => i.title), ...setAside]
+
+  /** Show a change at once and save it after any save still going; true once saved. */
+  function change(next, { fresh = false, ...extra } = {}) {
+    pending.current = next; setView(next); inFlight.current += 1
+    const job = queue.current.then(async () => {
+      const { data, error } = await savePlan(fresh ? null : row.current || plan, { ideas: next.ideas, picked: next.picked, status: statusOf(next.picked), ...extra }, week, me)
+      if (error) { setErr(error.message); return false }
+      if (data) row.current = data
+      return true
+    })
+    queue.current = job.catch(() => false)
+    return job.catch(() => false).finally(() => { inFlight.current -= 1; if (!inFlight.current) plans.reload() })
+  }
+
+  async function startOver() {
+    const old = now().ideas
+    setWiping(false); setUndo(null); setErr(null)
+    setBusy(old.length ? `Starting over with ${ask.count} new ideas…` : `Asking for ${ask.count} ideas…`)
+    const res = await askClaude('plan-week', { count: ask.count, asked: ask.asked, skip: skipFor(old) })
     if (res.error) { setErr(res.error); setBusy(null); return }
-    const next = mergeIdeas(more ? ideas : [], res.ideas || [])
-    const { error } = await savePlan(more ? plan : null, { ideas: next, picked: more ? picked : [], asked: ask.asked || null, status: 'ideas' }, week, me)
-    if (error) setErr(error.message)
-    setBusy(null); plans.reload()
+    const next = mergeIdeas([], res.ideas || [])
+    if (!next.length) { setErr('No ideas came back. Try again in a moment.'); setBusy(null); return }
+    aside(old.map((i) => i.title))
+    await change({ ideas: next, picked: [] }, { fresh: true, asked: ask.asked || null })
+    setBusy(null)
   }
-  async function toggle(i) {
-    const next = picked.includes(i) ? picked.filter((x) => x !== i) : [...picked, i].sort((a, b) => a - b)
-    await savePlan(plan, { picked: next, status: next.length ? 'picked' : 'ideas' }, week, me)
-    plans.reload()
+  async function addOne() {
+    const cur = now()
+    if (undo && undo.kind === 'refresh') setUndo(null)
+    setBusy('Thinking of one more…'); setErr(null)
+    const res = await askClaude('plan-week', { count: 1, asked: ask.asked, skip: skipFor(cur.ideas) })
+    if (res.error) { setErr(res.error); setBusy(null); return }
+    const next = mergeIdeas(cur.ideas, res.ideas || []).slice(0, cur.ideas.length + 1)
+    if (next.length === cur.ideas.length) { setErr(cur.ideas.length >= 40 ? 'The list holds 40 at most.' : 'That one was already on the list. Try again?'); setBusy(null); return }
+    setArrived([next[next.length - 1].title])
+    await change({ ideas: next, picked: cur.picked })
+    setBusy(null)
   }
-  // What Laurie wrote back ("1, 3, 8") becomes the picks
+  async function refresh() {
+    const cur = now(), n = notPicked(cur.ideas, cur.picked)
+    if (!n) return
+    setUndo(null); setErr(null)
+    setBusy(cur.picked.length ? `Swapping the ${n} not picked…` : `Swapping all ${n}…`)
+    const res = await askClaude('plan-week', { count: Math.min(20, n), asked: ask.asked, skip: skipFor(cur.ideas) })
+    if (res.error) { setErr(res.error); setBusy(null); return }
+    const r = refreshIdeas(cur.ideas, cur.picked, res.ideas || [])
+    if (!r.swapped) { setErr('No new ideas came back. Try again in a moment.'); setBusy(null); return }
+    aside(cur.ideas.filter((_, i) => !cur.picked.includes(i)).map((i) => i.title))
+    setArrived(r.ideas.filter((_, i) => !r.picked.includes(i)).map((i) => i.title))
+    if (await change({ ideas: r.ideas, picked: r.picked })) setUndo({ id: Date.now(), kind: 'refresh', text: `Swapped ${r.swapped} ${r.swapped === 1 ? 'idea' : 'ideas'}.`, before: cur })
+    setBusy(null)
+  }
+  function remove(i) {
+    const cur = now(), r = removeIdea(cur.ideas, cur.picked, i)
+    if (!r.removed) return
+    aside([r.removed.idea.title])
+    setUndo({ id: Date.now(), kind: 'remove', text: `Took “${r.removed.idea.title}” off the list.`, removed: r.removed })
+    change({ ideas: r.ideas, picked: r.picked })
+  }
+  function undoIt() {
+    const u = undo
+    setUndo(null)
+    if (!u) return
+    const cur = now()
+    const back = u.kind === 'remove' ? restoreIdea(cur.ideas, cur.picked, u.removed) : u.before
+    setSetAside((s) => s.filter((t) => !back.ideas.some((i) => i.title === t)))
+    change(back)
+  }
+  function toggle(i) {
+    const cur = now()
+    if (undo && undo.kind === 'refresh') setUndo(null)
+    const next = cur.picked.includes(i) ? cur.picked.filter((x) => x !== i) : [...cur.picked, i].sort((a, b) => a - b)
+    change({ ideas: cur.ideas, picked: next })
+  }
   async function pickFromReply(e) {
     e.preventDefault()
-    const next = picksFromReply(reply, ideas.length)
-    if (!next.length) { setReplyNote(`No numbers from 1 to ${ideas.length} in that.`); return }
-    await savePlan(plan, { picked: next, status: 'picked' }, week, me)
-    setReplyNote(`Picked ${next.map((i) => i + 1).join(', ')}.`); setReply(''); plans.reload()
+    const cur = now(), next = picksFromReply(reply, cur.ideas.length)
+    if (!next.length) { setReplyNote(`No numbers from 1 to ${cur.ideas.length} in that.`); return }
+    if (undo && undo.kind === 'refresh') setUndo(null)
+    change({ ideas: cur.ideas, picked: next })
+    setReplyNote(`Picked ${next.map((i) => i + 1).join(', ')}.`); setReply('')
   }
   async function saveNumber(e) {
     e.preventDefault()
@@ -106,7 +187,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
           </div>
           <label>Anything to add to the ask<textarea rows={3} maxLength={1500} value={ask.asked} onChange={(e) => setAsk({ ...ask, asked: e.target.value })} placeholder="Three breakfasts too · a slow-cooker night · my hands are sore this week · something Anna’s friend would eat Friday" /></label>
         </div>
-        <button type="button" className="btn" disabled={Boolean(busy)} onClick={() => getIdeas(false)}>{ideas.length ? 'Start over with new ideas' : 'Get ideas'}</button>
+        <button type="button" className="btn" disabled={Boolean(busy)} onClick={() => (ideas.length ? setWiping(true) : startOver())}>{ideas.length ? 'Start over with new ideas' : 'Get ideas'}</button>
         <p className="muted small">Sends this, the kitchen’s preferences and the cookbook’s titles to Claude (Anthropic), and Laurie’s food rules too, from <Link to="/kitchen/rules">Rules &amp; preferences</Link>.</p>
       </Card>
 
@@ -114,11 +195,14 @@ export default function PlanWeek({ parent, me, members = [], today }) {
         <Card tint="#E0662F" label="Pick" glyph="star" tag={`${picked.length} of ${ideas.length} picked`} className="span-3">
           <ul className="ideas">
             {ideas.map((idea, i) => (
-              <li key={i}>
-                <button type="button" className="idea" aria-pressed={picked.includes(i)} onClick={() => toggle(i)}>
+              <li key={idea.title} className={'idea-row' + (arrived.includes(idea.title) ? ' idea-new' : '')}>
+                <button type="button" className="idea" aria-pressed={picked.includes(i)} disabled={Boolean(busy)} onClick={() => toggle(i)}>
                   <span className="idea-n fig" aria-hidden="true">{i + 1}</span>
                   <span className="idea-t"><b>{idea.title}</b>{idea.line && <span>{idea.line}</span>}</span>
                   <span className="idea-tags">{idea.meal && idea.meal !== 'dinner' && <em>{MEAL[idea.meal]}</em>}{idea.again && <em className="again">Again</em>}</span>
+                </button>
+                <button type="button" className="idea-x" disabled={Boolean(busy)} aria-label={`Take “${idea.title}” off the list`} onClick={() => remove(i)}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>
                 </button>
               </li>
             ))}
@@ -149,12 +233,14 @@ export default function PlanWeek({ parent, me, members = [], today }) {
           </div>
           <div className="form-actions">
             <button type="button" className="btn" disabled={!picked.length || Boolean(busy)} onClick={write}>Write the {picked.length || ''} picked</button>
-            <button type="button" className="btn ghost" disabled={Boolean(busy)} onClick={() => getIdeas(true)}>More ideas</button>
+            <button type="button" className="btn ghost" disabled={Boolean(busy) || ideas.length >= 40} onClick={addOne}>Add an idea</button>
+            <button type="button" className="btn ghost" disabled={Boolean(busy) || !spare} onClick={refresh}>Refresh the list</button>
           </div>
+          <p className="muted small">{picked.length ? (spare ? `Refresh keeps the ${picked.length} picked and swaps the other ${spare}.` : 'Everything on the list is picked, so there’s nothing to refresh.') : 'Refresh swaps every idea on the list; pick the ones to keep first.'}</p>
         </Card>
       )}
 
-      {busy && <p className="span-6 plan-busy" role="status"><span className="plan-dot" aria-hidden="true" />{busy}</p>}
+      {busy && <Working>{busy}</Working>}
       {err && <p className="span-6 err" role="alert">{err}</p>}
 
       {previews.length > 0 && (
@@ -176,6 +262,13 @@ export default function PlanWeek({ parent, me, members = [], today }) {
           </div>
         </Card>
       )}
+      {wiping && (
+        <Confirm title="Start over?" yes="Wipe the list" danger onYes={startOver} onNo={() => setWiping(false)}>
+          <p>The {ideas.length} {ideas.length === 1 ? 'idea' : 'ideas'} on the list now go{picked.length ? `, with the ${picked.length} picked` : ''}, and Claude suggests {ask.count} new ones.</p>
+          {picked.length > 0 && <p className="muted small">To keep the picked ones, use Refresh the list instead.</p>}
+        </Confirm>
+      )}
+      {undo && <Toast key={undo.id} action="Undo" onAction={undoIt} onClose={() => setUndo(null)}>{undo.text}</Toast>}
       {saved && <Card tint="#3E7A4C" label="Saved" glyph="star" className="span-6"><ul className="coming">{saved.map((r, i) => <li key={i}>{r.ok ? <Link to={`/kitchen/recipe/${r.slug}`}>{r.title}</Link> : <span className="err">{r.title}: {r.error}</span>}</li>)}</ul></Card>}
     </>
   )

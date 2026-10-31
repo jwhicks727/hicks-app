@@ -10,18 +10,70 @@ export function weekOf(date) {
   return d.toISOString().slice(0, 10)
 }
 
+const key = (i) => String(i.title || '').toLowerCase().trim()
+/** One idea as the list keeps it: a title, its line, which meal, whether it's a keeper coming back. */
+function tidy(i) {
+  return { title: String(i.title || '').trim().slice(0, 160), line: String(i.line || '').slice(0, 400), meal: i.meal || 'dinner', again: Boolean(i.again) }
+}
+/** Ideas from Claude that aren't already in `seen` (lower-cased titles), each once. */
+function freshOnly(more, seen) {
+  const out = []
+  for (const i of more || []) {
+    const t = tidy(i)
+    if (!t.title || seen.has(key(t))) continue
+    seen.add(key(t)); out.push(t)
+  }
+  return out
+}
+
 /** New ideas added to a list without repeating a title already there. */
 export function mergeIdeas(old = [], more = []) {
-  const seen = new Set(old.map((i) => i.title.toLowerCase().trim()))
-  const out = [...old]
-  for (const i of more) {
-    const t = String(i.title || '').trim()
-    if (!t || seen.has(t.toLowerCase())) continue
-    seen.add(t.toLowerCase())
-    out.push({ title: t.slice(0, 160), line: String(i.line || '').slice(0, 400), meal: i.meal || 'dinner', again: Boolean(i.again) })
-  }
-  return out.slice(0, 40)
+  return [...old, ...freshOnly(more, new Set(old.map(key)))].slice(0, 40)
 }
+
+/**
+ * One idea taken off the list. The picks are places in the list, so every
+ * pick after it moves up one. `removed` is what putting it back needs.
+ */
+export function removeIdea(ideas = [], picked = [], at) {
+  if (at < 0 || at >= ideas.length) return { ideas, picked, removed: null }
+  return {
+    ideas: ideas.filter((_, i) => i !== at),
+    picked: picked.filter((p) => p !== at).map((p) => (p > at ? p - 1 : p)),
+    removed: { idea: ideas[at], at, wasPicked: picked.includes(at) },
+  }
+}
+
+/** Undo: the idea back where it was, picked again if it had been, whatever changed since. */
+export function restoreIdea(ideas = [], picked = [], removed) {
+  if (!removed || ideas.some((i) => key(i) === key(removed.idea)) || ideas.length >= 40) return { ideas, picked }
+  const at = Math.max(0, Math.min(removed.at, ideas.length))
+  const moved = picked.map((p) => (p >= at ? p + 1 : p))
+  return {
+    ideas: [...ideas.slice(0, at), removed.idea, ...ideas.slice(at)],
+    picked: (removed.wasPicked ? [...moved, at] : moved).sort((a, b) => a - b),
+  }
+}
+
+/**
+ * Refresh: the picked stay where they are; each of the others is swapped for
+ * a new one, in its place. A new one never repeats anything on the list
+ * before. If fewer came back than were asked for, the spare places close up.
+ */
+export function refreshIdeas(ideas = [], picked = [], more = []) {
+  const keep = new Set(picked)
+  const pool = freshOnly(more, new Set(ideas.map(key)))
+  const out = [], kept = []
+  let swapped = 0
+  ideas.forEach((idea, i) => {
+    if (keep.has(i)) { kept.push(out.length); out.push(idea) }
+    else if (pool.length) { out.push(pool.shift()); swapped++ }
+  })
+  return { ideas: out, picked: kept, swapped }
+}
+
+/** How many a refresh would swap: every idea not picked. */
+export const notPicked = (ideas = [], picked = []) => ideas.length - picked.filter((p) => p >= 0 && p < ideas.length).length
 
 /**
  * The chat's Markdown, the little of it there is, as blocks to draw:
