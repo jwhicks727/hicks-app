@@ -49,7 +49,9 @@ test('the app puts the gate in front of every screen, and the gate holds no plac
 
 test('a wrong password says what to do, and a new one has to be long enough and typed twice', () => {
   assert.match(signInProblem('Invalid login credentials'), /Email yourself a sign-in link, then set one in Settings/)
-  assert.match(passwordIssue('short', 'short'), /at least 10/)
+  assert.match(passwordIssue('abc', 'abc'), /at least 4/)
+  assert.equal(passwordIssue('abcd', 'abcd'), null) // any four characters, no kinds required
+  assert.equal(passwordIssue('1234', '1234'), null)
   assert.equal(passwordIssue('three words here', 'three words here'), null)
   assert.match(passwordIssue('three words here', 'three words there'), /don’t match/)
   assert.match(passwordIssue('me@example.com', 'me@example.com', 'ME@example.com'), /email address/)

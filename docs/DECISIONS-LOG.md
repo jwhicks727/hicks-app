@@ -16,7 +16,10 @@ is the username), which costs no email, works in the installed app, and
 can be remembered by the phone's password manager. The emailed link, or
 its code, stays as the way in for anyone with no password yet or who has
 forgotten it. A password is set in Settings once signed in. The device
-keeps none of it: only the email is remembered as a draft.
+keeps none of it: only the email is remembered as a draft. Jason chose a
+low bar for it, four characters of any kind and no character-type rules,
+because this is a low-security family app; Supabase's own minimum (6 by
+default) is the only floor beneath that.
 
 ## 2026-11-01 — Back to main, for the moment
 

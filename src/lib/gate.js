@@ -45,12 +45,13 @@ export function codeOf(text) {
   return d.length >= 6 && d.length <= 10 ? d : null
 }
 
-export const MIN_PASSWORD = 10
+// A low-security family app (Jason's call, decisions log): four characters, of any kind
+export const MIN_PASSWORD = 4
 
 /** What is wrong with a new password and its repeat, or null. */
 export function passwordIssue(password, again, email = '') {
   const p = String(password || '')
-  if (p.length < MIN_PASSWORD) return `Use at least ${MIN_PASSWORD} characters. A few words in a row is easy to remember and hard to guess.`
+  if (p.length < MIN_PASSWORD) return `Use at least ${MIN_PASSWORD} characters.`
   if (p !== String(again || '')) return 'The two don’t match.'
   if (email && p.toLowerCase() === String(email).toLowerCase()) return 'The password can’t be your email address.'
   return null

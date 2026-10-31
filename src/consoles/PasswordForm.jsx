@@ -27,7 +27,7 @@ export default function PasswordForm({ email }) {
   return (
     <form className="form pw-form" onSubmit={save}>
       <b>Your password</b>
-      <span className="muted small">Sign in with your email and a password, and keep the emailed link as the backup. At least {MIN_PASSWORD} characters.</span>
+      <span className="muted small">Sign in with your email and a password, and keep the emailed link as the backup. At least {MIN_PASSWORD} characters, of any kind.</span>
       <input type="email" autoComplete="username" value={email} readOnly tabIndex={-1} aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }} />
       <label>New password<input type="password" required autoComplete="new-password" minLength={MIN_PASSWORD} value={pw} onChange={(e) => setPw(e.target.value)} /></label>
       <label>The same again<input type="password" required autoComplete="new-password" minLength={MIN_PASSWORD} value={again} onChange={(e) => setAgain(e.target.value)} /></label>

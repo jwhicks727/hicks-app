@@ -75,8 +75,10 @@ Each of you then sets a password: sign in once (the emailed link is fine),
 then Settings › Your password, and from then on sign in with your email and
 that password, on the computer and the phone, with no email. In Supabase,
 Authentication › Sign In / Providers › Email, set **Minimum password
-length** to 10 (the app asks for 10 too; the wording of that setting is
-unverified).
+length** as low as it will go: the app asks only for 4 characters of any
+kind (this is a low-security family app), but Supabase has a minimum of its
+own, 6 by default, and refuses anything shorter. If it won't go below 6, use
+6; the wording of that setting is unverified.
 
 The built-in email sender is limited to a few emails an hour; if the
 sign-in screen says there were too many, wait, or add your own sender under
