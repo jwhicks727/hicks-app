@@ -8,9 +8,15 @@ stand-ins until a human-made icon replaces them (docs/DECISIONS-LOG.md).
 |---|---|
 | `sprout-outline.png` | In use |
 | `sprout-leafy.png` | Pinned, then set aside: too busy at home-screen size (Jason) |
+| `h-sprout.png` | A white, blocky H with a seedling rising from its crossbar (Jason's idea, 2026-11-01): to choose from |
+| `h-leaf.png` | An H whose stems are two tall leaves, joined by a vine: to choose from |
+| `h-caprasimo.png` | The app's own Caprasimo H, a leaf unfurling from its shoulder: to choose from |
 
-`compare.png` shows both on a phone's home screen, as Android's circle and
-as the browser tab's icon.
+`compare.png` shows the two sprouts on a phone's home screen, as Android's
+circle and as the browser tab's icon; `compare-h.png` shows the three H's
+beside the sprout now in use, large and at home-screen size. The H's are
+simple shapes drawn in code on the current icon's own gradient
+(`scripts/draw-h-icons.cjs`), not made by an image generator.
 
 To switch, from the repository (needs Playwright's Chromium):
 

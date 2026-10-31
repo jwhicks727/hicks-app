@@ -6,6 +6,21 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Three H icons to choose from
+
+Jason's idea: a white, blocky H in a leafy, organic style, on the gradient
+the icon has now. There are three options in `docs/icon-options/`, side by
+side in `compare-h.png`:
+
+- **A, sprouting H:** a seedling rises from the crossbar.
+- **B, leaf H:** the stems are two tall leaves, joined by a vine.
+- **C, Caprasimo H:** the app's own display face, with a leaf unfurling
+  from its shoulder.
+
+They are drawn in code, not made by an image generator. The sprout stays
+in use until one is chosen; switching is one command
+(`scripts/make-icons.mjs`).
+
 ## 2026-11-01 — Colourful maps
 
 The family loves colour, so the maps have more of it, though no more
