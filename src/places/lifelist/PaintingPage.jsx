@@ -17,10 +17,10 @@ export default function PaintingPage({ slug }) {
   const { list: PAINTINGS, loaded } = usePaintings()
   const p = paintingBySlug(slug, PAINTINGS)
   if (!p) {
-    if (!loaded) return <header className="hero span-6"><Crumb to="/lifelist/paintings">Laurie’s gallery</Crumb><h1 className="greet">…</h1></header>
+    if (!loaded) return <header className="hero span-6"><Crumb to="/lifelist/paintings">Laurie’s Gallery</Crumb><h1 className="greet">…</h1></header>
     return (
       <header className="hero span-6">
-        <Crumb to="/lifelist/paintings">Laurie’s gallery</Crumb>
+        <Crumb to="/lifelist/paintings">Laurie’s Gallery</Crumb>
         <h1 className="greet">Not one of her paintings</h1>
       </header>
     )
@@ -31,7 +31,7 @@ export default function PaintingPage({ slug }) {
   return (
     <>
       <header className="hero span-6">
-        <Crumb to="/lifelist/paintings">Laurie’s gallery</Crumb>
+        <Crumb to="/lifelist/paintings">Laurie’s Gallery</Crumb>
         <span className="kicker">Painted by Laurie</span>
         <h1 className="greet">{p.title}</h1>
         {!p.named && <span className="eyebrow">A working title, until Laurie names it</span>}

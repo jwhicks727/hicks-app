@@ -34,8 +34,8 @@ export default function Garden({ rest = [] }) {
   if (!session) {
     return (
       <>
-        <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">The garden</h1></header>
-        <Card tint="#5F8A4A" label="Sign in first" glyph="star" className="span-6"><p>The garden is ours alone: <Link to="/settings">sign in from Settings</Link>.</p></Card>
+        <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">The Garden</h1></header>
+        <Card tint="#5F8A4A" label="Sign in first" glyph="star" className="span-6"><p>The Garden is ours alone: <Link to="/settings">sign in from Settings</Link>.</p></Card>
       </>
     )
   }
@@ -77,7 +77,7 @@ function GardenHome({ g, me, parent, today, forecast }) {
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">The garden</h1></header>
+      <header className="hero span-6"><Crumb to="/us">Us</Crumb><span className="kicker">Us</span><h1 className="greet">The Garden</h1></header>
       <Card tint="#5F8A4A" label="Today" glyph="weather" tag={care.length ? `${care.length}` : undefined} className="span-3">
         <CareList care={care} today={today} me={me} onDone={g.reload} />
       </Card>
@@ -86,7 +86,7 @@ function GardenHome({ g, me, parent, today, forecast }) {
         <p><b>Plant:</b> {now.plant.join(', ')}.</p>
         <p className="muted">{now.note} A general guide for inland Southern California; for pests and problems, the <a href="https://ipm.ucanr.edu/" target="_blank" rel="noopener noreferrer">UC IPM</a> pages are the ones to trust.</p>
       </Card>
-      <section className="span-6 gareas" aria-label="The garden’s areas">
+      <section className="span-6 gareas" aria-label="The Garden’s areas">
         {g.areas.map((a) => {
           const spots = g.spots.filter((s) => s.area_id === a.id)
           const n = g.plants.filter((p) => p.status !== 'done' && spots.some((s) => s.id === p.spot_id)).length
@@ -128,8 +128,8 @@ function GardenHome({ g, me, parent, today, forecast }) {
 function AreaPage({ id, g, me, parent, today, forecast }) {
   const area = g.areas.find((a) => a.id === id)
   const [edit, setEdit] = useState(false), [sel, setSel] = useState(null), [moving, setMoving] = useState(false), [ask, setAsk] = useState(null)
-  if (!g.loaded) return <header className="hero span-6"><Crumb to="/us/garden">Garden</Crumb><h1 className="greet">…</h1></header>
-  if (!area) return <header className="hero span-6"><Crumb to="/us/garden">Garden</Crumb><h1 className="greet">Not one of our areas</h1></header>
+  if (!g.loaded) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">…</h1></header>
+  if (!area) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">Not one of our areas</h1></header>
   const spots = g.spots.filter((s) => s.area_id === area.id)
   const chosen = spots.find((s) => s.id === sel)
   const kinds = area.indoor ? ['pot', 'plant', 'other'] : ['bed', 'box', 'pot', 'tree', 'plant', 'feeder', 'bath', 'compost', 'path']
@@ -138,7 +138,7 @@ function AreaPage({ id, g, me, parent, today, forecast }) {
   const resize = async (k) => { const s = chosen; const w = Math.round(s.w * k * 10) / 10, h = Math.round(s.h * k * 10) / 10; await saveSpot(s.id, { x: s.x, y: s.y, w, h }); g.reload() }
   return (
     <>
-      <header className="hero span-6"><Crumb to="/us/garden">Garden</Crumb><span className="kicker">{area.indoor ? 'Inside' : 'Outside'} · about {Number(area.width_ft)} × {Number(area.depth_ft)} ft</span><h1 className="greet">{area.name}</h1></header>
+      <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><span className="kicker">{area.indoor ? 'Inside' : 'Outside'} · about {Number(area.width_ft)} × {Number(area.depth_ft)} ft</span><h1 className="greet">{area.name}</h1></header>
       {area.indoor ? (
         <Card tint="#5F8A4A" label="Its plants" glyph="pot" tag={area.light ? ROOM_LIGHT[area.light] : undefined} className="span-6">
           <PotLineup area={area} spots={spots} plants={g.plants} />
@@ -202,8 +202,8 @@ function SpotPage({ id, g, me, parent, today }) {
   const [note, setNote] = useState(''), [busy, setBusy] = useState(null), [open, setOpen] = useState(null)
   const photos = g.photos.filter((p) => p.spot_id === id)
   const urls = useSignedUrls(photos.map((p) => p.thumb_path || p.path))
-  if (!g.loaded) return <header className="hero span-6"><Crumb to="/us/garden">Garden</Crumb><h1 className="greet">…</h1></header>
-  if (!spot) return <header className="hero span-6"><Crumb to="/us/garden">Garden</Crumb><h1 className="greet">Not one of our spots</h1></header>
+  if (!g.loaded) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">…</h1></header>
+  if (!spot) return <header className="hero span-6"><Crumb to="/us/garden">The Garden</Crumb><h1 className="greet">Not one of our spots</h1></header>
   const plants = g.plants.filter((p) => p.spot_id === id)
   const log = g.log.filter((l) => l.spot_id === id).slice(0, 20)
   const quick = spot.kind === 'feeder' || spot.kind === 'bath' ? [['refill', spot.kind === 'feeder' ? 'Fresh nectar' : 'Fresh water'], ['note', 'A note']] : CARE
@@ -219,7 +219,7 @@ function SpotPage({ id, g, me, parent, today }) {
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to={area ? `/us/garden/area/${area.id}` : '/us/garden'}>{area ? area.name : 'Garden'}</Crumb><span className="kicker">{SPOT_KINDS[spot.kind].name}{spot.sun ? ` · ${SUN[spot.sun] || ROOM_LIGHT[spot.sun]}` : ''}</span><h1 className="greet">{spot.name}</h1></header>
+      <header className="hero span-6"><Crumb to={area ? `/us/garden/area/${area.id}` : '/us/garden'}>{area ? area.name : 'The Garden'}</Crumb><span className="kicker">{SPOT_KINDS[spot.kind].name}{spot.sun ? ` · ${SUN[spot.sun] || ROOM_LIGHT[spot.sun]}` : ''}</span><h1 className="greet">{spot.name}</h1></header>
       {area && area.indoor && <PotLook spot={spot} plant={g.plants.find((p) => p.spot_id === id && p.status !== 'done')} onSave={async (patch) => { await saveSpot(spot.id, patch); g.reload() }} />}
       <Card tint="#5F8A4A" label="What grows here" glyph="star" className="span-3">
         <ul className="gplants">

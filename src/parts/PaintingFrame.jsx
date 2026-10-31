@@ -69,7 +69,7 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
     <div className={'pf ' + className} ref={frame} style={style}>
       {crop && <img className="pf-img" src={p.src} alt={label || `${p.title}, a painting by Laurie`} draggable="false" style={{ width: crop.width, height: crop.height, left: crop.left, top: crop.top }} />}
       {crop && flyer && <img className={'pf-sky' + (away ? ' on' : '')} src={flyer.sky} alt="" draggable="false" style={boxIn(crop, flyer.skyAt)} />}
-      {linkTo && <Link className="pf-link" to={linkTo} aria-label={`${p.title}: open Laurie’s gallery`} />}
+      {linkTo && <Link className="pf-link" to={linkTo} aria-label={`${p.title}: open Laurie’s Gallery`} />}
       {flyer && (
         <button type="button" className="pf-fly" onClick={fly} aria-label={`Let ${flyer.name} fly`} disabled={flying || blink}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14c3-1 5-3 6.5-6 1 2.5 2.2 3.8 4 4.2L19 8l-1.2 4.6L21 14l-4 .6c-1.6 2.6-4.5 3.9-8 3.4l-2.5 2 .6-3C5 16.4 3.7 15.4 3 14z" fill="currentColor" /></svg>

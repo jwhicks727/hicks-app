@@ -19,7 +19,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
       <PaintingFrame painting={p} focus={p.focus} auto={auto} linkTo="/lifelist/paintings" />
       <div className="paint-cap">
         <span><b>{p.title}</b> <small>by Laurie</small></span>
-        <Link to="/lifelist/paintings">Laurie’s gallery{n > 1 ? ` · ${n}` : ''} ›</Link>
+        <Link to="/lifelist/paintings">Laurie’s Gallery{n > 1 ? ` · ${n}` : ''} ›</Link>
       </div>
     </Card>
   )

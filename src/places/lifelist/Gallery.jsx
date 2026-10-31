@@ -28,7 +28,7 @@ export default function Gallery() {
       <header className="hero span-6">
         <Crumb to="/lifelist">Life List</Crumb>
         <span className="kicker">Painted by Laurie</span>
-        <h1 className="greet">Laurie’s gallery</h1>
+        <h1 className="greet">Laurie’s Gallery</h1>
       </header>
       {loaded && !list.length && <Card tint="#C0824F" label="Behind sign-in" glyph="star" className="span-6"><p>Laurie’s paintings are only for us: <Link to="/settings">sign in from Settings</Link> to see them.</p></Card>}
       <section className="gallery-wall span-6" aria-label="Laurie’s paintings">
