@@ -7,7 +7,7 @@ import { promptFor } from './journal.js'
 // today's page is written, how many notes from your past self are waiting,
 // and which earlier years wrote on this day. Counts and dates only, never a
 // word of what's in it, so nothing private shows on a shared screen.
-export function useJournalGlance(session, today, enabled = true) {
+export function useJournalGlance(session, today, enabled = true, child = false) {
   const [g, setG] = useState({ written: false, notes: 0, years: [], question: null, loaded: false })
   useEffect(() => {
     let live = true
@@ -21,9 +21,9 @@ export function useJournalGlance(session, today, enabled = true) {
     ]).then(([e, n, s]) => {
       if (!live) return
       const dates = (e.data || []).map((r) => r.on_date)
-      setG({ written: dates.includes(today), notes: n.count || 0, years: dates.filter((x) => x !== today).map((x) => y - +x.slice(0, 4)).sort((a, b) => a - b), question: promptFor(today, (s.data && s.data.prompt_set) || 'season', s.data && s.data.prompts), loaded: true })
+      setG({ written: dates.includes(today), notes: n.count || 0, years: dates.filter((x) => x !== today).map((x) => y - +x.slice(0, 4)).sort((a, b) => a - b), question: promptFor(today, (s.data && s.data.prompt_set) || (child ? 'none' : 'season'), s.data && s.data.prompts), loaded: true })
     })
     return () => { live = false }
-  }, [session, today, enabled])
+  }, [session, today, enabled, child])
   return g
 }

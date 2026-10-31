@@ -12,6 +12,9 @@ import Sit from '../parts/Sit.jsx'
 import Garden from './home/Garden.jsx'
 import Journal from './home/Journal.jsx'
 import JournalCard from '../parts/JournalCard.jsx'
+import TableCard from '../parts/TableCard.jsx'
+import AcademyCard from '../parts/AcademyCard.jsx'
+import { atTable } from '../lib/table.js'
 import GardenCard from './home/GardenCard.jsx'
 import SunsetCard from '../parts/SunsetCard.jsx'
 import DaysOffCard from '../parts/DaysOffCard.jsx'
@@ -68,6 +71,7 @@ function HomeScreen() {
       <RolloverShine />
       <RateNudge book={book} me={me} today={today} />
       <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />
+      <AcademyCard session={session} me={me} today={today} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <WeatherNow />
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
@@ -76,6 +80,7 @@ function HomeScreen() {
       <FridgeCard book={book} />
       <GardenCard today={today} me={me} />
       <SunsetCard />
+      {atTable(hour) && <TableCard today={today} />}
       {prefs.mindful !== false && <MindfulCard today={today} />}
       <JournalCard session={session} me={me} today={today} />
       <SkyToday />

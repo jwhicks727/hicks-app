@@ -5,7 +5,7 @@ import { useJournalGlance } from '../lib/useJournalGlance.js'
 // Home's door to your journal. It says only whether today's page is
 // written, that a note or an earlier year is waiting: never what's in them.
 export default function JournalCard({ session, me, today }) {
-  const g = useJournalGlance(session, today, Boolean(session && me))
+  const g = useJournalGlance(session, today, Boolean(session && me), Boolean(me && me.role === 'child'))
   if (!session || !me || !g.loaded) return null
   return (
     <Card tint="#7A5C9E" label="Journal" glyph="star" tag="Only you" className="span-2 journal-card">

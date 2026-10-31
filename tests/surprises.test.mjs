@@ -38,3 +38,12 @@ test('this day in jam-band history: ours first, the Dead first of all, forgiving
   assert.deepEqual(shapeToday({ shows: [] }), [])
   assert.deepEqual(shapeToday(null), [])
 })
+
+test('a dinner-table question each evening: different every night, every one before any repeats', async () => {
+  const { tableQuestion, TABLE_QUESTIONS, atTable } = await import('../src/lib/table.js')
+  const seen = []
+  for (let d = 0; d < TABLE_QUESTIONS.length; d++) seen.push(tableQuestion(new Date(Date.UTC(2026, 10, 1 + d)).toISOString().slice(0, 10)))
+  assert.equal(new Set(seen).size, TABLE_QUESTIONS.length)
+  assert.notEqual(tableQuestion('2026-11-01'), tableQuestion('2026-11-01', 1))
+  assert.ok(atTable(18) && !atTable(9) && !atTable(21))
+})

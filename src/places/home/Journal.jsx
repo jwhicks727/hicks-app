@@ -57,7 +57,9 @@ const Head = ({ title, crumb = ['/', 'Home'] }) => (
   </header>
 )
 const short = (d) => { const [y, m, dd] = parts(d); return `${MONTHS[m - 1].slice(0, 3)} ${dd}, ${y}` }
-const questionFor = (j, date) => promptFor(date, (j.settings && j.settings.prompt_set) || 'season', j.settings && j.settings.prompts)
+// A child's journal starts with gratitudes only; the questions are a grown-up's week
+const defaultSet = (me) => (me && me.role === 'child' ? 'none' : 'season')
+const questionFor = (j, date, me) => promptFor(date, (j.settings && j.settings.prompt_set) || defaultSet(me), j.settings && j.settings.prompts)
 
 function JournalHome({ j, me, today }) {
   const entry = j.entries.find((e) => e.on_date === today)
@@ -78,7 +80,7 @@ function JournalHome({ j, me, today }) {
       )}
       {due.map((n) => <NoteFromPast key={n.id} note={n} me={me} today={today} onOpen={j.reload} />)}
       <Card tint="#7A5C9E" label={longDate(today)} glyph="star" className="span-4 jr-today">
-        {j.loaded ? <Entry j={j} date={today} entry={entry} /> : <p className="muted">Opening your journal…</p>}
+        {j.loaded ? <Entry j={j} me={me} date={today} entry={entry} /> : <p className="muted">Opening your journal…</p>}
       </Card>
       <div className="span-2 jr-side">
         {back.length > 0 && (
@@ -121,7 +123,7 @@ function NoteFromPast({ note, me, today, onOpen }) {
 }
 
 /** A day's page: written, it reads; tapped, it opens to edit. */
-function Entry({ j, date, entry }) {
+function Entry({ j, me, date, entry }) {
   const [editing, setEditing] = useState(!entry)
   if (entry && !editing) {
     return (
@@ -131,11 +133,11 @@ function Entry({ j, date, entry }) {
       </div>
     )
   }
-  return <Editor j={j} date={date} entry={entry} onDone={() => setEditing(false)} />
+  return <Editor j={j} me={me} date={date} entry={entry} onDone={() => setEditing(false)} />
 }
 
-function Editor({ j, date, entry, onDone }) {
-  const q = entry ? (entry.prompt ? { title: entry.prompt_title, prompt: entry.prompt } : null) : questionFor(j, date)
+function Editor({ j, me, date, entry, onDone }) {
+  const q = entry ? (entry.prompt ? { title: entry.prompt_title, prompt: entry.prompt } : null) : questionFor(j, date, me)
   const start = entry ? { ...entry, answer: entry.answer || '', reflection: entry.reflection || '', gratitudes: [...(entry.gratitudes || []), '', '', ''].slice(0, Math.max(3, (entry.gratitudes || []).length)) } : blankEntry(date, q)
   const [f, setF, clear] = useDraft(`journal.${date}`, start)
   const [busy, setBusy] = useState(null)
@@ -193,7 +195,7 @@ function EntryText({ e, mark }) {
   )
 }
 
-function DayPage({ j, date, today }) {
+function DayPage({ j, me, date, today }) {
   const entry = j.entries.find((e) => e.on_date === date)
   const idx = j.entries.findIndex((e) => e.on_date === date)
   const newer = idx > 0 ? j.entries[idx - 1] : null, older = idx >= 0 ? j.entries[idx + 1] : null
@@ -202,7 +204,7 @@ function DayPage({ j, date, today }) {
     <>
       <Head title={longDate(date)} crumb={['/home/journal', 'Journal']} />
       <Card tint="#7A5C9E" label={date === today ? 'Today' : agoWords(date, today).replace(/^./, (c) => c.toUpperCase())} glyph="star" className="span-6">
-        {!j.loaded ? <p className="muted">Opening…</p> : (entry || date <= today) ? <Entry key={date + (entry ? entry.id : '')} j={j} date={date} entry={entry} /> : <p className="muted">That day hasn’t come yet.</p>}
+        {!j.loaded ? <p className="muted">Opening…</p> : (entry || date <= today) ? <Entry key={date + (entry ? entry.id : '')} j={j} me={me} date={date} entry={entry} /> : <p className="muted">That day hasn’t come yet.</p>}
         {entry && <button type="button" className="jr-skip" onClick={() => setGone(true)}>Remove this page</button>}
       </Card>
       <nav className="jr-pn span-6" aria-label="Other pages">
@@ -336,7 +338,7 @@ function Outlets({ list }) {
 
 function JournalSettings({ j, me, today }) {
   const s = j.settings || {}
-  const choice = s.prompt_set || 'season'
+  const choice = s.prompt_set || defaultSet(me)
   const [msg, setMsg] = useState(null)
   const save = async (patch) => { const { error } = await saveSettings({ prompt_set: choice, outlets: s.outlets || [], prompts: s.prompts || null, ...patch }, me); setMsg(error ? error.message : 'Saved.'); j.reload() }
   return (
@@ -347,7 +349,7 @@ function JournalSettings({ j, me, today }) {
           {Object.entries(SET_CHOICES).map(([k, label]) => <button key={k} type="button" aria-pressed={choice === k} onClick={() => save({ prompt_set: k })}>{label}</button>)}
           <button type="button" aria-pressed={choice === 'custom'} onClick={() => save({ prompt_set: 'custom', prompts: s.prompts || PROMPT_SETS[seasonSet(today)].days })}>My own</button>
         </fieldset>
-        {choice === 'season' && <p className="muted">The school-year questions, and the summer ones from mid-June to mid-August. Today’s: {(questionFor(j, today) || {}).title}</p>}
+        {choice === 'season' && <p className="muted">The school-year questions, and the summer ones from mid-June to mid-August. Today’s: {(questionFor(j, today, me) || {}).title}</p>}
         {choice === 'custom' && <CustomPrompts prompts={s.prompts || PROMPT_SETS.school.days} onSave={(prompts) => save({ prompt_set: 'custom', prompts })} />}
         {choice !== 'custom' && choice !== 'none' && (
           <ol className="jr-week">{(PROMPT_SETS[choice === 'season' ? seasonSet(today) : choice] || PROMPT_SETS.school).days.map(([t, p], i) => <li key={i}><span>{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}</span><b>{t}</b> {p}</li>)}</ol>
