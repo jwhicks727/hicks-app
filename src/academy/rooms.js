@@ -41,6 +41,17 @@ export const ROOM_KINDS = {
 }
 export const KIND_ORDER = Object.keys(ROOM_KINDS)
 
+// Each kind's own colour, light to deep, for its tile on the buttons and the campus's list
+export const KIND_COLOURS = {
+  office: ['#C4B5FD', '#7C3AED'], classroom: ['#86EFAC', '#16A34A'], hall: ['#FDE68A', '#D97706'], library: ['#FDBA74', '#B45309'],
+  art: ['#F9A8D4', '#DB2777'], lab: ['#5EEAD4', '#0F766E'], music: ['#A5B4FC', '#4338CA'], gym: ['#FDBA74', '#EA580C'],
+  chapel: ['#BFDBFE', '#3B82F6'], cafe: ['#FCA5A5', '#DC2626'], greenhouse: ['#D9F99D', '#4D7C0F'], observatory: ['#818CF8', '#1E1B4B'],
+  theater: ['#FDA4AF', '#9F1239'], pets: ['#BAE6FD', '#0284C7'], commons: ['#A5F3FC', '#0891B2'], games: ['#F0ABFC', '#A21CAF'],
+  computer: ['#CBD5E1', '#475569'], bakery: ['#EAD7C7', '#7C4A2D'], pool: ['#7DD3FC', '#0369A1'], courtyard: ['#6EE7B7', '#047857'],
+  dorm: ['#E9D5FF', '#9333EA'],
+}
+export const kindColours = (kind) => KIND_COLOURS[kind] || KIND_COLOURS.classroom
+
 /** A new room of a kind: furnished, on the first free square of the campus. */
 export function newRoom(kind, rooms, campusN) {
   const k = ROOM_KINDS[kind] || ROOM_KINDS.classroom

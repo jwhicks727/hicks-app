@@ -9,7 +9,8 @@ import { useDraft } from '../lib/useDraft.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { HOME_TOWN } from '../lib/sky.js'
 import { useAcademy, saveSettings, addRooms, saveRoom, saveTask, addTask } from './useAcademy.js'
-import { ROOM_KINDS, KIND_ORDER, newRoom, campusSize, moveRoom } from './rooms.js'
+import { ROOM_KINDS, KIND_ORDER, newRoom, campusSize, moveRoom, kindColours } from './rooms.js'
+import IconTile from '../ui/IconTile.jsx'
 import { itemSrc } from './items.js'
 import { MOVES } from './iso.js'
 import { starsThisMonth, taskDay, dueWords, goalProgress, latestByClass, gradeCheer, fame, spotlight } from './school.js'
@@ -92,9 +93,7 @@ function Welcome({ a, anna, celebrate }) {
         <p className="muted">Any of them, as many as you like. You can add more whenever you want, and move them anywhere.</p>
         <div className="ac-kinds">
           {KIND_ORDER.map((k) => (
-            <button key={k} type="button" className="ac-kind" aria-pressed={f.picks.includes(k)} onClick={() => toggle(k)}>
-              <img src={itemSrc(ROOM_KINDS[k].sign)} alt="" width="40" height="40" /><b>{ROOM_KINDS[k].name}</b><span>{ROOM_KINDS[k].blurb}</span>
-            </button>
+            <KindButton key={k} kind={k} pressed={f.picks.includes(k)} onClick={() => toggle(k)} />
           ))}
         </div>
         <div className="form-actions"><button type="button" className="btn ac-gleam" disabled={busy === 'Building…'} onClick={open}>Open the school</button></div>
@@ -164,7 +163,7 @@ function CampusHome({ a, anna, today, celebrate, me }) {
           </div>
         )}
         <nav className="ac-rooms" aria-label="Rooms">
-          {a.rooms.map((r) => <Link key={r.id} to={`/academy/room/${r.id}`}><img src={itemSrc((ROOM_KINDS[r.kind] || ROOM_KINDS.classroom).sign)} alt="" width="22" height="22" />{r.name}</Link>)}
+          {a.rooms.map((r) => <Link key={r.id} to={`/academy/room/${r.id}`} style={{ '--k1': kindColours(r.kind)[0], '--k2': kindColours(r.kind)[1] }}><IconTile colours={kindColours(r.kind)} size={30}><img src={itemSrc((ROOM_KINDS[r.kind] || ROOM_KINDS.classroom).sign)} alt="" /></IconTile>{r.name}</Link>)}
         </nav>
       </Card>
       <Card tint="#F2C14E" label="Today" glyph="calendar" tag={day.today.length + day.late.length ? `${day.today.length + day.late.length} to do` : 'All done'} className="span-2">
@@ -213,9 +212,7 @@ function AddRoom({ a, n, onClose, celebrate }) {
     <Sheet title="Add a room" onClose={onClose}>
       <div className="ac-kinds">
         {KIND_ORDER.map((k) => (
-          <button key={k} type="button" className="ac-kind" disabled={Boolean(busy)} onClick={() => add(k)}>
-            <img src={itemSrc(ROOM_KINDS[k].sign)} alt="" width="40" height="40" /><b>{ROOM_KINDS[k].name}</b><span>{ROOM_KINDS[k].blurb}</span>
-          </button>
+          <KindButton key={k} kind={k} disabled={Boolean(busy)} onClick={() => add(k)} />
         ))}
       </div>
       {busy && !ROOM_KINDS[busy] && <p className="err" role="alert">{busy}</p>}
@@ -251,5 +248,18 @@ function SchoolSettings({ a, onClose }) {
         <p className="muted"><Link to="/academy/pictures">Pictures the family has added</Link></p>
       </div>
     </Sheet>
+  )
+}
+
+/** A kind of room as a button: its picture on a tile of its own colour, its name and what's special about it. */
+function KindButton({ kind, pressed, disabled, onClick }) {
+  const k = ROOM_KINDS[kind], c = kindColours(kind)
+  return (
+    <button type="button" className="ac-kind" aria-pressed={pressed} disabled={disabled} onClick={onClick} style={{ '--k1': c[0], '--k2': c[1] }}>
+      <IconTile colours={c} size={52}><img src={itemSrc(k.sign)} alt="" /></IconTile>
+      <b>{k.name}</b>
+      <span>{k.blurb}</span>
+      {pressed && <i className="ac-kind-tick" aria-hidden="true">✓</i>}
+    </button>
   )
 }

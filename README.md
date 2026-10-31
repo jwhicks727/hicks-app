@@ -158,9 +158,11 @@ and added: `docs/ART-CAPTURE.md`.
   `scripts/draw-h-icons.cjs` (with a maskable version for Android's circle)
   and sized by `scripts/make-icons.mjs`. The other options, including the
   ChatGPT sprouts it replaced, are in `docs/icon-options/`.
-- **The academy and Us:** the academy's furniture, animals and prizes, and the pictures on Us's tiles, are Fluent Emoji by
+- **The academy:** its furniture, animals and prizes, and the pictures on its room buttons, are Fluent Emoji by
   Microsoft (MIT licence; https://github.com/microsoft/fluentui-emoji),
   drawn to WebP by `scripts/academy-art.mjs` with the licence beside them
   in `public/academy/`. The rooms and campus are drawn in code. Pictures
   the family adds carry their own licence (`docs/ACADEMY-ART.md`).
 - **Indoor plants** are drawn in code (`src/places/us/PlantArt.jsx`).
+- **The places under Us** each have a line icon drawn on the tab icons' 24-unit
+  grid, on a tile in their own colour (`src/ui/usPlaces.jsx`, `src/ui/IconTile.jsx`).

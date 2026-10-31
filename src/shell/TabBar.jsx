@@ -1,5 +1,7 @@
 import { Link } from './Link.jsx'
 import { UNDER_US } from '../lib/router.js'
+import IconTile from '../ui/IconTile.jsx'
+import { US_PLACES } from '../ui/usPlaces.jsx'
 
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
 const ICONS = {
@@ -17,8 +19,6 @@ const ICONS = {
   us: <g {...S}><circle cx="6.5" cy="7.5" r="2.4" /><circle cx="17.5" cy="7.5" r="2.4" /><circle cx="12" cy="11.3" r="1.9" /><path d="M2.5 19.5c0-3.3 1.8-5.5 4-5.5 1.2 0 2.2.5 3 1.4M21.5 19.5c0-3.3-1.8-5.5-4-5.5-1.2 0-2.2.5-3 1.4M8.6 20.5c0-2.6 1.5-4.4 3.4-4.4s3.4 1.8 3.4 4.4" /></g>,
 }
 const TABS = [['home', 'Home'], ['calendar', 'Calendar'], ['kitchen', 'Kitchen'], ['world', 'World'], ['us', 'Us']]
-// Under Us on a computer's rail, where there's room to list them
-const UNDER = [['/us/journal', 'Journal'], ['/academy', 'The Academy'], ['/lifelist', 'Life List'], ['/jams', 'Jams'], ['/us/garden', 'The garden']]
 
 /** A floating rounded bar of five on a phone; a side rail on a computer, with what's under Us. */
 export default function TabBar({ current }) {
@@ -34,7 +34,7 @@ export default function TabBar({ current }) {
         </Link>
       ))}
       <span className="rail-under">
-        {UNDER.map(([to, label]) => <Link key={to} to={to} aria-current={path === to || path.startsWith(to + '/') ? 'page' : undefined}>{label}</Link>)}
+        {US_PLACES.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !US_PLACES.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={22}><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
       </span>
       <span className="rail-more">
         <Link to="/settings" aria-current={current === 'settings' ? 'page' : undefined}>Settings</Link>

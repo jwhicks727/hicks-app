@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Icons on coloured tiles
+
+The Us page's emoji were swapped for line icons drawn like the tab bar's,
+each on a tile of its own colour (journal violet, academy amber, Life List
+teal, the gallery rose, Jams indigo, the garden green), the way a phone's
+app icons are: a gradient, a sheen, a soft shadow in its colour. The
+computer's rail shows them small beside each name. The academy keeps its
+emoji for the kinds of room, but each now sits on the same kind of tile in
+its own colour, and the room buttons became proper cards: a tint of their
+colour, a lift under the pointer, and a ring and a tick when picked. The
+tiles' corners are rounder than the app's nearly square ones, because
+they're icons, not controls.
+
 ## 2026-11-01 — Light and dark
 
 There's a dark mode, chosen in Settings (Light, Dark, or like this device,

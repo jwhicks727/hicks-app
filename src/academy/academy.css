@@ -58,14 +58,21 @@
 .ac-arrows button { width: 48px; height: 44px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font-size: 20px; font-weight: 800; cursor: pointer; }
 .ac-arrows button:active { transform: translateY(1px); background: color-mix(in srgb, var(--ac-green, #3FA34D) 16%, var(--card)); }
 .ac-rooms { display: flex; flex-wrap: wrap; gap: 6px; }
-.ac-rooms a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 10px 4px 6px; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 5%, var(--card)); text-decoration: none; font-weight: 750; font-size: 14px; white-space: nowrap; }
+.ac-rooms a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 5px 12px 5px 6px; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 5%, var(--card)); text-decoration: none; font-weight: 750; font-size: 14px; white-space: nowrap; }
 
 /* Rooms to pick */
-.ac-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 8px; }
-.ac-kind { display: grid; justify-items: start; gap: 2px; padding: 10px; min-height: 44px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
-.ac-kind b { font-size: 15px; } .ac-kind span { font-size: 13px; color: var(--muted); }
-.ac-kind[aria-pressed="true"] { border-color: var(--ac-green, #3FA34D); background: color-mix(in srgb, var(--ac-green, #3FA34D) 14%, var(--card)); box-shadow: inset 0 0 0 1px var(--ac-green, #3FA34D); }
+.ac-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 10px; }
+.ac-kind { position: relative; display: grid; justify-items: start; align-content: start; gap: 2px; padding: 14px 12px 12px; min-height: 44px; border-radius: var(--r-card); border: 0; color: var(--ink); text-align: left; cursor: pointer; font: inherit;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--k1) 10%, var(--card)), var(--card) 75%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k2) 16%, var(--line));
+  transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s ease; }
+.ac-kind .itile { margin-bottom: 10px; }
+.ac-kind b { font-size: 15px; line-height: 1.2; } .ac-kind span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.ac-kind:hover:not(:disabled), .ac-kind:focus-visible { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--k2) 45%, var(--line)), 0 14px 24px -16px var(--k2); }
+.ac-kind:active:not(:disabled) { transform: translateY(1px); }
+.ac-kind[aria-pressed="true"] { background: linear-gradient(180deg, color-mix(in srgb, var(--k1) 26%, var(--card)), color-mix(in srgb, var(--k1) 8%, var(--card))); box-shadow: inset 0 0 0 2px var(--k2), 0 12px 22px -16px var(--k2); }
+.ac-kind-tick { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 900; color: #FFFFFF; background: var(--k2); box-shadow: 0 2px 6px -2px var(--k2); }
 .ac-kind:disabled { opacity: .6; }
+html[data-motion="less"] .ac-kind { transition: none; }
 
 /* The catalog */
 .ac-cat { display: grid; gap: 12px; }

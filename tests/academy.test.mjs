@@ -79,3 +79,11 @@ test('the spotlight is the newest cheer of the last week; the cafeteria changes 
   assert.equal(spotlight([{ id: 1, on_date: '2026-10-20' }], T), null)
   assert.equal(menuFor('2026-11-06'), 'Sushi Friday')
 })
+
+test('every kind of room has its own colour for its tile', async () => {
+  const { KIND_COLOURS } = await import('../src/academy/rooms.js')
+  for (const kind of Object.keys(ROOM_KINDS)) {
+    assert.ok(KIND_COLOURS[kind], `${kind} has no colours`)
+    for (const c of KIND_COLOURS[kind]) assert.match(c, /^#[0-9A-F]{6}$/i)
+  }
+})

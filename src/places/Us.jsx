@@ -1,5 +1,7 @@
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
+import IconTile from '../ui/IconTile.jsx'
+import { US_PLACES } from '../ui/usPlaces.jsx'
 import { useSession } from '../lib/auth.js'
 import Journal from './us/Journal.jsx'
 import Garden from './us/Garden.jsx'
@@ -9,15 +11,7 @@ import Garden from './us/Garden.jsx'
 // /us/garden          the yard and the rooms' plants
 // The academy, Life List and Jams keep their own addresses (/academy,
 // /lifelist, /jams); the tab bar lights Us while you're in any of them.
-// Pictures are Fluent Emoji (MIT).
-export const US_PLACES = [
-  { to: '/us/journal', pic: 'notebook', name: 'Journal', sub: 'Yours alone', signedIn: true },
-  { to: '/academy', pic: 'graduation-cap', name: 'The Academy', sub: 'Anna’s school' },
-  { to: '/lifelist', pic: 'bird', name: 'Life List', sub: 'Birds, trips, parks' },
-  { to: '/lifelist/paintings', pic: 'framed-picture', name: 'The gallery', sub: 'Laurie’s paintings' },
-  { to: '/jams', pic: 'guitar', name: 'Jams', sub: 'Our music' },
-  { to: '/us/garden', pic: 'potted-plant', name: 'The garden', sub: 'Yard and rooms' },
-]
+// Each has its own line icon and colour (src/ui/usPlaces.jsx).
 
 export default function Us({ rest = [] }) {
   if (rest[0] === 'journal') return <Journal rest={rest.slice(1)} />
@@ -33,8 +27,8 @@ function UsHome() {
       <Card tint="#C0824F" label={session ? 'Everything that’s ours' : 'Sign in to open most of these'} glyph="star" className="span-6">
         <nav className="ours" aria-label="Our places">
           {US_PLACES.filter((p) => !p.signedIn || session).map((p) => (
-            <Link key={p.to} to={p.to} className="ours-tile">
-              <img src={`/academy/items/${p.pic}.webp`} alt="" width="56" height="56" />
+            <Link key={p.to} to={p.to} className="ours-tile" style={{ '--k1': p.colours[0], '--k2': p.colours[1] }}>
+              <IconTile colours={p.colours} size={64}><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>
               <b>{p.name}</b>
               <span>{p.sub}</span>
             </Link>
