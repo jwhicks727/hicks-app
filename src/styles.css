@@ -1,0 +1,115 @@
+/* ============================================
+   The Hicks look: the sky of the hour behind everything, warm paper cards,
+   nearly square corners, bold and dependable controls. Phone first.
+   Decisions in docs/DECISIONS-LOG.md; rules in CLAUDE.md.
+   ============================================ */
+:root {
+  --card: #FFF8EE; --ink: #2B2019; --muted: #6E5B4B; --line: #ECDCC6;
+  --steady: #3B2B22; --on-steady: #FFFFFF; --sky-ink: #2B2019;
+  --kitchen: #C42D20; --journal: #3F5C31; --chapel: #3E7A4C; --family: #453644;
+  --r-control: 4px; --r-card: 6px;
+  --font-ui: Nunito, "Segoe UI", system-ui, sans-serif;
+  --font-voice: Caprasimo, "Cooper Black", Georgia, serif;
+  --font-display: Shrikhand, "Cooper Black", Georgia, serif;
+  --tabbar: 64px;
+  --shadow-warm: inset 0 1px 0 rgba(255, 255, 255, .55), 0 2px 4px rgba(90, 50, 20, .07), 0 16px 32px -22px rgba(90, 45, 10, .6);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .9 -.32'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  :root { --card: #2A211C; --ink: #F7ECDF; --muted: #CDB9A5; --line: #4A3C32; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.5; background: #F1DCC0;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(var(--tabbar) + 44px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+body.sky-dark { --sky-ink: #FFFFFF; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.12; }
+a { color: inherit; }
+button { font: inherit; }
+
+/* The sky, lamplight from below, and a little paper grain */
+.sky-bg { position: fixed; inset: 0; z-index: -2; transition: background 1.5s ease; }
+.sky-bg::before, .sky-bg::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.sky-bg::before { background: radial-gradient(130% 55% at 50% 108%, rgba(255, 168, 92, .42), rgba(255, 168, 92, 0) 70%); }
+.sky-bg::after { background: var(--grain); opacity: .35; }
+
+.app { max-width: 1180px; margin: 0 auto; }
+.screen { display: grid; gap: 14px; }
+.screen > * { animation: rise .55s cubic-bezier(.2, .8, .2, 1) both; }
+.screen > :nth-child(2) { animation-delay: 50ms; } .screen > :nth-child(3) { animation-delay: 100ms; } .screen > :nth-child(4) { animation-delay: 150ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Hero on the sky */
+.hero { color: var(--sky-ink); display: grid; gap: 4px; padding: 8px 2px 10px; }
+.hero .kicker { font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.hero .eyebrow { font-weight: 700; font-size: 15px; }
+.hero .greet { font-family: var(--font-display); font-weight: 400; font-size: 40px; line-height: 1.1; margin-top: 6px; }
+.crumb { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; color: var(--sky-ink); text-decoration: none; }
+
+/* Cards: warm paper, a blush of their own colour, grain, warm shadows */
+.card { position: relative; isolation: isolate; display: grid; gap: 12px; padding: 16px; min-width: 0; border-radius: var(--r-card);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tint, #E8B98A) 12%, var(--card)), var(--card) 130px);
+  border: 1px solid color-mix(in srgb, var(--tint, #E8B98A) 24%, var(--line)); box-shadow: var(--shadow-warm); }
+.card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--grain); opacity: .26; pointer-events: none; z-index: -1; }
+.card h2 { font-family: var(--font-voice); font-weight: 400; font-size: 22px; line-height: 1.2; }
+.label { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; line-height: 1.2; }
+.label .dot { width: 30px; height: 30px; border-radius: 6px; flex: none; display: grid; place-items: center; border: 1.5px solid transparent;
+  background: linear-gradient(color-mix(in srgb, var(--tint) 9%, var(--card)), color-mix(in srgb, var(--tint) 9%, var(--card))) padding-box, var(--c, var(--tint)) border-box;
+  color: color-mix(in srgb, var(--tint) 82%, var(--ink)); }
+.label .dot svg { width: 18px; height: 18px; }
+.label .ex { margin-left: auto; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 4px; background: color-mix(in srgb, var(--tint) 14%, var(--card)); color: var(--muted); white-space: nowrap; }
+.coming { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+/* The sky today */
+.sun-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sun-list div { position: relative; overflow: hidden; padding: 10px 12px; border-radius: var(--r-control); display: grid; gap: 2px; }
+.sun-list small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .92; }
+.sun-list b { font-size: 18px; white-space: nowrap; }
+.sun-list div:nth-child(1) { background: linear-gradient(160deg, #6F7FB8, #C9A1B4 55%, #F4C79A); color: #FFFFFF; }
+.sun-list div:nth-child(2) { background: linear-gradient(160deg, #F6D58E, #F2B05E 60%, #E58C45); color: #3A2510; }
+.sun-list div:nth-child(3) { background: linear-gradient(160deg, #E97A55, #D6546A 55%, #7A4D8C); color: #FFFFFF; }
+.sun-list div:nth-child(4) { background: linear-gradient(160deg, #5B4B8A, #2E2A5C 60%, #1B1838); color: #FFFFFF; }
+.sky-pair { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.sky-pair figure { margin: 0; display: grid; gap: 6px; align-content: start; }
+.sky-pair svg { display: block; width: 100%; height: auto; }
+.sky-pair figcaption { font-size: 14px; line-height: 1.35; display: grid; }
+.sky-pair figcaption span { color: var(--muted); }
+
+/* The tab bar floats on a phone; a side rail on a computer */
+.tabs { position: fixed; z-index: 20; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; padding: 6px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 4px rgba(90, 50, 20, .08), 0 18px 36px -14px rgba(60, 30, 10, .55); }
+.tab { position: relative; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-bottom: 6px; border-radius: 9px; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--tc, var(--ink)); background: color-mix(in srgb, var(--tw) 16%, var(--card)); font-weight: 800; }
+.tab[aria-current="page"]::before { content: ""; position: absolute; bottom: 3px; left: 38%; right: 38%; height: 3px; border-radius: 2px; background: var(--tb, var(--tw)); }
+.tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.t-home { --tw: #E9A962; --tb: linear-gradient(90deg, #E9A962, #D6664D); }
+.t-world { --tw: #8ABDE3; --tb: linear-gradient(90deg, #8ABDE3, #3BA3A8); }
+.t-calendar { --tw: #3E7A4C; --tc: var(--chapel); }
+.t-kitchen { --tw: #F03E2F; --tc: var(--kitchen); }
+.t-lifelist { --tw: #5F8A4A; --tc: var(--journal); }
+.t-music { --tw: #8A5BC4; --tb: linear-gradient(90deg, #F03E2F, #F2C14E, #5FA85A, #4A7FD6, #8A5BC4); }
+.brand { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen > * { animation-name: fade-in; animation-duration: .4s; }
+  .sky-bg { transition: none; }
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (min-width: 960px) {
+  body { padding: 24px 24px 40px; }
+  .app { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px; align-items: start; }
+  .tabs { position: sticky; top: 24px; left: auto; right: auto; bottom: auto; max-width: none; margin: 0; grid-template-columns: 1fr; gap: 4px; padding: 12px; border: 0; border-radius: var(--r-card); }
+  .brand { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.1; padding: 4px 10px 12px; }
+  .tab { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 0 12px; font-size: 15px; min-height: 46px; border-radius: var(--r-control); }
+  .tab[aria-current="page"]::before { top: 10px; bottom: 10px; left: 0; right: auto; width: 4px; height: auto; }
+  .screen { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; align-items: start; }
+  .screen > * { grid-column: span 6; }
+  .span-2 { grid-column: span 2 !important; } .span-3 { grid-column: span 3 !important; } .span-4 { grid-column: span 4 !important; }
+  .hero .greet { font-size: 56px; }
+}
