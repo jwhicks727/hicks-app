@@ -33,6 +33,10 @@ create table public.garden_spots (
   w numeric not null default 20 check (w between 1 and 100),
   h numeric not null default 20 check (h between 1 and 100),
   sun text check (sun is null or sun in ('full', 'part', 'shade', 'bright', 'medium', 'low')),
+  -- Indoors, a pot is drawn from the side: its plant's type, its size, its pot
+  form text check (form is null or form in ('upright', 'trailing', 'bushy', 'flowering', 'herb', 'tree', 'palm', 'monstera', 'fern', 'cactus', 'succulent', 'spiky', 'orchid')),
+  size text check (size is null or size in ('small', 'medium', 'large', 'tree')),
+  pot text check (pot is null or pot in ('terracotta', 'white', 'blue', 'green', 'black', 'basket')),
   notes text check (notes is null or length(notes) <= 4000),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

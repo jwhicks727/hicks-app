@@ -12,9 +12,11 @@ import { useDraft } from '../../lib/useDraft.js'
 import { askClaude, prepareUpload } from '../../lib/claude.js'
 import { todayAt } from '../../lib/cal/dates.js'
 import { HOME_TOWN } from '../../lib/sky.js'
-import { SPOT_KINDS, SUN, ROOM_LIGHT, careToday, plantingIn, newSpot, daysBetween } from '../../lib/garden.js'
+import { SPOT_KINDS, SUN, ROOM_LIGHT, careToday, plantingIn, newSpot, daysBetween, PLANT_FORMS, PLANT_SIZES, POTS, formFor, sizeFor } from '../../lib/garden.js'
 import { useGarden, addArea, saveArea, removeArea, addSpot, saveSpot, removeSpot, addPlant, savePlant, removePlant, logCare, addPhoto, removePhoto, saveAnalysis, useSignedUrls } from '../../lib/useGarden.js'
 import GardenMap from './GardenMap.jsx'
+import PotLineup from './PotLineup.jsx'
+import PlantArt from './PlantArt.jsx'
 import './garden.css'
 
 // /home/garden                 the garden: today's care, every area's map, what to plant now
@@ -90,7 +92,7 @@ function GardenHome({ g, me, parent, today, forecast }) {
           const n = g.plants.filter((p) => p.status !== 'done' && spots.some((s) => s.id === p.spot_id)).length
           return (
             <Link key={a.id} to={`/home/garden/area/${a.id}`} className="garea">
-              <GardenMap area={a} spots={spots} plants={g.plants} className="mini" />
+              {a.indoor ? <PotLineup area={a} spots={spots} plants={g.plants} mini /> : <GardenMap area={a} spots={spots} plants={g.plants} className="mini" />}
               <span><b>{a.name}</b><span>{a.indoor ? ROOM_LIGHT[a.light] || 'Indoors' : 'Outdoors'} · {spots.length} {spots.length === 1 ? 'spot' : 'spots'} · {n} {n === 1 ? 'plant' : 'plants'}</span></span>
             </Link>
           )
@@ -137,6 +139,12 @@ function AreaPage({ id, g, me, parent, today, forecast }) {
   return (
     <>
       <header className="hero span-6"><Crumb to="/home/garden">Garden</Crumb><span className="kicker">{area.indoor ? 'Inside' : 'Outside'} · about {Number(area.width_ft)} × {Number(area.depth_ft)} ft</span><h1 className="greet">{area.name}</h1></header>
+      {area.indoor ? (
+        <Card tint="#5F8A4A" label="Its plants" glyph="pot" tag={area.light ? ROOM_LIGHT[area.light] : undefined} className="span-6">
+          <PotLineup area={area} spots={spots} plants={g.plants} />
+          <AddPot area={area} count={spots.length} onAdded={(sid) => { g.reload(); navigate(`/home/garden/spot/${sid}`) }} />
+        </Card>
+      ) : (
       <Card tint="#5F8A4A" label={edit ? 'Arranging' : 'The map'} glyph="star" className="span-6 gmap-card">
         <GardenMap area={area} spots={spots} plants={g.plants} edit={edit} selected={sel} moving={moving}
           onSelect={(x) => { setSel(x); setMoving(false) }} onOpen={(x) => navigate(`/home/garden/spot/${x}`)}
@@ -164,6 +172,7 @@ function AreaPage({ id, g, me, parent, today, forecast }) {
           <button type="button" className="btn" onClick={() => { setEdit(!edit); setSel(null); setMoving(false) }}>{edit ? 'Done arranging' : 'Arrange'}</button>
         </div>
       </Card>
+      )}
       {care.length > 0 && <Card tint="#5F8A4A" label="Today here" glyph="weather" className="span-3"><CareList care={care} today={today} me={me} onDone={g.reload} /></Card>}
       <Card tint="#8A9A3B" label="Its spots" glyph="star" className="span-3">
         <ul className="gspots">
@@ -211,6 +220,7 @@ function SpotPage({ id, g, me, parent, today }) {
   return (
     <>
       <header className="hero span-6"><Crumb to={area ? `/home/garden/area/${area.id}` : '/home/garden'}>{area ? area.name : 'Garden'}</Crumb><span className="kicker">{SPOT_KINDS[spot.kind].name}{spot.sun ? ` · ${SUN[spot.sun] || ROOM_LIGHT[spot.sun]}` : ''}</span><h1 className="greet">{spot.name}</h1></header>
+      {area && area.indoor && <PotLook spot={spot} plant={g.plants.find((p) => p.spot_id === id && p.status !== 'done')} onSave={async (patch) => { await saveSpot(spot.id, patch); g.reload() }} />}
       <Card tint="#5F8A4A" label="What grows here" glyph="star" className="span-3">
         <ul className="gplants">
           {plants.map((p) => (
@@ -288,5 +298,51 @@ function PhotoSheet({ photo, spot, area, plants, onClose, onChanged }) {
       {busy && <p className="muted" role="status">{busy}</p>}
       {ask && <Confirm title="Remove this photo?" yes="Remove" danger onNo={() => setAsk(false)} onYes={async () => { await removePhoto(photo); setAsk(false); onChanged(); onClose() }}><p>It goes from the family’s storage, with what Claude said about it.</p></Confirm>}
     </Sheet>
+  )
+}
+
+/** A new pot for a room: its name, its type and size, its pot. */
+function AddPot({ area, count, onAdded }) {
+  const [f, setF, clear] = useDraft(`garden.pot.${area.id}`, null)
+  if (!f) return <div className="form-actions"><button type="button" className="btn" onClick={() => setF({ name: '', form: 'bushy', size: 'medium', pot: 'terracotta' })}>Add a plant</button></div>
+  async function add() {
+    const { data, error } = await addSpot({ ...newSpot('pot', area.id, count), name: f.name.trim() || PLANT_FORMS[f.form].name.split(' (')[0], form: f.form, size: f.size, pot: f.pot })
+    if (!error) { clear(); onAdded(data.id) }
+  }
+  return (
+    <div className="form pot-form">
+      <PotChoices f={f} setF={setF} />
+      <label>Its name<input maxLength={80} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="The big fiddle-leaf fig" /></label>
+      <div className="form-actions"><button type="button" className="btn" onClick={add}>Add it</button><button type="button" className="btn ghost" onClick={clear}>Cancel</button></div>
+    </div>
+  )
+}
+
+/** Type, size and pot, each with its picture. */
+function PotChoices({ f, setF, name }) {
+  return (
+    <>
+      <div className="pot-preview"><PlantArt form={f.form} size={f.size} pot={f.pot} seed={name || 'new'} title="How it will look" /></div>
+      <fieldset className="choice-row pot-forms"><legend>What kind of plant</legend>
+        {Object.entries(PLANT_FORMS).map(([k, x]) => <button key={k} type="button" aria-pressed={f.form === k} onClick={() => setF({ ...f, form: k })}><PlantArt form={k} size="small" pot={f.pot} seed={k} title="" /><span>{x.name}</span></button>)}
+      </fieldset>
+      <fieldset className="choice-row"><legend>How big</legend>{Object.entries(PLANT_SIZES).map(([k, x]) => <button key={k} type="button" aria-pressed={f.size === k} onClick={() => setF({ ...f, size: k })}>{x.name}</button>)}</fieldset>
+      <fieldset className="choice-row"><legend>Its pot</legend>{Object.entries(POTS).map(([k, x]) => <button key={k} type="button" aria-pressed={f.pot === k} onClick={() => setF({ ...f, pot: k })}><i className="pot-swatch" style={{ background: x.colour }} />{x.name}</button>)}</fieldset>
+    </>
+  )
+}
+
+/** An indoor pot's look, changed on its own page. */
+function PotLook({ spot, plant, onSave }) {
+  const start = { form: formFor(spot, plant ? plant.name : ''), size: sizeFor(spot), pot: spot.pot || 'terracotta' }
+  const [f, setF] = useState(start)
+  const changed = f.form !== start.form || f.size !== start.size || f.pot !== start.pot
+  return (
+    <Card tint="#8A9A3B" label="How it looks" glyph="pot" className="span-3">
+      <div className="form pot-form">
+        <PotChoices f={f} setF={setF} name={spot.id} />
+        <div className="form-actions"><button type="button" className="btn" disabled={!changed} onClick={() => onSave(f)}>Save</button></div>
+      </div>
+    </Card>
   )
 }

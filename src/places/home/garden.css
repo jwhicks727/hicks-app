@@ -36,3 +36,34 @@
 .glook-h { font-family: var(--font-display); font-size: 20px; }
 .glook ul { margin: 0; padding-left: 1.2em; } .glook p { margin: 0; }
 .gcard-care .gcare li { padding-top: 8px; padding-bottom: 8px; }
+
+/* Indoors, from the side: a room's plants lined up by the window (PotLineup.jsx) */
+.pots { position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0; padding: 26px 6px 0; border-radius: 6px; overflow: hidden; --pa-wall: #F4EAD8;
+  background: linear-gradient(180deg, #F7EEDD, #F1E3CB); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); isolation: isolate; }
+.pots.light-bright { background: linear-gradient(180deg, #FBF3E2, #F6E8CE); }
+.pots.light-low { background: linear-gradient(180deg, #E6DBC9, #DCCDB4); }
+.pots-window { position: absolute; top: 12px; right: 18px; width: 92px; height: 70px; border: 5px solid #FFFFFF; border-radius: 3px; background: linear-gradient(180deg, #8DB8E8, #CFE4F2 70%, #F4E3C4); box-shadow: 0 2px 6px rgba(0, 0, 0, .1); }
+.pots-window::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent calc(50% - 1.5px), #FFFFFF calc(50% - 1.5px), #FFFFFF calc(50% + 1.5px), transparent calc(50% + 1.5px)), linear-gradient(180deg, transparent calc(50% - 1.5px), #FFFFFF calc(50% - 1.5px), #FFFFFF calc(50% + 1.5px), transparent calc(50% + 1.5px)); }
+.pots.light-low .pots-window { width: 56px; height: 44px; opacity: .8; }
+.pots-one { position: relative; display: grid; justify-items: center; align-content: end; padding: 0 4px 22px; min-width: 64px; flex-grow: 1; }
+/* Each plant stands on its own stretch of floor, so every row has one */
+.pots-one::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0; height: 22px; background: linear-gradient(180deg, #B98A5C, #9C7048); }
+.pots.light-low .pots-one::after { background: linear-gradient(180deg, #9C7048, #845C3A); }
+.pots.mini .pots-one::after { height: 14px; }
+.pots-art { display: block; text-decoration: none; line-height: 0; }
+.pots-art:hover .plant-art, .pots-art:focus-visible .plant-art { transform: translateY(-3px); }
+.plant-art { display: block; max-width: 100%; height: auto; overflow: visible; transition: transform .25s ease; }
+.pots-name { position: absolute; bottom: 0; left: 0; right: 0; display: grid; text-align: center; font-size: 11px; line-height: 1.2; color: #FFF6E8; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+.pots-name span { display: none; }
+.pots-none { padding: 30px 8px 40px; position: relative; }
+.pots.mini { padding-top: 14px; min-height: 110px; justify-content: flex-start; }
+.pots.mini .pots-window { width: 46px; height: 34px; border-width: 3px; top: 8px; right: 10px; }
+.pots.mini .pots-one { padding-bottom: 14px; min-width: 0; }
+.pot-form { gap: 14px; }
+.pot-preview { display: grid; place-items: end center; min-height: 150px; padding: 10px; border-radius: 6px; background: linear-gradient(180deg, #F7EEDD, #F1E3CB calc(100% - 12px), #B98A5C calc(100% - 12px)); }
+.pot-forms { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.choice-row.pot-forms button { display: grid; justify-items: center; align-content: end; gap: 2px; padding: 6px 4px; min-height: 96px; font-size: 12px; line-height: 1.2; }
+.pot-forms .plant-art { height: 56px; width: auto; }
+.pot-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+@media (prefers-reduced-motion: reduce) { .plant-art { transition: none; } }
+.choice-row.pot-forms button[aria-pressed="true"] { background: color-mix(in srgb, #5F8A4A 16%, var(--card)); color: var(--ink); border-color: #5F8A4A; box-shadow: inset 0 0 0 1.5px #5F8A4A; }

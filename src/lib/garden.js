@@ -111,3 +111,44 @@ export function clampSpot(s) {
   const w = Math.min(100, Math.max(1, s.w)), h = Math.min(100, Math.max(1, s.h))
   return { ...s, w, h, x: Math.min(100 - w, Math.max(0, s.x)), y: Math.min(100 - h, Math.max(0, s.y)) }
 }
+
+// ---- Indoor plants, from the side: each pot's type, size and pot ----
+
+// tall: the plant's height over its pot, at medium size (×100 px); wide: its spread
+export const PLANT_FORMS = {
+  upright: { name: 'Upright (snake plant)', tall: 1.1, wide: 0.7 },
+  trailing: { name: 'Trailing (pothos, philodendron)', tall: 0.45, wide: 1.1 },
+  bushy: { name: 'Bushy (peace lily)', tall: 0.8, wide: 1 },
+  flowering: { name: 'Flowering', tall: 0.7, wide: 1 },
+  herb: { name: 'Herb (basil, mint)', tall: 0.5, wide: 0.8 },
+  tree: { name: 'Tree (fig, ficus)', tall: 1.5, wide: 1 },
+  palm: { name: 'Palm', tall: 1.2, wide: 1.4 },
+  monstera: { name: 'Monstera', tall: 1, wide: 1.3 },
+  fern: { name: 'Fern', tall: 0.7, wide: 1.4 },
+  cactus: { name: 'Cactus', tall: 0.9, wide: 0.6 },
+  succulent: { name: 'Succulent', tall: 0.35, wide: 0.8 },
+  spiky: { name: 'Spiky (aloe, dracaena)', tall: 0.75, wide: 0.9 },
+  orchid: { name: 'Orchid', tall: 0.9, wide: 0.8 },
+}
+export const PLANT_SIZES = { small: { name: 'Small (a windowsill)', k: 0.6 }, medium: { name: 'Medium (a table)', k: 0.85 }, large: { name: 'Large (the floor)', k: 1.15 }, tree: { name: 'Very big', k: 1.5 } }
+export const POTS = {
+  terracotta: { name: 'Terracotta', colour: '#C8643B', rim: '#D9774C' },
+  white: { name: 'White', colour: '#EDE8E0', rim: '#FFFFFF', stripe: null },
+  blue: { name: 'Blue glaze', colour: '#2F6FA8', rim: '#3F86C2', stripe: '#F2EBDD' },
+  green: { name: 'Green glaze', colour: '#4E8A6A', rim: '#62A07E' },
+  black: { name: 'Black', colour: '#2B2B2E', rim: '#3D3D42' },
+  basket: { name: 'Basket', colour: '#C9A06A', rim: '#B38A55' },
+}
+
+const GUESS = [[/snake|sansevieria|zz|dracaena marg/i, 'upright'], [/pothos|philodendron|ivy|string of|tradescantia|spider/i, 'trailing'], [/peace lily|spathiphyllum/i, 'bushy'], [/fig|ficus|rubber|olive|lemon|citrus|tree/i, 'tree'], [/palm/i, 'palm'], [/monstera|swiss cheese/i, 'monstera'], [/fern/i, 'fern'], [/cactus|cacti/i, 'cactus'], [/succulent|echeveria|jade|haworthia/i, 'succulent'], [/aloe|dracaena|yucca|agave/i, 'spiky'], [/orchid/i, 'orchid'], [/basil|mint|herb|parsley|cilantro|rosemary|thyme/i, 'herb'], [/african violet|anthurium|begonia|flower|geranium/i, 'flowering']]
+/** A pot's type, as chosen, or guessed from its name or its plant's. */
+export const formFor = (spot, plantName = '') => spot.form || (GUESS.find(([re]) => re.test(`${spot.name} ${plantName}`)) || [])[1] || 'bushy'
+export const sizeFor = (spot) => spot.size || (spot.kind === 'tree' ? 'tree' : 'medium')
+/** Biggest first, the way you'd line them up for a photo. */
+export function lineup(spots, plants = []) {
+  const rank = { tree: 0, large: 1, medium: 2, small: 3 }
+  return spots.map((s) => {
+    const p = plants.find((x) => x.spot_id === s.id && x.status !== 'done')
+    return { spot: s, form: formFor(s, p ? p.name : ''), size: sizeFor(s), pot: s.pot || 'terracotta', plant: p || null }
+  }).sort((a, b) => rank[a.size] - rank[b.size] || a.spot.name.localeCompare(b.spot.name))
+}

@@ -41,3 +41,18 @@ test('each job says what "Done" records', () => {
   assert.equal(c.find((x) => x.what === 'Water tomatoes').log, 'water')
   assert.equal(c.find((x) => /nectar/.test(x.what)).log, 'refill')
 })
+
+test('indoors, each pot has a type (chosen, or guessed from its name), a size and a pot; biggest first', async () => {
+  const { formFor, sizeFor, lineup, PLANT_FORMS, POTS, PLANT_SIZES } = await import('../src/lib/garden.js')
+  assert.equal(formFor({ name: 'Fiddle-leaf fig' }), 'tree')
+  assert.equal(formFor({ name: 'Kitchen pot' }, 'Golden pothos'), 'trailing')
+  assert.equal(formFor({ name: 'Snake plant' }), 'upright')
+  assert.equal(formFor({ name: 'Something', form: 'orchid' }), 'orchid')
+  assert.equal(formFor({ name: 'Mystery' }), 'bushy')
+  assert.equal(sizeFor({ kind: 'pot' }), 'medium')
+  const l = lineup([{ id: 'a', name: 'Basil', size: 'small' }, { id: 'b', name: 'Fig', size: 'tree' }, { id: 'c', name: 'Aloe', size: 'medium' }])
+  assert.deepEqual(l.map((x) => x.spot.id), ['b', 'c', 'a'])
+  // The migration allows exactly these
+  const sql = (await import('node:fs')).readFileSync(new URL('../supabase/migrations/20261101060100_garden.sql', import.meta.url), 'utf8')
+  for (const k of [...Object.keys(PLANT_FORMS), ...Object.keys(POTS), ...Object.keys(PLANT_SIZES)]) assert.match(sql, new RegExp(`'${k}'`), `${k} isn't allowed by the garden migration`)
+})
