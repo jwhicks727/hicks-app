@@ -255,13 +255,14 @@ licence nobody wrote down.
 
 - While working: `npm test` (seconds). Before a commit: `npm test` and
   `npm run build`, and a look at 390px and on a desktop for anything visible.
-- Small, finished steps go straight to `main` while the app isn't yet in
-  use. Once it's hosted (Firebase; docs/MORNING.md) and the family relies
-  on it, each piece of work goes on its own branch
-  (`<type>/<two-or-more-words>`, e.g. `feat/calendar-month-view`) with a
-  draft pull request opened at its first push. The Preview workflow posts
-  a preview link there, so it can be tried on a phone before merging.
-  Merging to `main` deploys.
+- The app is hosted (https://hicks.web.app), so each piece of work goes on
+  its own branch, cut from an up-to-date `main` and never committed to it
+  directly (`<type>/<two-or-more-words>`, e.g. `feat/calendar-month-view`).
+  Each branch gets a draft pull request, but Jason is asked before it is
+  opened (his yes covers that one branch). The Preview workflow posts a
+  preview link there, so it can be tried on a phone before merging. One
+  branch at a time, generally: finish or merge one before starting the
+  next. Merging to `main` deploys.
 - Laurie's paintings never go in `public/` to be deployed: they live in
   the private `paintings` bucket (docs/PAINTINGS-STORAGE.md), and
   `firebase.json` leaves `public/paintings/` out.
