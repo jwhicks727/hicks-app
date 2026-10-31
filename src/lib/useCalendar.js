@@ -19,7 +19,7 @@ export function useFamily(session) {
     let live = true
     if (!supabase || !session) { setState({ members: [], days: [], sources: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
     Promise.all([
-      supabase.from('family_members').select('id, name, role, colour').order('name'),
+      supabase.from('family_members').select('id, name, email, role, colour').order('name'),
       fetchAll(() => supabase.from('family_days').select('id, title, month, day, year, kind, for_whom, note').order('month').order('day')),
       supabase.from('sources').select('id, title, kind, purpose, for_whom').eq('purpose', 'calendar'),
     ]).then(([m, d, s]) => {

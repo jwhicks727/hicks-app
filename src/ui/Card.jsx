@@ -7,6 +7,7 @@ export const GLYPHS = {
   bird: <g {...S}><path d="M3.5 15c3 0 5-2 6-5s3-5 6-5c2 0 3 1 3 3l2.5 1-2.5 1c0 4-3 7-8 7h-4z" /><path d="M9 20l1-3M12 20l1-3" /></g>,
   music: <g {...S}><path d="M9 18V6l11-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="17.5" cy="16" r="2.5" /></g>,
   star: <path {...S} d="M12 3.5l2.5 5.2 5.6.8-4 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4-4 5.6-.8z" />,
+  candle: <g {...S}><path d="M9 21h6M10 21V11h4v10" /><path d="M12 3.5c1.6 1.8 2.2 3 2.2 4.1a2.2 2.2 0 0 1-4.4 0c0-1.1.6-2.3 2.2-4.1z" /></g>,
 }
 
 /** A card: warm paper, a blush of its place's colour, a label with an outlined picture tile. */

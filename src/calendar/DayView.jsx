@@ -40,7 +40,7 @@ export default function DayView({ date, today, data, signedIn }) {
         </article>
       ))}
       {remember.map((f) => (
-        <Card key={f.id || f.title} tint="#6B4A8E" label={f.title} glyph="star" className="remember">
+        <Card key={f.id || f.title} tint="#6B4A8E" label={f.title} glyph="candle" className="remember">
           {f.line && <p>{f.line}</p>}
           <p className="prayer">“{PRAYERS.eternalRest.text}”</p>
         </Card>
@@ -78,16 +78,16 @@ export default function DayView({ date, today, data, signedIn }) {
 
       {(others.length > 0 || dv.ongoing.some((o) => o.group !== 'nature')) && (
         <Card tint="#E0662F" label="Also today" glyph="star" className="also-card">
-          <ul className="obs">
+          {others.length > 0 && <ul className="obs">
             {others.map((o) => (
               <li key={o.id} style={{ '--c': KIND_STYLE[o.group].colour }}>
                 <span className="ml-g"><Glyph name={observanceGlyph(o)} /></span>
                 <span><b>{o.name}</b>{spanWords(o) && <span className="ml-sub"> · {spanWords(o)}</span>}<br /><span className="obs-w">{o.word}</span></span>
               </li>
             ))}
-          </ul>
+          </ul>}
           {dv.ongoing.filter((o) => o.group !== 'nature').length > 0 && (
-            <p className="ongoing">Still going: {dv.ongoing.filter((o) => o.group !== 'nature').map((o) => `${o.name} (${spanWords(o)})`).join('; ')}</p>
+            <p className={others.length ? 'ongoing' : 'ongoing alone'}>Still going: {dv.ongoing.filter((o) => o.group !== 'nature').map((o) => `${o.name} (${spanWords(o)})`).join('; ')}</p>
           )}
         </Card>
       )}
@@ -102,7 +102,7 @@ export default function DayView({ date, today, data, signedIn }) {
             {dv.events.map((e) => (
               <li key={e.id} style={{ '--c': (KIND_STYLE[e.kind] || KIND_STYLE.event).colour }}>
                 <span className="ml-g"><Glyph name={(KIND_STYLE[e.kind] || KIND_STYLE.event).glyph} /></span>
-                <span><b>{e.title}</b>{e.starts_at && <span className="ml-sub"> · {hm.format(new Date(e.starts_at))}{e.ends_at ? `–${hm.format(new Date(e.ends_at))}` : ''}</span>}{e.ends_on > e.starts_on && <span className="ml-sub"> · {e.starts_on.slice(5)} to {e.ends_on.slice(5)}</span>}</span>
+                <span><b>{e.title}</b>{e.school && <span className="ml-sub"> · {e.kind === 'no_school' ? 'No school at' : 'At'} {e.school.name}</span>}{e.starts_at && <span className="ml-sub"> · {hm.format(new Date(e.starts_at))}{e.ends_at ? `–${hm.format(new Date(e.ends_at))}` : ''}</span>}{e.ends_on > e.starts_on && <span className="ml-sub"> · {e.starts_on.slice(5)} to {e.ends_on.slice(5)}</span>}</span>
               </li>
             ))}
           </ul>

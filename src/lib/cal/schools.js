@@ -29,3 +29,18 @@ const next = (d) => new Date(Date.parse(d + 'T12:00:00Z') + 864e5).toISOString()
 export function schoolsWithCalendars(sources, members) {
   return SCHOOLS.filter((s) => sources.some((src) => members.find((m) => m.id === src.for_whom && (m.name || '').toLowerCase() === s.person.toLowerCase())))
 }
+
+/**
+ * Events with their person resolved (their own, or their source's) and, for
+ * a school calendar's events, which school: so "Thanksgiving break" can say
+ * whose, and filtering to one of us shows their school.
+ */
+export function annotateEvents(events, sources, members) {
+  const sourceWho = new Map(sources.map((s) => [s.id, s.for_whom]))
+  const schoolOf = new Map(members.map((m) => [m.id, SCHOOLS.find((s) => s.person.toLowerCase() === (m.name || '').toLowerCase()) || null]))
+  return events.map((e) => {
+    const who = e.for_whom || sourceWho.get(e.source_id) || null
+    const school = ['no_school', 'school'].includes(e.kind) ? schoolOf.get(who) || null : null
+    return { ...e, for_whom: who, school }
+  })
+}

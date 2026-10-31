@@ -75,7 +75,7 @@ export default function SkyToday() {
             <circle cx={px} cy={gy - 29} r="4.4" fill={ink} />
             <path fill={ink} d={`M${px - 5} ${gy - 23}Q${px} ${gy - 25.5} ${px + 5} ${gy - 23}L${px + 6} ${gy - 11}H${px + 3.4}L${px + 2.8} ${gy}H${px + 0.7}L${px} ${gy - 9}L${px - 0.7} ${gy}H${px - 2.8}L${px - 3.4} ${gy - 11}H${px - 6}Z`} />
           </svg>
-          <figcaption>{caption}</figcaption>
+          <figcaption><p>{caption}</p></figcaption>
         </figure>
         <figure>
           <svg viewBox="0 0 100 100" aria-hidden="true">

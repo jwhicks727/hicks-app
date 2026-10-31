@@ -5,6 +5,7 @@ import { usePrefs } from '../lib/prefs.js'
 import { useNow } from '../lib/useNow.js'
 import { todayAt, parts, MONTHS, WEEKDAYS, addDays } from '../lib/cal/dates.js'
 import { parseCalPath, viewRange } from '../lib/cal/paths.js'
+import { annotateEvents } from '../lib/cal/schools.js'
 import { CalHead, SeasonStrip, WhoFilter } from '../calendar/CalHead.jsx'
 import MonthView from '../calendar/MonthView.jsx'
 import WeekView from '../calendar/WeekView.jsx'
@@ -35,7 +36,8 @@ export default function Calendar({ rest }) {
   const session = useSession()
   const family = useFamily(session)
   const [from, to] = viewRange(view, date)
-  const { events } = useEvents(session, from, to)
+  const { events: raw } = useEvents(session, from, to)
+  const events = useMemo(() => annotateEvents(raw, family.sources, family.members), [raw, family.sources, family.members])
   const [prefs, update] = usePrefs()
   const who = family.members.some((m) => m.id === prefs.calendarWho) ? prefs.calendarWho : null
   const data = useMemo(() => ({ familyDays: family.days, events, groups: prefs.calendarGroups || null, who }), [family.days, events, prefs.calendarGroups, who])

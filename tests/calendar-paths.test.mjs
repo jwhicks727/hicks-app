@@ -59,3 +59,22 @@ test('the school calendars line up by person, through the event or its source', 
   assert.equal(Object.keys(off).length, 6); assert.equal(off['2026-11-30'], undefined)
   assert.deepEqual(schoolsWithCalendars(sources, members).map((s) => s.key), ['kordyak', 'ruble'])
 })
+
+test('a day off at two schools is said once, and joins a holiday of the same name', async () => {
+  const { annotateEvents } = await import('../src/lib/cal/schools.js')
+  const { itemsOf } = await import('../src/calendar/items.js')
+  const members = [{ id: 'l', name: 'Laurie' }, { id: 'a', name: 'Anna' }]
+  const sources = [{ id: 's1', for_whom: 'l' }, { id: 's2', for_whom: 'a' }]
+  const events = annotateEvents([
+    { id: 1, source_id: 's1', title: 'Thanksgiving break', kind: 'no_school', starts_on: '2026-11-26', ends_on: '2026-11-27' },
+    { id: 2, source_id: 's2', title: 'Thanksgiving Break', kind: 'no_school', starts_on: '2026-11-26', ends_on: '2026-11-27' },
+    { id: 3, source_id: 's2', title: 'Thanksgiving', kind: 'no_school', starts_on: '2026-11-26', ends_on: '2026-11-26' },
+  ], sources, members)
+  assert.equal(events[0].for_whom, 'l'); assert.equal(events[1].school.name, 'Wayne Ruble')
+  const its = itemsOf(dayView('2026-11-26', { events }))
+  const breaks = its.filter((i) => /break/i.test(i.label))
+  assert.equal(breaks.length, 1); assert.equal(breaks[0].sub, 'No school at Kordyak and Wayne Ruble')
+  const holiday = its.find((i) => i.label === 'Thanksgiving'); assert.equal(holiday.sub, 'No school at Wayne Ruble')
+  assert.equal(its.filter((i) => i.label === 'Thanksgiving').length, 1)
+  assert.equal(dayView('2026-11-26', { events, who: 'a' }).events.length, 2, 'Anna sees her own school')
+})
