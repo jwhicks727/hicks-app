@@ -6,6 +6,14 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — One branch for each piece of work
+
+Now that the app is live at hicks.web.app, nothing is committed straight to
+`main`: each piece of work gets its own branch, named for what it does, and
+its draft pull request gets a preview link to try on a phone. Merging to
+`main` deploys. Until it went live, small finished steps went straight to
+`main`.
+
 ## 2026-11-01 — The whole app is behind sign-in
 
 Reversing the first arrangement, where each screen asked for a sign-in for
