@@ -6,6 +6,20 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The page fades into the sky under the status bar
+
+On an installed iPhone the app draws under the status bar (`viewport-fit=cover`
+with a translucent bar), so a card scrolling up ran straight behind the time and
+battery and made them hard to read. As in Apple Podcasts, a strip of the same sky
+now lies along the top, solid behind the status bar and fading out just below it
+(about half the status bar's height again), so what scrolls up dissolves into the
+sky. It appears only once the page has scrolled, so nothing at rest is dimmed, it
+copies the sky exactly (light and dark), and it is as tall as the device's safe
+area, which is nothing on a computer or in Safari's own bar. Unverified on a real
+phone: it was checked in a browser with the safe area set by hand.
+
+---
+
 ## 2026-11-01 — The leaves rest at the top and let go one at a time
 
 Her leaves used to fall all together, once a day, in a burst that was over in
