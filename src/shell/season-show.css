@@ -1,11 +1,17 @@
-/* The season's show: her painted leaves falling across the screen (src/shell/SeasonShow.jsx) */
+/* The season's show: her painted leaves resting along the top edge, letting go one at a time (src/shell/SeasonShow.jsx) */
 .season-show { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
-.ss-fall { position: absolute; left: 0; top: 0; will-change: transform; transform: translate3d(var(--x0), -12vh, 0);
-  animation: show-fall var(--dur) cubic-bezier(.35, .1, .6, .9) var(--delay) both; }
+/* Resting: about half out of sight above the top edge, each a little turned */
+.ss-perch { position: absolute; top: calc(var(--h) * -.58); display: block; transform: rotate(var(--tilt)); transform-origin: 50% 50%; }
+.ss-perch i { display: block; background-repeat: no-repeat; }
+.ss-perch.arrives { animation: show-arrive 3s ease both; }
+/* Falling: slow, from where it rested to below the bottom edge */
+.ss-drop { position: absolute; left: 0; top: 0; will-change: transform; transform: translate3d(var(--x0), calc(var(--h) * -.58), 0);
+  animation: show-fall var(--dur) cubic-bezier(.3, .05, .7, .95) both; }
 .ss-sway { display: block; animation: show-sway var(--swaydur) ease-in-out infinite alternate; }
-.ss-sway i { display: block; background-repeat: no-repeat; animation: show-spin var(--dur) linear var(--delay) both; }
-@keyframes show-fall { 0% { transform: translate3d(var(--x0), -12vh, 0); opacity: 0; } 6% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translate3d(var(--x1), 108vh, 0); opacity: 0; } }
+.ss-sway i { display: block; background-repeat: no-repeat; animation: show-spin var(--dur) ease-in-out both; }
+@keyframes show-fall { 0% { transform: translate3d(var(--x0), calc(var(--h) * -.58), 0); opacity: 1; } 92% { opacity: 1; } 100% { transform: translate3d(var(--x1), 108vh, 0); opacity: 0; } }
 @keyframes show-sway { from { transform: translateX(calc(var(--sway) * -1)) rotateX(0deg); } to { transform: translateX(var(--sway)) rotateX(55deg); } }
-@keyframes show-spin { to { transform: rotate(var(--spin)); } }
+@keyframes show-spin { from { transform: rotate(var(--tilt)); } to { transform: rotate(var(--spin)); } }
+@keyframes show-arrive { from { opacity: 0; } to { opacity: 1; } }
 html[data-motion="less"] .season-show { display: none; }
 @media (prefers-reduced-motion: reduce) { .season-show { display: none; } }

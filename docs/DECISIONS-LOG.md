@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — The leaves rest at the top and let go one at a time
+
+Her leaves used to fall all together, once a day, in a burst that was over in
+ten seconds. They now rest along the top edge of the screen, seven of them,
+half out of sight, and while you browse one lets go every nine to seventeen
+seconds and drifts down slowly (twenty to twenty-eight seconds; slower still
+on the Day of the Dead), swaying and turning, while a new leaf fades in at its
+perch. They wait while the app is in the background, stop after thirty in a
+visit, and are absent under less motion and on the sit and cook screens.
+Settings' "Play it" and the Paintings card's Play again let a few go at once.
+
+---
+
 ## 2026-11-01 — The crow starts at the top and leads you down
 
 The crow used to wait until the painting was well in view, so on a phone it

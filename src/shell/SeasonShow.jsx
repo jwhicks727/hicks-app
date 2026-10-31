@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { showFor, leafFalls, showLength } from '../lib/seasonShows.js'
+import { showFor, leafPerches, dropOf, dropGap, MAX_DROPS } from '../lib/seasonShows.js'
 import { seasonFor } from '../lib/seasons.js'
 import { usePrefs, useSeasonTry } from '../lib/prefs.js'
 import { reducedMotion } from '../lib/motion.js'
@@ -10,59 +10,80 @@ import { usePath } from '../lib/router.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import './season-show.css'
 
-// The season's show: once a day, a moment after the app opens, something
-// from one of Laurie's paintings moves across the screen (her leaves fall).
-// Drawn over everything, never taking a tap; transforms and opacity only;
-// nothing under less motion, and never over a sit or cook mode, where the
-// screen is meant to be still. Settings can play it again ("hicks:show").
+// The season's show, from one of Laurie's paintings: her painted leaves rest
+// along the top edge of the screen, just out of sight, and while you browse
+// one lets go every so often and drifts slowly down (then another leaf takes
+// its place). It is drawn over everything and never takes a tap; only
+// transforms and opacity move; it waits while the app is in the background,
+// stops after a while, and does nothing under less motion or on a sit or
+// cook screen, where the screen is meant to be still. Settings (and the
+// Paintings card's Play again) can let a few go at once ("hicks:show").
 const QUIET = /^\/home\/(sit|breathe)|\/cook$/
-const KEY = 'teamhicks.shows'
-const played = (k, day) => { try { return (JSON.parse(localStorage.getItem(KEY)) || {})[k] === day } catch { return true } }
-const mark = (k, day) => { try { const m = JSON.parse(localStorage.getItem(KEY)) || {}; m[k] = day; localStorage.setItem(KEY, JSON.stringify(m)) } catch { /* fine */ } }
+const FIRST_S = 3 // seconds after the page opens until the first leaf lets go
+
+// A leaf cut from her sheet, at a size
+const leafStyle = (sheet, size, box, scale) => ({
+  width: box[2] * scale * 0.8, height: box[3] * scale * 0.8, backgroundImage: `url(${sheet})`,
+  backgroundSize: `${size[0] * scale * 0.8}px ${size[1] * scale * 0.8}px`, backgroundPosition: `${-box[0] * scale * 0.8}px ${-box[1] * scale * 0.8}px`,
+})
 
 export default function SeasonShow() {
   const [prefs] = usePrefs()
   const [tryKey] = useSeasonTry()
   const day = todayAt(HOME_TOWN.tz, new Date())
   const key = tryKey || seasonFor(day).key
-  const [run, setRun] = useState(null) // { falls, id }
-  const quiet = QUIET.test(usePath())
   const { list } = usePaintings()
+  const quiet = QUIET.test(usePath())
+  const still = reducedMotion() || prefs.seasonal === false || quiet
+  const show = useMemo(() => (still ? null : showFor(key, list)), [still, key, list])
+  const seed = Number(day.replace(/-/g, '')) % 9973
+  const perches = useMemo(() => (show ? leafPerches(show, seed) : []), [show, seed])
+  const [drops, setDrops] = useState([]) // leaves falling now: { id, i, plan }
+  const [away, setAway] = useState([]) // perches whose leaf has let go, and whose new one has not yet arrived
+  const [arrivals, setArrivals] = useState({}) // how many leaves have arrived at each perch (a new one fades in)
+  const seq = useRef(0), away_ = useRef(new Set())
 
-  const start = (k) => {
-    const show = showFor(k, list)
-    if (!show || reducedMotion()) return
-    const falls = leafFalls(show, Number(day.replace(/-/g, '')) % 9973)
-    setRun({ show, falls, id: Date.now() })
-  }
-  // Once a day, a moment after opening
   useEffect(() => {
-    if (quiet || prefs.seasonal === false || !showFor(key, list) || played(key, day)) return
-    const t = setTimeout(() => { mark(key, day); start(key) }, 1400)
-    return () => clearTimeout(t)
-  }, [key, day, prefs.seasonal, quiet, list]) // eslint-disable-line react-hooks/exhaustive-deps
-  // Again, on request
-  useEffect(() => {
-    const on = (e) => start((e.detail && e.detail.key) || key)
-    window.addEventListener('hicks:show', on)
-    return () => window.removeEventListener('hicks:show', on)
-  }, [key, list]) // eslint-disable-line react-hooks/exhaustive-deps
-  // Gone when the last leaf has fallen
-  useEffect(() => {
-    if (!run) return
-    const t = setTimeout(() => setRun(null), showLength(run.falls))
-    return () => clearTimeout(t)
-  }, [run])
+    if (!show || !perches.length) return undefined
+    let live = true, timer = 0, dropped = 0
+    const timers = new Set()
+    const later = (fn, s) => { const t = setTimeout(() => { timers.delete(t); if (live) fn() }, s * 1000); timers.add(t) }
+    // Let one leaf go: it leaves its perch, falls, and a new one arrives at the perch about half way down
+    const release = () => {
+      const free = perches.map((_, i) => i).filter((i) => !away_.current.has(i))
+      if (!free.length) return false
+      const i = free[Math.floor(Math.random() * free.length)], plan = dropOf(show, perches[i]), id = ++seq.current
+      away_.current.add(i); setAway([...away_.current])
+      setDrops((d) => [...d, { id, i, plan }])
+      later(() => { away_.current.delete(i); setAway([...away_.current]); setArrivals((a) => ({ ...a, [i]: (a[i] || 0) + 1 })) }, plan.dur * 0.55)
+      later(() => setDrops((d) => d.filter((x) => x.id !== id)), plan.dur + 1)
+      return true
+    }
+    const tick = () => {
+      if (!live || dropped >= MAX_DROPS) return
+      if (document.visibilityState === 'visible' && release()) dropped++
+      timer = setTimeout(tick, dropGap(show) * 1000)
+    }
+    timer = setTimeout(tick, FIRST_S * 1000)
+    // A few at once, a moment apart, on request
+    const onShow = () => { for (let k = 0; k < 3; k++) later(() => { release() }, k * 1.8) }
+    window.addEventListener('hicks:show', onShow)
+    return () => { live = false; clearTimeout(timer); timers.forEach(clearTimeout); window.removeEventListener('hicks:show', onShow); away_.current = new Set(); setDrops([]); setAway([]) }
+  }, [show, perches])
 
-  if (!run || quiet) return null
-  const { show, falls } = run
-  const [sw, sh] = show.painting.leaves.size
+  if (!show || !perches.length) return null
+  const { sheet, size } = show.painting.leaves
   return createPortal(
-    <div className="season-show" aria-hidden="true" key={run.id}>
-      {falls.map((f, i) => (
-        <span key={i} className="ss-fall" style={{ '--x0': `${f.x0}vw`, '--x1': `${f.x1}vw`, '--dur': `${f.dur}s`, '--delay': `${f.delay}s` }}>
-          <span className="ss-sway" style={{ '--sway': `${f.sway}px`, '--swaydur': `${f.swayDur}s`, '--spin': `${f.spin}deg` }}>
-            <i style={{ width: f.leaf[2] * f.scale * 0.8, height: f.leaf[3] * f.scale * 0.8, backgroundImage: `url(${show.painting.leaves.sheet})`, backgroundSize: `${sw * f.scale * 0.8}px ${sh * f.scale * 0.8}px`, backgroundPosition: `${-f.leaf[0] * f.scale * 0.8}px ${-f.leaf[1] * f.scale * 0.8}px` }} />
+    <div className="season-show" aria-hidden="true">
+      {perches.map((p, i) => !away.includes(i) && (
+        <span key={`${i}-${arrivals[i] || 0}`} className={'ss-perch' + (arrivals[i] ? ' arrives' : '')} style={{ left: `${p.x}vw`, '--tilt': `${p.tilt}deg`, '--h': `${p.leaf[3] * p.scale * 0.8}px` }}>
+          <i style={leafStyle(sheet, size, p.leaf, p.scale)} />
+        </span>
+      ))}
+      {drops.map(({ id, plan: f }) => (
+        <span key={id} className="ss-drop" style={{ '--x0': `${f.x}vw`, '--x1': `${f.x + f.drift}vw`, '--dur': `${f.dur}s`, '--h': `${f.leaf[3] * f.scale * 0.8}px` }}>
+          <span className="ss-sway" style={{ '--sway': `${f.sway}px`, '--swaydur': `${f.swayDur}s` }}>
+            <i style={{ ...leafStyle(sheet, size, f.leaf, f.scale), '--tilt': `${f.tilt}deg`, '--spin': `${f.spin}deg`, '--dur': `${f.dur}s` }} />
           </span>
         </span>
       ))}

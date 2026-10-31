@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { existsSync, statSync } from 'node:fs'
 import { PAINTINGS, paintingBySlug, paintingFor, cropFor, boxIn, flightPoints, birdAt, along, progress, toRow, fromRow, storedPaths } from '../src/lib/paintings.js'
 import { SEASONS, seasonByKey } from '../src/lib/seasons.js'
-import { SHOWS, showFor, leafFalls, showLength } from '../src/lib/seasonShows.js'
+import { SHOWS, showFor, leafPerches, dropOf, dropGap, PERCHES, MAX_DROPS } from '../src/lib/seasonShows.js'
 
 const pub = (f) => new URL('../public' + f, import.meta.url)
 
@@ -33,11 +33,21 @@ test('her painting hangs in its season, and a season without one falls back to h
   // Her leaves fall in fall; a season with none of her paintings has no show
   assert.equal(showFor('fall').painting.slug, 'witch-and-crow')
   assert.equal(showFor('christmas'), null)
-  const falls = leafFalls(showFor('halloween'), 7)
-  assert.equal(falls.length, SHOWS.halloween.count)
-  assert.deepEqual(falls, leafFalls(showFor('halloween'), 7), 'the same leaves for the same day')
-  for (const f of falls) assert.ok(f.leaf.length === 4 && f.dur > 0 && f.x0 >= 0 && f.x0 <= 100)
-  assert.ok(showLength(falls) < 20000)
+  // The leaves rest along the top edge and let go one at a time, slowly
+  const show = showFor('halloween'), perches = leafPerches(show, 7)
+  assert.equal(perches.length, PERCHES)
+  assert.deepEqual(perches, leafPerches(show, 7), 'the same leaves for the same day')
+  for (const p of perches) assert.ok(p.leaf.length === 4 && p.x >= 5 && p.x <= 93 && Math.abs(p.tilt) <= 45)
+  const xs = perches.map((p) => p.x)
+  assert.deepEqual(xs, xs.slice().sort((a, b) => a - b), 'spread across the top, left to right')
+  for (let i = 1; i < xs.length; i++) assert.ok(xs[i] - xs[i - 1] > 3, 'never bunched')
+  for (const r of [() => 0, () => 0.5, () => 0.999]) {
+    const d = dropOf(show, perches[0], r)
+    assert.ok(d.dur >= 20 && d.dur <= 28, 'a slow fall: twenty to twenty-eight seconds')
+    assert.ok(dropOf(showFor('muertos'), perches[0], r).dur >= 26, 'slower still for the Day of the Dead')
+    assert.ok(dropGap(show, r) >= 9 && dropGap(show, r) <= 17, 'one every nine to seventeen seconds')
+  }
+  assert.ok(MAX_DROPS >= 12 && MAX_DROPS <= 60)
   assert.ok(existsSync(pub(paintingBySlug('witch-and-crow').leaves.sheet)))
   assert.equal(seasonByKey('halloween').key, 'halloween')
   assert.equal(seasonByKey('nope'), null)

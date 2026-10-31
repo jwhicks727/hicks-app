@@ -55,7 +55,7 @@ export default function Settings() {
           ))}
         </fieldset>
         <div className="switch-row">
-          <span><b>The season’s show</b><span>{(() => { const sh = showFor(seasonFor(todayAt()).key, paintings); return sh ? `Now, ${seasonFor(todayAt()).label}: ${sh.what}, once a day` : `${seasonFor(todayAt()).label} has none of Laurie’s paintings yet` })()}</span></span>
+          <span><b>The season’s show</b><span>{(() => { const sh = showFor(seasonFor(todayAt()).key, paintings); return sh ? `Now, ${seasonFor(todayAt()).label}: ${sh.what}` : `${seasonFor(todayAt()).label} has none of Laurie’s paintings yet` })()}</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.seasonal !== false} aria-label="The season’s show" onClick={() => update({ seasonal: prefs.seasonal === false })}><i /></button>
         </div>
         {prefs.seasonal !== false && (
