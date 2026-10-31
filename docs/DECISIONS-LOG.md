@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The home-screen icon, for now
+
+Jason reworked the sprout icon in ChatGPT and asked for it to be used for
+now. It is the one exception to "art is human-made": a stand-in for the
+home-screen icon only, kept until a human-made icon replaces it. The
+Android version sets it a little smaller on its own sky, so a circle crop
+keeps the whole sprout.
+
+---
+
 ## 2026-10-31 — The readings, read in the app
 
 - **The text comes from the USCCB's own readings page,** fetched by a small

@@ -62,7 +62,8 @@ and write the code fresh. SOAR's code belongs to the school.
 - Every stylesheet lands in one bundle: an animation name is never reused
   (`tests/css-guard.test.mjs`).
 - Art is human-made, with its source and licence recorded in README.md. No
-  AI-made art. Laurie's paintings replace photos wherever she has painted the
+  AI-made art. The one exception is the home-screen icon, a stand-in Jason
+  chose (decisions log, 2026-10-31); don't add others. Laurie's paintings replace photos wherever she has painted the
   thing.
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything

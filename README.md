@@ -92,5 +92,7 @@ where it appears and listed here:
   (`docs/PLAN.md`).
 - **Icons:** Home's sprout is Lucide's (https://lucide.dev, ISC licence); the
   other tab icons are drawn on the same 24-unit grid. The home-screen icon
-  (`public/icons/`) is that sprout on the evening sky, named "Team Hicks" by
-  `public/manifest.webmanifest`.
+  (`public/icons/`, named "Team Hicks" by `public/manifest.webmanifest`) is,
+  for now, Jason's ChatGPT rework of that sprout on the evening sky: a
+  stand-in, and the one AI-made picture in the app (decisions log), until a
+  human-made icon replaces it.
