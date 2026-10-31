@@ -28,7 +28,21 @@ Built in this order, each part in daily use before the next.
 
 ## 1. Calendar
 
-- [ ] Day, week, month and year views.
+- [x] Day, week, month and year views, each with its own address
+      (`/calendar/month/2026-11`, `/calendar/day/2026-11-01`); swipe or the
+      arrows to move, a tapped day opens it. The year view lays out the
+      school calendars (or, switched, the Church year's colours).
+- [x] The calendar's engine, worked out with no package and tested against
+      known years: the Church's day for any date (U.S. calendar, Province of
+      Los Angeles), with its colour, rank, transfers, holy days of
+      obligation, fasting and the readings' cycles; a line about each feast
+      and saint and a warm invitation to pray, with the traditional prayers;
+      holidays, civil rights days, heritage months, our neighbours' holy days
+      (Jewish exact, Islamic expected), birding days and small joys, each
+      kind switchable in Settings; solstices, equinoxes, moon phases with
+      their names, meteor showers and the clocks changing.
+- [ ] Sacred Heart's Mass times checked with the parish (shown now, labelled
+      as not yet checked), and kept as a Setup source so they're rechecked.
 - [ ] Two-way sync with our Google calendars.
 - [ ] The year view: the three school calendars side by side, clickable:
       Kordyak (Rialto Unified, Laurie's teacher calendar), Wayne Ruble
@@ -46,9 +60,11 @@ Built in this order, each part in daily use before the next.
       year, a month of lector dates). A few weeks before it runs out, Setup
       and Home ask for next year's (the job-waiting shine), with a link to
       where it came from last time, and a reminder on our phones.
-- [ ] The Church year with romcal: feasts, saints, colours; traditional
-      prayers with a warm invitation to pray them; readings at USCCB.
-- [ ] Sacred Heart, Rancho Cucamonga: Mass and confession times.
+- [x] The Church year: feasts, saints, colours; traditional prayers with a
+      warm invitation to pray them; readings at USCCB. Worked out here
+      rather than with romcal (decisions log).
+- [x] Sacred Heart, Rancho Cucamonga: Mass and confession times, and a word
+      on holy days and their eves (unverified until checked).
 - [ ] **Laurie's lectoring**, read from the monthly schedule email in her
       Yahoo Mail: a scheduled job signs in with a Yahoo app password she
       creates and can revoke (her yes, said on screen), looks only for mail
@@ -60,8 +76,10 @@ Built in this order, each part in daily use before the next.
       schedule posts, keeping only Anna's dates. Other children's names are
       never stored. Her middle school ministry from wherever its schedule
       lives (to find out).
-- [ ] Family days celebrated big; holidays, civil rights and heritage days,
-      seasons and nature, each with its own art.
+- [x] Family days celebrated big (a rainbow day in the month, confetti on
+      the day), read from the database once signed in; holidays, civil
+      rights and heritage days, seasons and nature, each with a line about it.
+- [ ] Their own art: saint and feast line art, holiday and season pictures.
 - [ ] Concerts as special events with their ticket and scrapbook.
 
 Art to check before use: Christicons (Christian line icons), the Wellcome

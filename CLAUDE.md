@@ -73,6 +73,14 @@ and write the code fresh. SOAR's code belongs to the school.
   a place declares its setup sections and reports there and they appear by
   themselves. `tests/registry.test.mjs` keeps it in step with the router. A
   new place, or a new kind of data, adds its setup section and its report.
+- **The calendar works its days out** (`src/lib/cal/`): a holiday or
+  observance is a rule for any year with a line about why it matters, in a
+  group Settings can switch off, never a list of this year's dates. The
+  Church's day comes from `liturgicalDay()`; anything that only might be
+  right (Islamic dates, unchecked Mass times) says so on screen. Family
+  days are only ever read from the database. Tests pin known years.
+- **A place's stylesheet** sits beside its screens and is imported by them;
+  `styles.css` loads first (`src/main.jsx`), so a place's rule wins a tie.
 - **A job that's waiting gets the shine** (`.shine`, the count on its face,
   straight to the job): only while there is something to do, at most one per
   screen. A rainbow gleam is for something wonderful, never a job.

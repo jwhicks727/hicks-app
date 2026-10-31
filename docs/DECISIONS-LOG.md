@@ -6,6 +6,48 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-10-31 — The calendar works out its own days
+
+- **The Church year is computed here, not by romcal.** Running an outside
+  package's code wasn't allowed in the overnight session, and the rules fit
+  in one file anyway: `src/lib/cal/liturgy.js` ranks each day's candidates
+  by the Church's Table of Liturgical Days, moves solemnities that meet a
+  higher day (St Joseph in Holy Week to the Saturday before Palm Sunday,
+  the Annunciation after the Easter octave, the Immaculate Conception off an
+  Advent Sunday without its obligation), and keeps optional memorials beside
+  the weekday rather than in its place. Tests pin known years
+  (`tests/liturgy.test.mjs`). The U.S. saints' list is written out in
+  `SANCTORAL`; a new optional memorial is one line there.
+- **Holidays and heritage days are rules, not a list of dates.** Each is
+  worked out per year (the third Monday of January, the Monday after the
+  first Sunday of May), with a line about why it matters. Jewish holy days
+  come from the Hebrew calendar's own arithmetic, so they are exact for any
+  year. Ramadan and the Eids use the arithmetic Islamic calendar and are
+  shown as *expected*, since the new moon's sighting decides. Lunar New Year
+  is the one table (to 2035). Diwali is left out until a date source is
+  checked.
+- **Each kind can be switched off in Settings,** on the device: holidays,
+  civil rights, heritage months, our neighbours' holy days, seasons and sky,
+  birding, small joys. The Church's days are always there.
+- **Solstices, equinoxes and the moon follow Meeus** (to a minute or two).
+  SunCalc's moon was hours off, enough to put the January and March 2026
+  full moons on the wrong day at home. Full moons carry their names; the one
+  nearest the September equinox is the Harvest Moon, the next the Hunter's.
+- **Moving through the calendar replaces the address; opening a day adds a
+  step.** Switching view or stepping a month leaves Back to leave the
+  calendar, as with filters; a day tapped from a month comes back to that
+  month. Whose days to show (Everyone, or one of us) stays on the device.
+- **The school calendars line up by person:** a calendar source marked as
+  Laurie's is Kordyak, Anna's is Wayne Ruble, Jason's is SOAR; their
+  no-school days are stripes in the year view.
+- **Sacred Heart's Mass times are shown as unverified** until checked with
+  the parish; on a holy day the app says the parish posts its own times
+  rather than guessing, and on the eve it suggests the vigil.
+- **The main stylesheet loads first,** so a place's own stylesheet wins a
+  tie with it (the Today button lost its paper to `.btn.ghost` otherwise).
+
+---
+
 ## 2026-10-31 — Upright headings: Caprasimo, not Shrikhand
 
 Jason didn't want italic headings. Shrikhand is a slanted face, so the

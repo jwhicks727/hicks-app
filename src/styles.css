@@ -182,3 +182,14 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
   .rail-more a[aria-current="page"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, var(--card)); }
 }
 @media (prefers-reduced-motion: reduce) { .shine::before { animation: none; } }
+
+/* Settings: on/off switches */
+.switches { list-style: none; margin: 0; padding: 0; display: grid; }
+.switches li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); }
+.switches li:first-child { border-top: 0; }
+.switches li > span { display: grid; min-width: 0; } .switches li > span span { font-size: 14px; color: var(--muted); }
+.switch { flex: none; position: relative; width: 52px; height: 32px; border-radius: 16px; border: 0; padding: 0; cursor: pointer; background: color-mix(in srgb, var(--ink) 22%, var(--card)); transition: background .2s ease; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0, 0, 0, .25); transition: transform .25s cubic-bezier(.3, 1.3, .5, 1); }
+.switch[aria-checked="true"] { background: #3E7A4C; }
+.switch[aria-checked="true"] i { transform: translateX(20px); }
+.switch:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }

@@ -129,3 +129,37 @@ test('every day of five years has a name and a colour', () => {
 test('readings link to the USCCB page for the day', () => {
   assert.equal(readingsUrl('2026-11-01'), 'https://bible.usccb.org/bible/readings/110126.cfm')
 })
+
+test('each day knows which celebration it is, so a moved feast keeps its own words', async () => {
+  const { saintLine, invitation } = await import('../src/lib/cal/prayers.js')
+  const { invocationFor } = await import('../src/lib/cal/saints.js')
+  assert.equal(day('2024-12-09').key, '12-08')
+  assert.match(saintLine(day('2024-12-09')).line, /patroness of the United States/)
+  assert.equal(day('2026-05-24').key, 'pentecost'); assert.equal(saintLine(day('2026-05-24')).prayer, 'holySpirit')
+  const opt = invitation('2026-11-03', day('2026-11-03'))
+  assert.match(opt.words, /^Or keep St Martin de Porres\. A Dominican brother/); assert.equal(opt.invocation, 'Saint Martin de Porres, pray for us.')
+  assert.equal(invitation('2026-11-05', day('2026-11-05')).prayer, 'eternalRest', 'November, the month of the holy souls')
+  assert.equal(invitation('2026-04-20', day('2026-04-20')).prayer, 'reginaCaeli')
+  assert.equal(invocationFor('St Bede the Venerable, St Gregory VII, or St Mary Magdalene de’ Pazzi'), 'Saint Bede the Venerable, Saint Gregory VII and Saint Mary Magdalene de’ Pazzi, pray for us.')
+  assert.equal(invocationFor('St Pius of Pietrelcina (Padre Pio)'), 'Saint Pius of Pietrelcina, pray for us.')
+})
+
+test('every saint’s line and every prayer key it names exist', async () => {
+  const { SAINT_LINES } = await import('../src/lib/cal/saints.js')
+  const { PRAYERS } = await import('../src/lib/cal/prayers.js')
+  const { SANCTORAL } = await import('../src/lib/cal/liturgy.js')
+  const fixedKeys = new Set([...SANCTORAL.map((r) => r[0]), '01-22'])
+  for (const [key, [line, pray]] of Object.entries(SAINT_LINES)) {
+    assert.ok(line && line.length < 160, key)
+    if (/^\d\d-\d\d$/.test(key)) assert.ok(fixedKeys.has(key), `${key} is not a day in the calendar`)
+    if (pray && /^[a-z][A-Za-z]+$/.test(pray)) assert.ok(PRAYERS[pray], `${key} names a missing prayer ${pray}`)
+  }
+})
+
+test('the Church year runs Advent to Advent, and knows what comes next', async () => {
+  const { churchYear, nextSeason } = await import('../src/lib/cal/liturgy.js')
+  const cy = churchYear('2026-10-31')
+  assert.equal(cy[0].from, '2025-11-30'); assert.equal(cy.at(-1).to, '2026-11-28')
+  assert.deepEqual(nextSeason('2026-10-31'), { season: 'advent', from: '2026-11-29', to: '2026-12-24' })
+  assert.equal(nextSeason('2026-12-01').season, 'christmas'); assert.equal(nextSeason('2027-03-01').season, 'triduum')
+})

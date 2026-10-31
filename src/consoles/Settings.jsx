@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { useSession, sendSignInLink, signOut } from '../lib/auth.js'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
-
-// Text size and motion are kept on this device only: they're conveniences.
-const PREFS = 'teamhicks.prefs'
-function readPrefs() { try { return JSON.parse(localStorage.getItem(PREFS)) || {} } catch { return {} } }
-export function applyPrefs(p = readPrefs()) {
-  document.documentElement.dataset.textSize = p.textSize || 'normal'
-  document.documentElement.dataset.motion = p.motion || 'device'
-}
+import { usePrefs } from '../lib/prefs.js'
+import { GROUPS } from '../lib/cal/observances.js'
 
 export default function Settings() {
   const session = useSession()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(null)
-  const [prefs, setPrefs] = useState(readPrefs)
-  useEffect(() => { try { localStorage.setItem(PREFS, JSON.stringify(prefs)) } catch { /* private window: still applied for now */ } applyPrefs(prefs) }, [prefs])
+  const [prefs, update] = usePrefs()
 
   return (
     <>
@@ -51,15 +44,31 @@ export default function Settings() {
       <Card tint="#4A7FD6" label="Reading and motion" glyph="sunmoon" className="span-3">
         <fieldset className="choice-row"><legend>Text size</legend>
           {[['normal', 'Normal'], ['large', 'Large'], ['xlarge', 'Extra large']].map(([k, l]) => (
-            <button key={k} type="button" aria-pressed={(prefs.textSize || 'normal') === k} onClick={() => setPrefs({ ...prefs, textSize: k })}>{l}</button>
+            <button key={k} type="button" aria-pressed={(prefs.textSize || 'normal') === k} onClick={() => update({ textSize: k })}>{l}</button>
           ))}
         </fieldset>
         <fieldset className="choice-row"><legend>Motion</legend>
           {[['device', 'Like this device'], ['less', 'Less motion']].map(([k, l]) => (
-            <button key={k} type="button" aria-pressed={(prefs.motion || 'device') === k} onClick={() => setPrefs({ ...prefs, motion: k })}>{l}</button>
+            <button key={k} type="button" aria-pressed={(prefs.motion || 'device') === k} onClick={() => update({ motion: k })}>{l}</button>
           ))}
         </fieldset>
         <p className="muted">These stay on this device.</p>
+      </Card>
+
+      <Card tint="#3E7A4C" label="What the calendar shows" glyph="calendar" className="span-6">
+        <p>The Church’s days are always there. Each of these can be switched off on this device.</p>
+        <ul className="switches">
+          {Object.entries(GROUPS).map(([k, g]) => {
+            const on = (prefs.calendarGroups || {})[k] !== false
+            return (
+              <li key={k}>
+                <span><b>{g.name}</b><span>{g.word}</span></span>
+                <button type="button" className="switch" role="switch" aria-checked={on} aria-label={g.name}
+                  onClick={() => update({ calendarGroups: { ...(prefs.calendarGroups || {}), [k]: !on } })}><i /></button>
+              </li>
+            )
+          })}
+        </ul>
       </Card>
 
       <Card tint="#8A5BC4" label="More" glyph="calendar" className="span-6">

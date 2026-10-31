@@ -320,17 +320,17 @@ function seasonalDay(d, k, season) {
 /** The moveable celebrations of year `y`, by date: [name, prec, colour]. */
 function moveables(k) {
   return {
-    [k.epiphany]: ['The Epiphany of the Lord', 'principal', 'white'],
-    [k.baptism]: ['The Baptism of the Lord', 'lordFeast', 'white'],
-    [k.ascension]: ['The Ascension of the Lord', 'principal', 'white'],
-    [k.pentecost]: ['Pentecost Sunday', 'principal', 'red'],
-    [k.maryMotherOfChurch]: ['The Blessed Virgin Mary, Mother of the Church', 'memorial', 'white'],
-    [k.trinity]: ['The Most Holy Trinity', 'solemnity', 'white'],
-    [k.corpusChristi]: ['The Most Holy Body and Blood of Christ (Corpus Christi)', 'solemnity', 'white'],
-    [k.sacredHeart]: ['The Most Sacred Heart of Jesus', 'solemnity', 'white'],
-    [k.immaculateHeart]: ['The Immaculate Heart of the Blessed Virgin Mary', 'memorial', 'white'],
-    [k.christTheKing]: ['Our Lord Jesus Christ, King of the Universe', 'solemnity', 'white'],
-    [k.holyFamily]: ['The Holy Family of Jesus, Mary and Joseph', 'lordFeast', 'white'],
+    [k.epiphany]: ['The Epiphany of the Lord', 'principal', 'white', 'epiphany'],
+    [k.baptism]: ['The Baptism of the Lord', 'lordFeast', 'white', 'baptism'],
+    [k.ascension]: ['The Ascension of the Lord', 'principal', 'white', 'ascension'],
+    [k.pentecost]: ['Pentecost Sunday', 'principal', 'red', 'pentecost'],
+    [k.maryMotherOfChurch]: ['The Blessed Virgin Mary, Mother of the Church', 'memorial', 'white', 'maryMotherOfChurch'],
+    [k.trinity]: ['The Most Holy Trinity', 'solemnity', 'white', 'trinity'],
+    [k.corpusChristi]: ['The Most Holy Body and Blood of Christ (Corpus Christi)', 'solemnity', 'white', 'corpusChristi'],
+    [k.sacredHeart]: ['The Most Sacred Heart of Jesus', 'solemnity', 'white', 'sacredHeart'],
+    [k.immaculateHeart]: ['The Immaculate Heart of the Blessed Virgin Mary', 'memorial', 'white', 'immaculateHeart'],
+    [k.christTheKing]: ['Our Lord Jesus Christ, King of the Universe', 'solemnity', 'white', 'christTheKing'],
+    [k.holyFamily]: ['The Holy Family of Jesus, Mary and Joseph', 'lordFeast', 'white', 'holyFamily'],
   }
 }
 
@@ -365,6 +365,7 @@ function placements(y) {
 }
 
 const HOLY_DAYS = ['01-01', '08-15', '11-01', '12-08', '12-25']
+const SEASONAL_KEYS = ['ashWednesday', 'palmSunday', 'holyThursday', 'goodFriday', 'holySaturday', 'easter', 'divineMercy', 'advent1']
 
 /** The Sunday cycle (A, B, C) and weekday cycle (I, II) of the Church year a date is in. */
 export function cycles(d) {
@@ -374,7 +375,8 @@ export function cycles(d) {
 
 /**
  * The Church's day.
- * { name, rank, colour, colourHex, season, optional, obligation, fasting, transferred }
+ * { key, name, rank, colour, colourHex, season, optional, optionalKey, obligation, fasting, transferred }
+ * `key` names the celebration (its MM-DD, or a keyDates() name) for saints.js.
  * `optional` is a saint who may be kept that day, or remembered on a weekday
  * of Lent or late Advent; it never replaces the day.
  */
@@ -384,18 +386,18 @@ export function liturgicalDay(d) {
   const { at, moved } = placements(y)
   const fixedRow = moved[d] ? null : (at[d] || FIXED.get(mmdd(d)))
   const mvRow = moveables(k)[d]
-  const cands = [{ name: base.name, prec: base.prec, colour: base.colour, seasonal: true }]
-  if (mvRow) cands.push({ name: mvRow[0], prec: mvRow[1], colour: mvRow[2] })
-  if (fixedRow) cands.push({ name: fixedRow[1], prec: fixedRow[2], colour: fixedRow[3], transferred: Boolean(at[d]) && fixedRow[0] !== mmdd(d) })
+  const seasonalKey = SEASONAL_KEYS.find((key) => k[key] === d) || null
+  const cands = [{ name: base.name, prec: base.prec, colour: base.colour, seasonal: true, key: seasonalKey }]
+  if (mvRow) cands.push({ name: mvRow[0], prec: mvRow[1], colour: mvRow[2], key: mvRow[3] })
+  if (fixedRow) cands.push({ name: fixedRow[1], prec: fixedRow[2], colour: fixedRow[3], key: fixedRow[0], transferred: Boolean(at[d]) && fixedRow[0] !== mmdd(d) })
   // The lower row wins; a tie goes to the celebration over the season's own
   // day. An optional memorial never takes the day: it is offered beside it.
   const win = cands.filter((c) => c.prec !== 'optional')
     .reduce((a, b) => (PREC[b.prec] < PREC[a.prec] || (PREC[b.prec] === PREC[a.prec] && a.seasonal) ? b : a))
-  let optional = null
+  let optional = null, optionalKey = null
   for (const c of cands) {
     if (c === win || c.seasonal) continue
-    if (c.prec === 'optional' && ['weekday', 'privileged'].includes(win.prec)) optional = c.name
-    else if (c.prec === 'memorial' && win.prec === 'privileged') optional = c.name
+    if ((c.prec === 'optional' && ['weekday', 'privileged'].includes(win.prec)) || (c.prec === 'memorial' && win.prec === 'privileged')) { optional = c.name; optionalKey = c.key }
   }
   const md = mmdd(d), wd = dow(d)
   const rank = win.prec === 'principal' && base.sunday && win.seasonal ? 'sunday' : win.prec
@@ -405,7 +407,7 @@ export function liturgicalDay(d) {
   if (d === k.ashWednesday || d === k.goodFriday) fasting = 'fast'
   else if (season === 'lent' && wd === 5 && PREC[win.prec] > PREC.solemnity) fasting = 'abstinence'
   return {
-    date: d, name: win.name, rank, rankWords: RANK_WORDS[rank] || '', colour: win.colour, colourHex: COLOURS[win.colour],
+    date: d, key: win.key || null, optionalKey, name: win.name, rank, rankWords: RANK_WORDS[rank] || '', colour: win.colour, colourHex: COLOURS[win.colour],
     season, optional, obligation: Boolean(obligation), fasting, transferred: Boolean(win.transferred),
     high: PREC[win.prec] <= PREC.lordFeast || (win.prec === 'feast'),
   }
@@ -416,4 +418,29 @@ export const SEASON_NAMES = { advent: 'Advent', christmas: 'Christmas Time', len
 /** USCCB's page of the day's readings. */
 export function readingsUrl(d) {
   return `https://bible.usccb.org/bible/readings/${d.slice(5, 7)}${d.slice(8, 10)}${d.slice(2, 4)}.cfm`
+}
+
+export const SEASON_COLOURS = { advent: 'violet', christmas: 'white', ordinary: 'green', lent: 'violet', triduum: 'red', easter: 'white' }
+
+/** The Church year holding a date, Advent to Advent, as its seasons: [{ season, from, to }]. */
+export function churchYear(d) {
+  const y = parts(d)[0]
+  const startYear = d >= keyDates(y).advent1 ? y : y - 1
+  const a = keyDates(startYear), b = keyDates(startYear + 1)
+  return [
+    { season: 'advent', from: a.advent1, to: addDays(a.christmas, -1) },
+    { season: 'christmas', from: a.christmas, to: b.baptism },
+    { season: 'ordinary', from: addDays(b.baptism, 1), to: addDays(b.ashWednesday, -1) },
+    { season: 'lent', from: b.ashWednesday, to: addDays(b.holyThursday, -1) },
+    { season: 'triduum', from: b.holyThursday, to: b.holySaturday },
+    { season: 'easter', from: b.easter, to: b.pentecost },
+    { season: 'ordinary', from: addDays(b.pentecost, 1), to: addDays(b.advent1, -1) },
+  ]
+}
+
+/** The next season after the one holding `d`: { season, from }. */
+export function nextSeason(d) {
+  const segs = churchYear(d)
+  const i = segs.findIndex((s) => s.from <= d && s.to >= d)
+  return i < segs.length - 1 ? segs[i + 1] : churchYear(addDays(segs[i].to, 1))[0]
 }

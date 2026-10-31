@@ -106,7 +106,9 @@ export function phaseInstant(k) {
  * traditional name: the one nearest the September equinox is the Harvest
  * Moon and the next the Hunter's Moon; the second in a month is a blue moon.
  */
+const phaseCache = new Map()
 export function moonPhases(y) {
+  if (phaseCache.has(y)) return phaseCache.get(y)
   const out = []
   const k0 = Math.floor((y - 2000) * 12.3685) - 1
   for (let k = k0; k < k0 + 15; k++) {
@@ -127,6 +129,7 @@ export function moonPhases(y) {
     const sameMonth = fulls.filter((q) => parts(q.date)[1] === m)
     if (sameMonth.length === 2 && sameMonth[1] === p) p.moonName = 'Blue Moon'
   })
+  phaseCache.set(y, out)
   return out
 }
 

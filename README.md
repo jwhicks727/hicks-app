@@ -40,7 +40,14 @@ connected. Copy it to `.env` (never committed) and fill it in.
 - `src/parts/` — pieces shared between places (the sky today, ...).
 - `src/shell/` — the sky behind everything, the tab bar, links and Back.
 - `src/consoles/` — Settings, Setup and Reports, built from `src/registry.js`.
+- `src/calendar/` — the calendar's day, week, month and year views.
 - `src/lib/` — plain logic with no React, so tests can run it.
+  `src/lib/cal/` works out the calendar: the Church's day (`liturgy.js`),
+  the saints' lines and prayers, holidays and heritage days
+  (`observances.js`), Jewish and Islamic holy days, solstices, equinoxes
+  and the moon (`nature.js`), Sacred Heart's Mass times, and how family
+  days read. Nothing there is typed in per year except Lunar New Year,
+  whose table runs to 2035.
 - `supabase/migrations/` — the database, one migration at a time
   (`docs/DATABASE.md`).
 - `docs/` — the decisions log, the design principles, the plan, and the
@@ -55,6 +62,14 @@ where it appears and listed here:
 - **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence).
 - **Food pictures** (from the next phase): the Food Icon Pack by Michael
   Bollin, https://foodiconpack.com, CC BY 4.0, coloured in.
-- **Sun and moon:** worked out on the device with SunCalc (BSD licence).
+- **Sun and moon:** worked out on the device with SunCalc (BSD licence);
+  the calendar's solstices, equinoxes and moon phases follow Jean Meeus,
+  *Astronomical Algorithms* (chapters 27 and 49), and its Hebrew and Islamic
+  dates Dershowitz and Reingold, *Calendrical Calculations*.
+- **Prayers:** the traditional English forms, which belong to everyone; the
+  saints' one-line stories are our own.
+- **Calendar pictures:** small line icons drawn on the same 24-unit grid.
+  Catholic and saint line art comes later, from sources still to be checked
+  (`docs/PLAN.md`).
 - **Icons:** Home's sprout is Lucide's (https://lucide.dev, ISC licence); the
   other tab icons are drawn on the same 24-unit grid.

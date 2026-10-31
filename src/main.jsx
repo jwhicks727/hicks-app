@@ -1,8 +1,9 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-import { applyPrefs } from './consoles/Settings.jsx'
+// The app's own stylesheet first, so a place's stylesheet wins a tie with it.
 import './styles.css'
+import App from './App.jsx'
+import { applyPrefs } from './lib/prefs.js'
 
 applyPrefs()
 
