@@ -10,6 +10,7 @@ import { seasonFor, SEASONS, SEASON_ORDER } from '../lib/seasons.js'
 import { showFor } from '../lib/seasonShows.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import { todayAt } from '../lib/cal/dates.js'
+import { navigate } from '../lib/router.js'
 
 export default function Settings() {
   const session = useSession()
@@ -31,6 +32,7 @@ export default function Settings() {
           <>
             <p>Signed in as <b>{session.user.email}</b>.</p>
             <button type="button" className="btn ghost" onClick={() => signOut()}>Sign out</button>
+            <p className="muted small">This copy of the app: {import.meta.env.VITE_APP_BUILD || 'development'}</p>
             <PasswordForm email={session.user.email} />
           </>
         )}
@@ -68,6 +70,14 @@ export default function Settings() {
             </div>
           </div>
         )}
+        <div className="switch-row">
+          <span><b>Home’s opening</b><span>The crow and the leaves play once a day on each device. Play today’s again, from the top of Home.</span></span>
+          <button type="button" className="btn ghost" onClick={() => {
+            try { localStorage.removeItem('teamhicks.flights'); localStorage.removeItem('teamhicks.shows') } catch { /* nothing kept */ }
+            navigate('/')
+            setTimeout(() => window.dispatchEvent(new CustomEvent('hicks:show')), 1400)
+          }}>Play it again</button>
+        </div>
         <div className="switch-row">
           <span><b>A mindful moment on Home</b><span>A line from the teaching each day, a word on it on Sundays, and the morning sit</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.mindful !== false} aria-label="A mindful moment on Home" onClick={() => update({ mindful: prefs.mindful === false })}><i /></button>
