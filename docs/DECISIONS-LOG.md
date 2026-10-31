@@ -12,7 +12,9 @@ Jason reworked the sprout icon in ChatGPT and asked for it to be used for
 now. It is the one exception to "art is human-made": a stand-in for the
 home-screen icon only, kept until a human-made icon replaces it. The
 Android version sets it a little smaller on its own sky, so a circle crop
-keeps the whole sprout.
+keeps the whole sprout. A second, leafier version is pinned beside it
+(`docs/icon-options/`), and `scripts/make-icons.mjs` makes every size from
+either.
 
 ---
 

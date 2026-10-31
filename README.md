@@ -95,4 +95,5 @@ where it appears and listed here:
   (`public/icons/`, named "Team Hicks" by `public/manifest.webmanifest`) is,
   for now, Jason's ChatGPT rework of that sprout on the evening sky: a
   stand-in, and the one AI-made picture in the app (decisions log), until a
-  human-made icon replaces it.
+  human-made icon replaces it. A second option is pinned beside it in
+  `docs/icon-options/`, with `scripts/make-icons.mjs` to switch.
