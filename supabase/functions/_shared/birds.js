@@ -17,7 +17,10 @@ export const NEAR_KM = 15, NOTABLE_KM = 30, DAYS = 7
 const at = (u, p) => { const x = new URL(u); for (const [k, v] of Object.entries(p)) x.searchParams.set(k, String(v)); return x.toString() }
 export const recentUrl = ({ lat, lng }) => at(EBIRD, { lat: lat.toFixed(2), lng: lng.toFixed(2), dist: NEAR_KM, back: DAYS, maxResults: 300 })
 export const notableUrl = ({ lat, lng }) => at(EBIRD + '/notable', { lat: lat.toFixed(2), lng: lng.toFixed(2), dist: NOTABLE_KM, back: DAYS, detail: 'simple', maxResults: 100 })
-export const inatUrl = (sci) => at('https://api.inaturalist.org/v1/taxa', { q: sci, rank: 'species', per_page: 1 })
+/** "Passerella iliaca [megarhyncha Group]" is eBird's name for a group of forms: iNaturalist knows the species, "Passerella iliaca". */
+export const binomial = (sci) => String(sci || '').replace(/\[[^\]]*\]/g, ' ').trim().split(/\s+/).slice(0, 2).join(' ')
+export const inatUrl = (sci) => at('https://api.inaturalist.org/v1/taxa', { q: binomial(sci), rank: 'species', per_page: 1 })
+export const inatTaxonUrl = (id) => `https://api.inaturalist.org/v1/taxa/${encodeURIComponent(id)}`
 
 const CODE = /^[a-z0-9]{3,12}$/
 const clean = (s, n = 120) => String(s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n)
@@ -49,14 +52,31 @@ export function shapeBirds(recent, notable) {
   return [...by.values()].sort((a, b) => (b.notable - a.notable) || b.sightings - a.sightings || b.last.localeCompare(a.last))
 }
 
-/** A licensed photo from an iNaturalist taxa answer: { url, credit, licence } or null. */
-export function photoOf(json) {
-  const t = json && json.results && json.results[0]
-  const p = t && t.default_photo
+const PHOTO_HOST = /^https:\/\/(inaturalist-open-data\.s3\.amazonaws\.com|static\.inaturalist\.org)\//
+/** One photo, if it is under a Creative Commons licence and on iNaturalist's own hosts: { url, credit, licence }, else null. */
+function openPhoto(p) {
   if (!p || !p.license_code || !/^cc/i.test(p.license_code)) return null
   const url = String(p.medium_url || p.square_url || '')
-  if (!/^https:\/\/(inaturalist-open-data\.s3\.amazonaws\.com|static\.inaturalist\.org)\//.test(url)) return null
+  if (!PHOTO_HOST.test(url)) return null
   return { url, credit: clean(p.attribution, 160), licence: String(p.license_code).toUpperCase() }
+}
+
+/** A licensed photo from an iNaturalist taxa answer: its default photo, if that one is open. */
+export function photoOf(json) {
+  const t = json && json.results && json.results[0]
+  return openPhoto(t && t.default_photo)
+}
+
+/** The taxon's id from a taxa answer, to ask for its other photos. */
+export function taxonIdOf(json) {
+  const t = json && json.results && json.results[0]
+  return t && Number.isInteger(t.id) ? t.id : null
+}
+
+/** The first openly licensed photo among a taxon's own: a bird's first photo is often not one. */
+export function photoFromTaxon(json) {
+  const t = json && json.results && json.results[0]
+  return ((t && t.taxon_photos) || []).map((x) => openPhoto(x && x.photo)).find(Boolean) || null
 }
 
 // The words and links for the screen are in src/lib/birdWords.js.

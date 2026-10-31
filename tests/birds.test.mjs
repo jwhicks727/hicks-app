@@ -1,7 +1,7 @@
 // The week's birds, from answers shaped like eBird's API 2.0 and iNaturalist's taxa (made up)
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { recentUrl, notableUrl, shapeBirds, photoOf } from '../supabase/functions/_shared/birds.js'
+import { recentUrl, notableUrl, shapeBirds, photoOf, binomial, inatUrl, taxonIdOf, photoFromTaxon } from '../supabase/functions/_shared/birds.js'
 import { seenWhen } from '../src/lib/birdWords.js'
 
 const o = (code, name, dt, extra = {}) => ({ speciesCode: code, comName: name, sciName: 'Genus ' + code, locId: 'L1', locName: 'Fontana Park', obsDt: dt, howMany: 2, lat: 34.1, lng: -117.4, obsValid: true, obsReviewed: false, locationPrivate: false, subId: 'S123456', ...extra })
@@ -38,4 +38,18 @@ test('when it was seen, in days at home', () => {
   assert.equal(seenWhen('2026-10-31 07:40', '2026-10-31'), 'today')
   assert.equal(seenWhen('2026-10-30 16:00', '2026-10-31'), 'yesterday')
   assert.equal(seenWhen('2026-10-27 08:00', '2026-10-31'), '4 days ago')
+})
+
+test('a group name is looked up by its species, and an open photo further down stands in for a closed first one', () => {
+  assert.equal(binomial('Passerella iliaca [megarhyncha Group]'), 'Passerella iliaca')
+  assert.equal(binomial('Certhia americana'), 'Certhia americana')
+  assert.equal(new URL(inatUrl('Passerella iliaca [megarhyncha Group]')).searchParams.get('q'), 'Passerella iliaca')
+  const host = 'https://inaturalist-open-data.s3.amazonaws.com/photos/'
+  const found = { results: [{ id: 9, default_photo: { license_code: null, medium_url: host + '1/medium.jpg' } }] }
+  assert.equal(photoOf(found), null)
+  assert.equal(taxonIdOf(found), 9)
+  const taxon = { results: [{ taxon_photos: [{ photo: { license_code: null, medium_url: host + '1/medium.jpg' } }, { photo: { license_code: 'cc-by', medium_url: host + '2/medium.jpg', attribution: '(c) B, some rights reserved (CC BY)' } }] }] }
+  assert.deepEqual(photoFromTaxon(taxon), { url: host + '2/medium.jpg', credit: '(c) B, some rights reserved (CC BY)', licence: 'CC-BY' })
+  assert.equal(photoFromTaxon({ results: [{ taxon_photos: [{ photo: { license_code: null, medium_url: host + '1/medium.jpg' } }] }] }), null)
+  assert.equal(photoFromTaxon({ results: [] }), null)
 })

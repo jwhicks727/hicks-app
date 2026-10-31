@@ -9,7 +9,7 @@
 // because it checks the caller itself.
 
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
-import { recentUrl, notableUrl, inatUrl, shapeBirds, photoOf, KEEP_MS } from '../_shared/birds.js'
+import { recentUrl, notableUrl, inatUrl, inatTaxonUrl, shapeBirds, photoOf, taxonIdOf, photoFromTaxon, KEEP_MS } from '../_shared/birds.js'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -26,6 +26,15 @@ const get = async (url: string, headers: Record<string, string> = {}) => {
   const res = await fetch(url, { signal: AbortSignal.timeout(10000), headers: { Accept: 'application/json', 'User-Agent': 'TeamHicksFamilyApp/1.0', ...headers } })
   if (!res.ok) throw new Error(String(res.status))
   return res.json()
+}
+
+/** An openly licensed photo of a bird: its default one, else the first of its others that is. */
+async function photoFor(sci: string) {
+  const found = await get(inatUrl(sci))
+  const first = photoOf(found)
+  if (first) return first
+  const id = taxonIdOf(found)
+  return id ? photoFromTaxon(await get(inatTaxonUrl(id))) : null
 }
 
 Deno.serve(async (req) => {
@@ -50,7 +59,7 @@ Deno.serve(async (req) => {
     const [recent, notable] = await Promise.all([get(recentUrl(TOWN), head), get(notableUrl(TOWN), head).catch(() => [])])
     const species = shapeBirds(recent, notable).slice(0, 40)
     for (const b of species.slice(0, 12)) {
-      if (!photos.has(b.sci)) photos.set(b.sci, await get(inatUrl(b.sci)).then(photoOf).catch(() => null))
+      if (!photos.has(b.sci)) photos.set(b.sci, await photoFor(b.sci).catch(() => null))
       ;(b as Record<string, unknown>).photo = photos.get(b.sci)
     }
     const data = { at: Date.now(), species }
