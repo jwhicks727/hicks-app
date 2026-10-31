@@ -174,8 +174,13 @@ app), signed in as a parent: Apps › The Gallery › "Move them now". From then
 
    In the same place, under Variables, add:
    - `FIREBASE_PROJECT_ID`: the project ID (`hicks-app-1b1a5`);
-   - `VITE_SUPABASE_URL`: the Supabase URL;
-   - `VITE_SUPABASE_ANON_KEY`: the publishable key.
+   - `VITE_SUPABASE_URL`: the project's own address, `https://<project>.supabase.co`
+     (Supabase › Project Settings › API › Project URL; never the dashboard's
+     address, which makes every sign-in fail with "Failed to fetch");
+   - `VITE_SUPABASE_ANON_KEY`: the publishable key, never the secret one.
+
+   The Deploy and Preview workflows check all three before building
+   (`scripts/check-settings.mjs`) and stop with what's wrong.
 
    The last two are not secret: they ship inside the app.
 5. GitHub › Settings › Environments › New environment "production" ›
