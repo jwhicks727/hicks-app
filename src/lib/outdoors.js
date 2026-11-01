@@ -23,7 +23,7 @@ export function shapePlaces(json) {
 export function tripForecastUrl(lat, lng, from, to) {
   return `https://api.open-meteo.com/v1/forecast?${new URLSearchParams({
     latitude: String(r2(lat)), longitude: String(r2(lng)), start_date: from, end_date: to, timezone: 'auto',
-    daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_gusts_10m_max,uv_index_max,sunrise,sunset',
+    daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,uv_index_max,sunrise,sunset',
     temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', precipitation_unit: 'inch',
   })}`
 }

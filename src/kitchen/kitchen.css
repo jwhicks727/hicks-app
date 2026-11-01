@@ -242,3 +242,4 @@ html.phone-landscape .kchat-fab { bottom: 12px; }
 .rv-checks { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; } .rv-checks li { overflow-wrap: anywhere; }
 .rv-checks.warn li::marker { color: #C42D20; }
 .rv textarea { font: 13px/1.5 ui-monospace, Menlo, monospace; width: 100%; min-height: 220px; padding: 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); resize: vertical; }
+.plan-old { margin: 0; padding: 10px 14px; border-radius: var(--r-control); border-left: 5px solid #E0662F; background: color-mix(in srgb, #E0662F 12%, var(--card)); font-weight: 700; }

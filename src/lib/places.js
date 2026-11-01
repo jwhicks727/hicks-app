@@ -14,7 +14,7 @@ const LA = 'America/Los_Angeles'
 // show: [west, south, east, north].
 export const STOPS = {
   home: { name: 'Around home', layer: 'near', box: [-117.86, 33.97, -116.86, 34.34] },
-  socal: { name: 'SoCal', layer: 'near', box: [-118.3, 32.62, -116.8, 34.76] },
+  socal: { name: 'SoCal', layer: 'near', box: [-118.3, 32.62, -116.1, 34.76] },
   world: { name: 'The world', layer: 'world', box: [-165, -36, 125, 64] },
 }
 export const STOP_ORDER = ['home', 'socal', 'world']
@@ -36,6 +36,7 @@ export const PLACES = [
   { slug: 'big-bear', region: 'San Bernardino Mountains', name: 'Big Bear', town: 'Big Bear Lake', lat: 34.2439, lng: -116.9114, tz: LA, stop: 'home', colour: '#2F7D7A', scene: 'big-bear', line: 'Lake, pines and snow, up in the mountains', maps: 'Big Bear Lake, CA' },
   { slug: 'anaheim', region: 'Orange County', name: 'Anaheim', town: 'Anaheim', lat: 33.8121, lng: -117.919, tz: LA, stop: 'socal', colour: '#D66BA0', scene: 'anaheim', line: 'Castles, mountains and fireworks' },
   { slug: 'lancaster', region: 'Antelope Valley', name: 'Lancaster', town: 'Lancaster', lat: 34.6868, lng: -118.1542, tz: LA, stop: 'socal', colour: '#E8A33D', scene: 'lancaster', line: 'Poppies, Joshua trees and the open desert' },
+  { slug: 'joshua-tree', region: 'San Bernardino County', name: 'Joshua Tree', town: 'Joshua Tree', lat: 34.1347, lng: -116.3131, tz: LA, stop: 'socal', colour: '#C9863F', scene: 'joshua-tree', line: 'Boulders, Joshua trees and a sky full of stars', maps: 'Joshua Tree National Park, CA' },
   { slug: 'long-beach', region: 'Los Angeles County', name: 'Long Beach', town: 'Long Beach', lat: 33.7701, lng: -118.1937, tz: LA, stop: 'socal', colour: '#2C6E9E', scene: 'long-beach', line: 'The old liner, the harbour and its cranes' },
   { slug: 'san-diego', region: 'San Diego County', name: 'San Diego', town: 'San Diego', lat: 32.7157, lng: -117.1611, tz: LA, stop: 'socal', colour: '#2A9D8F', scene: 'san-diego', line: 'Sailboats on the bay' },
   { slug: 'kona', region: 'Island of Hawaiʻi', name: 'Kona', town: 'Kailua-Kona', lat: 19.64, lng: -155.9969, tz: 'Pacific/Honolulu', stop: 'world', colour: '#E07A2E', scene: 'kona', line: 'Volcanoes, surf and palms on the Big Island', maps: 'Kailua-Kona, HI' },

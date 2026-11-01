@@ -326,3 +326,9 @@ export function burstTrio(cx, cy, R) {
     { x: cx + Math.sin(a) * d, y: cy - Math.cos(a) * d, r, delay: 0.45 },
   ]
 }
+
+/** A pile of desert boulders, rounded and stacked, left edge at x (Joshua Tree's granite). */
+export function boulders(x, s = 1) {
+  const blob = (cx, w, h) => `M${f(cx - w)} 150Q${f(cx - w)} ${f(150 - h)} ${f(cx - w * 0.3)} ${f(150 - h * 1.05)}Q${f(cx + w * 0.5)} ${f(150 - h * 1.15)} ${f(cx + w)} ${f(150 - h * 0.4)}L${f(cx + w)} 150Z`
+  return blob(x, 22 * s, 26 * s) + blob(x + 30 * s, 18 * s, 38 * s) + blob(x + 58 * s, 16 * s, 20 * s) + blob(x + 14 * s, 12 * s, 40 * s)
+}

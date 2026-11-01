@@ -11,7 +11,7 @@ import { outsideProblem } from './outsideErrors.js'
 const kept = {} // name -> { data, at }
 const subs = {} // name -> Set
 const asking = {}
-const AGAIN_MS = { stations: 15 * 60e3, birds: 60 * 60e3 }
+const AGAIN_MS = { stations: 15 * 60e3, birds: 60 * 60e3, wild: 12 * 60 * 60e3 }
 
 async function ask(name) {
   if (asking[name]) return
@@ -40,3 +40,6 @@ function useOutside(name) {
 export const useStations = () => useOutside('stations')
 /** { at, species: [...] } from eBird, or { error }, or null while asking. */
 export const useBirds = () => useOutside('birds')
+
+/** { at, pictures: { [season id]: { url, page, credit } } } from the wild function, or { error }, or null while asking. */
+export const useWildPictures = () => useOutside('wild')

@@ -27,7 +27,7 @@ export function usePlaceWeather(ev, today) {
     if (diffDays(today, ev.starts_on) <= 15) {
       getJson(tripForecastUrl(ev.lat, ev.lng, ev.starts_on < today ? today : ev.starts_on, diffDays(today, end) > 15 ? undefined : end)).then((j) => {
         const d = j.daily
-        if (live) setState({ kind: 'forecast', past: null, error: null, days: d.time.map((t, i) => ({ date: t, high: Math.round(d.temperature_2m_max[i]), low: Math.round(d.temperature_2m_min[i]), rain: d.precipitation_probability_max?.[i] ?? null, gusts: Math.round(d.wind_gusts_10m_max?.[i] ?? 0), uv: d.uv_index_max?.[i] ?? null, sunrise: d.sunrise?.[i], sunset: d.sunset?.[i], ...conditions(d.weather_code[i]) })) })
+        if (live) setState({ kind: 'forecast', past: null, error: null, days: d.time.map((t, i) => ({ date: t, high: Math.round(d.temperature_2m_max[i]), low: Math.round(d.temperature_2m_min[i]), rain: d.precipitation_probability_max?.[i] ?? null, inches: d.precipitation_sum?.[i] != null ? Math.round(d.precipitation_sum[i] * 100) / 100 : null, wind: d.wind_speed_10m_max?.[i] != null ? Math.round(d.wind_speed_10m_max[i]) : null, gusts: Math.round(d.wind_gusts_10m_max?.[i] ?? 0), uv: d.uv_index_max?.[i] ?? null, sunrise: d.sunrise?.[i], sunset: d.sunset?.[i], ...conditions(d.weather_code[i]) })) })
       }).catch(() => { if (live) setState({ kind: 'forecast', days: null, past: null, error: 'The forecast couldn’t be reached just now.' }) })
     } else {
       Promise.all(pastYearsUrls(ev.lat, ev.lng, ev.starts_on, end, Number(today.slice(0, 4))).map((u) => getJson(u).catch(() => null)))

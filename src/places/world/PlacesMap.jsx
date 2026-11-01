@@ -5,6 +5,7 @@ import { useNow } from '../../lib/useNow.js'
 import { reducedMotion } from '../../lib/motion.js'
 import { PLACES, STOPS, STOP_ORDER, RANGES, PEAKS, LAKES, pinsAt, fitCamera, viewBoxFor, toScreen, project, nearWeight, tween, calloutLabels, peakGlyphs, nightPath, milesBetween, minutesAhead } from '../../lib/places.js'
 import { FREEWAYS } from '../../lib/freeways.js'
+import Scene from './Scene.jsx'
 import { usePlacesWeather } from '../../lib/useWeather.js'
 import WeatherIcon from '../../parts/WeatherIcon.jsx'
 import { HOME_TOWN } from '../../lib/sky.js'
@@ -150,12 +151,14 @@ export default function PlacesMap() {
   const wx = usePlacesWeather(shown)
   // The freeways round home, drawn in the near layer while Around home shows
   const roads = useMemo(() => (data ? FREEWAYS.map((f) => ({ ...f, d: f.lines.map((l) => l.map(([lng, lat], i) => { const [x, y] = project('near', lat, lng, data.NEAR); return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join('')).join('') })) : []), [data])
-  const roadsOn = stop === 'home' && w > 0.5
+  const roadsOn = (stop === 'home' || stop === 'socal') && w > 0.5
+  // Around home draws every freeway; SoCal only the big ones
+  const drawn = stop === 'home' ? FREEWAYS : FREEWAYS.filter((f) => f.tier === 1)
   // Each freeway's number: at its usual spot if that's clear, else the nearest clear point along it
   const shields = []
   if (ready && roadsOn && !moving) {
     const taken = [...labelBoxes]
-    for (const f of FREEWAYS) {
+    for (const f of drawn) {
       const wd = f.num.length > 2 ? 28 : 22
       const want = f.label ? toScreen('near', cam, size.W, size.H, data.NEAR, f.label[1], f.label[0]) : null
       const pts = f.lines.flat().map(([lng, lat]) => toScreen('near', cam, size.W, size.H, data.NEAR, lat, lng))
@@ -216,8 +219,8 @@ export default function PlacesMap() {
               <path className="pm-land pm-near-land" d={data.NEAR.land} vectorEffect="non-scaling-stroke" />
               {LAKES.map((l) => { const [x, y] = project('near', l.lat, l.lng, data.NEAR); return <ellipse key={l.name} className="pm-lake" cx={x} cy={y} rx={l.rx * data.NEAR.cos0 * data.NEAR.k} ry={l.ry * data.NEAR.k} transform={`rotate(${l.tilt} ${x} ${y})`} vectorEffect="non-scaling-stroke" /> })}
               <g className={'pm-roads' + (roadsOn ? ' on' : '')}>
-                {roads.map((f) => <path key={f.id + 'c'} className={'pm-road-case' + (f.interstate ? ' i' : '')} d={f.d} vectorEffect="non-scaling-stroke" />)}
-                {roads.map((f) => <path key={f.id} className={'pm-road' + (f.interstate ? ' i' : '')} d={f.d} vectorEffect="non-scaling-stroke" />)}
+                {roads.filter((f) => stop === 'home' || f.tier === 1).map((f) => <path key={f.id + 'c'} className={'pm-road-case' + (f.interstate ? ' i' : '')} d={f.d} vectorEffect="non-scaling-stroke" />)}
+                {roads.filter((f) => stop === 'home' || f.tier === 1).map((f) => <path key={f.id} className={'pm-road' + (f.interstate ? ' i' : '')} d={f.d} vectorEffect="non-scaling-stroke" />)}
               </g>
             </svg>
             <svg className="pm-over" viewBox={`0 0 ${size.W} ${size.H}`} aria-hidden="true">
@@ -325,6 +328,7 @@ function PlaceTiles({ stop, now, wx, onStop }) {
           return (
             <li key={p.slug}>
               <Link to={'/world/place/' + p.slug} className="pm-tile" style={{ '--c': p.colour }}>
+                <Scene place={p} now={now} pic={w && w.pic} mini />
                 <span className="pt-head"><b>{p.name}</b>{p.stop === 'world' && <em className={'fig' + (night ? ' night' : '')}>{timeIn(p.tz, now)}</em>}</span>
                 <small className="pt-line">{p.line}</small>
                 {w ? (
@@ -351,7 +355,7 @@ function PlaceTiles({ stop, now, wx, onStop }) {
           )
         })}
       </div>
-      <p className="pm-note"><small>Each place sits at its town. Open one to find it in your maps app. Weather from Open-Meteo{stop === 'home' ? '; freeways from Natural Earth, the 210 traced by hand' : ''}.</small></p>
+      <p className="pm-note"><small>Each place sits at its town. Open one to find it in your maps app. Weather from Open-Meteo{stop === 'home' || stop === 'socal' ? '; freeways from Natural Earth, the 210 traced by hand' : ''}.</small></p>
     </div>
   )
 }

@@ -134,10 +134,12 @@ and added: `docs/ART-CAPTURE.md`.
   `scripts/make-map.mjs`. The mountains and lakes near home are rough
   outlines drawn for the app. The places' skylines are generic silhouettes
   drawn in code (`src/lib/scenes.js`), no one's artwork or logo.
-- **Freeways round home:** Natural Earth's roads (public domain), read
+- **Freeways (Around home and the big ones across SoCal):** Natural Earth's roads (public domain), read
   by `scripts/make-freeways.mjs` into `src/lib/freeways.js`, renumbered
   where Natural Earth numbers them wrongly here; the 210 through Fontana,
   which it lacks, is traced by hand through its interchanges.
+- **Wild right now:** a drawing for each season, made in code, and the preview picture its own site names (the eagle cam, the monarch count, BirdCast and the rest), read once a week by the `wild` function and credited on the card; the browser loads the picture from the site.
+- **Air quality and the weather's past and future:** Open-Meteo's air quality and archive services (https://open-meteo.com), through the browser, the town's coordinates only.
 - **Mass times:** read from Sacred Heart's own website
   (https://www.sacredheartrc.org/) by the `parish` function, once a day;
   until it has been read, the Diocese of San Bernardino's listing, marked

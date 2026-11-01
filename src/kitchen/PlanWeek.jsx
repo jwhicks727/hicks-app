@@ -6,8 +6,9 @@ import { Crumb, Link } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
 import { useDraft } from '../lib/useDraft.js'
 import { askClaude } from '../lib/claude.js'
-import { useWeekPlan, savePlan } from '../lib/useKitchenPlan.js'
-import { weekOf, mergeIdeas, removeIdea, restoreIdea, refreshIdeas, notPicked } from '../lib/kitchen/plan.js'
+import { usePlans, savePlan, dismissPlan } from '../lib/useKitchenPlan.js'
+import { usePlanWritten } from '../lib/usePlanWritten.js'
+import { weekOf, mergeIdeas, removeIdea, restoreIdea, refreshIdeas, notPicked, openPlan, planAge } from '../lib/kitchen/plan.js'
 import { parseRecipe } from '../lib/kitchen/recipe.js'
 import { saveRecipes, addToFridge } from '../lib/useKitchen.js'
 import { timeWords } from './art.js'
@@ -22,7 +23,10 @@ const statusOf = (picked) => (picked.length ? 'picked' : 'ideas')
  * one-line ideas (ten unless changed, and anything added to the ask:
  * breakfasts, a slow-cooker night); pick the ones to make; Claude writes them
  * in his format; save them to the cookbook and the fridge. The ideas and
- * picks are kept with the week; the written recipes on the device until saved.
+ * picks are kept with the plan, and so are the written recipes (here and in
+ * the database) until they're saved to the cookbook or put away. A plan is
+ * never looked up by the calendar week: a list waiting on Laurie's answer is
+ * still here a week later, until someone puts it away.
  * The ideas are numbered, so the list can be texted to Laurie in one tap and
  * she can answer "1, 3, 8", which Jason types back to pick those.
  *
@@ -33,10 +37,13 @@ const statusOf = (picked) => (picked.length ? 'picked' : 'ideas')
 export default function PlanWeek({ parent, me, members = [], today }) {
   const session = useSession()
   const week = weekOf(today)
-  const plans = useWeekPlan(session, week)
-  const plan = plans.rows[0] || null
+  const plans = usePlans(session)
+  const plan = openPlan(plans.rows)
   const [ask, setAsk] = useDraft('kitchen.plan.ask', { count: 10, asked: '' })
-  const [written, setWritten, clearWritten] = useDraft(`kitchen.plan.written.${week}`, { recipes: [] })
+  const [writtenRecipes, setWrittenRecipes, clearWritten] = usePlanWritten(plan)
+  const written = { recipes: writtenRecipes }
+  const setWritten = (v) => setWrittenRecipes(v.recipes)
+  const [putAway, setPutAway] = useState(false)
   const [busy, setBusy] = useState(null), [err, setErr] = useState(null), [fridgeToo, setFridgeToo] = useState(true), [saved, setSaved] = useState(null)
   // Who the list can be texted to: each remembered by number (Anna's is her Apple Watch's)
   const people = ['Laurie', 'Anna'].map((n) => members.find((m) => m.name === n)).filter(Boolean)
@@ -84,7 +91,9 @@ export default function PlanWeek({ parent, me, members = [], today }) {
     const next = mergeIdeas([], res.ideas || [])
     if (!next.length) { setErr('No ideas came back. Try again in a moment.'); setBusy(null); return }
     aside(old.map((i) => i.title))
+    const was = row.current || plan
     await change({ ideas: next, picked: [] }, { fresh: true, asked: ask.asked || null })
+    if (was && was.id) { await dismissPlan(was); clearWritten() }
     setBusy(null)
   }
   async function addOne() {
@@ -143,6 +152,14 @@ export default function PlanWeek({ parent, me, members = [], today }) {
     change({ ideas: cur.ideas, picked: next })
     setReplyNote(`Picked ${next.map((i) => i + 1).join(', ')}.`); setReply('')
   }
+  async function putListAway() {
+    setPutAway(false); setUndo(null); setErr(null); setReplyNote(null)
+    const was = row.current || plan
+    if (!was) return
+    const { error } = await dismissPlan(was)
+    if (error) { setErr(/dismissed_at|schema cache/i.test(error.message) ? 'The newest migration hasn’t been run yet (docs/MORNING.md, step 11).' : error.message); return }
+    clearWritten(); setView(null); pending.current = null; row.current = null; plans.reload()
+  }
   async function clearList() {
     const cur = now()
     setClearing(false); setUndo(null); setErr(null); setReplyNote(null)
@@ -173,7 +190,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   const previews = written.recipes.map((md) => ({ md, r: parseRecipe(md) }))
   return (
     <>
-      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen · week of {week.slice(5).replace('-', '/')}</span><h1 className="greet">Plan the week</h1></header>
+      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen · week of {(plan ? plan.week_of : week).slice(5).replace('-', '/')}</span><h1 className="greet">Plan the week</h1></header>
 
       <Card tint="#C42D20" label="Ask" glyph="pot" className="span-3">
         <div className="form">
@@ -189,6 +206,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
         <p className="muted small">Sends this, the kitchen’s preferences and the cookbook’s titles to Claude (Anthropic), and Laurie’s food rules too, from <Link to="/kitchen/rules">Rules &amp; preferences</Link>.</p>
       </Card>
 
+ {planAge(plan, week) && ideas.length > 0 && <p className="span-6 plan-old" role="status">This list is from {planAge(plan, week)}. It stays here, with its picks and any recipes written from it, until you put it away.</p>}
       {ideas.length > 0 && (
         <Card tint="#E0662F" label="Pick" glyph="star" tag={`${picked.length} of ${ideas.length} picked`} className="span-3">
           <ul className="ideas">
@@ -225,6 +243,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
             <button type="button" className="btn ghost" disabled={Boolean(busy) || ideas.length >= 40} onClick={addOne}>Add an idea</button>
             <button type="button" className="btn ghost" disabled={Boolean(busy) || !spare} onClick={refresh}>Refresh the list</button>
             <button type="button" className="btn ghost" disabled={Boolean(busy)} onClick={() => setClearing(true)}>Clear list</button>
+            <button type="button" className="btn ghost" disabled={Boolean(busy)} onClick={() => setPutAway(true)}>Put this list away</button>
           </div>
           <p className="muted small">{picked.length ? (spare ? `Refresh keeps the ${picked.length} picked and swaps the other ${spare}.` : 'Everything on the list is picked, so there’s nothing to refresh.') : 'Refresh swaps every idea on the list; pick the ones to keep first.'}</p>
         </Card>
@@ -256,6 +275,12 @@ export default function PlanWeek({ parent, me, members = [], today }) {
         <Confirm title="Start over?" yes="Wipe the list" danger onYes={startOver} onNo={() => setWiping(false)}>
           <p>The {ideas.length} {ideas.length === 1 ? 'idea' : 'ideas'} on the list now go{picked.length ? `, with the ${picked.length} picked` : ''}, and Claude suggests {ask.count} new ones.</p>
           {picked.length > 0 && <p className="muted small">To keep the picked ones, use Refresh the list instead.</p>}
+        </Confirm>
+      )}
+      {putAway && (
+        <Confirm title="Put this list away?" yes="Put it away" danger onYes={putListAway} onNo={() => setPutAway(false)}>
+          <p>The list, what’s picked{written.recipes.length ? ` and the ${written.recipes.length} written ${written.recipes.length === 1 ? 'recipe' : 'recipes'}` : ''} leave this screen. Nothing already saved to the cookbook changes.</p>
+          {written.recipes.length > 0 && <p className="muted small">The written recipes aren’t in the cookbook yet. Save them first if you want them.</p>}
         </Confirm>
       )}
       {clearing && (

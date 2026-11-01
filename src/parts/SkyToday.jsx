@@ -2,6 +2,7 @@ import SunCalc from 'suncalc'
 import { HOME_TOWN, COMPASS, bearing, lengthWords, moonLitPath, moonName, FULL_MOON_NAMES } from '../lib/sky.js'
 import { useNow } from '../lib/useNow.js'
 import { Card } from '../ui/Card.jsx'
+import { Link } from '../shell/Link.jsx'
 
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
 const dayFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, weekday: 'short', month: 'short', day: 'numeric' })
@@ -57,14 +58,15 @@ export default function SkyToday() {
   return (
     <Card tint="#D6664D" label="The sky today" glyph="sunmoon" className="span-3">
       <div className="sun-list">
-        <div><small>Sunrise</small><b>{hm.format(t.sunrise)}</b></div>
-        <div><small>Golden hour</small><b>{hm.format(t.goldenHour)}</b></div>
-        <div><small>Sunset</small><b>{hm.format(t.sunset)}</b></div>
-        <div><small>Last light</small><b>{hm.format(t.dusk)}</b></div>
+        <Link to="/world/sky/sunrise"><small>Sunrise</small><b>{hm.format(t.sunrise)}</b></Link>
+        <Link to="/world/sky/golden"><small>Golden hour</small><b>{hm.format(t.goldenHour)}</b></Link>
+        <Link to="/world/sky/sunset"><small>Sunset</small><b>{hm.format(t.sunset)}</b></Link>
+        <Link to="/world/sky/lastlight"><small>Last light</small><b>{hm.format(t.dusk)}</b></Link>
       </div>
-      <p><b>{Math.floor(len / 36e5)} h {Math.round((len % 36e5) / 6e4)} m of daylight</b>, {ad >= 60 ? `${Math.floor(ad / 60)} m ` : ''}{ad % 60} s {dd < 0 ? 'less' : 'more'} than yesterday</p>
+      <p><Link to="/world/sky/daylight" className="sky-more"><b>{Math.floor(len / 36e5)} h {Math.round((len % 36e5) / 6e4)} m of daylight</b>, {ad >= 60 ? `${Math.floor(ad / 60)} m ` : ''}{ad % 60} s {dd < 0 ? 'less' : 'more'} than yesterday ›</Link></p>
       <div className="sky-pair">
         <figure>
+          <Link to="/world/sky/shadow" className="sky-link" aria-label="Your shadow through the year">
           <svg viewBox="0 0 160 116" aria-hidden="true">
             <defs><linearGradient id="sd-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={sky[0]} /><stop offset="1" stopColor={sky[1]} /></linearGradient></defs>
             <rect width="160" height="116" rx="6" fill="url(#sd-sky)" />
@@ -76,8 +78,10 @@ export default function SkyToday() {
             <path fill={ink} d={`M${px - 5} ${gy - 23}Q${px} ${gy - 25.5} ${px + 5} ${gy - 23}L${px + 6} ${gy - 11}H${px + 3.4}L${px + 2.8} ${gy}H${px + 0.7}L${px} ${gy - 9}L${px - 0.7} ${gy}H${px - 2.8}L${px - 3.4} ${gy - 11}H${px - 6}Z`} />
           </svg>
           <figcaption><p>{caption}</p></figcaption>
+          </Link>
         </figure>
         <figure>
+          <Link to="/world/sky/moon" className="sky-link" aria-label="The moon over the month">
           <svg viewBox="0 0 100 100" aria-hidden="true">
             <rect width="100" height="100" rx="6" fill="#1E1733" />
             <circle cx="18" cy="20" r="1.1" fill="#FFF1BF" /><circle cx="84" cy="16" r=".9" fill="#FFF1BF" /><circle cx="78" cy="86" r="1" fill="#FFF1BF" />
@@ -92,6 +96,7 @@ export default function SkyToday() {
             {mt.set && <span>Sets {hm.format(mt.set)}</span>}
             <span>{full ? <>Full {dayFmt.format(full)}, the {FULL_MOON_NAMES[+monthFmt.format(full) - 1]} Moon</> : <b>Full tonight</b>}</span>
           </figcaption>
+          </Link>
         </figure>
       </div>
     </Card>

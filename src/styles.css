@@ -85,13 +85,17 @@ html[data-motion="less"] .sky-top { transition: none; }
 
 /* The sky today */
 .sun-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sun-list > a { position: relative; text-decoration: none; min-height: 64px; overflow: hidden; padding: 10px 12px; border-radius: var(--r-control); display: grid; gap: 2px; transition: transform .15s ease, box-shadow .15s ease; }
+.sun-list > a:hover, .sun-list > a:focus-visible { transform: translateY(-2px); box-shadow: 0 8px 18px -10px rgba(40, 20, 10, .6); outline: none; }
+.sun-list > a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+html[data-motion="less"] .sun-list > a { transition: none; }
 .sun-list div { position: relative; overflow: hidden; padding: 10px 12px; border-radius: var(--r-control); display: grid; gap: 2px; }
 .sun-list small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .92; }
 .sun-list b { font-size: 18px; white-space: nowrap; }
-.sun-list div:nth-child(1) { background: linear-gradient(160deg, #6F7FB8, #C9A1B4 55%, #F4C79A); color: var(--on-colour); }
-.sun-list div:nth-child(2) { background: linear-gradient(160deg, #F6D58E, #F2B05E 60%, #E58C45); color: #3A2510; }
-.sun-list div:nth-child(3) { background: linear-gradient(160deg, #E97A55, #D6546A 55%, #7A4D8C); color: var(--on-colour); }
-.sun-list div:nth-child(4) { background: linear-gradient(160deg, #5B4B8A, #2E2A5C 60%, #1B1838); color: var(--on-colour); }
+.sun-list > :nth-child(1) { background: linear-gradient(160deg, #6F7FB8, #C9A1B4 55%, #F4C79A); color: var(--on-colour); }
+.sun-list > :nth-child(2) { background: linear-gradient(160deg, #F6D58E, #F2B05E 60%, #E58C45); color: #3A2510; }
+.sun-list > :nth-child(3) { background: linear-gradient(160deg, #E97A55, #D6546A 55%, #7A4D8C); color: var(--on-colour); }
+.sun-list > :nth-child(4) { background: linear-gradient(160deg, #5B4B8A, #2E2A5C 60%, #1B1838); color: var(--on-colour); }
 .sky-pair { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .sky-pair figure { margin: 0; display: grid; gap: 6px; align-content: start; }
 .sky-pair svg { display: block; width: 100%; height: auto; }
@@ -291,8 +295,7 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 
 /* Wild right now */
 .wild { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.wild li { display: grid; gap: 2px; }
-.wild li > span { font-size: 14px; color: var(--muted); }
+.wild li { display: grid; gap: 6px; }
 .wild-links { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .wild-links a { font-weight: 800; font-size: 14px; color: #3F6B2E; min-height: 32px; display: inline-flex; align-items: center; }
 
@@ -395,3 +398,7 @@ html[data-motion="less"] .theme-btn svg { transition: none; }
 .bd-photo figcaption { font-size: 11px; color: var(--muted); margin-top: 4px; }
 .bd-sci { font-style: italic; color: var(--muted); margin: 0; }
 html[data-motion="less"] .bd-bird:hover { transform: none; }
+
+.sky-link { color: inherit; text-decoration: none; display: grid; gap: 6px; border-radius: var(--r-control); }
+.sky-link:hover, .sky-link:focus-visible { background: color-mix(in srgb, var(--tint) 9%, transparent); outline: none; }
+.sky-more { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }

@@ -1,0 +1,23 @@
+/* A living sky behind a weather card (LivingSky.jsx): gradients and transforms only. */
+.ls { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.ls i { position: absolute; display: block; }
+.ls-sun { right: -40px; top: -60px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 205, 90, .55) 0%, rgba(255, 205, 90, .22) 38%, transparent 68%); animation: ls-breathe 7s ease-in-out infinite; }
+.ls-moon { right: 18px; top: 16px; width: 70px; height: 70px; background: radial-gradient(circle, rgba(255, 244, 205, .5) 0 30%, rgba(255, 244, 205, .16) 52%, transparent 72%); }
+.ls-stars { inset: 0; background-image: radial-gradient(1.4px 1.4px at 12% 18%, rgba(255, 240, 190, .8), transparent), radial-gradient(1.2px 1.2px at 38% 8%, rgba(255, 240, 190, .7), transparent), radial-gradient(1.6px 1.6px at 66% 22%, rgba(255, 240, 190, .8), transparent), radial-gradient(1.2px 1.2px at 84% 12%, rgba(255, 240, 190, .6), transparent), radial-gradient(1.2px 1.2px at 52% 34%, rgba(255, 240, 190, .5), transparent); animation: ls-twinkle 5s ease-in-out infinite; }
+.ls-cloud { width: 240px; height: 70px; border-radius: 50%; background: radial-gradient(ellipse at 50% 55%, rgba(255, 255, 255, .62), rgba(255, 255, 255, .22) 55%, transparent 72%); animation: ls-drift 46s linear infinite; }
+.ls-c0 { top: 10px; left: -260px; } .ls-c1 { top: 70px; left: -260px; animation-duration: 62s; animation-delay: -28s; opacity: .8; } .ls-c2 { top: 28px; left: -260px; animation-duration: 54s; animation-delay: -12s; } .ls-c3 { top: 110px; left: -260px; animation-duration: 70s; animation-delay: -40s; opacity: .7; }
+.ls-cloudy .ls-cloud, .ls-rain .ls-cloud, .ls-drizzle .ls-cloud, .ls-thunder .ls-cloud { background: radial-gradient(ellipse at 50% 55%, rgba(150, 160, 178, .6), rgba(150, 160, 178, .22) 55%, transparent 72%); }
+:root[data-theme="dark"] .ls-cloud { background: radial-gradient(ellipse at 50% 55%, rgba(190, 200, 220, .3), rgba(190, 200, 220, .1) 55%, transparent 72%); }
+.ls-rain { inset: -20% 0 0 0; background-image: repeating-linear-gradient(105deg, transparent 0 11px, rgba(74, 127, 214, .38) 11px 12px); background-size: 100% 100%; animation: ls-fall 1.1s linear infinite; opacity: .8; }
+.ls-rain.light { background-image: repeating-linear-gradient(105deg, transparent 0 19px, rgba(74, 127, 214, .3) 19px 20px); animation-duration: 1.8s; }
+.ls-snow { inset: -20% 0 0 0; background-image: radial-gradient(2.4px 2.4px at 20% 30%, rgba(255, 255, 255, .95), transparent), radial-gradient(2px 2px at 60% 10%, rgba(255, 255, 255, .9), transparent), radial-gradient(2.6px 2.6px at 80% 60%, rgba(255, 255, 255, .95), transparent), radial-gradient(2px 2px at 40% 80%, rgba(255, 255, 255, .9), transparent); background-size: 90px 90px; animation: ls-snowfall 9s linear infinite; }
+.ls-fog { inset: 0; background: linear-gradient(180deg, transparent, rgba(220, 225, 232, .45) 40%, rgba(220, 225, 232, .2) 80%, transparent); animation: ls-breathe 9s ease-in-out infinite; }
+.ls-flash { inset: 0; background: rgba(255, 250, 225, .55); opacity: 0; animation: ls-bolt 7s linear infinite; }
+@keyframes ls-drift { to { transform: translateX(calc(100vw + 520px)); } }
+@keyframes ls-fall { to { transform: translate(-22px, 60px); } }
+@keyframes ls-snowfall { to { transform: translate(18px, 90px); } }
+@keyframes ls-breathe { 50% { opacity: .65; transform: scale(1.06); } }
+@keyframes ls-twinkle { 50% { opacity: .45; } }
+@keyframes ls-bolt { 0%, 91%, 95%, 100% { opacity: 0; } 92% { opacity: .75; } 93% { opacity: .1; } 94% { opacity: .6; } }
+html[data-motion="less"] .ls i { animation: none; }
+html[data-motion="less"] .ls-cloud { transform: translateX(40px); } html[data-motion="less"] .ls-c1 { transform: translateX(160px); } html[data-motion="less"] .ls-c2 { transform: translateX(110px); } html[data-motion="less"] .ls-c3 { transform: translateX(210px); }

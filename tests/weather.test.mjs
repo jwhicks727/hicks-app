@@ -60,3 +60,34 @@ test('many places in one request, each read back in its own time', async () => {
   // One place answers as an object, not a list
   assert.equal(shapePlacesNow(json[0], [list[0]]).a.temp, 72)
 })
+
+test('every hour and day carries its rain chance, inches and wind, past and future', async () => {
+  const { shapeTimeline, inchWords, windTurn, forecastUrl, PAST_DAYS } = await import('../src/lib/weather.js')
+  const t = ['2026-10-30T23:00', '2026-10-31T00:00', '2026-10-31T01:00']
+  const json = {
+    hourly: { time: t, temperature_2m: [60, 58, 57], precipitation_probability: [10, 60, 90], precipitation: [0, 0.031, 0.2], wind_speed_10m: [4, 9, 14], wind_gusts_10m: [8, 18, 30], wind_direction_10m: [90, 180, 270], weather_code: [0, 61, 63], is_day: [0, 0, 0] },
+    daily: { time: ['2026-10-30', '2026-10-31'], temperature_2m_max: [75, 70], temperature_2m_min: [50, 48], precipitation_sum: [0, 0.23], precipitation_probability_max: [5, 90], wind_speed_10m_max: [10, 15], wind_gusts_10m_max: [22, 31], weather_code: [0, 63] },
+  }
+  const { timeline, allDays } = shapeTimeline(json, '2026-10-31T00:30')
+  assert.deepEqual(timeline.map((h) => [h.past, h.now]), [[true, false], [false, true], [false, false]])
+  assert.deepEqual([timeline[1].rain, timeline[1].inches, timeline[1].wind, timeline[1].gusts, timeline[1].dir], [60, 0.03, 9, 18, 180])
+  assert.deepEqual([allDays[0].past, allDays[1].today, allDays[1].rain, allDays[1].inches, allDays[1].wind], [true, true, 90, 0.23, 15])
+  assert.equal(inchWords(0), ''); assert.equal(inchWords(0.004), 'a trace'); assert.equal(inchWords(0.2), '0.20 in')
+  assert.equal(windTurn(270), 90) // a west wind blows east
+  const u = new URL(forecastUrl({ lat: 34.09, lng: -117.43, past: PAST_DAYS, days: 16 }))
+  assert.equal(u.searchParams.get('past_days'), '21'); assert.equal(u.searchParams.get('forecast_days'), '16'); assert.match(u.searchParams.get('hourly'), /precipitation,/)
+})
+
+test('air, recess and the sky’s treats', async () => {
+  const { shapeAir, aqiBand, recessFlag, stargazing, rainbowChance } = await import('../src/lib/weather.js')
+  assert.equal(aqiBand(42).name, 'Good'); assert.equal(aqiBand(160).name, 'Unhealthy'); assert.equal(aqiBand(null), null)
+  assert.equal(shapeAir({ current: { us_aqi: 61.4 }, hourly: { time: ['a'], us_aqi: [60] } }).band.name, 'Moderate'); assert.equal(shapeAir({}), null)
+  assert.equal(recessFlag({ temp: 72, feels: 72, gusts: 10, rain: 0, uv: 3 }, 40).level, 'go')
+  const hot = recessFlag({ temp: 99, feels: 101, gusts: 5, uv: 9 }, 60)
+  assert.equal(hot.level, 'care'); assert.equal(hot.reasons.length, 2)
+  assert.equal(recessFlag({ temp: 80, feels: 80 }, 170).level, 'inside')
+  assert.equal(recessFlag({ temp: 60, pic: 'thunder' }).level, 'inside')
+  assert.equal(recessFlag(null), null)
+  assert.equal(stargazing(10, 0.1).grade, 'dazzling'); assert.equal(stargazing(80, 0).grade, 'poor'); assert.equal(stargazing(null, 0), null)
+  assert.equal(rainbowChance({ rain: 50, pic: 'rain', clouds: { low: 40 } }, 25), true); assert.equal(rainbowChance({ rain: 50, pic: 'rain' }, 60), false)
+})

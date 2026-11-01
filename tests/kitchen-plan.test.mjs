@@ -54,3 +54,16 @@ test('refresh keeps the picked in their places and swaps the rest for new ones',
   assert.equal(notPicked(ideas, [1, 3]), 2)
   assert.equal(notPicked(ideas, [0, 1, 2, 3]), 0)
 })
+
+test('the open plan is the newest one nobody has put away, whatever week it was made', async () => {
+  const { openPlan, planAge } = await import('../src/lib/kitchen/plan.js')
+  const rows = [
+    { id: 'old', week_of: '2026-10-25', created_at: '2026-10-26T10:00:00Z', dismissed_at: null },
+    { id: 'gone', week_of: '2026-11-01', created_at: '2026-11-02T10:00:00Z', dismissed_at: '2026-11-02T12:00:00Z' },
+    { id: 'older', week_of: '2026-10-18', created_at: '2026-10-19T10:00:00Z', dismissed_at: null },
+  ]
+  assert.equal(openPlan(rows).id, 'old') // last week's, still waiting
+  assert.equal(openPlan(rows.slice(1, 2)), null); assert.equal(openPlan([]), null); assert.equal(openPlan(null), null)
+  assert.equal(openPlan([{ id: 'x', created_at: '2026-11-03T00:00:00Z' }]).id, 'x', 'a database before the migration has no dismissed_at at all')
+  assert.equal(planAge(rows[0], '2026-11-01'), 'the week of 10/25'); assert.equal(planAge({ week_of: '2026-11-01' }, '2026-11-01'), null); assert.equal(planAge(null, '2026-11-01'), null)
+})

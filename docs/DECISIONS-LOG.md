@@ -17,6 +17,33 @@ Big Bear and Anaheim just clear it, Redlands, Claremont and San Dimas don't),
 in the list's order, one a day, the same on every phone: the day's number
 modulo the list, so no state is kept.
 
+## 2026-11-01 — A plan stays until it's put away; World becomes a weather app
+
+**Plans.** Plan the week looked up the plan by calendar week, so a list that was
+waiting for Laurie's "1, 3, 8" (and the recipes written from the picks)
+vanished at midnight when the week turned. Jason's call: lists and recipes are
+a source of truth, kept until he or Laurie specifically puts them away. The open
+plan is now the newest one nobody has dismissed (`week_plans.dismissed_at`),
+whatever week it was made; the recipes written for it are kept with it, on the
+device at once and in the database (`week_plan_recipes`, parents only: they
+carry Laurie's plate). "Put this list away" and "Start over" ask first; Start
+over keeps the old plan in the database as history. The old per-week device
+draft is read once so last week's written recipes come back.
+
+**World.** It leads with Weather at home (an endless hour strip and a day strip,
+three weeks back to sixteen days ahead, each hour and day with its chance of
+rain, inches expected and wind) beside Our places (the three schools side by
+side, recess flags, alerts, and whatever is coming up somewhere with a place
+in the calendar, with its weather), then today's place, the week, the sky, the
+wild and the map last. Everything opens: an hour or day (`/world/day/<date>/<hh>`,
+any date back as far as the archive goes), each figure of the sky
+(`/world/sky/<sunrise|golden|sunset|lastlight|daylight|shadow|moon|air>`, a year
+of it as a graph to touch), each school (`/world/place/<school>`: recess hour
+by hour, alerts, the last day against home). Recess flags and the air are
+guesses and say so. Joshua Tree is a place; every skyline moves; the SoCal map
+draws the big freeways; the Wild card has a drawing for each season and its own
+site's picture (read by the `wild` function) when one is there.
+
 ## 2026-11-01 — Clear list, and the list can be texted to Anna
 
 Plan the week gets a "Clear list" (it asks first, since it wipes the whole

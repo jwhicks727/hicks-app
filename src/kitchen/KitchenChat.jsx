@@ -4,7 +4,7 @@ import { Link } from '../shell/Link.jsx'
 import { useDraft } from '../lib/useDraft.js'
 import { askClaude } from '../lib/claude.js'
 import { lite } from '../lib/kitchen/plan.js'
-import { savePreferences, saveFoodRules, savePlan } from '../lib/useKitchenPlan.js'
+import { savePreferences, saveFoodRules, savePlan, fetchOpenPlan } from '../lib/useKitchenPlan.js'
 import { saveRecipes } from '../lib/useKitchen.js'
 import { supabase } from '../lib/supabase.js'
 import { weekOf, mergeIdeas } from '../lib/kitchen/plan.js'
@@ -124,8 +124,7 @@ function Proposal({ use, state, onDone, me, parent, members, today }) {
     }
     if (use.name === 'add_ideas') {
       const week = weekOf(today)
-      const { data } = await supabase.from('week_plans').select('*').eq('week_of', week).order('created_at', { ascending: false }).limit(1)
-      const plan = data && data[0]
+      const plan = await fetchOpenPlan()
       r = await savePlan(plan, { ideas: mergeIdeas(plan ? plan.ideas : [], x.ideas || []) }, week, me)
     }
     if (r.error) setErr(r.error.message); else onDone('saved')

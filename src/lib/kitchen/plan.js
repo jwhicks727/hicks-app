@@ -26,6 +26,21 @@ function freshOnly(more, seen) {
   return out
 }
 
+/**
+ * The plan that is open: the newest one nobody has put away, whatever week it
+ * was made in. A list waiting on an answer stays until someone dismisses it.
+ */
+export function openPlan(rows = []) {
+  return (rows || []).filter((r) => r && !r.dismissed_at).sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))[0] || null
+}
+
+/** How old an open plan is, in words for the screen, or null when it's this week's. */
+export function planAge(plan, thisWeek) {
+  if (!plan || plan.week_of >= thisWeek) return null
+  const [y, m, d] = plan.week_of.split('-').map(Number)
+  return `the week of ${m}/${d}`
+}
+
 /** New ideas added to a list without repeating a title already there. */
 export function mergeIdeas(old = [], more = []) {
   return [...old, ...freshOnly(more, new Set(old.map(key)))].slice(0, 40)

@@ -8,16 +8,23 @@
 
 import { HOME_TOWN } from './sky.js'
 
-const HOURLY = ['temperature_2m', 'precipitation_probability', 'weather_code', 'wind_gusts_10m', 'is_day', 'cloud_cover_low', 'cloud_cover_mid', 'cloud_cover_high']
-const DAILY = ['weather_code', 'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max', 'wind_gusts_10m_max', 'uv_index_max']
+const HOURLY = ['temperature_2m', 'apparent_temperature', 'relative_humidity_2m', 'precipitation_probability', 'precipitation', 'weather_code', 'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m', 'uv_index', 'is_day', 'cloud_cover_low', 'cloud_cover_mid', 'cloud_cover_high']
+const DAILY = ['weather_code', 'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max', 'precipitation_sum', 'wind_speed_10m_max', 'wind_gusts_10m_max', 'wind_direction_10m_dominant', 'uv_index_max', 'sunrise', 'sunset']
 const CURRENT = ['temperature_2m', 'apparent_temperature', 'relative_humidity_2m', 'weather_code', 'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m', 'is_day']
 
-/** The forecast at a point, in that point's own time zone (home's unless `tz` says otherwise). */
-export function forecastUrl({ lat, lng, tz = HOME_TOWN.tz } = HOME_TOWN) {
+/** How far the home forecast reaches: three weeks back (what happened) and as far ahead as Open-Meteo goes. */
+export const PAST_DAYS = 21, AHEAD_DAYS = 16
+
+/**
+ * The forecast at a point, in that point's own time zone (home's unless `tz`
+ * says otherwise), `past` days back and `days` ahead.
+ */
+export function forecastUrl({ lat, lng, tz = HOME_TOWN.tz, past = 0, days = 7 } = HOME_TOWN) {
   const q = new URLSearchParams({
     latitude: lat.toFixed(3), longitude: lng.toFixed(3), current: CURRENT.join(','), hourly: HOURLY.join(','), daily: DAILY.join(','),
-    temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', precipitation_unit: 'inch', timezone: tz, forecast_days: '7',
+    temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', precipitation_unit: 'inch', timezone: tz, forecast_days: String(days),
   })
+  if (past) q.set('past_days', String(past))
   return `https://api.open-meteo.com/v1/forecast?${q}`
 }
 export function alertsUrl({ lat, lng } = HOME_TOWN) {
@@ -100,31 +107,70 @@ export function windWords(speed, gusts, deg, humidity) {
 }
 
 const hourOf = (iso) => Number(iso.slice(11, 13))
-const hourWord = (h) => (h === 0 ? '12 AM' : h === 12 ? 'Noon' : h < 12 ? `${h} AM` : `${h - 12} PM`)
+export const hourWord = (h) => (h === 0 ? '12 AM' : h === 12 ? 'Noon' : h < 12 ? `${h} AM` : `${h - 12} PM`)
+const num = (v, k = 1) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * k) / k : null)
+
+/**
+ * Every hour and every day in an Open-Meteo answer (forecast or archive), at
+ * `nowIso` (local 'YYYY-MM-DDTHH:MM'): each hour with its rain chance, the
+ * inches expected, the wind and where it's from; each day the same. `past`
+ * marks what has already happened, `now` the hour we're in.
+ */
+export function shapeTimeline(json, nowIso) {
+  const h = (json && json.hourly) || { time: [] }, d = (json && json.daily) || { time: [] }
+  const nowH = String(nowIso || '').slice(0, 13), today = String(nowIso || '').slice(0, 10)
+  const timeline = h.time.map((t, i) => ({
+    time: t, date: t.slice(0, 10), hour: hourOf(t), label: hourWord(hourOf(t)),
+    temp: num(h.temperature_2m?.[i]), feels: num(h.apparent_temperature?.[i]), humidity: num(h.relative_humidity_2m?.[i]),
+    rain: num(h.precipitation_probability?.[i]), inches: num(h.precipitation?.[i], 100),
+    wind: num(h.wind_speed_10m?.[i]), gusts: num(h.wind_gusts_10m?.[i]), dir: num(h.wind_direction_10m?.[i]), uv: num(h.uv_index?.[i], 10),
+    clouds: h.cloud_cover_low ? { low: h.cloud_cover_low[i], mid: h.cloud_cover_mid?.[i] ?? null, high: h.cloud_cover_high?.[i] ?? null } : null,
+    past: t.slice(0, 13) < nowH, now: t.slice(0, 13) === nowH,
+    ...conditions(h.weather_code?.[i], h.is_day?.[i] ?? 1),
+  })).filter((x) => x.temp != null)
+  const days = d.time.map((t, i) => ({
+    date: t, high: num(d.temperature_2m_max?.[i]), low: num(d.temperature_2m_min?.[i]),
+    rain: num(d.precipitation_probability_max?.[i]), inches: num(d.precipitation_sum?.[i], 100),
+    wind: num(d.wind_speed_10m_max?.[i]), gusts: num(d.wind_gusts_10m_max?.[i]) ?? 0, dir: num(d.wind_direction_10m_dominant?.[i]),
+    uv: d.uv_index_max?.[i] ?? null, sunrise: d.sunrise?.[i] || null, sunset: d.sunset?.[i] || null,
+    past: t < today, today: t === today, ...conditions(d.weather_code?.[i], 1),
+  })).filter((x) => x.high != null)
+  return { timeline, allDays: days }
+}
 
 /**
  * Open-Meteo's answer, shaped for the screens, at `nowIso` (local
- * 'YYYY-MM-DDTHH:MM'): { now, hours (the next 12), days (7) }.
+ * 'YYYY-MM-DDTHH:MM'): { now, hours (the next 12), days (today and the six
+ * after), today, timeline (every hour it holds), allDays (every day) }.
  */
 export function shapeForecast(json, nowIso) {
-  const c = json.current, h = json.hourly, d = json.daily
-  const start = Math.max(0, h.time.findIndex((t) => t.slice(0, 13) === nowIso.slice(0, 13)))
-  const hours = h.time.slice(start, start + 12).map((t, i) => ({
-    time: t, label: i === 0 ? 'Now' : hourWord(hourOf(t)), temp: Math.round(h.temperature_2m[start + i]),
-    rain: h.precipitation_probability?.[start + i] ?? null, gusts: Math.round(h.wind_gusts_10m?.[start + i] ?? 0),
-    clouds: h.cloud_cover_low ? { low: h.cloud_cover_low[start + i], mid: h.cloud_cover_mid?.[start + i] ?? null, high: h.cloud_cover_high?.[start + i] ?? null } : null,
-    ...conditions(h.weather_code[start + i], h.is_day?.[start + i] ?? 1),
-  }))
-  const days = d.time.map((t, i) => ({
-    date: t, high: Math.round(d.temperature_2m_max[i]), low: Math.round(d.temperature_2m_min[i]), rain: d.precipitation_probability_max?.[i] ?? null,
-    gusts: Math.round(d.wind_gusts_10m_max?.[i] ?? 0), uv: d.uv_index_max?.[i] ?? null, ...conditions(d.weather_code[i], 1),
-  }))
+  const c = json.current
+  const { timeline, allDays } = shapeTimeline(json, nowIso)
+  const start = Math.max(0, timeline.findIndex((t) => t.now))
+  const hours = timeline.slice(start, start + 12).map((x, i) => ({ ...x, label: i === 0 ? 'Now' : x.label }))
+  const first = Math.max(0, allDays.findIndex((x) => x.date >= String(nowIso).slice(0, 10)))
+  const days = allDays.slice(first, first + 7)
   const wind = windWords(c.wind_speed_10m, c.wind_gusts_10m, c.wind_direction_10m, c.relative_humidity_2m)
   return {
-    now: { temp: Math.round(c.temperature_2m), feels: Math.round(c.apparent_temperature), humidity: Math.round(c.relative_humidity_2m), wind, ...conditions(c.weather_code, c.is_day) },
-    hours, days, today: days[0] || null,
+    now: { temp: Math.round(c.temperature_2m), feels: Math.round(c.apparent_temperature), humidity: Math.round(c.relative_humidity_2m), speed: num(c.wind_speed_10m), gusts: num(c.wind_gusts_10m), dir: num(c.wind_direction_10m), wind, ...conditions(c.weather_code, c.is_day) },
+    hours, days, today: days[0] || null, timeline, allDays, nowIndex: start,
   }
 }
+
+/** A day of weather from Open-Meteo's archive (what happened), shaped like the forecast's: { hours, day }. */
+export function archiveUrl({ lat, lng, tz = HOME_TOWN.tz }, from, to = from) {
+  return `https://archive-api.open-meteo.com/v1/archive?${new URLSearchParams({
+    latitude: lat.toFixed(3), longitude: lng.toFixed(3), start_date: from, end_date: to, timezone: tz,
+    hourly: 'temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,is_day',
+    daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,sunrise,sunset',
+    temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', precipitation_unit: 'inch',
+  })}`
+}
+
+/** Inches in words: "0.12 in", "a trace" under a hundredth, nothing when dry. */
+export const inchWords = (x) => (x == null || x <= 0 ? '' : x < 0.01 ? 'a trace' : `${x.toFixed(2)} in`)
+/** An arrow's turn for wind *from* `deg`: it points the way the wind blows. */
+export const windTurn = (deg) => (deg == null ? 0 : (deg + 180) % 360)
 
 const SEVERITY = { Extreme: 3, Severe: 2, Moderate: 1, Minor: 0, Unknown: 0 }
 /** The Weather Service's active alerts, most serious first: { event, headline, severity, ends, instruction }. */
@@ -134,4 +180,70 @@ export function shapeAlerts(json) {
     .filter((p) => p.event && p.status !== 'Test' && !seen.has(p.event) && seen.add(p.event))
     .map((p) => ({ event: String(p.event).slice(0, 120), headline: String(p.headline || '').slice(0, 300), severity: p.severity || 'Unknown', level: SEVERITY[p.severity] ?? 0, ends: p.ends || p.expires || null, instruction: String(p.instruction || '').slice(0, 600) }))
     .sort((a, b) => b.level - a.level)
+}
+
+// ---- Air, recess and the sky's treats ---------------------------------------------
+/** Open-Meteo's air quality at a point: the US index now and by the hour. */
+export function airUrl({ lat, lng, tz = HOME_TOWN.tz }) {
+  return `https://air-quality-api.open-meteo.com/v1/air-quality?${new URLSearchParams({
+    latitude: lat.toFixed(3), longitude: lng.toFixed(3), timezone: tz, current: 'us_aqi,pm2_5,ozone', hourly: 'us_aqi', past_days: '1', forecast_days: '2',
+  })}`
+}
+export const AQI_BANDS = [
+  { max: 50, name: 'Good', colour: '#3E9B5A' }, { max: 100, name: 'Moderate', colour: '#D9A826' }, { max: 150, name: 'Unhealthy for sensitive groups', colour: '#E8892B' },
+  { max: 200, name: 'Unhealthy', colour: '#D9473A' }, { max: 300, name: 'Very unhealthy', colour: '#8E4AA8' }, { max: Infinity, name: 'Hazardous', colour: '#7A1F3A' },
+]
+export const aqiBand = (aqi) => (aqi == null ? null : AQI_BANDS.find((b) => aqi <= b.max))
+/** { now, band, hours: [{ time, aqi }], pm25, ozone } from the air quality answer, or null. */
+export function shapeAir(json) {
+  const c = json && json.current
+  if (!c || c.us_aqi == null) return null
+  const h = json.hourly || { time: [], us_aqi: [] }
+  return { now: Math.round(c.us_aqi), band: aqiBand(c.us_aqi), pm25: c.pm2_5 ?? null, ozone: c.ozone ?? null, hours: h.time.map((t, i) => ({ time: t, aqi: h.us_aqi[i] })).filter((x) => x.aqi != null) }
+}
+
+/**
+ * Can the children play outside? A guess from the forecast and the air, never
+ * the school's say: { level: 'go' | 'care' | 'inside', reasons: [words] }.
+ * `hour` is a timeline hour; `aqi` a number or null.
+ */
+export function recessFlag(hour, aqi = null) {
+  if (!hour) return null
+  const reasons = []
+  let level = 0
+  const bump = (lv, why) => { level = Math.max(level, lv); reasons.push(why) }
+  const feels = hour.feels ?? hour.temp
+  if (aqi != null) { if (aqi > 150) bump(2, `Air is unhealthy (${aqi})`); else if (aqi > 100) bump(1, `Air is rough for sensitive lungs (${aqi})`) }
+  if (feels != null) { if (feels >= 105) bump(2, `It feels like ${Math.round(feels)}°`); else if (feels >= 95) bump(1, `Hot: feels like ${Math.round(feels)}°, shade and water`); else if (feels <= 38) bump(1, `Cold: feels like ${Math.round(feels)}°`) }
+  if (hour.gusts != null) { if (hour.gusts >= 45) bump(2, `Gusts to ${Math.round(hour.gusts)} mph`); else if (hour.gusts >= 30) bump(1, `Gusty, to ${Math.round(hour.gusts)} mph`) }
+  if (hour.pic === 'thunder') bump(2, 'Thunder about')
+  else if ((hour.inches ?? 0) >= 0.05 || (hour.rain ?? 0) >= 70) bump(2, 'Rain likely')
+  else if ((hour.inches ?? 0) > 0 || (hour.rain ?? 0) >= 40) bump(1, 'A chance of rain')
+  if ((hour.uv ?? 0) >= 8) bump(1, `Strong sun (UV ${Math.round(hour.uv)}): sunscreen and hats`)
+  return { level: ['go', 'care', 'inside'][level], reasons: reasons.length ? reasons : ['A good day to be out'] }
+}
+
+/**
+ * A night for stars from the clouds at nine and the moon's light: { grade:
+ * 'dazzling' | 'good' | 'so-so' | 'poor', words }. `cloud` is total cover %,
+ * `moon` the lit fraction 0-1.
+ */
+export function stargazing(cloud, moon) {
+  if (cloud == null) return null
+  if (cloud >= 70) return { grade: 'poor', words: 'Clouds will cover the stars tonight.' }
+  if (cloud >= 35) return { grade: 'so-so', words: 'Patchy cloud: the brightest stars, between the gaps.' }
+  if (moon <= 0.25) return { grade: 'dazzling', words: 'Clear and a thin moon: the best kind of night for stars. Look for the Milky Way away from the lights.' }
+  if (moon <= 0.7) return { grade: 'good', words: 'Clear, with a middling moon: the bright stars and planets will show well.' }
+  return { grade: 'good', words: 'Clear but a bright moon: lovely, though it washes the faint stars out.' }
+}
+
+/**
+ * Could there be a rainbow? Rain somewhere near with the sun low behind you,
+ * the old rule: showers in the hour, sun between 5 and 42 degrees up, and
+ * the sky not wholly shut. A hopeful guess, said as one.
+ */
+export function rainbowChance(hour, sunAltDeg) {
+  if (!hour || sunAltDeg == null) return false
+  const showers = (hour.rain ?? 0) >= 30 && (hour.rain ?? 0) <= 85 && (hour.pic === 'rain' || hour.pic === 'drizzle' || hour.pic === 'partly' || hour.pic === 'cloudy')
+  return showers && sunAltDeg >= 5 && sunAltDeg <= 42 && (hour.clouds ? hour.clouds.low < 90 : true)
 }

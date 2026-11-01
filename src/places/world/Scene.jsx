@@ -30,7 +30,8 @@ export function placeSky(place, now) {
   return { phase, dark: SKIES[phase].dark, background: skyGradient(phase) }
 }
 
-export default function Scene({ place, now, pic, className = '' }) {
+/** `mini` crops the skyline to fit a small tile: the ground and the landmark, the sky trimmed. */
+export default function Scene({ place, now, pic, className = '', mini = false }) {
   const { phase, background } = placeSky(place, now)
   const tone = TONES[phase], lit = tone.lit, night = phase === 'night' || phase === 'dusk'
   const still = reducedMotion()
@@ -41,8 +42,8 @@ export default function Scene({ place, now, pic, className = '' }) {
   const skyX = (az) => 200 + (az / Math.PI) * 300
   const cloudy = ['cloudy', 'rain', 'drizzle', 'snow', 'thunder', 'fog'].includes(pic), partly = pic === 'partly' || pic === 'night-partly'
   return (
-    <div className={'scene ' + className} style={{ background }}>
-      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <div className={'scene ' + (mini ? 'mini ' : '') + className} style={{ background }}>
+      <svg viewBox="0 0 400 150" preserveAspectRatio={mini ? 'xMidYMax slice' : 'xMidYMax meet'} aria-hidden="true">
         {(phase === 'night' || phase === 'dusk') && S.stars(place.slug.length * 31, 40).map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#FFF" opacity={phase === 'night' ? 0.85 : 0.45} className={still || i % 3 ? '' : 'twinkle'} style={{ animationDelay: `${(i % 7) * 0.6}s` }} />)}
         {alt > -1 && (
           <g transform={`translate(${skyX(sun.azimuth).toFixed(1)} ${(130 - Math.min(alt, 62) * 1.55).toFixed(1)})`}>
@@ -77,28 +78,64 @@ const P = (d, fill, key, extra = {}) => <path key={key} d={d} fill={fill} {...ex
 /** Mountains behind the valley: the San Gabriels, white-topped in winter. */
 const valley = (c, seed = 3) => [range(seed, 104, 44, c.tone.far, snowy(c.month) && c.tone.snow), range(seed + 10, 128, 18, c.tone.mid, null, { jag: 1.2 })]
 
+// ---- Movement: every place has something that moves, on its own clock ----------
+// Transforms and opacity only; each piece is still under Reduce Motion (`c.still`, and world.css).
+const mv = (c, cls, style = {}) => (c.still ? {} : { className: cls, style })
+/** Trees and palms, each its own path, each swaying on its own beat. [x, size, lean] per plant. */
+const plants = (c, fn, list, fill, key, deg = 1.4) => list.map(([x, a, b], i) => (
+  <path key={key + i} d={S[fn](x, a, b)} fill={fill} {...mv(c, 'sway', { animationDuration: `${4.2 + (i % 4) * 0.9}s`, animationDelay: `${-(i % 5) * 0.8}s`, '--deg': `${deg}deg` })} />
+))
+/** A flag on its pole, rippling. */
+const waveFlag = (c, x, fill, key) => <path key={key} d={S.flag(x)} fill={fill} {...mv(c, 'wave')} />
+/** A bird crossing the sky, wings beating: y is its height, dur how long a crossing takes. */
+const bird = (c, key, y, dur, delay = 0, big = false) => (
+  <g key={key} transform={`translate(0 ${y})`}>
+    <g className={c.still ? '' : 'glide'} style={c.still ? { transform: `translateX(${60 + delay * 12}px)` } : { animationDuration: `${dur}s`, animationDelay: `${-delay}s` }}>
+      <path d={big ? 'M-9 0Q-4.5 -5 0 0Q4.5 -5 9 0' : 'M-5 0Q-2.5 -3 0 0Q2.5 -3 5 0'} fill="none" stroke={c.night ? '#BFB6D9' : '#3A3350'} strokeWidth={big ? 1.6 : 1.2} strokeLinecap="round" {...mv(c, 'flap')} />
+    </g>
+  </g>
+)
+/** A bird circling over one spot (a hawk). */
+const hawk = (c, key, cx, cy, r, dur) => !c.night && (
+  <g key={key} {...mv(c, 'spin', { transformOrigin: `${cx}px ${cy}px`, animationDuration: `${dur}s` })}>
+    <path d="M-6 0Q-3 -4 0 0Q3 -4 6 0" transform={`translate(${cx + r} ${cy})`} fill="none" stroke="#3A3350" strokeWidth="1.5" strokeLinecap="round" />
+  </g>
+)
+/** Smoke or steam: puffs lifting off and thinning out, from [x, y]. */
+const smoke = (c, key, x, y, n = 3, colour = '#FFFFFF') => c.still ? null : (
+  <g key={key}>{Array.from({ length: n }, (_, i) => <circle key={i} cx={x} cy={y} r={2.2} fill={colour} className="rise" style={{ animationDelay: `${-i * (5 / n)}s` }} />)}</g>
+)
+/** Water: a slow slide to one side and back. */
+const sea = (c, d, fill, key, dur = 9) => <path key={key} d={d} fill={fill} {...mv(c, 'slide', { animationDuration: `${dur}s` })} />
+
 const SCENES = {
   home: (c) => [
     ...valley(c),
-    P([-130, -118, -106, -94, -82].map((x, i) => S.eucalyptus(x, 58 + (i % 2) * 8)).join(''), c.tone.near, 'e'),
+    ...plants(c, 'eucalyptus', [-130, -118, -106, -94, -82].map((x, i) => [x, 58 + (i % 2) * 8]), c.tone.near, 'e', 1.1),
     P(S.house(150, 46, 18), c.tone.near, 'h'),
     c.lit && P('M162 140h7v5h-7zM176 140h7v5h-7z', c.lit, 'hw'),
-    P(S.palm(118, 66, -5) + S.palm(232, 78, 6) + S.palm(250, 60, 3), c.tone.near, 'p'),
-    P(S.oak(330, 13) + S.oak(470, 15), c.tone.near, 'o'),
+    ...plants(c, 'palm', [[118, 66, -5], [232, 78, 6], [250, 60, 3]], c.tone.near, 'p'),
+    ...plants(c, 'oak', [[330, 13], [470, 15]], c.tone.near, 'o', 0.8),
+    bird(c, 'b1', 26, 34, 6), bird(c, 'b2', 40, 44, 22),
+    smoke(c, 'sm', 163, 106, 3, c.night ? '#8A84A8' : '#F4EFE8'),
   ],
   kordyak: (c) => [
     ...valley(c, 5),
     P(S.school(140) + S.swingSet(270), c.tone.near, 's'),
-    P(S.flag(140), '#C8553D', 'f'),
+    waveFlag(c, 140, '#C8553D', 'f'),
+    <g key="sw" {...mv(c, 'pend', { animationDuration: '2.6s' })}><path d="M286 129V142M296 129V142" stroke={c.tone.near} strokeWidth=".9" /><path d="M283 142H299V143.6H283Z" fill={c.tone.near} /></g>,
     c.lit && P('M150 132h8v4h-8zM166 132h8v4h-8zM196 124h8v4h-8zM218 132h8v4h-8zM234 132h8v4h-8z', c.lit, 'w'),
-    P(S.oak(80, 14) + S.palm(340, 70, 4) + S.oak(-40, 16) + S.oak(450, 13), c.tone.near, 't'),
+    ...plants(c, 'oak', [[80, 14], [-40, 16], [450, 13]], c.tone.near, 't', 0.8), ...plants(c, 'palm', [[340, 70, 4]], c.tone.near, 'tp'),
+    bird(c, 'b1', 30, 38, 4),
   ],
   ruble: (c) => [
     ...valley(c, 9),
     P(S.school(120) + S.bleachers(250) + S.bleachers(284), c.tone.near, 's'),
-    P(S.flag(120), '#4A7FD6', 'f'),
+    waveFlag(c, 120, '#4A7FD6', 'f'),
+    <circle key="ball" cx="214" cy="146" r="2.6" fill={c.night ? '#CFC8E6' : '#FFFFFF'} stroke={c.tone.near} strokeWidth=".8" {...mv(c, 'bounce')} />,
     c.lit && P('M130 132h8v4h-8zM146 132h8v4h-8zM176 124h8v4h-8zM198 132h8v4h-8zM214 132h8v4h-8z', c.lit, 'w'),
-    P(S.palm(60, 74, -4) + S.palm(80, 62, 3) + S.pine(360, 44) + S.pine(-30, 50), c.tone.near, 't'),
+    ...plants(c, 'palm', [[60, 74, -4], [80, 62, 3]], c.tone.near, 'tp'), ...plants(c, 'pine', [[360, 44], [-30, 50]], c.tone.near, 'tn', 0.9),
+    bird(c, 'b1', 34, 40, 10),
   ],
   soar: (c) => {
     const pts = S.ridgePoints({ seed: 21, base: 100, amp: 46 })
@@ -108,47 +145,58 @@ const SCENES = {
       P(S.arrowhead(210, 76), c.night ? '#5B5478' : '#D9C7A6', 'a'),
       range(31, 128, 16, c.tone.mid, null, { jag: 1 }),
       P(S.school(150), c.tone.near, 's'),
-      P(S.flag(150), '#5FA85A', 'f'),
+      waveFlag(c, 150, '#5FA85A', 'f'),
       c.lit && P('M160 132h8v4h-8zM176 132h8v4h-8zM206 124h8v4h-8zM228 132h8v4h-8zM244 132h8v4h-8z', c.lit, 'w'),
-      P(S.palm(100, 70, -3) + S.palm(300, 64, 4) + S.oak(-50, 15) + S.oak(420, 14), c.tone.near, 't'),
+      ...plants(c, 'palm', [[100, 70, -3], [300, 64, 4]], c.tone.near, 'tp'), ...plants(c, 'oak', [[-50, 15], [420, 14]], c.tone.near, 'to', 0.8),
+      hawk(c, 'hk', 290, 44, 26, 22),
     ]
   },
   parish: (c) => [
     ...valley(c, 13),
     P(S.mission(180), c.tone.near, 'c'),
     P(S.missionDoor(180) + S.missionArches(180) + S.bellWindow(180), c.lit || c.tone.mid, 'd'),
-    P(S.palm(110, 76, -6) + S.palm(270, 70, 5) + S.palm(290, 56, 2) + S.oak(-40, 14) + S.oak(420, 15), c.tone.near, 'p'),
+    <path key="bell" d="M232.6 100Q235 93.4 237.4 100Z" fill={c.night ? '#E9C46A' : '#C9961A'} {...mv(c, 'pend', { animationDuration: '2.2s' })} />,
+    ...plants(c, 'palm', [[110, 76, -6], [270, 70, 5], [290, 56, 2]], c.tone.near, 'p'), ...plants(c, 'oak', [[-40, 14], [420, 15]], c.tone.near, 'o', 0.8),
+    bird(c, 'd1', 46, 30, 3), bird(c, 'd2', 54, 30, 5),
   ],
   redlands: (c) => [
     range(41, 98, 52, c.tone.far, snowy(c.month) ? c.tone.snow : c.night ? null : '#E9E2D6'),
     range(43, 130, 14, c.tone.mid, null, { jag: 1 }),
     P([...Array(14)].map((_, i) => S.roundTree(-150 + i * 17, 6.5)).join('') + [...Array(10)].map((_, i) => S.roundTree(330 + i * 17, 6.5)).join(''), c.tone.near, 'g'),
     !c.night && P([...Array(14)].map((_, i) => `M${-152 + i * 17} 138h1.6v1.6h-1.6zM${-147 + i * 17} 141h1.6v1.6h-1.6z`).join('') + [...Array(10)].map((_, i) => `M${328 + i * 17} 138h1.6v1.6h-1.6zM${333 + i * 17} 141h1.6v1.6h-1.6z`).join(''), '#F0912E', 'fr'),
+    <g key="bal" {...mv(c, 'balloon')}><path d="M76 66a9 10 0 1 1 18 0c0 6-4 10-7 14h-4c-3-4-7-8-7-14z" fill={c.night ? '#7A5A8A' : '#E8892B'} /><path d="M82 56Q85 66 82.4 78M88 56Q85 66 87.6 78" stroke="#FFF3D6" strokeWidth="1.2" fill="none" opacity=".75" /><path d="M83 82h4v4h-4z" fill={c.tone.near} /></g>,
     P(S.victorian(190), c.tone.near, 'v'),
     c.lit && P('M198 132h4v5h-4zM210 132h4v5h-4zM182 120h3v4h-3z', c.lit, 'w'),
-    P(S.palm(150, 74, -3) + S.palm(286, 80, 3) + S.palm(306, 72, 4), c.tone.near, 'p'),
+    ...plants(c, 'palm', [[150, 74, -3], [286, 80, 3], [306, 72, 4]], c.tone.near, 'p'),
+    bird(c, 'b1', 24, 40, 8),
   ],
   claremont: (c) => [
     range(51, 86, 54, c.tone.far, (snowy(c.month) || c.month === 4 || c.month === 11) && c.tone.snow, { waves: [0.011, 0.03, 0.08] }),
     range(53, 130, 12, c.tone.mid, null, { jag: 1 }),
     P(S.shops(120, 6) + S.clockTower(250, 52), c.tone.near, 'b'),
     P('M246 108a4 4 0 1 0 8 0a4 4 0 1 0-8 0Z', c.lit || '#EADFC8', 'cl'),
+    <g key="hands" stroke={c.night ? '#2A2440' : '#3A3350'} strokeLinecap="round"><line x1="250" y1="108" x2={(250 + 2.2 * Math.sin(((c.hour % 12) * 30 + c.minute / 2) * Math.PI / 180)).toFixed(2)} y2={(108 - 2.2 * Math.cos(((c.hour % 12) * 30 + c.minute / 2) * Math.PI / 180)).toFixed(2)} strokeWidth=".9" /><line x1="250" y1="108" x2={(250 + 3.4 * Math.sin(c.minute * 6 * Math.PI / 180)).toFixed(2)} y2={(108 - 3.4 * Math.cos(c.minute * 6 * Math.PI / 180)).toFixed(2)} strokeWidth=".6" /></g>,
+    c.night && [112, 128, 144, 160, 176, 192, 208].map((x, i) => <circle key={'sl' + i} cx={x} cy={124 + (i % 2) * 3} r="1.1" fill="#FFD58A" {...mv(c, 'twinkle', { animationDelay: `${i * 0.35}s` })} />),
     c.lit && P('M124 138h10v6h-10zM158 136h10v6h-10zM192 138h10v6h-10z', c.lit, 'w'),
-    P(S.oak(80, 16) + S.oak(300, 18) + S.oak(-40, 15) + S.oak(420, 17) + S.oak(520, 14), c.tone.near, 't'),
+    ...plants(c, 'oak', [[80, 16], [300, 18], [-40, 15], [420, 17], [520, 14]], c.tone.near, 't', 0.8),
+    bird(c, 'b1', 30, 36, 14),
   ],
   'san-dimas': (c) => [
     range(61, 92, 40, c.tone.far, null, { waves: [0.012, 0.03, 0.07], jag: 1 }),
     range(63, 118, 22, c.tone.mid, null, { waves: [0.015, 0.035, 0.06], jag: 0.8 }),
     range(65, 138, 10, c.tone.near, null, { waves: [0.02, 0.05, 0.08], jag: 0.5 }),
-    P(S.oak(40, 15) + S.oak(130, 19) + S.oak(250, 14) + S.oak(330, 17) + S.oak(-90, 16) + S.oak(470, 15), c.tone.near, 'o'),
+    ...plants(c, 'oak', [[40, 15], [130, 19], [250, 14], [330, 17], [-90, 16], [470, 15]], c.tone.near, 'o', 0.9),
+    hawk(c, 'hk', 150, 50, 30, 26), bird(c, 'b1', 28, 42, 12),
   ],
   'big-bear': (c) => [
     range(71, 80, 58, c.tone.far, c.month <= 4 || c.month >= 11 ? c.tone.snow : null),
     P(S.water(124), c.tone.water, 'w'),
-    P(S.waves(71, 124), c.night ? '#3A4470' : 'rgba(255,255,255,.45)', 'wv'),
-    P([-150, -132, -110, -95, -70, 330, 352, 372, 400, 430, 470, 500, 530].map((x, i) => S.pine(x, 46 + (i % 3) * 12)).join(''), c.tone.near, 'p'),
+    sea(c, S.waves(71, 124), c.night ? '#3A4470' : 'rgba(255,255,255,.45)', 'wv', 7),
+    ...plants(c, 'pine', [-150, -132, -110, -95, -70, 330, 352, 372, 400, 430, 470, 500, 530].map((x, i) => [x, 46 + (i % 3) * 12]), c.tone.near, 'p', 0.9),
     P(S.cabin(40), c.tone.near, 'c'),
     c.lit && P('M47 138h6v5h-6z', c.lit, 'cw'),
+    smoke(c, 'sm', 57, 126, 3, c.night ? '#8A84A8' : '#F4EFE8'),
+    bird(c, 'eagle', 40, 46, 9, true),
   ],
   anaheim: (c) => {
     const [fx, fy] = S.ferrisCentre(310, 30)
@@ -171,7 +219,7 @@ const SCENES = {
       P(S.castleFlags(190), c.night ? '#E9C46A' : '#E07A9E', 'fl2'),
       P(S.castleGate(190), c.lit || c.tone.mid, 'g'),
       c.lit && P('M188 104h4v5h-4zM174 118h3v4h-3zM202 116h3v4h-3zM154 126h3v3h-3zM224 128h3v3h-3z', c.lit, 'cw'),
-      P(S.palm(-20, 70, -4) + S.palm(0, 58, 3) + S.palm(420, 74, 5) + S.palm(440, 62, -2) + S.palm(120, 50, -3), c.tone.near, 'p'),
+      ...plants(c, 'palm', [[-20, 70, -4], [0, 58, 3], [420, 74, 5], [440, 62, -2], [120, 50, -3]], c.tone.near, 'p'),
       c.night && (c.hour === 20 || c.hour === 21) && <Fireworks key="fx" still={c.still} />,
     ]
   },
@@ -187,39 +235,57 @@ const SCENES = {
       )),
       P('M-160 150V136Q-60 132 40 135T240 134T560 136V150Z', c.night ? '#2A2340' : '#D9B98A', 'desert'),
       bloom && !c.night && P(Array.from({ length: 70 }, (_, i) => { const r = S.seeded(i + 3), x = -150 + r() * 700, y = 137 + r() * 12; return `M${x.toFixed(1)} ${y.toFixed(1)}a1.3 1.1 0 1 0 2.6 0a1.3 1.1 0 1 0-2.6 0Z` }).join(''), '#F2741F', 'pop'),
-      P(S.joshuaTree(60, 70, 4) + S.joshuaTree(150, 52, 9) + S.joshuaTree(290, 78, 13) + S.joshuaTree(360, 46, 21) + S.joshuaTree(-60, 58, 5) + S.joshuaTree(470, 64, 31), c.tone.near, 'jt'),
+      ...plants(c, 'joshuaTree', [[60, 70, 4], [150, 52, 9], [290, 78, 13], [360, 46, 21], [-60, 58, 5], [470, 64, 31]], c.tone.near, 'jt', 0.7),
+      hawk(c, 'hk', 200, 46, 30, 24),
     ]
   },
+  'joshua-tree': (c) => [
+    range(171, 112, 26, c.tone.far, snowy(c.month) && c.month !== 12 && c.month !== 1 ? null : null, { jag: 1.6 }),
+    range(173, 128, 14, c.tone.mid, null, { jag: 1.1 }),
+    P('M-160 138Q-60 133 40 136T240 135T560 137V150H-160Z', c.night ? '#2A2340' : '#D9B98A', 'sand'),
+    P(S.boulders(300, 1.1) + S.boulders(-70, 0.9) + S.boulders(468, 0.8), c.night ? '#4A4066' : c.tone.mid, 'bd'),
+    ...plants(c, 'joshuaTree', [[60, 74, 3], [140, 56, 8], [215, 80, 14], [260, 48, 22], [-20, 62, 5], [420, 70, 31], [520, 54, 6]], c.tone.near, 'jt', 0.7),
+    <g key="tw" transform="translate(0 146)"><g {...mv(c, 'tumble')} style={c.still ? { transform: 'translateX(170px)' } : undefined}><circle r="4.6" fill="none" stroke={c.night ? '#7A6A5A' : '#8A6B45'} strokeWidth=".9" /><path d="M-4 -1.5Q0 -5 4 -1.5M-4 1.5Q0 5 4 1.5M-1.5 -4.4Q2 0 -1.5 4.4M1.5 -4.4Q-2 0 1.5 4.4" fill="none" stroke={c.night ? '#7A6A5A' : '#8A6B45'} strokeWidth=".7" /></g></g>,
+    c.night && !c.still && <path key="meteor" d="M0 0L-24 9" stroke="#FFF" strokeWidth="1.3" strokeLinecap="round" transform="translate(84 14)" className="shoot" />,
+    hawk(c, 'hk', 130, 52, 28, 23),
+  ],
   'long-beach': (c) => [
     P(S.skyline(91, 260, 560, 14, 46), c.tone.far, 'sk'),
     c.lit && P(S.windows(91, 262, 560, 6, 44), c.lit, 'skw'),
     P(S.water(132), c.tone.water, 'w'),
-    P(S.waves(93, 132), c.night ? '#2E3866' : 'rgba(255,255,255,.4)', 'wv'),
+    sea(c, S.waves(93, 132), c.night ? '#2E3866' : 'rgba(255,255,255,.4)', 'wv', 8),
     P(S.crane(-70, 54) + S.crane(10, 60) + S.crane(70, 56), c.tone.mid, 'cr'),
-    P(S.liner(215, 134), c.tone.near, 'l'),
-    P(S.funnels(215, 134), c.night ? '#7A2A2A' : '#C8402E', 'fn'),
-    c.lit && P(S.portholes(215, 134), c.lit, 'ph'),
-    P(S.palm(330, 58, 3) + S.palm(350, 70, -4) + S.palm(480, 64, 2), c.tone.near, 'p'),
+    <g key="liner" {...mv(c, 'bob', { animationDuration: '6s' })}>
+      <path d={S.liner(215, 134)} fill={c.tone.near} /><path d={S.funnels(215, 134)} fill={c.night ? '#7A2A2A' : '#C8402E'} />
+      {c.lit && <path d={S.portholes(215, 134)} fill={c.lit} />}
+    </g>,
+    smoke(c, 's1', 195, 101, 3, c.night ? '#8A84A8' : '#E8E4EC'), smoke(c, 's2', 215, 101, 3, c.night ? '#8A84A8' : '#E8E4EC'), smoke(c, 's3', 235, 101, 3, c.night ? '#8A84A8' : '#E8E4EC'),
+    ...plants(c, 'palm', [[330, 58, 3], [350, 70, -4], [480, 64, 2]], c.tone.near, 'p'),
+    bird(c, 'g1', 36, 36, 5), bird(c, 'g2', 52, 46, 20),
   ],
   'san-diego': (c) => [
     P(S.skyline(101, 200, 420, 12, 50), c.tone.far, 'sk'),
     c.lit && P(S.windows(101, 202, 420, 6, 48), c.lit, 'skw'),
     range(103, 136, 10, c.tone.mid, null, { x0: -160, x1: 120, jag: 0.6 }),
     P(S.lighthouse(24), c.tone.near, 'lh'),
-    c.lit && <path key="beam" d="M24 108L-150 92V104Z" fill="#FFE6A8" opacity=".25" />,
+    c.lit && <g key="beam" {...mv(c, 'sweep', { transformOrigin: '24px 108px' })}><path d="M24 108L-150 90V106Z" fill="#FFE6A8" opacity=".3" /><path d="M24 108L198 90V106Z" fill="#FFE6A8" opacity=".3" /></g>,
     P(S.water(138), c.tone.water, 'w'),
-    P(S.waves(105, 138), c.night ? '#2E3866' : 'rgba(255,255,255,.45)', 'wv'),
-    ...[[90, 1, 141], [160, 0.8, 143], [300, 1.1, 142], [470, 0.9, 141]].map(([x, s, y], i) => <g key={'b' + i}><path d={S.hull(x, s, y)} fill={c.tone.near} /><path d={S.sails(x, s, y)} fill={c.sail} /></g>),
-    P(S.palm(400, 60, 3) + S.palm(520, 70, -3), c.tone.near, 'p'),
+    sea(c, S.waves(105, 138), c.night ? '#2E3866' : 'rgba(255,255,255,.45)', 'wv', 8),
+    ...[[90, 1, 141], [160, 0.8, 143], [300, 1.1, 142], [470, 0.9, 141]].map(([x, s, y], i) => <g key={'b' + i} {...mv(c, 'boat', { animationDuration: `${5 + i * 1.3}s`, animationDelay: `${-i * 1.1}s` })}><path d={S.hull(x, s, y)} fill={c.tone.near} /><path d={S.sails(x, s, y)} fill={c.sail} /></g>),
+    ...plants(c, 'palm', [[400, 60, 3], [520, 70, -3]], c.tone.near, 'p'),
+    bird(c, 'g1', 34, 38, 7),
   ],
   kona: (c) => [
     P(S.volcano(320, 520, 62), c.tone.far, 'v1'),
     P(S.volcano(40, 300, 40), c.tone.mid, 'v2'),
     P(S.water(132), c.tone.water, 'w'),
-    P(S.waves(111, 132), c.night ? '#2E3866' : 'rgba(255,255,255,.6)', 'wv'),
-    P('M-160 146Q-60 140 40 145T240 144T560 146V150H-160Z', c.night ? '#3B4470' : '#F5EEDC', 'surf'),
-    P(S.canoe(150, 138), c.tone.near, 'cn'),
-    P(S.palm(300, 82, 8) + S.palm(320, 66, -4) + S.palm(-60, 74, -6) + S.palm(480, 70, 5), c.tone.near, 'p'),
+    sea(c, S.waves(111, 132), c.night ? '#2E3866' : 'rgba(255,255,255,.6)', 'wv', 6),
+    sea(c, 'M-160 146Q-60 140 40 145T240 144T560 146V150H-160Z', c.night ? '#3B4470' : '#F5EEDC', 'surf', 5),
+    <g key="cn" {...mv(c, 'bob', { animationDuration: '4s' })}><path d={S.canoe(150, 138)} fill={c.tone.near} /></g>,
+    smoke(c, 'st', 320, 88, 3, c.night ? '#FF9A5A' : '#EDE8E2'),
+    c.night && <circle key="lava" cx="320" cy="89" r="2.6" fill="#FF7A3A" {...mv(c, 'twinkle', { animationDuration: '2.4s' })} />,
+    ...plants(c, 'palm', [[300, 82, 8], [320, 66, -4], [-60, 74, -6], [480, 70, 5]], c.tone.near, 'p'),
+    bird(c, 'b1', 40, 40, 11),
   ],
   washington: (c) => {
     const blossom = c.month === 3 || c.month === 4
@@ -228,17 +294,21 @@ const SCENES = {
       P(S.skyline(121, -160, 560, 6, 16), c.tone.far, 'sk'),
       P(S.capitol(130), glow, 'cap'),
       P(S.obelisk(300, 110), glow, 'ob'),
-      c.night && P('M298.6 47h1.2v1.6h-1.2zM300.4 47h1.2v1.6h-1.2z', '#FF4D4D', 'red'),
-      P([-120, -100, -80, 220, 240, 380, 400, 420, 520].map((x) => S.roundTree(x, 9)).join(''), blossom && !c.night ? '#F0A9C4' : c.tone.near, 't'),
+      c.night && <path key="red" d="M298.6 47h1.2v1.6h-1.2zM300.4 47h1.2v1.6h-1.2z" fill="#FF4D4D" {...mv(c, 'blink')} />,
+      ...plants(c, 'roundTree', [-120, -100, -80, 220, 240, 380, 400, 420, 520].map((x) => [x, 9]), blossom && !c.night ? '#F0A9C4' : c.tone.near, 't', 0.9),
+      blossom && !c.night && !c.still && [30, 90, 150, 210, 270, 330, 390].map((x, i) => <ellipse key={'pt' + i} cx={x} cy={70} rx="1.6" ry="1" fill="#F7C6D8" className="petal" style={{ animationDelay: `${-i * 1.3}s`, animationDuration: `${7 + (i % 3)}s` }} />),
+      bird(c, 'b1', 30, 38, 6),
     ]
   },
   'new-york': (c) => [
     P(S.skyline(131, -160, 560, 20, 66), c.tone.far, 'sk1'),
     P(S.skyline(133, -120, 520, 12, 40) + S.spireTower(200), c.tone.mid, 'sk2'),
     c.lit && P(S.windows(133, -120, 520, 6, 64, 0.5), c.lit, 'w'),
-    c.night && P('M199.3 92h1.4v-30h-1.4z', '#BFD7FF', 'spire'),
+    c.night && <path key="spire" d="M199.3 92h1.4v-30h-1.4z" fill="#BFD7FF" {...mv(c, 'blink', { animationDuration: '3.2s' })} />,
     P(S.water(140), c.tone.water, 'wt'),
-    P(S.waves(135, 140), c.night ? '#2E3866' : 'rgba(255,255,255,.35)', 'wv'),
+    sea(c, S.waves(135, 140), c.night ? '#2E3866' : 'rgba(255,255,255,.35)', 'wv', 8),
+    <g key="ferry" transform="translate(0 139)"><g className={c.still ? '' : 'glide'} style={c.still ? { transform: 'translateX(120px)' } : { animationDuration: '34s' }}><path d="M0 0h26l3-4H6z" fill={c.tone.near} /><path d="M8 -4h14v-4H8z" fill={c.night ? '#2C2448' : '#F2EEE8'} /></g></g>,
+    bird(c, 'g1', 40, 36, 9), bird(c, 'g2', 58, 48, 24),
   ],
   paris: (c) => {
     // Lit gold from nightfall to a quarter to midnight, sparkling for five minutes on the hour
@@ -246,9 +316,11 @@ const SCENES = {
     return [
       range(141, 132, 8, c.tone.far, null, { jag: 0.5 }),
       <Eiffel key="et" x={250} h={116} colour={gold ? '#E9B04A' : c.tone.mid} />,
+      c.night && <g key="beam" {...mv(c, 'spin', { transformOrigin: '250px 34px', animationDuration: '9s' })}><path d="M250 34L322 30.5V37.5Z" fill="#FFF3C0" opacity=".22" /><path d="M250 34L178 30.5V37.5Z" fill="#FFF3C0" opacity=".3" /></g>,
       sparkle && <g key="sp">{S.stars(7, 30).map(([x, y], i) => <circle key={i} cx={250 + ((x % 40) - 20) * (y / 80)} cy={40 + y * 1.3} r=".9" fill="#FFF" className={c.still ? '' : 'twinkle'} style={{ animationDelay: `${(i % 5) * 0.2}s` }} />)}</g>,
       P(S.rooftops(143, -160, 560), c.tone.near, 'rt'),
       c.lit && P(S.windows(143, -160, 560, 4, 24, 0.5), c.lit, 'w'),
+      bird(c, 'b1', 36, 36, 6), bird(c, 'b2', 22, 46, 20),
     ]
   },
   beijing: (c) => [
@@ -256,8 +328,11 @@ const SCENES = {
     P(S.templeOfHeaven(200), c.tone.near, 'th'),
     P(S.finial(200), '#E9B04A', 'fi'),
     c.lit && P('M195 130h3v4h-3zM202 130h3v4h-3z', c.lit, 'w'),
-    P([60, 80, 100, 300, 320, 340, -60, -40, 460, 480].map((x, i) => S.pine(x, 30 + (i % 3) * 8)).join(''), c.tone.near, 'p'),
+    ...plants(c, 'pine', [60, 80, 100, 300, 320, 340, -60, -40, 460, 480].map((x, i) => [x, 30 + (i % 3) * 8]), c.tone.near, 'p', 0.8),
     P('M-160 150V140H560V150Z', c.tone.near, 'wall'),
+    <g key="kite" {...mv(c, 'kite')}><path d="M300 40l7 9-7 12-7-12z" fill="#E0452E" /><path d="M300 40V61M293 49H307" stroke="#FFE7A8" strokeWidth=".6" /><path d="M300 61Q296 78 304 96T300 132" fill="none" stroke={c.night ? '#BFB6D9' : '#3A3350'} strokeWidth=".6" /></g>,
+    c.lit && [[168, 126], [232, 126]].map(([x, y], i) => <circle key={'ln' + i} cx={x} cy={y} r="2.2" fill="#FF6A3D" {...mv(c, 'twinkle', { animationDuration: '2.8s', animationDelay: `${i * 0.7}s` })} />),
+    bird(c, 'b1', 30, 40, 8),
   ],
 }
 

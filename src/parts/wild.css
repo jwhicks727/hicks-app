@@ -1,0 +1,10 @@
+/* Wild right now: a drawing for each season, and its site's own picture when there is one */
+.wild-row { display: flex; gap: 12px; align-items: flex-start; }
+.wild-art { flex: none; border-radius: var(--r-control); }
+.wild-t { display: grid; gap: 2px; min-width: 0; } .wild-t > span:not(.wild-links) { font-size: 14px; color: var(--muted); }
+.wild-photo { margin: 0; display: grid; gap: 2px; }
+.wild-photo a:first-child { display: block; overflow: hidden; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 8%, var(--card)); aspect-ratio: 16 / 9; }
+.wild-photo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.wild-photo a:first-child:hover img { transform: scale(1.04); }
+html[data-motion="less"] .wild-photo img { transition: none; }
+.wild-photo figcaption { font-size: 11px; color: var(--muted); font-weight: 700; } .wild-photo figcaption a { color: inherit; }

@@ -139,7 +139,17 @@ every function; nothing to set for that.
   species, kept only with a Creative Commons licence and its credit. A
   sighting at a private location keeps its bird and day, not its place.
 
+- **`wild`** reads each wild season's own site (the eagle cam, the monarch
+  count, BirdCast and the rest, listed in `_shared/wildpics.js`) at most once a
+  week and keeps the address of its preview picture, its page and the site's
+  name in `outside_cache` (key `wild`, from migration 20261101214500). The
+  browser loads the picture from the site itself; only https, only the site's
+  own host, only a real image of a sensible size. A page with no picture of its
+  own is left out and the card keeps its drawing. Unverified against the live
+  sites until it first runs.
+
 ```sh
+npx supabase functions deploy wild --no-verify-jwt --project-ref <project-ref>
 npx supabase functions deploy parish --no-verify-jwt --project-ref <project-ref>
 npx supabase secrets set SYNOPTIC_TOKEN=... --project-ref <project-ref>
 npx supabase functions deploy stations --no-verify-jwt --project-ref <project-ref>
@@ -205,7 +215,8 @@ sign-in link won't come back to the app.
 | `ai_consents` | Once: each owner's yes or no to sending something of theirs to Claude (Laurie's food rules). No longer read since 2026-11-01; kept as history | Parents, and each of us our own | Each of us, our own only |
 | `food_rules` | Laurie's food rules, every version kept, dated, with what changed | Parents only | Parents add a new version; nobody edits one |
 | `kitchen_preferences` | The kitchen's tastes, dislikes, pantry and equipment, every version kept | The family | Parents add a new version |
-| `week_plans` | A week's ask, the ideas Claude gave, the ones picked | The family | Parents |
+| `week_plans` | A plan's ask, the ideas Claude gave, the ones picked; `dismissed_at` when put away (a plan stays open until then, whatever week it was made) | The family | Parents |
+| `week_plan_recipes` | The full recipes written for a plan's picks, until saved to the cookbook or put away (they carry Laurie's plate) | Parents only | Parents |
 | `garden_areas` | The garden's areas: the yard, the patio, a room inside; about how big; a room's light | The family | The family; parents remove |
 | `garden_spots` | What's on an area's map: beds, boxes, pots, trees, feeders, baths, paths; where (in percent of the area) and how sunny; indoors, a pot's plant type, size and pot, for the side view | The family | The family; parents remove |
 | `garden_plants` | What grows in a spot: variety, when planted, water every N days | The family | The family |

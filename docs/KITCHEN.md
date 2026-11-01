@@ -148,8 +148,13 @@ From the handoff, for the recipes and for whoever writes them:
   5. Read them, then save them to the cookbook, and to the fridge if you
      like.
 
-  The ask is kept on the device; the ideas and picks are kept with the
-  week (`week_plans`); written recipes stay on the device until saved.
+  The ask is kept on the device. The ideas and picks are kept with the plan
+  (`week_plans`), and so are the written recipes (`week_plan_recipes`,
+  parents only, and on the device too). **A plan is never looked up by the
+  calendar week**: the newest plan nobody has put away is the open one, so a
+  list waiting for Laurie's answer is still here a week later, marked "from the
+  week of 10/25". "Put this list away" (it asks first) and "Start over" are the
+  only ways it goes; the old plan stays in the database.
 - **Rules & preferences** (`/kitchen/rules`):
   - **The kitchen's preferences:** tastes, dislikes, what's loved lately,
     the pantry, the equipment. The family reads them; the parents change

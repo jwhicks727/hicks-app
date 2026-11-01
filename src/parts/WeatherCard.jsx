@@ -1,14 +1,21 @@
+import './wxs.css'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
-import { useWeather } from '../lib/useWeather.js'
+import SunCalc from 'suncalc'
+import { useWeather, useAir, useYearAgo } from '../lib/useWeather.js'
+import { useNow } from '../lib/useNow.js'
+import { HOME_TOWN } from '../lib/sky.js'
+import { stargazing, rainbowChance, inchWords } from '../lib/weather.js'
 import WeatherIcon from './WeatherIcon.jsx'
 import SchoolsBeside from './SchoolsBeside.jsx'
-import { WEEKDAYS } from '../lib/cal/dates.js'
+import { HourStrip, DayStrip, RainWind, WindArrow } from './WxStrips.jsx'
+import LivingSky from './LivingSky.jsx'
+import { WEEKDAYS, homeInstant } from '../lib/cal/dates.js'
 
 const SEV = { 3: '#8A1F11', 2: '#B3401A', 1: '#C98A12', 0: '#6E5B4B' }
 const hm = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', hour: 'numeric', minute: '2-digit' })
 
-function Alerts({ alerts }) {
+export function Alerts({ alerts }) {
   if (!alerts.length) return null
   return (
     <ul className="wx-alerts">
@@ -27,7 +34,7 @@ function Alerts({ alerts }) {
 
 export const Credit = () => <p className="wx-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · alerts from the <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer">National Weather Service</a></p>
 
-/** The next twelve hours, a strip to scroll. */
+/** The next twelve hours at a place, a strip to scroll, each with its rain and wind. */
 export function HoursList({ hours }) {
   return (
     <ol className="wx-hours" aria-label="The next twelve hours">
@@ -35,8 +42,8 @@ export function HoursList({ hours }) {
         <li key={h.time}>
           <span className="wx-h">{h.label}</span>
           <WeatherIcon pic={h.pic} size={26} label={h.words} />
-          <b>{h.temp}°</b>
-          <span className="wx-rain">{h.rain >= 20 ? `${h.rain}%` : ' '}</span>
+          <b>{Math.round(h.temp)}°</b>
+          <RainWind rain={h.rain} inches={h.inches} wind={h.wind} gusts={h.gusts} dir={h.dir} compact />
         </li>
       ))}
     </ol>
@@ -44,18 +51,19 @@ export function HoursList({ hours }) {
 }
 
 /** The week ahead, each day's range against the whole week's. */
-export function WeekList({ days }) {
+export function WeekList({ days, linkDays = false }) {
   const lo = Math.min(...days.map((d) => d.low)), hi = Math.max(...days.map((d) => d.high)), span = Math.max(1, hi - lo)
   return (
     <ol className="wx-week">
       {days.map((d, i) => (
         <li key={d.date}>
+          {linkDays && <Link className="wx-row-link" to={`/world/day/${d.date}`} aria-label={`The day in detail: ${d.date}`} />}
           <span className="wx-day">{i === 0 ? 'Today' : WEEKDAYS[new Date(d.date + 'T12:00:00Z').getUTCDay()].slice(0, 3)}</span>
           <WeatherIcon pic={d.pic} size={28} label={d.words} />
           <span className="wx-lo">{d.low}°</span>
           <span className="wx-bar" aria-hidden="true"><i style={{ left: `${((d.low - lo) / span) * 100}%`, right: `${((hi - d.high) / span) * 100}%` }} /></span>
           <span className="wx-hi">{d.high}°</span>
-          <span className="wx-note">{[d.rain >= 20 && `${d.rain}% rain`, d.gusts >= 25 && `gusts ${d.gusts}`].filter(Boolean).join(' · ')}</span>
+          <span className="wx-note">{[`${d.rain ?? 0}% rain`, inchWords(d.inches), d.wind != null && `wind to ${Math.round(d.wind)} mph`, d.gusts >= 25 && `gusts ${Math.round(d.gusts)}`].filter(Boolean).join(' · ')}</span>
         </li>
       ))}
     </ol>
@@ -65,24 +73,41 @@ export function WeekList({ days }) {
 /** The weather at home now, the schools beside it, and the next twelve hours. */
 export function WeatherNow({ className = 'span-3', more = true, schools = true }) {
   const { forecast: f, alerts, error } = useWeather()
+  const now = useNow()
+  const air = useAir()
+  const ago = useYearAgo(new Intl.DateTimeFormat('en-CA', { timeZone: HOME_TOWN.tz }).format(now))
+  const treats = f ? treatsFor(f, now, air.air) : []
   return (
     <Card tint="#4A7FD6" label="Weather at home" glyph="weather" className={className + ' wx-card'}>
+      {f && <LivingSky pic={f.now.pic} />}
       {!f && !error && <p className="muted">Looking at the sky…</p>}
       {!f && error && <p className="muted">{error}</p>}
       {f && (
         <>
-          <div className="wx-now">
+          <Link className="wx-now wx-now-link" to={`/world/day/${f.today ? f.today.date : ''}/${String(f.timeline[f.nowIndex] ? f.timeline[f.nowIndex].hour : 0).padStart(2, '0')}`} aria-label="Today in detail">
             <WeatherIcon pic={f.now.pic} size={64} label={f.now.words} />
             <div>
               <b className="wx-temp">{f.now.temp}°</b>
               <p><b>{f.now.words}</b>{f.today && <> · high {f.today.high}°, low {f.today.low}°</>}</p>
               <p className="muted">Feels like {f.now.feels}° · humidity {f.now.humidity}%</p>
             </div>
-          </div>
-          <p>{f.now.wind.line}.{f.now.wind.santaAna && <b> Santa Ana winds: dry and gusty. Hold on to the patio umbrella.</b>}</p>
+          </Link>
+          <p className="wx-windline"><WindArrow dir={f.now.dir} size={14} /> {f.now.wind.line}{f.now.speed != null ? ` (${Math.round(f.now.speed)} mph)` : ''}.{f.today && f.today.rain != null && <> {f.today.rain}% chance of rain today{f.today.inches ? `, ${inchWords(f.today.inches)} expected` : ''}.</>}{f.now.wind.santaAna && <b> Santa Ana winds: dry and gusty. Hold on to the patio umbrella.</b>}</p>
           <Alerts alerts={alerts} />
+          {treats.length > 0 && (
+            <ul className="wx-treats">
+              {treats.map((t) => <li key={t.key} style={{ '--c': t.colour }}>{t.to ? <Link to={t.to}><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></Link> : <div><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></div>}</li>)}
+            </ul>
+          )}
+          {ago && f.today && (
+            <Link className="wx-ago" to={`/world/day/${ago.date}`}>
+              <WeatherIcon pic={ago.pic} size={22} />
+              <span>A year ago today: <b className="fig">{Math.round(ago.high)}°</b> / <b className="fig">{Math.round(ago.low)}°</b>, {ago.words.toLowerCase()}{ago.inches ? `, ${inchWords(ago.inches)}` : ''}. {agoWords(f.today.high, ago.high)}</span>
+            </Link>
+          )}
           {schools && <SchoolsBeside homeTemp={f.now.temp} />}
-          <HoursList hours={f.hours} />
+          <HourStrip timeline={f.timeline} nowIndex={f.nowIndex} />
+          <DayStrip days={f.allDays} />
           {more && <Link className="btn ghost" to="/world">The week ›</Link>}
           <Credit />
         </>
@@ -91,13 +116,28 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
   )
 }
 
+const agoWords = (today, then) => { const d = Math.round(today - then); return Math.abs(d) < 2 ? 'About the same today.' : d > 0 ? `${d}° warmer today.` : `${-d}° cooler today.` }
+
+/** The small treats under the weather: air, tonight's stars, a rainbow, a drive for the sunset. */
+function treatsFor(f, now, air) {
+  const out = []
+  if (air && air.band) out.push({ key: 'air', icon: '🍃', title: `Air ${air.now}`, words: air.band.name, colour: air.band.colour, to: '/world/sky/air' })
+  const nine = f.timeline.find((h) => h.date === f.today.date && h.hour === 21)
+  const moon = SunCalc.getMoonIllumination(now).fraction
+  const st = nine && nine.clouds ? stargazing(Math.max(nine.clouds.low, nine.clouds.mid ?? 0, nine.clouds.high ?? 0), moon) : null
+  if (st && now.getHours() < 23) out.push({ key: 'stars', icon: '✦', title: 'Tonight’s stars', words: { dazzling: 'Dazzling', good: 'Good', 'so-so': 'Patchy', poor: 'Clouded over' }[st.grade], colour: '#6C7FB8', to: '/world/sky/moon' })
+  const soon = f.timeline.slice(f.nowIndex, f.nowIndex + 4).find((h) => rainbowChance(h, (SunCalc.getPosition(new Date(homeInstant(h.date, `${String(h.hour).padStart(2, '0')}:30`)), HOME_TOWN.lat, HOME_TOWN.lng).altitude * 180) / Math.PI))
+  if (soon) out.push({ key: 'bow', icon: '🌈', title: 'Rainbow watch', words: 'Showers and low sun: look away from the sun', colour: '#C45C9A', to: `/world/day/${soon.date}/${String(soon.hour).padStart(2, '0')}` })
+  return out
+}
+
 /** The week ahead, each day's range against the whole week's. */
 export function WeatherWeek({ className = 'span-3' }) {
   const { forecast: f, error } = useWeather()
   if (!f) return <Card tint="#3BA3A8" label="The week" glyph="weather" className={className}><p className="muted">{error || 'Looking ahead…'}</p></Card>
   return (
     <Card tint="#3BA3A8" label="The week" glyph="weather" className={className}>
-      <WeekList days={f.days} />
+      <WeekList days={f.days} linkDays />
       <Credit />
     </Card>
   )
