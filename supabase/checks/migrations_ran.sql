@@ -6,6 +6,7 @@ from (values
   ('20261101120000_parish_stations_birds', 'parish_schedules'),
   ('20261101120000_parish_stations_birds', 'weather_stations'),
   ('20261101183000_member_phones', 'member_phones'),
+  ('20261101214500_plans_stay_until_dismissed', 'week_plan_recipes'),
   ('20261101231500_life_list', 'bird_sightings'),
   ('20261101231500_life_list', 'outings'),
   ('20261101231500_life_list', 'park_marks'),
