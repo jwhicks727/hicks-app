@@ -34,6 +34,7 @@ export const slugOf = (title) => title.toLowerCase().normalize('NFKD').replace(/
 const UNITS = '(?:oz|ounces?|lbs?|pounds?|cups?|c\\.|tbsp|tablespoons?|tsp|teaspoons?|g|grams?|kg|ml|l|liters?|cloves?|bunch(?:es)?|heads?|stalks?|sprigs?|pinch(?:es)?|cans?|inch(?:es)?|"|large|medium|small|whole|fillets?|pieces?|slices?|sheets?|pouch(?:es)?)'
 const AMOUNT = '(?:\\d+(?:[.,/]\\d+)?(?:\\s+\\d+/\\d+|\\s*[½¼¾⅓⅔⅛])?|[½¼¾⅓⅔⅛])(?:\\s*(?:[–-]|to)\\s*(?:\\d+(?:[./]\\d+)?|[½¼¾⅓⅔]))?'
 const ING = new RegExp(`^(${AMOUNT})\\s*(${UNITS}\\b\\.?)?\\s*(.*)$`, 'i')
+const STARTS_WITH_AMOUNT = new RegExp(`^(?:[-*•]\\s*)?${AMOUNT}`)
 
 /** "1 ½ lb salmon fillets, skin on" -> { amount: '1 ½', unit: 'lb', item: 'salmon fillets, skin on' } */
 export function parseIngredient(raw) {
@@ -101,6 +102,7 @@ export function parseRecipe(md) {
       if (/^(steps|method|instructions|directions)/i.test(h)) { flushGroup(); mode = 'steps'; continue }
       continue
     }
+    if (/^\**\s*ingredients\s*:?\s*\**\s*:?$/i.test(t) && mode !== 'steps' && mode !== 'sections') { mode = 'ingredients'; continue }
     const sm = t.match(STEP) || (mode !== 'sections' && !/^[-*]/.test(t) ? t.match(STEP_LOOSE) : null)
     if (sm && mode !== 'sections') {
       flushGroup(); mode = 'steps'
@@ -120,6 +122,10 @@ export function parseRecipe(md) {
       if (!group) group = []
       group.push(parseIngredient(line)); continue
     }
+    // Plain lines, as the format describes it ("2 Tbsp flour"), not only bullets: from the first line that begins with an amount, any short line is an ingredient until the steps start
+    if ((mode === 'head' || mode === 'ingredients') && t && !/^[#>|]/.test(t) && (mode === 'ingredients' ? t.length <= 120 && !/[.!?]$/.test(t) : STARTS_WITH_AMOUNT.test(t))) {
+      mode = 'ingredients'; if (!group) group = []; group.push(parseIngredient(line)); continue
+    }
     if (!t) { if (mode === 'ingredients') flushGroup(); continue }
     if (mode === 'steps' && steps.length && t) { steps[steps.length - 1].text += ' ' + t; continue }
   }
@@ -131,6 +137,7 @@ export function parseRecipe(md) {
   if (!title) warnings.push('No title: the first line should be “# The dish”')
   if (!ratings) warnings.push('No ratings line, “**Ratings —** L: /5 · J: /5 · A: /5”')
   if (total == null) warnings.push('No total time')
+  if (!groups.length) warnings.push('No ingredients found')
   if (!steps.length) warnings.push('No steps found')
   if (steps.some((s) => s.minutes == null)) warnings.push('A step has no time')
   return { title: title || 'Untitled recipe', slug: slugOf(title || 'untitled-recipe'), ratings, total, handsOn, serves, groups, steps, sections: shared, laurie: laurieSection ? laurieSection.body : null, warnings }

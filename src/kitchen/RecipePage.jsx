@@ -10,6 +10,7 @@ import { easyOnHands } from '../lib/kitchen/recipe.js'
 import { startTimer } from '../lib/kitchen/timers.js'
 import { rate, addToFridge, finishFridge, removeRecipe } from '../lib/useKitchen.js'
 import { FoodIcon, RecipeArt } from './FoodIcon.jsx'
+import { artFor } from '../lib/kitchen/food.js'
 import { Inline, Prose } from './Inline.jsx'
 import { parsed, timeWords, PEOPLE } from './art.js'
 import Timers from './Timers.jsx'
@@ -43,7 +44,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const rest = r.sections.filter((s) => !['Jason’s plate', 'Anna’s add-on'].includes(s.name))
   const daysIn = fridge ? Math.max(0, Math.round((Date.parse(today) - Date.parse(fridge.added_on)) / 864e5)) : 0
   const check = cookCheck(r.groups, daysIn).slice(0, 5)
-  const art = recipe.art && recipe.art.length ? recipe.art : []
+  const art = recipe.art && recipe.art.length ? recipe.art : artFor(r) // chosen when it was saved, else from its ingredients now
   const st = standingOf(ratings, members)
   return (
     <>

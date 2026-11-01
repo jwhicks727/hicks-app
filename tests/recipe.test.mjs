@@ -102,3 +102,39 @@ test('a recipe’s three pictures: protein first, never the salt', async () => {
   const { artFor } = await import('../src/lib/kitchen/food.js')
   assert.deepEqual(artFor(parseRecipe(RECIPE)), ['salmon', 'butternut_squash', 'scallion'])
 })
+
+test('ingredients written as plain lines, as a photographed card gives them, are read too', () => {
+  const md = `# Mom's Macaroni & Cheese
+
+**Ratings —** L: /5 · J: /5 · A: /5
+
+**Total time:** 1 hr 5 min (20 min hands-on) · **Serves:** 4
+
+3 Tbsp butter
+2 Tbsp flour
+½ tsp salt
+
+2 cups milk
+1 Tbsp minced parsley
+Italian seasoned breadcrumbs
+
+**1. (10 min)** Cook the macaroni and drain.
+
+**2. (30 min)** Bake at 350°F.
+
+**Laurie’s plate** Hers, made up for the test.
+`
+  const r = parseRecipe(md)
+  assert.deepEqual(r.groups.map((g) => g.map((i) => i.item)), [['butter', 'flour', 'salt'], ['milk', 'minced parsley', 'Italian seasoned breadcrumbs']])
+  assert.deepEqual([r.groups[0][0].amount, r.groups[0][0].unit], ['3', 'Tbsp'])
+  assert.equal(r.steps.length, 2); assert.equal(r.warnings.includes('No ingredients found'), false)
+  // An "Ingredients" label, bold or a heading, then lines without amounts
+  const labelled = parseRecipe('# Dish\n\n**Total time:** 20 min · **Serves:** 2\n\n**Ingredients**\nsalt\n2 eggs\n\n**1. (5 min)** Whisk.')
+  assert.deepEqual(labelled.groups[0].map((i) => i.item), ['salt', 'eggs'])
+  // A paragraph in the head is not an ingredient; a recipe with none says so
+  const intro = parseRecipe('# Dish\n\nA creamy bake the family loves.\n\n**1. (5 min)** Whisk.')
+  assert.equal(intro.groups.length, 0); assert.ok(intro.warnings.includes('No ingredients found'))
+  // Bullets still work, and prose after the list does not become an ingredient
+  const both = parseRecipe('# D\n\n- 1 cup rice\n- water\n\n**1. (5 min)** Cook.')
+  assert.deepEqual(both.groups[0].map((i) => i.item), ['rice', 'water'])
+})

@@ -16,6 +16,7 @@ export function FoodIcon({ name, size = 28, colour, className = '' }) {
 /** A recipe's art: its main ingredients, the first a little larger, on a warm round. */
 export function RecipeArt({ names, size = 'large' }) {
   const [a, b, c] = names
+  if (!a) return null // nothing to draw: no empty shadow
   return (
     <div className={'recipe-art ' + size} aria-hidden="true">
       {b && <FoodIcon name={b} size={size === 'large' ? 74 : 40} className="ra-b" />}

@@ -17,6 +17,18 @@ Big Bear and Anaheim just clear it, Redlands, Claremont and San Dimas don't),
 in the list's order, one a day, the same on every phone: the day's number
 modulo the list, so no state is kept.
 
+## 2026-11-01 — A photographed recipe's plain-line ingredients are read
+
+A recipe read from a photo came back with no ingredients and a fuzzy blank where
+its pictures go. The format says one ingredient list "grouped by blank lines",
+and the photo reader wrote them as plain lines ("3 Tbsp butter"), while the
+recipe reader only knew bullets. It now reads plain lines (from the first line
+that begins with an amount, any short line until the steps), and an
+"Ingredients" label; a recipe with none is warned about on the review screen.
+A recipe's pictures are chosen from its ingredients at the time it is shown when
+none were stored, and a recipe with none shows no blank. The Claude brief also asks
+for bullets.
+
 ## 2026-11-01 — Life List is built: birds from her eBird file, trips, the parks
 
 Life List opens on **Recent** (her newest birds, the next and last outing, the

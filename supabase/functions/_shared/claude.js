@@ -75,7 +75,7 @@ The household's pattern:
 The recipe format is a contract Jason has corrected more than once:
 - Title as "# Title". Then exactly: "**Ratings —** L: /5 · J: /5 · A: /5" (breakfasts Laurie doesn't eat: "J: /5 · A: /5").
 - **Total time** padded generously, with hands-on time in parentheses; **Serves**.
-- One ingredient list, grouped by single blank lines with no headers: produce and fresh herbs; protein; the per-person add-ons; pantry, spices and refrigerated. Precise amounts (oz, cups, Tbsp, tsp), never "1 package", never pre-prepped forms (the chopping is a step).
+- One ingredient list, every ingredient on its own line as a Markdown bullet ("- 6 oz salmon"), grouped by single blank lines with no headers: produce and fresh herbs; protein; the per-person add-ons; pantry, spices and refrigerated. Precise amounts (oz, cups, Tbsp, tsp), never "1 package", never pre-prepped forms (the chopping is a step).
 - Steps as bold numbers in plain paragraphs, never a Markdown list: "**1. (3 min)** Heat the oven…". A time on every step; amounts repeated inline and bold; every ingredient used; grams beside volume for baking.
 - Closing sections in this order, leaving out what doesn't apply: **Plating**, **Laurie's plate**, **Jason's plate**, **Anna's add-on**, **Heat**, **Herbs** (cilantro only where the cuisine fits, always on the side, with an alternate), **Texture**, **Trader Joe's shortcuts**, **Notes**, **Why it works** (the technique argument, naming the one step that decides it).
 - Voice: technique-forward and opinionated, like Bittman or NYT Cooking. Mechanisms, not just instructions. No padding: he reads fast and cooks tired.
