@@ -12,10 +12,11 @@ const HOURLY = ['temperature_2m', 'precipitation_probability', 'weather_code', '
 const DAILY = ['weather_code', 'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max', 'wind_gusts_10m_max', 'uv_index_max']
 const CURRENT = ['temperature_2m', 'apparent_temperature', 'relative_humidity_2m', 'weather_code', 'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m', 'is_day']
 
-export function forecastUrl({ lat, lng } = HOME_TOWN) {
+/** The forecast at a point, in that point's own time zone (home's unless `tz` says otherwise). */
+export function forecastUrl({ lat, lng, tz = HOME_TOWN.tz } = HOME_TOWN) {
   const q = new URLSearchParams({
     latitude: lat.toFixed(3), longitude: lng.toFixed(3), current: CURRENT.join(','), hourly: HOURLY.join(','), daily: DAILY.join(','),
-    temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', precipitation_unit: 'inch', timezone: HOME_TOWN.tz, forecast_days: '7',
+    temperature_unit: 'fahrenheit', wind_speed_unit: 'mph', precipitation_unit: 'inch', timezone: tz, forecast_days: '7',
   })
   return `https://api.open-meteo.com/v1/forecast?${q}`
 }

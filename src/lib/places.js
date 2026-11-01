@@ -322,3 +322,23 @@ export function calloutLabels(items, { W, H, pad = 6, gap = 4, dot = 8 }) {
   }
   return out
 }
+
+// ---- The place on World each day ---------------------------------------------
+/** Straight-line miles from home that count as "an hour away" (Big Bear and Anaheim just clear it). */
+export const AN_HOUR_MILES = 30
+
+/** The places that take their turn on World: none of the near ones, from an hour away outward, in list order. */
+export function dailyPlaces() {
+  return PLACES.filter((p) => !p.home && milesBetween(HOME_TOWN, p) >= AN_HOUR_MILES)
+}
+
+/**
+ * Whose turn it is on a day ('YYYY-MM-DD', at home): each place in turn, one a
+ * day, the same on every phone. `ahead` days on gives the next ones.
+ */
+export function placeOfDay(date, ahead = 0) {
+  const list = dailyPlaces()
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date || '')
+  const day = m ? Math.floor(Date.UTC(+m[1], +m[2] - 1, +m[3]) / 864e5) : 0
+  return list[(((day + ahead) % list.length) + list.length) % list.length]
+}

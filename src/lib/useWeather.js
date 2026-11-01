@@ -97,3 +97,34 @@ export function usePlacesWeather(places) {
   }, [ids]) // eslint-disable-line react-hooks/exhaustive-deps
   return state
 }
+
+const wallIso = (tz) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date()).replace(' ', 'T')
+
+/** The whole forecast at one of our places, in its own time: { forecast, error }, kept for a quarter hour. */
+export function usePlaceForecast(place) {
+  const [state, setState] = useState({ forecast: null, error: null })
+  const slug = place ? place.slug : null
+  useEffect(() => {
+    if (!place) return undefined
+    let live = true
+    const key = KEY + '.forecast.' + place.slug
+    const run = async () => {
+      try {
+        let kept = null
+        try { kept = JSON.parse(sessionStorage.getItem(key)) } catch { /* nothing kept */ }
+        if (!kept || Date.now() - kept.at > KEEP_MS) {
+          const r = await fetch(forecastUrl({ lat: place.lat, lng: place.lng, tz: place.tz }))
+          if (!r.ok) throw new Error(String(r.status))
+          kept = { at: Date.now(), json: await r.json() }
+          try { sessionStorage.setItem(key, JSON.stringify(kept)) } catch { /* fine */ }
+        }
+        if (live) setState({ forecast: shapeForecast(kept.json, wallIso(place.tz)), error: null })
+      } catch { if (live) setState({ forecast: null, error: 'The weather there couldn’t be reached just now.' }) }
+    }
+    setState({ forecast: null, error: null })
+    run()
+    const t = setInterval(run, KEEP_MS)
+    return () => { live = false; clearInterval(t) }
+  }, [slug]) // eslint-disable-line react-hooks/exhaustive-deps
+  return state
+}

@@ -4,14 +4,16 @@ import { WeatherNow, WeatherWeek } from '../parts/WeatherCard.jsx'
 import WildNow from '../parts/WildNow.jsx'
 import { useNow } from '../lib/useNow.js'
 import { todayAt } from '../lib/cal/dates.js'
+import PlaceOfDay from './world/PlaceOfDay.jsx'
 import PlacesMap from './world/PlacesMap.jsx'
 import PlacePage from './world/PlacePage.jsx'
 import './world/world.css'
 
-// /world                 the weather, the sky and all our places on a map
+// /world                 today's place and its weather, home's weather, the sky, and all our places on a map (last)
 // /world/place/<slug>    one of our places (src/lib/places.js)
 export default function World({ rest = [] }) {
-  const today = todayAt('America/Los_Angeles', useNow())
+  const now = useNow()
+  const today = todayAt('America/Los_Angeles', now)
   if (rest[0] === 'place') return <PlacePage slug={rest[1]} />
   return (
     <>
@@ -19,7 +21,7 @@ export default function World({ rest = [] }) {
         <span className="kicker">Our world · Fontana</span>
         <h1 className="greet">World</h1>
       </header>
-      <PlacesMap />
+      <PlaceOfDay today={today} now={now} />
       <WeatherNow more={false} />
       <WeatherWeek />
       <SkyToday />
@@ -28,9 +30,9 @@ export default function World({ rest = [] }) {
         'Home and each school from its own station, through Synoptic',
         'Wound back to what happened as well as forward',
         'A page for each school: right now, the last 24 hours against home, recess flags',
-        'One of our places on World each day, in turn, in its own sky',
         'Alerts for each school as well as home',
       ]} />
+      <PlacesMap />
     </>
   )
 }

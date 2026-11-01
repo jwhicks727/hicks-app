@@ -25,6 +25,9 @@ Built in this order, each part in daily use before the next.
       colours. Settings can try another season's show.
 - [ ] A show for every season, as she paints them: Christmas, Advent,
       Lent, Easter, spring, summer, July 4th.
+- [x] World leads with one of our places each day (from an hour away
+      outward, in turn): its sky, the hour by hour and the week there; home's
+      weather follows and Our Places is last (`src/places/world/PlaceOfDay.jsx`).
 - [x] Photographed recipes are checked against Laurie's rules and approved
       before saving; the chat opens and fixes recipes, shown against what's saved.
 - [x] Plan the week, tended a little at a time: add one idea, refresh the

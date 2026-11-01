@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — World leads with a place of the day, like a weather app
+
+World's main weather is now one of our places each day, in its own sky: the
+big temperature, the hour by hour and the week there, with the next three
+places named under it. Home's weather, the sky and the wild come after, and
+Our Places (the map) moves to the bottom, unchanged. Only places from an hour
+away outward take a turn (30 straight-line miles from home, `AN_HOUR_MILES`:
+Big Bear and Anaheim just clear it, Redlands, Claremont and San Dimas don't),
+in the list's order, one a day, the same on every phone: the day's number
+modulo the list, so no state is kept.
+
 ## 2026-11-01 — Clear list, and the list can be texted to Anna
 
 Plan the week gets a "Clear list" (it asks first, since it wipes the whole
