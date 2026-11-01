@@ -6,6 +6,33 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — A nightly job may sign in to eBird as Laurie, with her own yes
+
+Jason asked not to import eBird files by hand. eBird has no API for a person's
+own checklists, so a scheduled job (`sync-ebird.yml`, Playwright) signs in as
+Laurie, lists her checklists, and reads each new one's contents through the
+eBird API. This reverses "never by signing in to eBird" (the file import stays
+as a faster backfill). Conditions: it runs only while a row in `sync_consents`
+exists that Laurie's own sign-in wrote (Jason cannot say it for her), her login
+lives only in the `ebird` GitHub environment (limited to `main`), the sign-in
+page is checked against Cornell's and eBird's own domains before the password
+is typed, a run is logged before signing in and a rejected sign-in (or an
+unfinished run) holds every kind of run for 24 hours, there is no retry loop,
+it takes at most 150 new checklists a night, and its logs hold counts, never
+names or page text. The selectors and addresses are unverified until the first
+`discover` run.
+
+## 2026-11-01 — Laurie's blanket yes covers all her paintings
+
+Jason has Laurie's blanket consent to scan and use every one of her
+paintings in the app, so "Add a painting" no longer asks for her yes on each
+piece (no checkbox, and `said_yes_by` is not written; the column stays as the
+record of the ones saved before). This reverses the per-painting yes in
+`docs/ART-CAPTURE.md`. Unchanged: her title, year and medium come from her,
+never guessed; a painting is cropped and framed, never altered; none goes to
+an image generator or is posted anywhere; and a painting stays in private
+storage behind sign-in.
+
 ## 2026-11-01 — World leads with a place of the day, like a weather app
 
 World's main weather is now one of our places each day, in its own sky: the

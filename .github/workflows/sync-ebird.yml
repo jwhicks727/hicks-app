@@ -1,0 +1,49 @@
+# Laurie's birds, nightly: signs in to eBird as her (only while her own yes is
+# recorded in the app) and brings her new checklists into the Life List.
+# The login lives only in the `ebird` environment, which only main may use; a
+# pull request never reaches it (and a branch's copy of this file can't, since
+# the environment is restricted to main). A rejected sign-in holds every later run
+# for 24 hours (scripts/lib/ebird-core.mjs): "retry the login" is the only
+# override, for a person who has just fixed the password. Once a night, about two
+# minutes: well inside the Actions budget.
+name: Sync Laurie's birds
+on:
+  schedule:
+    - cron: '23 10 * * *'   # 10:23 UTC, in the small hours at home
+  workflow_dispatch:
+    inputs:
+      discover:
+        description: 'Look only: sign in, say in counts what the checklists page holds, save nothing'
+        type: boolean
+        default: false
+      retry_login:
+        description: 'Retry the login (only after fixing the password: a rejected sign-in holds the job for 24 hours)'
+        type: boolean
+        default: false
+concurrency:
+  group: sync-ebird
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ebird
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --no-audit --no-fund
+      - run: npm test -- tests/ebird-sync.test.mjs
+      - run: npm install --no-save --no-audit --no-fund playwright@1.63.0 && npx playwright install --with-deps chromium
+      - run: node scripts/sync-ebird.mjs
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          EBIRD_USERNAME: ${{ secrets.EBIRD_USERNAME }}
+          EBIRD_PASSWORD: ${{ secrets.EBIRD_PASSWORD }}
+          EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
+          DISCOVER: ${{ inputs.discover && '1' || '' }}
+          RETRY_LOGIN: ${{ inputs.retry_login && '1' || '' }}

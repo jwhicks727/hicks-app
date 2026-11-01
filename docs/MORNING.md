@@ -284,3 +284,17 @@ New since the first sitting. Each part works on its own; skip any for now.
     paintings stand in for a photo of a bird, a park or a place, open it in the
     gallery and say what it shows ("What it shows"). Until the migration is run,
     the Life List screens say so rather than failing.
+13. **Nightly eBird sync (optional; the file in step 12 still works).** Run
+    `supabase/migrations/20261101233000_ebird_sync.sql` the same way. Laurie, signed
+    in as herself, opens Life List › Birds › Bring in her birds and taps "Yes, bring
+    in my birds each night"; nothing signs in to eBird before that. Then, in GitHub:
+    Settings › Environments › New environment `ebird`, limited to the `main`
+    branch, with secrets `EBIRD_USERNAME`, `EBIRD_PASSWORD` (Laurie's eBird login),
+    `SUPABASE_SERVICE_ROLE_KEY` and `EBIRD_API_KEY`; the repository variable
+    `VITE_SUPABASE_URL` is already set. Run the **Sync eBird** workflow once by hand
+    with **discover** ticked: it prints an outline of eBird's pages (no names, no
+    values) so the sign-in steps in `scripts/ebird-steps.json` can be checked. The
+    sign-in and page steps are **unverified against live eBird** until that run.
+    After a rejected sign-in it stops for 24 hours; once the password is fixed, tick
+    **retry_login** for one run. It takes up to 150 new checklists a night, newest
+    first, so a long history fills in over a few nights.

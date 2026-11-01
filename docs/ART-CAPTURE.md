@@ -5,10 +5,13 @@ on the wall, square edges, no glare. That's good enough to print from, and
 good enough for the app. Setting up takes about half an hour the first
 time. After that, each painting takes a few minutes.
 
-## Her yes comes first
+## Her yes is given, once
 
-- A painting goes into the app only when Laurie says yes to that piece. She
-  chooses where it goes: a season, the Life List, or a bird's page.
+- Laurie has said yes to every one of her paintings being scanned and used in
+  the app (a blanket yes, 2026-11-01, decisions log), so none is asked about
+  one by one. Her title, year and medium are still hers to tell, never
+  guessed, and a painting is only ever cropped and framed, never altered.
+  Where it goes (a season, the Life List, a bird's page) is still her call.
 - Her paintings are never given to an AI image tool, never used to train or
   "inspire" one, and never posted anywhere by the app.
 - Once the app is hosted, any file in `public/` can be opened by anyone who
@@ -161,13 +164,12 @@ For anything that fits the glass and has no thick paint:
 
 ## The short version
 
-1. Get her yes for that painting.
-2. Hang it flat. Put the tripod square to it, with the lens level with its
+1. Hang it flat. Put the tripod square to it, with the lens level with its
    centre.
-3. Light it with two lamps at 45°, or even daylight, with the room lights
+2. Light it with two lamps at 45°, or even daylight, with the room lights
    off.
-4. Take one shot with the grey card, then one without, in RAW with the
+3. Take one shot with the grey card, then one without, in RAW with the
    timer and HDR off.
-5. Set the white balance from the card, copy it across, and straighten
+4. Set the white balance from the card, copy it across, and straighten
    and crop.
-6. Keep the RAW and a 16-bit TIFF; export a 2400 px sRGB JPEG for the app.
+5. Keep the RAW and a 16-bit TIFF; export a 2400 px sRGB JPEG for the app.

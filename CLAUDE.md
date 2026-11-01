@@ -30,9 +30,12 @@ and write the code fresh. SOAR's code belongs to the school.
   chat), never on anyone else's, and the screens say they are sent. Her
   separate sign-off was dropped on Jason's decision (2026-11-01, decisions
   log). They live in the database, never in this repository.
-- **Laurie's birds come in by the file eBird gives her**, read in the browser
-  (`src/lib/life/ebird.js`), never by signing in to eBird or holding her password.
-  They are readable by the parents only (`bird_sightings`); places are kept to about
+- **Laurie's birds come in by the file eBird gives her** (read in the browser,
+  `src/lib/life/ebird.js`) or by the nightly job (`.github/workflows/sync-ebird.yml`),
+  which signs in as her only while her own yes is recorded (`sync_consents`, only
+  her sign-in can write it) and only with its secrets in the `ebird` GitHub
+  environment. After a rejected sign-in it waits 24 hours and never retries in a
+  loop (decisions log, 2026-11-01). The app itself never holds her password. They are readable by the parents only (`bird_sightings`); places are kept to about
   a kilometre. A painting stands in for a photo only where a parent has said what it
   shows (`paintings.subjects`), never guessed from the picture.
 - **Family days** (birthdays, anniversaries, Anna's adoption day, the

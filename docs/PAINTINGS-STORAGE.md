@@ -44,9 +44,9 @@ may be reachable by someone who has only its address.
   details go into the bucket and the table, and from then on every copy
   of the app reads them from there.
 - **A new painting:** Laurie's gallery › "Add a painting". Add the photo or
-  scan (docs/ART-CAPTURE.md), its title, and its season. Tick "Laurie said
-  yes": it can't be saved without that, and `said_yes_by` records who
-  ticked it. Making one move (a bird, her leaves) is a step for a
+  scan (docs/ART-CAPTURE.md), its title, and its season. Her blanket yes
+  covers every painting, so nothing is ticked (the `said_yes_by` column stays
+  as history for rows saved before). Making one move (a bird, her leaves) is a step for a
   computer, with `scripts/lift-art.py`.
 
 ## Autumn leaves from her paintings

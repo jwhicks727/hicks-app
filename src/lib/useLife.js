@@ -48,3 +48,18 @@ export const deleteOuting = (id) => supabase.from('outings').delete().eq('id', i
 export const saveParkMark = (slug, patch) => supabase.from('park_marks').upsert({ slug, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'slug' })
 /** What a painting shows, so it can stand in for a photo (a parent's job; stored paintings only). */
 export const savePaintingSubjects = (slug, subjects) => supabase.from('paintings').update({ subjects: cleanSubjects(subjects) }).eq('slug', slug)
+
+/** The nightly eBird sync: Laurie's own yes, and the last few runs (parents read both). */
+export function useBirdSync(session) {
+  return useRows(session, async () => {
+    const [yes, runs] = await Promise.all([
+      supabase.from('sync_consents').select('source, said_yes_by, said_at').eq('source', 'ebird').maybeSingle(),
+      supabase.from('bird_sync_runs').select('id, at, kind, status, checklists, sightings, note, finished_at').order('at', { ascending: false }).limit(5),
+    ])
+    const error = yes.error || runs.error
+    return { data: error ? [] : [{ yes: yes.data || null, runs: runs.data || [] }], error }
+  })
+}
+/** Only Laurie's own sign-in can say yes (the database refuses anyone else's). */
+export const sayYesToSync = (memberId) => supabase.from('sync_consents').upsert({ source: 'ebird', said_yes_by: memberId, said_at: new Date().toISOString() }, { onConflict: 'source' })
+export const takeBackSyncYes = (memberId) => supabase.from('sync_consents').delete().eq('source', 'ebird').eq('said_yes_by', memberId)

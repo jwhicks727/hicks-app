@@ -48,7 +48,7 @@ export default function Gallery() {
       </section>
       {list.length > 0 && <p className="gallery-note span-6">{list.length === 1 ? 'The first of her paintings here.' : `${list.length} of her paintings so far.`} More as each one is photographed.</p>}
       {parent && !stored && import.meta.env.DEV && <MoveIn onDone={reload} />}
-      {parent && stored && <AddPainting me={me} onDone={reload} />}
+      {parent && stored && <AddPainting onDone={reload} />}
     </>
   )
 }
@@ -80,8 +80,8 @@ function MoveIn({ onDone }) {
   )
 }
 
-/** A newly photographed painting, with Laurie's yes. */
-function AddPainting({ me, onDone }) {
+/** A newly photographed painting. Laurie's blanket yes covers every one (docs/DECISIONS-LOG.md, 2026-11-01), so none is asked about. */
+function AddPainting({ onDone }) {
   const [f, setF, clear] = useDraft('paintings.new', null)
   const [pic, setPic] = useState(null), [busy, setBusy] = useState(null)
   const slugOf = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
@@ -93,11 +93,11 @@ function AddPainting({ me, onDone }) {
       const { error } = await supabase.storage.from('paintings').upload(path, up.blob, { contentType: 'image/jpeg', upsert: true })
       if (error) { setBusy(error.message); return }
     }
-    const { error } = await supabase.from('paintings').insert({ slug, title: f.title.trim(), named: f.named, year: Number(f.year) || null, medium: f.medium.trim() || null, size: f.size.trim() || null, w: full.width, h: full.height, seasons: f.seasons, added: new Date().toISOString().slice(0, 10), focus: [0, 0, 1, 1], said_yes_by: me ? me.id : null })
+    const { error } = await supabase.from('paintings').insert({ slug, title: f.title.trim(), named: f.named, year: Number(f.year) || null, medium: f.medium.trim() || null, size: f.size.trim() || null, w: full.width, h: full.height, seasons: f.seasons, added: new Date().toISOString().slice(0, 10), focus: [0, 0, 1, 1] })
     if (error) { setBusy(error.message); return }
     clear(); setPic(null); setBusy('Added to her gallery.'); onDone()
   }
-  if (!f) return <div className="span-6"><button type="button" className="btn" onClick={() => setF({ title: '', named: true, year: '', medium: '', size: '', seasons: [], yes: false })}>Add a painting</button></div>
+  if (!f) return <div className="span-6"><button type="button" className="btn" onClick={() => setF({ title: '', named: true, year: '', medium: '', size: '', seasons: [] })}>Add a painting</button></div>
   return (
     <Card tint="#C0824F" label="A painting of Laurie’s" glyph="star" className="span-6">
       <Dropzone accept="image/*" label="The photo or scan" hint="docs/ART-CAPTURE.md says how; drop it, paste it, or choose it." onFiles={(files) => setPic(files[0])} />
@@ -110,9 +110,8 @@ function AddPainting({ me, onDone }) {
         <fieldset className="choice-row"><legend>Its season (it hangs on Home then)</legend>
           {SEASON_ORDER.map((k) => <button key={k} type="button" aria-pressed={f.seasons.includes(k)} onClick={() => setF({ ...f, seasons: f.seasons.includes(k) ? f.seasons.filter((x) => x !== k) : [...f.seasons, k] })}>{SEASONS[k].label}</button>)}
         </fieldset>
-        <label className="check-row"><input type="checkbox" checked={f.yes} onChange={(e) => setF({ ...f, yes: e.target.checked })} /> Laurie said yes to this one being in the app</label>
       </div>
-      <div className="form-actions"><button type="button" className="btn" disabled={!pic || !f.title.trim() || !f.yes || busy === 'Saving…'} onClick={save}>Add it to her gallery</button><button type="button" className="btn ghost" onClick={() => { clear(); setPic(null) }}>Cancel</button></div>
+      <div className="form-actions"><button type="button" className="btn" disabled={!pic || !f.title.trim() || busy === 'Saving…'} onClick={save}>Add it to her gallery</button><button type="button" className="btn ghost" onClick={() => { clear(); setPic(null) }}>Cancel</button></div>
       {busy && <p className="muted" role="status">{busy}</p>}
     </Card>
   )

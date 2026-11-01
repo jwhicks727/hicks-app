@@ -49,8 +49,8 @@ Built in this order, each part in daily use before the next.
 - [x] Laurie's gallery (Life List) and the Paintings panel on Home; her
       witch and crow colours Halloween; its crow flies once a day from the
       top of Home, and the page glides down with it to the witch.
-- [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), each
-      with her yes; a painting she'd rather not have public waits for private
+- [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), all
+      covered by her blanket yes; a painting she'd rather not have public waits for private
       storage behind sign-in, since anything in `public/` can be fetched by
       its address once hosted.
 - [x] Everything behind sign-in: a sign-in screen (email and password, with

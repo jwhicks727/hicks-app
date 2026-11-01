@@ -3,7 +3,7 @@ import { Card } from '../../ui/Card.jsx'
 import { Confirm } from '../../ui/Confirm.jsx'
 import Dropzone from '../../ui/Dropzone.jsx'
 import { Crumb, Link } from '../../shell/Link.jsx'
-import { useSightings, importSightings, clearSightings } from '../../lib/useLife.js'
+import { useSightings, importSightings, clearSightings, useBirdSync, sayYesToSync, takeBackSyncYes } from '../../lib/useLife.js'
 import { parseEbird } from '../../lib/life/ebird.js'
 import { lifeList, byDay, dayList, byMonth, monthList, byPlace, placeList, speciesStory, totals, monthName, checklistUrl } from '../../lib/life/birdStats.js'
 import { subjectOf } from '../../lib/life/subjects.js'
@@ -216,6 +216,33 @@ function Species({ c, rows, loaded, id }) {
   )
 }
 
+const RUN_WORDS = { ok: 'Went well', login_rejected: 'eBird turned the sign-in down, so it is waiting a day', failed: 'Didn’t finish', skipped: 'Skipped', started: 'Started' }
+const when = (iso) => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+
+/** Every night a job signs in to eBird as Laurie, but only while her own yes is here; this shows the yes and the last runs. */
+function NightlySync({ c, birds }) {
+  const sync = useBirdSync(c.session), [busy, setBusy] = useState(false), [err, setErr] = useState(null)
+  const data = sync.rows[0] || { yes: null, runs: [] }, isLaurie = Boolean(c.me && c.laurie && c.me.id === c.laurie.id)
+  const on = Boolean(c.laurie && data.yes && data.yes.said_yes_by === c.laurie.id)
+  async function flip() {
+    setBusy(true); setErr(null)
+    const { error } = on ? await takeBackSyncYes(c.me.id) : await sayYesToSync(c.me.id)
+    setBusy(false); if (error) setErr(/relation|does not exist|schema cache/i.test(error.message) ? 'The nightly sync migration hasn’t been run yet (docs/MORNING.md, step 13).' : error.message); else { sync.reload(); birds.reload() }
+  }
+  const last = data.runs.find((r) => r.kind !== 'discover')
+  return (
+    <Card tint="#2F7F9A" label="Every night, by itself" glyph="sunmoon" className="span-6">
+      <p>Each night the app can sign in to eBird as Laurie, look for checklists it hasn’t seen, and add her birds, so nobody has to bring in a file. It takes up to 150 new checklists a night, newest first, so a long history fills in over a few nights.</p>
+      {on
+        ? <p><b>Laurie has said yes.</b> {last ? <>Last run {when(last.at)}: {RUN_WORDS[last.status] || last.status}{last.status === 'ok' ? `, ${last.checklists} new checklists` : ''}.{last.note ? ` ${last.note}` : ''}</> : 'It hasn’t run yet.'}</p>
+        : <p><b>Waiting for Laurie’s yes.</b> {isLaurie ? 'It only signs in with your yes, and you can take it back here any time.' : 'Only she can say it, signed in as herself. Until then nothing signs in to eBird.'}</p>}
+      {isLaurie && <button type="button" className={on ? 'btn ghost' : 'btn'} disabled={busy} onClick={flip}>{busy ? 'One moment…' : on ? 'Take my yes back' : 'Yes, bring in my birds each night'}</button>}
+      {err && <p className="err" role="alert">{err}</p>}
+      <p className="muted small">Her eBird password is kept only where the nightly job runs, never in the app or this repository. If eBird ever turns the sign-in down, the job stops for a day rather than trying again.</p>
+    </Card>
+  )
+}
+
 /** Bring in the file eBird gives her: read here in the browser, nothing leaves but the sightings. */
 function Import({ c, birds }) {
   const [parsed, setParsed] = useState(null), [busy, setBusy] = useState(null), [done, setDone] = useState(null), [err, setErr] = useState(null), [clearing, setClearing] = useState(false)
@@ -244,13 +271,14 @@ function Import({ c, birds }) {
   return (
     <>
       <header className="hero span-6"><Crumb to="/lifelist/birds">Laurie’s birds</Crumb><span className="kicker">From eBird</span><h1 className="greet">Bring in her birds</h1></header>
-      <Card tint="#5F8A4A" label="Get the file from eBird" glyph="bird" className="span-3">
+      <NightlySync c={c} birds={birds} />
+      <Card tint="#5F8A4A" label="Or bring in a file, to catch up faster" glyph="bird" className="span-3">
         <ol className="ll-steps">
           <li>On ebird.org, signed in as Laurie: <b>My eBird</b>, then <b>Download My Data</b>.</li>
           <li>eBird emails a zip. Open it and find <b>MyEBirdData.csv</b>.</li>
           <li>Drop that file here, or choose it.</li>
         </ol>
-        <p className="muted small">The file is read in this browser. The app never signs in to eBird and never holds her password. Only the birds, days and places are kept, places to about a kilometre, for Jason and Laurie to see. Birds Merlin heard or photographed reach her eBird through its checklists, so they come in with it. Bringing the same file in twice changes nothing.</p>
+        <p className="muted small">The file is read in this browser; this way the app never signs in to eBird. Only the birds, days and places are kept, places to about a kilometre, for Jason and Laurie to see. Birds Merlin heard or photographed reach her eBird through its checklists, so they come in with it. Bringing the same file in twice changes nothing.</p>
       </Card>
       <Card tint="#E0662F" label="Her file" glyph="calendar" className="span-3">
         <Dropzone accept=".csv,text/csv,text/plain" label="MyEBirdData.csv" hint="Drop the file here, or choose it." onFiles={take} disabled={Boolean(busy)} />

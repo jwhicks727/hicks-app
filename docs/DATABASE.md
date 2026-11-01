@@ -222,7 +222,7 @@ sign-in link won't come back to the app.
 | `garden_plants` | What grows in a spot: variety, when planted, water every N days | The family | The family |
 | `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
 | `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
-| `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move; the files in the private `paintings` bucket | The family | Parents (with her yes recorded) |
+| `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move; the files in the private `paintings` bucket | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
 | `bird_sightings` | Laurie's birds from her eBird download: one row per bird per checklist, the place by name and to about a kilometre | Parents only | Parents (the file is read in the browser; same file twice changes nothing) |
 | `outings` | Camping trips, Disneyland trips, trips and outings: dates, place, who came, a national park if it was one, notes | The family | Parents |
 | `park_marks` | The national parks: the day we went, whether it's starred as next, a note | The family | Parents |
@@ -238,6 +238,8 @@ sign-in link won't come back to the app.
 | `member_phones` | A family member's phone number (E.164), so the Kitchen can open a text to Laurie in one tap | Parents only | Parents only |
 | `parish_schedules` | Sacred Heart's week of Masses and confession as read from its website, a new row whenever it changes; when first seen and last checked | The family | Only the `parish` function |
 | `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
+| `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | Only the person named in the row, signed in as herself or himself |
+| `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
 | `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
 
@@ -255,3 +257,4 @@ Migration index:
 | `20261101090100_academy` | Anna's academy: settings, rooms, tasks, goals, grades, cheers, the family's own pictures and the private `academy` bucket (family reads; parents add pictures). |
 | `20261101120000_parish_stations_birds` | What the app reads from outside: Sacred Heart's schedules (every version), the station each place reads (the schools' seeded, home's set in Admin), and the last answer from Synoptic and eBird. The family reads; the functions write; parents choose the stations. |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
+| `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
