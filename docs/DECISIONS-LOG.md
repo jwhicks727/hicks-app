@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-02 — Jason may switch the eBird sync on for Laurie, as a surprise
+
+Jason wants to surprise Laurie with her life list filled in, so a parent can
+now record the yes (Life List › Birds › "Switch on for Laurie"), not only
+Laurie. This relaxes the 2026-11-01 entry's "Laurie's own sign-in" condition and
+is Jason's call. What stays: the card says who switched it on, either parent
+can switch it off at any time (migration 20261102000500), Laurie is to be told
+afterwards, and every other safeguard (24-hour hold after a rejected sign-in,
+secrets only in the `ebird` environment, 150 checklists a night, no names in logs).
+
 ## 2026-11-01 — A nightly job may sign in to eBird as Laurie, with her own yes
 
 Jason asked not to import eBird files by hand. eBird has no API for a person's

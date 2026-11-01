@@ -45,8 +45,8 @@ export function signInGate(runs, now = Date.now(), { retry = false } = {}) {
   return { ok: true, why: null }
 }
 
-/** Is a recorded yes Laurie's own? `consent` is the sync_consents row, `laurie` her family member. */
-export const consentOk = (consent, laurie) => Boolean(consent && laurie && consent.said_yes_by === laurie.id)
+/** Is there a recorded yes from Laurie or from a parent (Jason may switch it on for her as a surprise; either parent can switch it off)? */
+export const consentOk = (consent, laurie, parents = []) => Boolean(consent && laurie && (consent.said_yes_by === laurie.id || parents.some((p) => p.id === consent.said_yes_by)))
 
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 }
 const iso = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`

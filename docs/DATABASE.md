@@ -238,7 +238,7 @@ sign-in link won't come back to the app.
 | `member_phones` | A family member's phone number (E.164), so the Kitchen can open a text to Laurie in one tap | Parents only | Parents only |
 | `parish_schedules` | Sacred Heart's week of Masses and confession as read from its website, a new row whenever it changes; when first seen and last checked | The family | Only the `parish` function |
 | `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
-| `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | Only the person named in the row, signed in as herself or himself |
+| `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | A parent records a yes under their own id; either parent can remove it |
 | `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
 | `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
@@ -258,3 +258,4 @@ Migration index:
 | `20261101120000_parish_stations_birds` | What the app reads from outside: Sacred Heart's schedules (every version), the station each place reads (the schools' seeded, home's set in Admin), and the last answer from Synoptic and eBird. The family reads; the functions write; parents choose the stations. |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
+| `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

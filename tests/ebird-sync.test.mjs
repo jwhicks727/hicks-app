@@ -29,7 +29,9 @@ test('a rejected sign-in, or a run that never finished, holds the next one for a
 test('only Laurie’s own yes lets it sign in as her', () => {
   const laurie = { id: 'L1', name: 'Laurie' }
   assert.equal(consentOk({ source: 'ebird', said_yes_by: 'L1' }, laurie), true)
-  assert.equal(consentOk({ source: 'ebird', said_yes_by: 'J1' }, laurie), false, 'Jason can’t say it for her')
+  assert.equal(consentOk({ source: 'ebird', said_yes_by: 'J1' }, laurie), false, 'a stranger’s yes is no yes')
+  assert.equal(consentOk({ source: 'ebird', said_yes_by: 'J1' }, laurie, [{ id: 'J1' }]), true, 'a parent may switch it on for her')
+  assert.equal(consentOk({ source: 'ebird', said_yes_by: 'A1' }, laurie, [{ id: 'J1' }]), false)
   assert.equal(consentOk(null, laurie), false); assert.equal(consentOk({ said_yes_by: 'L1' }, null), false)
 })
 

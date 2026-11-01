@@ -5,7 +5,7 @@
 // has no API for a person's own checklists, so this signs in as Laurie with a
 // browser to find her checklists, then reads each new one's contents from
 // eBird's API 2.0. Rules (CLAUDE.md, "Jobs that read the outside world"):
-//  - only with Laurie's own yes recorded in sync_consents;
+//  - only with a yes recorded in sync_consents, by Laurie or by a parent;
 //  - the sign-in page is checked against eBird's and Cornell's own domains, in the
 //    steps file and again against the live page, right before the password is typed;
 //  - the attempt is written to bird_sync_runs BEFORE signing in, and a rejected
@@ -35,8 +35,8 @@ async function main() {
   const db = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } })
 
   // Her yes, and where her birds go
-  const [{ data: laurie }, { data: consent }] = await Promise.all([db.from('family_members').select('id, name').eq('name', 'Laurie').maybeSingle(), db.from('sync_consents').select('source, said_yes_by').eq('source', 'ebird').maybeSingle()])
-  if (!consentOk(consent, laurie)) { say('Laurie hasn’t said yes to this in the app (Life List › Birds). Nothing was done.'); return 0 }
+  const [{ data: laurie }, { data: consent }, { data: parents }] = await Promise.all([db.from('family_members').select('id, name').eq('name', 'Laurie').maybeSingle(), db.from('sync_consents').select('source, said_yes_by').eq('source', 'ebird').maybeSingle(), db.from('family_members').select('id').eq('role', 'parent')])
+  if (!consentOk(consent, laurie, parents || [])) { say('Nobody has switched this on in the app (Life List › Birds). Nothing was done.'); return 0 }
 
   // The log: may we sign in at all?
   const { data: runs, error: runsErr } = await db.from('bird_sync_runs').select('at, status').order('at', { ascending: false }).limit(10)

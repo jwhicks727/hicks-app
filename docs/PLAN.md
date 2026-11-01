@@ -259,7 +259,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       through her eBird checklists. Unverified against her own file until the first upload.
 - [x] Nightly eBird sync (built, migration run, **unverified against live eBird**):
       `sync-ebird.yml` signs in as Laurie only with her own yes in the app. Still to
-      do, in order: Laurie says yes (Birds › Bring in her birds); create the GitHub
+      do, in order: a parent switches it on (Birds › Bring in her birds); create the GitHub
       `ebird` environment with its secrets; run the workflow once with `discover`
       and fix `scripts/ebird-steps.json` from the outline. Steps: `docs/MORNING.md` 13.
 - [x] Camping and Disneyland trips, celebrated; trips and outings kept (`Trips.jsx`).

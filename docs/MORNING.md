@@ -285,9 +285,9 @@ New since the first sitting. Each part works on its own; skip any for now.
     gallery and say what it shows ("What it shows"). Until the migration is run,
     the Life List screens say so rather than failing.
 13. **Nightly eBird sync (optional; the file in step 12 still works).** Run
-    `supabase/migrations/20261101233000_ebird_sync.sql` the same way. Laurie, signed
-    in as herself, opens Life List › Birds › Bring in her birds and taps "Yes, bring
-    in my birds each night"; nothing signs in to eBird before that. Then, in GitHub:
+    `supabase/migrations/20261101233000_ebird_sync.sql` the same way. A parent opens
+    Life List › Birds › Bring in her birds and taps "Switch on for Laurie" (Laurie
+    can switch it off the same way); nothing signs in to eBird before that. Then, in GitHub:
     Settings › Environments › New environment `ebird`, limited to the `main`
     branch, with secrets `EBIRD_USERNAME`, `EBIRD_PASSWORD` (Laurie's eBird login),
     `SUPABASE_SERVICE_ROLE_KEY` and `EBIRD_API_KEY`; the repository variable

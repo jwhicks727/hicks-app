@@ -60,6 +60,6 @@ export function useBirdSync(session) {
     return { data: error ? [] : [{ yes: yes.data || null, runs: runs.data || [] }], error }
   })
 }
-/** Only Laurie's own sign-in can say yes (the database refuses anyone else's). */
+/** A parent records the yes under their own id (Laurie or Jason); either parent can take it back. */
 export const sayYesToSync = (memberId) => supabase.from('sync_consents').upsert({ source: 'ebird', said_yes_by: memberId, said_at: new Date().toISOString() }, { onConflict: 'source' })
-export const takeBackSyncYes = (memberId) => supabase.from('sync_consents').delete().eq('source', 'ebird').eq('said_yes_by', memberId)
+export const takeBackSyncYes = () => supabase.from('sync_consents').delete().eq('source', 'ebird')

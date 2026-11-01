@@ -222,11 +222,11 @@ const when = (iso) => new Date(iso).toLocaleString('en-US', { month: 'short', da
 /** Every night a job signs in to eBird as Laurie, but only while her own yes is here; this shows the yes and the last runs. */
 function NightlySync({ c, birds }) {
   const sync = useBirdSync(c.session), [busy, setBusy] = useState(false), [err, setErr] = useState(null)
-  const data = sync.rows[0] || { yes: null, runs: [] }, isLaurie = Boolean(c.me && c.laurie && c.me.id === c.laurie.id)
-  const on = Boolean(c.laurie && data.yes && data.yes.said_yes_by === c.laurie.id)
+  const data = sync.rows[0] || { yes: null, runs: [] }, byLaurie = Boolean(c.laurie && data.yes && data.yes.said_yes_by === c.laurie.id)
+  const on = Boolean(data.yes), who = (c.members.find((m) => data.yes && m.id === data.yes.said_yes_by) || {}).name
   async function flip() {
     setBusy(true); setErr(null)
-    const { error } = on ? await takeBackSyncYes(c.me.id) : await sayYesToSync(c.me.id)
+    const { error } = on ? await takeBackSyncYes() : await sayYesToSync(c.me.id)
     setBusy(false); if (error) setErr(/relation|does not exist|schema cache/i.test(error.message) ? 'The nightly sync migration hasn’t been run yet (docs/MORNING.md, step 13).' : error.message); else { sync.reload(); birds.reload() }
   }
   const last = data.runs.find((r) => r.kind !== 'discover')
@@ -234,9 +234,9 @@ function NightlySync({ c, birds }) {
     <Card tint="#2F7F9A" label="Every night, by itself" glyph="sunmoon" className="span-6">
       <p>Each night the app can sign in to eBird as Laurie, look for checklists it hasn’t seen, and add her birds, so nobody has to bring in a file. It takes up to 150 new checklists a night, newest first, so a long history fills in over a few nights.</p>
       {on
-        ? <p><b>Laurie has said yes.</b> {last ? <>Last run {when(last.at)}: {RUN_WORDS[last.status] || last.status}{last.status === 'ok' ? `, ${last.checklists} new checklists` : ''}.{last.note ? ` ${last.note}` : ''}</> : 'It hasn’t run yet.'}</p>
-        : <p><b>Waiting for Laurie’s yes.</b> {isLaurie ? 'It only signs in with your yes, and you can take it back here any time.' : 'Only she can say it, signed in as herself. Until then nothing signs in to eBird.'}</p>}
-      {isLaurie && <button type="button" className={on ? 'btn ghost' : 'btn'} disabled={busy} onClick={flip}>{busy ? 'One moment…' : on ? 'Take my yes back' : 'Yes, bring in my birds each night'}</button>}
+        ? <p><b>{byLaurie ? 'Laurie has said yes.' : `${who || 'A parent'} switched this on for Laurie.`}</b> {last ? <>Last run {when(last.at)}: {RUN_WORDS[last.status] || last.status}{last.status === 'ok' ? `, ${last.checklists} new checklists` : ''}.{last.note ? ` ${last.note}` : ''}</> : 'It hasn’t run yet.'}</p>
+        : <p><b>Switched off.</b> Until a parent switches it on, nothing signs in to eBird.</p>}
+      <button type="button" className={on ? 'btn ghost' : 'btn'} disabled={busy} onClick={flip}>{busy ? 'One moment…' : on ? 'Switch off' : 'Switch on for Laurie'}</button>
       {err && <p className="err" role="alert">{err}</p>}
       <p className="muted small">Her eBird password is kept only where the nightly job runs, never in the app or this repository. If eBird ever turns the sign-in down, the job stops for a day rather than trying again.</p>
     </Card>
