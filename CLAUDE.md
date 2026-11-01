@@ -204,6 +204,14 @@ licence nobody wrote down.
   (`yyyymmddhhmmss_short_description.sql`), run once in order (docs/DATABASE.md).
   Never edit one that has run; fix it with a new one.
   `tests/migrations.test.mjs` checks the rules below.
+- **Giving Jason a migration to run** (Jason's preference, 2026-11-01): one
+  PowerShell line that copies the file to the clipboard, starting with the
+  `cd`, then the dashboard steps one at a time. Say what the SQL does in a
+  sentence first, and that it runs once (a second run errors with "already
+  exists"):
+  `cd C:\Users\Admin\projects\hicks-app-clone; git pull; Get-Content supabase\migrations\<file>.sql -Raw | Set-Clipboard`
+  then Supabase dashboard → SQL Editor → new query → paste → Run, and what
+  "Success" looks like. Never ask him to open or copy the file by hand.
 - New tables are not exposed automatically: each migration grants its
   tables to `authenticated`, never to `anon`, and switches on row-level
   security. Never `using (true)`: a signed-in stranger must see nothing.
