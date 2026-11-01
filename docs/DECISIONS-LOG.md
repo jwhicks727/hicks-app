@@ -17,6 +17,16 @@ Big Bear and Anaheim just clear it, Redlands, Claremont and San Dimas don't),
 in the list's order, one a day, the same on every phone: the day's number
 modulo the list, so no state is kept.
 
+## 2026-11-01 — The place on World says why we're looking there
+
+A label like "Today's place" is a pattern the eye learns to skip. The big card
+now opens with how far it is and how it differs from home, then a headline from
+the biggest difference (rain there and dry here, snow, a 12-degree gap, wind,
+night already, or "much like home today, within 3°"), then a few plain lines:
+its temperature against ours, the time and light there, tomorrow there, and the
+place's own line (`src/lib/placeStory.js`, from the two forecasts and nothing
+invented).
+
 ## 2026-11-01 — A plan stays until it's put away; World becomes a weather app
 
 **Plans.** Plan the week looked up the plan by calendar week, so a list that was

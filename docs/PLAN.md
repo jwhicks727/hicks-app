@@ -27,6 +27,7 @@ Built in this order, each part in daily use before the next.
       Lent, Easter, spring, summer, July 4th.
 - [x] A plan stays until it's put away: Plan the week shows the newest list nobody has dismissed, with the recipes written from it (`week_plans.dismissed_at`, `week_plan_recipes`).
 - [x] World as a weather app: Weather at home with endless hour and day strips (back three weeks, ahead sixteen days; rain, inches and wind on each), Our places beside it (schools, recess flags, alerts, events coming up somewhere), the day, sky and air pages, every skyline moving, Joshua Tree, SoCal freeways, the Wild card's drawings and pictures.
+- [x] The place on World tells why: how it differs from home right now, its light and time, tomorrow there (`placeStory.js`).
 - [x] World leads with one of our places each day (from an hour away
       outward, in turn): its sky, the hour by hour and the week there; home's
       weather follows and Our Places is last (`src/places/world/PlaceOfDay.jsx`).

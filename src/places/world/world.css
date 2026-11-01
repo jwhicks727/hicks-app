@@ -277,3 +277,8 @@ html[data-motion="less"] .pm-seg-pill { transition: none; }
 @keyframes scene-petal { from { transform: translate(0, -20px) rotate(0); opacity: 0; } 10% { opacity: .9; } to { transform: translate(-30px, 84px) rotate(260deg); opacity: 0; } }
 .scene .kite { transform-box: fill-box; transform-origin: 50% 100%; animation: scene-kite 7s ease-in-out infinite alternate; }
 @keyframes scene-kite { from { transform: translate(-6px, 4px) rotate(-5deg); } to { transform: translate(8px, -6px) rotate(6deg); } }
+/* The place of the day's story: why we're looking there */
+.place-tale { display: grid; gap: 6px; padding: 14px 16px 16px; background: var(--card); }
+.place-headline { font-family: var(--font-voice); font-weight: 400; font-size: 26px; line-height: 1.15; margin: 0; color: var(--ink); }
+.place-tale p { margin: 0; line-height: 1.4; } .place-tale-line { color: var(--muted); font-style: normal; }
+.place-tale-go { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; color: var(--ink); text-underline-offset: 3px; }
