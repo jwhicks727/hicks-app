@@ -17,6 +17,32 @@ Big Bear and Anaheim just clear it, Redlands, Claremont and San Dimas don't),
 in the list's order, one a day, the same on every phone: the day's number
 modulo the list, so no state is kept.
 
+## 2026-11-01 — Life List is built: birds from her eBird file, trips, the parks
+
+Life List opens on **Recent** (her newest birds, the next and last outing, the
+parks' progress, her newest paintings, the birds she saw on this day in other
+years), with Birds, Trips, Parks and the Gallery beside it.
+
+- **Laurie's birds come in by file, never by sign-in.** She downloads
+  MyEBirdData.csv from eBird (My eBird › Download My Data) and drops it on the
+  app; it is read in the browser. The app never signs in to eBird and never holds
+  her password (so her "yes" for a login isn't needed, and there's nothing to lock
+  out). Birds Merlin heard or photographed reach her eBird through its checklists
+  and arrive with the file. Only the birds, days and places are kept, positions to
+  about a kilometre, **readable by the parents only**: where she walks says where
+  she is. The same file twice changes nothing. Written to eBird's documented columns
+  and unverified against her own file until she first uploads it.
+- **Drill-downs:** her life list, each day she birded, each month across the years,
+  each place, and each bird's own story, all linked.
+- **Camping trips and Disneyland trips are celebrated** (their own colours, which of
+  its kind it is, the nights); trips and ordinary outings are kept. The family reads;
+  the parents add. A park trip that is over checks the park off.
+- **The sixty-three national parks**, checked off as we go, one starred as next.
+- **Her paintings stand in for photos, only where she has said what they show.** A
+  parent tells a painting what it shows (a bird, a park, a place); it is never guessed
+  from the picture. Wherever the Life List would show a photo of that thing, her
+  painting takes its place.
+
 ## 2026-11-01 — Autumn's leaves are cut from her two autumn paintings, at full size
 
 The leaves that drifted down in fall were 22 to 54 pixels wide, lifted from the

@@ -1,28 +1,19 @@
-import Coming from '../parts/Coming.jsx'
-import PaintingsCard from '../parts/PaintingsCard.jsx'
 import Gallery from './lifelist/Gallery.jsx'
 import PaintingPage from './lifelist/PaintingPage.jsx'
-import { Crumb } from '../shell/Link.jsx'
+import Recent from './lifelist/Recent.jsx'
+import Birds from './lifelist/Birds.jsx'
+import Trips from './lifelist/Trips.jsx'
+import Parks from './lifelist/Parks.jsx'
 
-// /lifelist                          everything we've seen and done
-// /lifelist/paintings                Laurie's gallery
-// /lifelist/paintings/<slug>         one of her paintings
+// /lifelist                          what's new first
+// /lifelist/birds/...                Laurie's birds from eBird (parents only): life list, days, months, places, one bird, bring in the file
+// /lifelist/trips/...                camping, Disneyland and the other outings
+// /lifelist/parks/...                the national parks, checked off
+// /lifelist/paintings[/<slug>]       Laurie's gallery
 export default function LifeList({ rest = [] }) {
   if (rest[0] === 'paintings') return rest[1] ? <PaintingPage slug={rest[1]} /> : <Gallery />
-  return (
-    <>
-      <header className="hero span-6">
-        <span className="kicker">Everything we’ve seen and done</span>
-        <h1 className="greet">Life List</h1>
-      </header>
-      <PaintingsCard className="span-3" />
-      <Coming tint="#5F8A4A" glyph="bird" className="span-3" title="Recent, first" items={[
-        'A Recent dashboard that opens first: new birds, outings, paintings, trips',
-        'Laurie’s birds from eBird and Merlin, with drill-downs by day, bird, month and place',
-        'Camping trips and Disneyland trips, celebrated',
-        'The national parks we want to see, checked off as we go',
-        'Laurie’s paintings in place of photos wherever she has painted the thing',
-      ]} />
-    </>
-  )
+  if (rest[0] === 'birds') return <Birds rest={rest.slice(1)} />
+  if (rest[0] === 'trips') return <Trips rest={rest.slice(1)} />
+  if (rest[0] === 'parks') return <Parks rest={rest.slice(1)} />
+  return <Recent />
 }

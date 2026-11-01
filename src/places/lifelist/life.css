@@ -1,0 +1,44 @@
+/* Life List: the tabs, the pictures, the dashboards (ll- classes) */
+.ll-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.ll-tabs::-webkit-scrollbar { display: none; }
+.ll-tabs a { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: var(--r-control); border: 1.5px solid color-mix(in srgb, var(--sky-ink) 35%, transparent); color: var(--sky-ink); font-weight: 800; text-decoration: none; background: color-mix(in srgb, var(--card) 40%, transparent); white-space: nowrap; }
+.ll-tabs a[aria-current="page"] { background: #5F8A4A; border-color: #5F8A4A; color: var(--on-colour); }
+.ll-art { flex: none; display: inline-grid; place-items: center; border-radius: var(--r-control); background: var(--c); color: var(--on-colour); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--on-colour) 25%, transparent); }
+.ll-painted { flex: none; display: block; overflow: hidden; border-radius: var(--r-control); border: 2px solid #C0824F; background: var(--card); }
+.ll-painted img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ll-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 6px; }
+.ll-stat { display: grid; justify-items: center; align-content: center; gap: 0; min-height: 76px; padding: 8px 6px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 10%, var(--card)); color: var(--ink); text-decoration: none; text-align: center; }
+a.ll-stat:hover, a.ll-stat:focus-visible { background: color-mix(in srgb, var(--tint) 20%, var(--card)); outline: none; }
+.ll-n { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.05; } .ll-stat span { font-size: 12px; font-weight: 800; color: var(--muted); }
+.ll-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ll-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 8%, var(--card)); color: var(--ink); text-decoration: none; border-left: 4px solid var(--c, var(--tint)); }
+a.ll-row:hover, a.ll-row:focus-visible { background: color-mix(in srgb, var(--tint) 18%, var(--card)); outline: none; }
+.ll-row > span:not(.ll-art) { display: grid; min-width: 0; flex: 1; } .ll-row b { overflow-wrap: anywhere; line-height: 1.2; } .ll-row small { color: var(--muted); font-weight: 700; font-size: 12px; }
+.ll-row em { font-style: normal; font-weight: 850; font-size: 12px; padding: 2px 8px; border-radius: 4px; background: #5F8A4A; color: var(--on-colour); white-space: nowrap; }
+.ll-more { justify-self: start; }
+.ll-search { display: flex; gap: 8px; align-items: center; } .ll-search input { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; }
+.ll-seg { display: flex; gap: 4px; flex-wrap: wrap; } .ll-seg button { min-height: 44px; padding: 0 14px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; } .ll-seg button[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.ll-months { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.ll-month { display: grid; gap: 4px; padding: 10px; min-height: 76px; border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 8%, var(--card)); color: var(--ink); text-decoration: none; }
+a.ll-month:hover, a.ll-month:focus-visible { background: color-mix(in srgb, var(--tint) 18%, var(--card)); outline: none; }
+.ll-bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 8%, var(--card)); overflow: hidden; } .ll-bar i { display: block; height: 100%; background: linear-gradient(90deg, #5F8A4A, #E0A63A); border-radius: 4px; }
+.ll-bars { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; align-items: end; height: 96px; }
+.ll-bars a { display: grid; align-content: end; justify-items: center; height: 100%; gap: 2px; color: var(--ink); text-decoration: none; font-size: 11px; font-weight: 800; }
+.ll-bars a i { display: block; width: 100%; min-height: 3px; border-radius: 3px 3px 0 0; background: #5F8A4A; } .ll-bars a:hover i, .ll-bars a:focus-visible i { background: #E0A63A; } .ll-bars a:focus-visible { outline: 2px solid var(--ink); }
+.ll-celebrate { position: relative; overflow: hidden; }
+.ll-celebrate::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--c) 28%, transparent), transparent 60%), radial-gradient(circle at 100% 100%, color-mix(in srgb, #F2C14E 26%, transparent), transparent 55%); }
+.ll-ring { width: 96px; height: 96px; flex: none; } .ll-ring text { font: 400 22px var(--font-display); fill: var(--ink); }
+.ll-parks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 6px; }
+.ll-park { position: relative; display: grid; gap: 1px; min-height: 64px; padding: 8px 44px 8px 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; }
+.ll-park.been { background: color-mix(in srgb, #3E7A4C 16%, var(--card)); border-color: #3E7A4C; } .ll-park.want { border-color: #E0A63A; box-shadow: inset 4px 0 0 #E0A63A; }
+.ll-park small { color: var(--muted); font-weight: 700; font-size: 12px; } .ll-park .tick { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #3E7A4C; }
+.ll-trip { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; align-items: center; padding: 10px 12px; border-radius: var(--r-card); border: 1.5px solid color-mix(in srgb, var(--c) 40%, var(--line)); background: color-mix(in srgb, var(--c) 8%, var(--card)); color: var(--ink); text-decoration: none; }
+a.ll-trip:hover, a.ll-trip:focus-visible { background: color-mix(in srgb, var(--c) 16%, var(--card)); outline: none; }
+.ll-trip b { font-size: 17px; line-height: 1.2; overflow-wrap: anywhere; } .ll-trip small { color: var(--muted); font-weight: 700; } .ll-trip p { margin: 0; grid-column: 1 / -1; font-weight: 800; }
+.ll-form { display: grid; gap: 12px; } .ll-form label { display: grid; gap: 4px; font-weight: 800; } .ll-form input, .ll-form select, .ll-form textarea { font: inherit; min-height: 44px; padding: 8px 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); width: 100%; }
+.ll-form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ll-steps { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+html[data-motion="less"] .ll-bars a i { transition: none; }
+.ll-x { min-width: 32px; min-height: 32px; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 800; cursor: pointer; border-radius: var(--r-control); } .ll-x:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, var(--card)); }
+@media (pointer: coarse) { .ll-x { min-width: 44px; min-height: 44px; } }
+.ll-form .two > * { min-width: 0; } .ll-form input[type="date"] { min-width: 0; }

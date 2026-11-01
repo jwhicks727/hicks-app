@@ -147,7 +147,7 @@ export function fromRow(row, urls) {
   return {
     slug: row.slug, title: row.title, named: row.named, year: row.year, medium: row.medium, size: row.size,
     src: u('src'), small: u('small') || u('src'), w: row.w, h: row.h, seasons: row.seasons || [], added: row.added,
-    focus: row.focus || [0, 0, 1, 1],
+    focus: row.focus || [0, 0, 1, 1], subjects: row.subjects || [],
     flyer: row.flyer ? { ...row.flyer, sprite: u('sprite'), sky: u('sky') } : undefined,
     leaves: row.leaves ? { ...row.leaves, sheet: u('sheet') } : undefined,
   }
@@ -155,5 +155,5 @@ export function fromRow(row, urls) {
 /** A bundled painting as a row to store (its files go in alongside, by storedPaths). */
 export function toRow(p) {
   const strip = (o, drop) => (o ? Object.fromEntries(Object.entries(o).filter(([k]) => !drop.includes(k))) : null)
-  return { slug: p.slug, title: p.title, named: p.named, year: p.year, medium: p.medium, size: p.size, w: p.w, h: p.h, seasons: p.seasons, added: p.added, focus: p.focus, flyer: strip(p.flyer, ['sprite', 'sky']), leaves: strip(p.leaves, ['sheet']) }
+  return { slug: p.slug, title: p.title, named: p.named, year: p.year, medium: p.medium, size: p.size, w: p.w, h: p.h, seasons: p.seasons, added: p.added, focus: p.focus, subjects: p.subjects || [], flyer: strip(p.flyer, ['sprite', 'sky']), leaves: strip(p.leaves, ['sheet']) }
 }

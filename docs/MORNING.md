@@ -275,3 +275,12 @@ New since the first sitting. Each part works on its own; skip any for now.
     (so nothing is lost at midnight) but "Put this list away" says it needs it,
     and written recipes are kept on the device only. Until `wild` is deployed,
     each wild season keeps its drawing and has no picture.
+
+12. **Life List.** Run `supabase/migrations/20261101231500_life_list.sql` (copy it,
+    Supabase › SQL Editor › paste › Run). Then Life List › Birds › "Bring in her
+    eBird data": on ebird.org, signed in as Laurie, My eBird › Download My Data;
+    eBird emails a zip; drop its MyEBirdData.csv on the page. Camping trips,
+    Disneyland trips and the national parks need nothing more. To make one of her
+    paintings stand in for a photo of a bird, a park or a place, open it in the
+    gallery and say what it shows ("What it shows"). Until the migration is run,
+    the Life List screens say so rather than failing.

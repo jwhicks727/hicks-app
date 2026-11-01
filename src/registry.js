@@ -22,7 +22,7 @@ export const REGISTRY = [
   { key: 'garden', name: 'The Garden', colour: '#4E6C3D',
     setup: [], reports: [] },
   { key: 'lifelist', name: 'Life List', colour: '#5F8A4A',
-    setup: [{ key: 'ebird', title: 'Laurie’s eBird account (her yes)', ready: false }],
+    setup: [],
     reports: [] },
   { key: 'jams', name: 'Jams', colour: '#8A5BC4',
     setup: [{ key: 'artists', title: 'Our favourite artists', ready: false }, { key: 'scouts', title: 'The daily scouts', ready: false }],

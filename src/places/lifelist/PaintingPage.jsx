@@ -6,6 +6,7 @@ import { paintingBySlug } from '../../lib/paintings.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { SEASONS, windowsOf } from '../../lib/seasons.js'
 import { showFor } from '../../lib/seasonShows.js'
+import PaintingSubjects from './PaintingSubjects.jsx'
 import '../../parts/paintings.css'
 
 // /lifelist/paintings/<slug>: one painting, hung large and whole. Its bird
@@ -41,6 +42,7 @@ export default function PaintingPage({ slug }) {
           <PaintingFrame painting={p} label={`${p.title}, a painting by Laurie`} style={{ aspectRatio: `${p.w} / ${p.h}` }} />
         </div>
       </div>
+      <PaintingSubjects painting={p} />
       <Card className="span-6" tint="#C0824F" label="About it" glyph="star">
         <dl className="painting-facts">
           {p.year && <div><dt>Painted</dt><dd>{p.year}</dd></div>}

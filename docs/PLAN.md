@@ -251,12 +251,17 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 3. Life List
 
-- [ ] Recent first: new birds, outings, paintings, trips.
-- [ ] Laurie's eBird history, drill-downs by day, bird, month and place.
-- [ ] Camping and Disneyland trips; the national parks checklist.
-- [ ] Bird pictures: her photo, else a licensed photo with its credit (Birds
-      around us uses iNaturalist's Creative Commons photos); her painting
-      replaces both.
+- [x] Recent first: new birds, the next and last outing, the parks, her newest
+      paintings, birds on this day (`src/places/lifelist/Recent.jsx`).
+- [x] Laurie's birds from her eBird download (by file, no sign-in), parents only:
+      her life list, each day, each month, each place, each bird's story
+      (`src/places/lifelist/Birds.jsx`, `src/lib/life/`). Merlin's finds come in
+      through her eBird checklists. Unverified against her own file until the first upload.
+- [x] Camping and Disneyland trips, celebrated; trips and outings kept (`Trips.jsx`).
+- [x] The national parks checklist, sixty-three, starred and checked off (`Parks.jsx`).
+- [x] Her painting stands in for a photo wherever a parent has said what it shows
+      (a bird, a park, a place): `PaintingSubjects.jsx`, `src/lib/life/subjects.js`.
+      Where there is no painting, the thing's own drawing (no photos are fetched).
 - [x] Birds around us on Home, right after the weather: this week's
       sightings round town from eBird, the notable ones first in green,
       each a tap from when and where it was last seen.
