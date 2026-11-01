@@ -138,6 +138,12 @@ From the handoff, for the recipes and for whoever writes them:
      list or one taken off it this visit. "Start over with new ideas"
      wipes the list, so it asks first (the old list stays in the
      database as that week's earlier version).
+     "Clear list" empties the list without asking for new ideas, and
+     asks first too.
+  The list can be texted to Laurie or to Anna in one tap (each number is
+  kept once, in the parents-only `member_phones` table; Anna's is her
+  Apple Watch's). Whoever answers "1, 3, 8", you type it under "Their
+  reply".
   4. "Write the picked" writes them in full, in the format above.
   5. Read them, then save them to the cookbook, and to the fridge if you
      like.

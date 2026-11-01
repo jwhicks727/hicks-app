@@ -38,11 +38,11 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   const [ask, setAsk] = useDraft('kitchen.plan.ask', { count: 10, asked: '' })
   const [written, setWritten, clearWritten] = useDraft(`kitchen.plan.written.${week}`, { recipes: [] })
   const [busy, setBusy] = useState(null), [err, setErr] = useState(null), [fridgeToo, setFridgeToo] = useState(true), [saved, setSaved] = useState(null)
-  const laurie = members.find((m) => m.name === 'Laurie') || null
+  // Who the list can be texted to: each remembered by number (Anna's is her Apple Watch's)
+  const people = ['Laurie', 'Anna'].map((n) => members.find((m) => m.name === n)).filter(Boolean)
   const phones = useMemberPhones(session, parent)
-  const lauriePhone = laurie ? phones.phones[laurie.id] || null : null
-  const [reply, setReply] = useState(''), [replyNote, setReplyNote] = useState(null), [number, setNumber] = useState(''), [numberNote, setNumberNote] = useState(null), [copied, setCopied] = useState(false)
-  const [wiping, setWiping] = useState(false), [undo, setUndo] = useState(null), [arrived, setArrived] = useState([])
+  const [reply, setReply] = useState(''), [replyNote, setReplyNote] = useState(null), [copied, setCopied] = useState(false)
+  const [clearing, setClearing] = useState(false), [wiping, setWiping] = useState(false), [undo, setUndo] = useState(null), [arrived, setArrived] = useState([])
   // Titles taken off the list or swapped out on this visit, so a new idea doesn't bring one back
   const [setAside, setSetAside] = useState([])
 
@@ -143,13 +143,11 @@ export default function PlanWeek({ parent, me, members = [], today }) {
     change({ ideas: cur.ideas, picked: next })
     setReplyNote(`Picked ${next.map((i) => i + 1).join(', ')}.`); setReply('')
   }
-  async function saveNumber(e) {
-    e.preventDefault()
-    const phone = normalizePhone(number)
-    if (!phone) { setNumberNote('A phone number with its area code, like (909) 555-1234.'); return }
-    const { error } = await phones.save(laurie.id, phone)
-    if (error) setNumberNote(/relation|does not exist|schema cache/i.test(error.message) ? 'The newest migration hasn’t been run yet (docs/MORNING.md, step 10).' : error.message)
-    else { setNumber(''); setNumberNote('Saved. The button now opens her message.') }
+  async function clearList() {
+    const cur = now()
+    setClearing(false); setUndo(null); setErr(null); setReplyNote(null)
+    aside(cur.ideas.map((i) => i.title))
+    await change({ ideas: [], picked: [] })
   }
   async function copyList() {
     try { await navigator.clipboard.writeText(listText(ideas, week)); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch { setCopied(false) }
@@ -208,33 +206,25 @@ export default function PlanWeek({ parent, me, members = [], today }) {
             ))}
           </ul>
           <div className="plan-text">
-            <b>Let Laurie choose</b>
+            <b>{people.length ? 'Let the family choose' : 'Send the list'}</b>
             <div className="form-actions">
-              <a className="btn ghost" href={smsLink(lauriePhone, listText(ideas, week))}>{lauriePhone ? 'Text the list to Laurie' : 'Text the list'}</a>
+              {people.map((m) => <a key={m.id} className="btn ghost" href={smsLink(phones.phones[m.id], listText(ideas, week))}>{phones.phones[m.id] ? `Text the list to ${m.name}` : `Text the list (${m.name})`}</a>)}
+              {!people.length && <a className="btn ghost" href={smsLink(null, listText(ideas, week))}>Text the list</a>}
               <button type="button" className="btn ghost" onClick={copyList}>{copied ? 'Copied' : 'Copy the list'}</button>
             </div>
             <span className="muted small">Opens your Messages with the numbered list; the message goes from your phone, not through this app.</span>
             <form className="plan-reply" onSubmit={pickFromReply}>
-              <label>She wrote back<input inputMode="text" autoComplete="off" value={reply} onChange={(e) => setReply(e.target.value)} placeholder="1, 3, 8" /></label>
+              <label>Their reply<input inputMode="text" autoComplete="off" value={reply} onChange={(e) => setReply(e.target.value)} placeholder="1, 3, 8" /></label>
               <button type="submit" className="btn ghost" disabled={!reply.trim()}>Pick those</button>
             </form>
             {replyNote && <span className="muted small" role="status">{replyNote}</span>}
-            {laurie && (
-              <details className="plan-phone" open={!lauriePhone && Boolean(numberNote)}>
-                <summary>{lauriePhone ? 'Change Laurie’s number' : 'Add Laurie’s number, so one tap opens her message'}</summary>
-                <form className="plan-reply" onSubmit={saveNumber}>
-                  <label>Her number<input type="tel" inputMode="tel" autoComplete="off" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="(909) 555-1234" /></label>
-                  <button type="submit" className="btn ghost" disabled={!number.trim()}>Save</button>
-                </form>
-                <span className="muted small">Kept in the family’s database, readable by Jason and Laurie only.</span>
-                {numberNote && <span className="muted small" role="status">{numberNote}</span>}
-              </details>
-            )}
+            {people.map((m) => <PhoneRow key={m.id} person={m} phone={phones.phones[m.id] || null} save={phones.save} />)}
           </div>
           <div className="form-actions">
             <button type="button" className="btn" disabled={!picked.length || Boolean(busy)} onClick={write}>Write the {picked.length || ''} picked</button>
             <button type="button" className="btn ghost" disabled={Boolean(busy) || ideas.length >= 40} onClick={addOne}>Add an idea</button>
             <button type="button" className="btn ghost" disabled={Boolean(busy) || !spare} onClick={refresh}>Refresh the list</button>
+            <button type="button" className="btn ghost" disabled={Boolean(busy)} onClick={() => setClearing(true)}>Clear list</button>
           </div>
           <p className="muted small">{picked.length ? (spare ? `Refresh keeps the ${picked.length} picked and swaps the other ${spare}.` : 'Everything on the list is picked, so there’s nothing to refresh.') : 'Refresh swaps every idea on the list; pick the ones to keep first.'}</p>
         </Card>
@@ -268,8 +258,38 @@ export default function PlanWeek({ parent, me, members = [], today }) {
           {picked.length > 0 && <p className="muted small">To keep the picked ones, use Refresh the list instead.</p>}
         </Confirm>
       )}
+      {clearing && (
+        <Confirm title="Clear the list?" yes="Clear it" danger onYes={clearList} onNo={() => setClearing(false)}>
+          <p>All {ideas.length} {ideas.length === 1 ? 'idea' : 'ideas'} come off the list{picked.length ? `, including the ${picked.length} picked` : ''}. Nothing new is asked for.</p>
+        </Confirm>
+      )}
       {undo && <Toast key={undo.id} action="Undo" onAction={undoIt} onClose={() => setUndo(null)}>{undo.text}</Toast>}
       {saved && <Card tint="#3E7A4C" label="Saved" glyph="star" className="span-6"><ul className="coming">{saved.map((r, i) => <li key={i}>{r.ok ? <Link to={`/kitchen/recipe/${r.slug}`}>{r.title}</Link> : <span className="err">{r.title}: {r.error}</span>}</li>)}</ul></Card>}
     </>
+  )
+}
+
+/** One person's number, so the list can be texted to them in a tap. Kept in the database, parents only. */
+function PhoneRow({ person, phone, save }) {
+  const [number, setNumber] = useState(''), [note, setNote] = useState(null)
+  const anna = person.name === 'Anna'
+  async function submit(e) {
+    e.preventDefault()
+    const p = normalizePhone(number)
+    if (!p) { setNote('A phone number with its area code, like (909) 555-1234.'); return }
+    const { error } = await save(person.id, p)
+    if (error) setNote(/relation|does not exist|schema cache/i.test(error.message) ? 'The newest migration hasn’t been run yet (docs/MORNING.md, step 10).' : error.message)
+    else { setNumber(''); setNote(`Saved. The button now opens ${anna ? 'a message to her' : 'her message'}.`) }
+  }
+  return (
+    <details className="plan-phone" open={!phone && Boolean(note)}>
+      <summary>{phone ? `Change ${person.name}’s number` : `Add ${person.name}’s number${anna ? ' (her Apple Watch’s)' : ''}, so one tap opens her message`}</summary>
+      <form className="plan-reply" onSubmit={submit}>
+        <label>{anna ? 'Her watch number' : 'Her number'}<input type="tel" inputMode="tel" autoComplete="off" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="(909) 555-1234" /></label>
+        <button type="submit" className="btn ghost" disabled={!number.trim()}>Save</button>
+      </form>
+      <span className="muted small">Kept in the family’s database, readable by Jason and Laurie only.</span>
+      {note && <span className="muted small" role="status">{note}</span>}
+    </details>
   )
 }

@@ -6,6 +6,14 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — Clear list, and the list can be texted to Anna
+
+Plan the week gets a "Clear list" (it asks first, since it wipes the whole
+list) and a per-person "Text the list" for Laurie and Anna. Anna's number is
+her Apple Watch's, kept in `member_phones` like Laurie's: parents read and
+change it, her own account can't see it. The message is made and sent by the
+phone's own Messages, never through the app.
+
 ## 2026-11-01 — A photographed recipe is approved, and the chat can fix recipes
 
 The first photographed recipe came back calling a dish fine for Laurie when

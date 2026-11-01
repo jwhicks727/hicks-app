@@ -1,8 +1,8 @@
 // ============================================
-// text.js -- the week's ideas, as a text message to Laurie, and her reply back
+// text.js -- the week's ideas, as a text message to Laurie or Anna, and the reply back
 // ============================================
 // Jason taps once and his own Messages app opens with the numbered list, so
-// Laurie can answer "1, 3, 8". The message is made on the phone and sent by
+// Laurie (or Anna, on her watch) can answer "1, 3, 8". The message is made on the phone and sent by
 // the phone's own messaging; nothing goes through this app's servers. Pure.
 
 const MAX_LINE = 90
