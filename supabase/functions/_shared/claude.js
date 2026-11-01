@@ -82,7 +82,9 @@ The recipe format is a contract Jason has corrected more than once:
 
 Technique they keep: convection means reduce 25°F or cut time 25%, never both; roast frozen vegetables from frozen at 400–425°F; salt summer squash and blot it; scallops bone-dry; tofu never pressed, super-firm, four minutes undisturbed; bloom spice and curry paste 60–90 seconds in fat.
 
-How to talk: warmly and briefly, like a friend who cooks. Plain sentences. When something would change their saved preferences, Laurie's food rules, the cookbook or this week's list, use the matching tool to propose it: nothing is saved until someone in the family confirms it on screen. Never invent a rating or a past dinner.`
+Laurie's food rules decide her plate. Whenever you read, write or change a recipe, check every ingredient that reaches her plate against them, including what hides in sauces, spice blends, broths, stocks and canned or jarred goods, and say plainly what conflicts and what to do instead. Never call a dish safe for her when her rules aren't in front of you.
+
+How to talk: warmly and briefly, like a friend who cooks. Plain sentences. To look at a recipe in the cookbook, open it with read_recipe rather than guessing what it says. When something would change their saved preferences, Laurie's food rules, a recipe in the cookbook or this week's list, use the matching tool to propose it: nothing is saved until someone in the family confirms it on screen. Never invent a rating or a past dinner.`
 
 /** The parts of the system prompt that change: what they've told the app, and what's in the kitchen now. */
 export function kitchenNow({ today, preferences, rules, recipes = [], fridge = [], plan, page, garden = [] } = {}) {
@@ -94,7 +96,7 @@ export function kitchenNow({ today, preferences, rules, recipes = [], fridge = [
   if (fridge.length) lines.push('In the fridge to cook this week: ' + fridge.slice(0, 12).join('; '))
   if (garden.length) lines.push('From their own garden lately (worth cooking with): ' + garden.slice(0, 12).join('; '))
   if (plan && plan.ideas && plan.ideas.length) lines.push('This week’s ideas so far: ' + plan.ideas.slice(0, 20).map((i) => i.title).join('; '))
-  if (page && page.recipe) lines.push(`They're looking at this recipe now:\n${page.recipe.slice(0, 16000)}`)
+  if (page && page.recipe) lines.push(`They're looking at this recipe now (slug ${page.slug}):\n${page.recipe.slice(0, 16000)}`)
   return lines.join('\n\n')
 }
 
@@ -104,6 +106,7 @@ const str = { type: 'string' }, int = { type: 'integer' }, bool = { type: 'boole
 const MEALS = ['dinner', 'breakfast', 'lunch', 'snack', 'dessert', 'other']
 
 export const IDEAS_SCHEMA = obj({ ideas: { type: 'array', items: obj({ title: str, line: str, meal: { type: 'string', enum: MEALS }, again: bool }) } })
+export const PHOTO_RECIPE_SCHEMA = obj({ recipes: { type: 'array', items: obj({ title: str, body: str, total_minutes: int, hands_on_minutes: int, serves: int, tags: { type: 'array', items: str }, checks: { type: 'array', items: str } }) } })
 export const RECIPES_SCHEMA = obj({ recipes: { type: 'array', items: obj({ title: str, body: str, total_minutes: int, hands_on_minutes: int, serves: int, tags: { type: 'array', items: str } }) } })
 export const EVENTS_SCHEMA = obj({
   title: str, notes: str,
@@ -120,7 +123,7 @@ export const TASKS = {
   'kitchen-chat': { who: 'family', effort: 'low', maxTokens: 8000, says: 'your message, and the kitchen’s preferences and cookbook titles' },
   'plan-week': { who: 'parent', effort: 'medium', maxTokens: 8000, schema: IDEAS_SCHEMA },
   'write-recipes': { who: 'parent', effort: 'medium', maxTokens: 64000, stream: true, schema: RECIPES_SCHEMA },
-  'recipe-from-image': { who: 'parent', effort: 'low', maxTokens: 16000, schema: RECIPES_SCHEMA, upload: true },
+  'recipe-from-image': { who: 'parent', effort: 'medium', maxTokens: 16000, schema: PHOTO_RECIPE_SCHEMA, upload: true },
   'calendar-from-image': { who: 'parent', effort: 'low', maxTokens: 16000, schema: EVENTS_SCHEMA, upload: true, pdf: true },
   'garden-photo': { who: 'family', effort: 'medium', maxTokens: 8000, schema: GARDEN_SCHEMA, upload: true },
 }
@@ -130,7 +133,9 @@ export function kitchenTools({ canRules = false } = {}) {
   const t = (name, description, input_schema) => ({ name, description, strict: true, input_schema })
   const tools = [
     t('propose_preferences', 'Propose a new version of the family’s saved kitchen preferences (tastes, dislikes, pantry, equipment, habits). Give the whole new text, and a one-line summary of what changed. Shown to the family to confirm; nothing is saved until they do.', obj({ text: str, summary: str })),
-    t('propose_recipe', 'Propose adding a full recipe to the cookbook, written in Jason’s format. Shown to confirm before it is saved.', obj({ title: str, body: str })),
+    t('read_recipe', 'Open a recipe in their cookbook and read the whole of it (for Jason or Laurie, Laurie’s plate too). Give its title as the cookbook lists it.', obj({ title: str })),
+    t('propose_recipe', 'Propose adding a new recipe to the cookbook, written in Jason’s format. Shown to confirm before it is saved.', obj({ title: str, body: str })),
+    t('propose_recipe_change', 'Propose a changed version of a recipe already in the cookbook: its slug (from read_recipe or the page), the whole new Markdown file in Jason’s format with every section kept (Laurie’s plate included), and a one-line summary of what changed. Shown side by side with the saved version; nothing is saved until they confirm.', obj({ slug: str, body: str, summary: str })),
     t('add_ideas', 'Propose one-line ideas to add to this week’s list. Shown to confirm before they are added.', obj({ ideas: { type: 'array', items: obj({ title: str, line: str, meal: { type: 'string', enum: MEALS } }) } })),
   ]
   if (canRules) tools.push(t('propose_food_rules', 'Propose a new version of Laurie’s food rules. Give the whole new text and a one-line summary of what changed. Only Jason or Laurie can confirm it; the old version is kept.', obj({ text: str, summary: str })))
@@ -166,7 +171,28 @@ export function writeAsk({ ideas = [] }) {
   return 'Write these as full recipes in Jason’s format, every closing section that applies, the body as the whole Markdown file:\n' +
     ideas.slice(0, 8).map((i, k) => `${k + 1}. ${i.title}${i.line ? ` — ${i.line}` : ''}`).join('\n')
 }
-export const RECIPE_FROM_IMAGE_ASK = 'This is a recipe, photographed or screenshotted. Rewrite it in Jason’s format as one recipe, keeping its amounts and method faithfully; add Laurie’s plate, Jason’s plate and Anna’s add-on only where the dish obviously allows, and say in Notes what you changed. If it isn’t a recipe, return no recipes.'
+export const RECIPE_FROM_IMAGE_ASK = 'This is a recipe, photographed or screenshotted. Rewrite it in Jason’s format as one recipe, keeping its amounts and method faithfully, and say in Notes what you changed. Always write Laurie’s plate: check every ingredient against her food rules (what’s in the sauces, blends and canned goods too) and say exactly what her plate leaves out or swaps; add Jason’s plate and Anna’s add-on where the dish allows. In checks, list what Jason should look at before saving it, one short line each: every conflict with Laurie’s rules, and anything you had to guess (a word you couldn’t read, a missing amount, time or temperature). An empty list only when there is truly nothing. If it isn’t a recipe, return no recipes.'
+
+/**
+ * The recipe read_recipe means: the same title (any case), else the one title
+ * containing it, else the one sharing the most words with it. Null when unsure.
+ */
+export function findRecipe(list = [], wanted = '') {
+  const norm = (t) => String(t).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+  const w = norm(wanted)
+  if (!w) return null
+  const exact = list.filter((r) => norm(r.title) === w)
+  if (exact.length) return exact[0]
+  const inside = list.filter((r) => norm(r.title).includes(w) || w.includes(norm(r.title)))
+  if (inside.length === 1) return inside[0]
+  const words = new Set(w.split(' ').filter((x) => x.length > 2))
+  let best = null, score = 0, tie = false
+  for (const r of list) {
+    const n = norm(r.title).split(' ').filter((x) => words.has(x)).length
+    if (n > score) { best = r; score = n; tie = false } else if (n === score && n > 0) tie = true
+  }
+  return score >= Math.min(2, words.size) && !tie ? best : null
+}
 export function calendarAsk({ hint = '', year }) {
   return `This is a calendar, a schedule or a flyer. List every dated event in it. Dates as YYYY-MM-DD (assume ${year} or the school year shown when the year is missing); an event spanning days has its last day in ends_on, otherwise ends_on equals starts_on. time is HH:MM in 24-hour time, or empty for all day. kind: no_school for holidays and days off, school for school events, otherwise event. Keep only what's written; never invent one. Put the document's own title in title.` + (hint ? `\nAbout it: ${String(hint).slice(0, 500)}` : '')
 }

@@ -8,11 +8,14 @@ import { savePreferences, saveFoodRules, savePlan } from '../lib/useKitchenPlan.
 import { saveRecipes } from '../lib/useKitchen.js'
 import { supabase } from '../lib/supabase.js'
 import { weekOf, mergeIdeas } from '../lib/kitchen/plan.js'
+import { lineDiff, changesOnly, diffWords } from '../lib/kitchen/diff.js'
+import { withLauriePlate, tidyProposed } from '../lib/kitchen/recipe.js'
 
 // Talk to Claude about cooking from anywhere in the Kitchen: a recipe, a
 // swap, what to do with the scallions, a change to the preferences or
-// Laurie's rules. Whatever it suggests saving comes as a card to confirm;
-// nothing changes until someone says so. The conversation stays on this
+// Laurie's rules, fixing a recipe in the cookbook. It can open any recipe to
+// read it. Whatever it suggests saving comes as a card to confirm, a change
+// shown against what's saved now; nothing changes until someone says so. The conversation stays on this
 // device (cleared on sign-out); "New" starts again.
 
 const SUGGEST = ['What can I make with what’s in the fridge?', 'Swap for the sore-hands week?', 'Add to my preferences: no more cauliflower rice']
@@ -50,9 +53,9 @@ function Chat({ me, parent, members, slug, today }) {
 
   return (
     <div className="kchat">
-      <p className="kchat-says">Talks with Claude (Anthropic). It sees what you type here, the kitchen’s preferences, the cookbook’s titles and ratings, what the garden gave lately{slug ? ', the recipe you’re on' : ''}{parent ? ', and Laurie’s food rules' : ''}. Nothing is saved without you.</p>
+      <p className="kchat-says">Talks with Claude (Anthropic). It sees what you type here, the kitchen’s preferences, the cookbook’s titles and ratings and any recipe it opens, what the garden gave lately{slug ? ', the recipe you’re on' : ''}{parent ? ', and Laurie’s food rules' : ''}. Nothing is saved without you.</p>
       {c.messages.length === 0 && (
-        <div className="kchat-try">{SUGGEST.map((s) => <button key={s} type="button" className="btn ghost" onClick={() => send(s)}>{s}</button>)}</div>
+        <div className="kchat-try">{[...(slug && parent ? ['Check this one against Laurie’s rules'] : []), ...SUGGEST].map((s) => <button key={s} type="button" className="btn ghost" onClick={() => send(s)}>{s}</button>)}</div>
       )}
       <div className="kchat-log" aria-live="polite">
         {c.messages.map((m, i) => <Turn key={i} m={m} done={c.done} onDone={mark} me={me} parent={parent} members={members} today={today} />)}
@@ -83,6 +86,7 @@ function Turn({ m, done, onDone, me, parent, members, today }) {
     <>
       {blocks.map((b, i) => {
         if (b.type === 'text' && b.text) return <div key={i} className="kchat-them"><Lite text={b.text} /></div>
+        if (b.type === 'tool_use' && b.name === 'read_recipe') return <p key={i} className="kchat-read">Opened “{String((b.input && b.input.title) || '')}”</p>
         if (b.type === 'tool_use') return <Proposal key={i} use={b} state={done[b.id]} onDone={(how) => onDone(b.id, how)} me={me} parent={parent} members={members} today={today} />
         return null
       })}
@@ -99,10 +103,12 @@ function Lite({ text }) {
 function Proposal({ use, state, onDone, me, parent, members, today }) {
   const [err, setErr] = useState(null), [result, setResult] = useState(null)
   const x = use.input || {}
+  const before = useBefore(use.name, x, parent && !state)
   const what = {
     propose_preferences: { title: 'Change the kitchen’s preferences', line: x.summary, body: x.text, parentOnly: true },
     propose_food_rules: { title: 'Change Laurie’s food rules', line: x.summary, body: x.text, parentOnly: true },
     propose_recipe: { title: `Add “${x.title}” to the cookbook`, body: x.body, parentOnly: true },
+    propose_recipe_change: { title: 'Change a recipe', line: x.summary, parentOnly: true, compare: true },
     add_ideas: { title: `Add ${(x.ideas || []).length} ${(x.ideas || []).length === 1 ? 'idea' : 'ideas'} to this week`, line: (x.ideas || []).map((i) => i.title).join(' · '), parentOnly: true },
   }[use.name]
   if (!what) return null
@@ -112,6 +118,10 @@ function Proposal({ use, state, onDone, me, parent, members, today }) {
     if (use.name === 'propose_preferences') r = await savePreferences(x.text, x.summary, me)
     if (use.name === 'propose_food_rules') { const laurie = members.find((m) => m.name === 'Laurie'); r = await saveFoodRules((laurie || me).id, x.text, x.summary, me) }
     if (use.name === 'propose_recipe') { const [s] = await saveRecipes([x.body]); r = s.ok ? { error: null } : { error: { message: s.error } }; if (s.ok) setResult(s) }
+    if (use.name === 'propose_recipe_change') {
+      if (!before || !before.found) { setErr('That recipe isn’t in the cookbook any more.'); return }
+      const [s] = await saveRecipes([{ md: tidyProposed(x.body), slug: before.slug }]); r = s.ok ? { error: null } : { error: { message: s.error } }; if (s.ok) setResult(s)
+    }
     if (use.name === 'add_ideas') {
       const week = weekOf(today)
       const { data } = await supabase.from('week_plans').select('*').eq('week_of', week).order('created_at', { ascending: false }).limit(1)
@@ -124,13 +134,61 @@ function Proposal({ use, state, onDone, me, parent, members, today }) {
     <div className={'kchat-prop ' + (state || '')}>
       <b>{what.title}</b>
       {what.line && <span>{what.line}</span>}
-      {what.body && <details><summary>See it</summary><pre className="plan-md">{what.body}</pre></details>}
+      {(what.compare || (what.body && before && before.text)) && <Compare before={before} after={use.name === 'propose_recipe_change' ? tidyProposed(x.body) : what.body} name={use.name === 'propose_recipe_change' && before && before.title} />}
+      {what.body && !(before && before.text) && <details><summary>See it</summary><pre className="plan-md">{what.body}</pre></details>}
       {!state && (what.parentOnly && !parent
         ? <span className="muted small">Jason or Laurie can save this.</span>
         : <div className="form-actions"><button type="button" className="btn" onClick={yes}>Save it</button><button type="button" className="btn ghost" onClick={() => onDone('no')}>Not now</button></div>)}
       {state === 'saved' && <span className="kchat-ok">Saved{result ? <> · <Link to={`/kitchen/recipe/${result.slug}`}>open it</Link></> : ''}</span>}
       {state === 'no' && <span className="muted small">Left as it was.</span>}
       {err && <span className="err">{err}</span>}
+    </div>
+  )
+}
+
+/**
+ * What a proposal would replace, read as the person looking (row-level
+ * security decides): the recipe with Laurie's plate back in its place, or the
+ * latest rules or preferences. { text, found, slug, title } once read.
+ */
+function useBefore(tool, x, live) {
+  const [before, setBefore] = useState(null)
+  const slug = tool === 'propose_recipe_change' ? String(x.slug || '') : ''
+  useEffect(() => {
+    if (!live || !supabase) return undefined
+    let on = true
+    const done = (b) => { if (on) setBefore(b) }
+    if (tool === 'propose_recipe_change') {
+      if (!/^[a-z0-9-]{1,80}$/.test(slug)) { done({ found: false }); return undefined }
+      supabase.from('recipes').select('id, slug, title, body').eq('slug', slug).maybeSingle().then(async ({ data }) => {
+        if (!data) return done({ found: false })
+        const { data: p } = await supabase.from('recipe_private').select('laurie_plate').eq('recipe_id', data.id).maybeSingle()
+        done({ found: true, slug: data.slug, title: data.title, text: withLauriePlate(data.body, p && p.laurie_plate) })
+      })
+    } else if (tool === 'propose_food_rules' || tool === 'propose_preferences') {
+      supabase.from(tool === 'propose_food_rules' ? 'food_rules' : 'kitchen_preferences').select('body').order('created_at', { ascending: false }).limit(1)
+        .then(({ data }) => done({ found: true, text: data && data[0] ? data[0].body : '' }))
+    }
+    return () => { on = false }
+  }, [tool, slug, live])
+  return before
+}
+
+/** The change itself: lines taken out and added, a line of what's around each, the rest folded away. */
+function Compare({ before, after, name }) {
+  if (!before) return <span className="muted small">Reading what’s saved now…</span>
+  if (!before.found) return <span className="err">That recipe isn’t in the cookbook, so there’s nothing to change.</span>
+  const diff = lineDiff(before.text, after || '')
+  const shown = changesOnly(diff)
+  return (
+    <div className="kdiff">
+      <span className="muted small">{name ? <>“{name}”: </> : null}{diffWords(diff)}</span>
+      <div className="kdiff-lines" role="list">
+        {shown.map((d, i) => (d.t === 'gap'
+          ? <div key={i} className="kdiff-gap" role="listitem">{d.count} {d.count === 1 ? 'line' : 'lines'} the same</div>
+          : <div key={i} className={'kdiff-' + d.t} role="listitem"><span className="kdiff-sign" aria-label={d.t === 'add' ? 'Added' : d.t === 'del' ? 'Taken out' : 'Unchanged'}>{d.t === 'add' ? '+' : d.t === 'del' ? '−' : ''}</span>{d.line || '\u00a0'}</div>))}
+      </div>
+      <details><summary>See the whole new version</summary><pre className="plan-md">{after}</pre></details>
     </div>
   )
 }

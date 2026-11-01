@@ -6,6 +6,26 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-01 — A photographed recipe is approved, and the chat can fix recipes
+
+The first photographed recipe came back calling a dish fine for Laurie when
+it held onion, red pepper and tomatoes: the photo reader had never been given
+her food rules. Jason's call: fix it in the app, not in the code, and by
+talking to the chat. So:
+
+- The photo reader now gets the kitchen's context, Laurie's rules included
+  (a parent's task, like the others), and returns `checks`: conflicts with her
+  rules and anything it had to guess.
+- Nothing from a photo is saved on Claude's word. It is shown beside the
+  picture with those checks, editable, and saved only once approved.
+- The Kitchen chat can open any recipe (`read_recipe`, answered in the Edge
+  Function as the caller, so Laurie's plate reaches only a parent) and
+  propose changing one (`propose_recipe_change`). The card shows the saved
+  version against the new one, line by line; Save replaces that recipe in
+  place, keeping its ratings and fridge. Rules and preferences changes show
+  the same comparison. Laurie's rules are offered to the chat for any
+  parent, on any recipe, not only while a rules change is being proposed.
+
 ## 2026-11-01 — Plan the week: one idea at a time, Undo instead of asking
 
 "More ideas" asked for another ten, and ten more was never wanted. Jason's

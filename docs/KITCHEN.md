@@ -174,3 +174,16 @@ From the handoff, for the recipes and for whoever writes them:
 
 - `check_plate`: a recipe checked against Laurie's rules.
 - `adapt`, the substitution engine.
+
+## Photographed recipes, and fixing recipes by chat
+
+- A photo or screenshot on **Add recipes** is read by Claude with Laurie's
+  food rules and the preferences. It is shown beside its picture with "Look
+  at these" (conflicts with her rules, guesses), editable, and saved only
+  after you tick that it matches the picture.
+- **Ask** (the chat, from anywhere in Kitchen) can open any recipe in the
+  cookbook by name and read it whole, Laurie's plate too for a parent. On a
+  recipe's page, "Check this one against Laurie's rules" starts it. When it
+  suggests a fix, the card shows what's saved against the new version,
+  line by line; **Save it** replaces that recipe (ratings and fridge stay).
+  The same comparison shows for changes to the rules and preferences.

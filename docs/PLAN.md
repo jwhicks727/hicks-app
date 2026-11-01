@@ -25,6 +25,8 @@ Built in this order, each part in daily use before the next.
       colours. Settings can try another season's show.
 - [ ] A show for every season, as she paints them: Christmas, Advent,
       Lent, Easter, spring, summer, July 4th.
+- [x] Photographed recipes are checked against Laurie's rules and approved
+      before saving; the chat opens and fixes recipes, shown against what's saved.
 - [x] Plan the week, tended a little at a time: add one idea, refresh the
       ones not picked, or take one off with its ✕ and an Undo; starting
       over asks first, and what's under way shows at the top of the screen.

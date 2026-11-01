@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { pickLatest, FALLBACK_SONNET, costCents, overCap, checkUpload, checkHistory, TASKS, kitchenTools, kitchenNow, planAsk, IDEAS_SCHEMA, RECIPES_SCHEMA, EVENTS_SCHEMA, GARDEN_SCHEMA } from '../supabase/functions/_shared/claude.js'
+import { pickLatest, FALLBACK_SONNET, costCents, overCap, checkUpload, checkHistory, TASKS, kitchenTools, kitchenNow, planAsk, findRecipe, IDEAS_SCHEMA, RECIPES_SCHEMA, PHOTO_RECIPE_SCHEMA, EVENTS_SCHEMA, GARDEN_SCHEMA } from '../supabase/functions/_shared/claude.js'
 
 test('the latest active Sonnet, whatever it is called, never a retired one', () => {
   const models = [
@@ -70,11 +70,25 @@ test('every schema is closed and names what it requires', () => {
     if (s.type === 'object') { assert.equal(s.additionalProperties, false); assert.deepEqual([...s.required].sort(), Object.keys(s.properties).sort()); Object.values(s.properties).forEach(walk) }
     if (s.type === 'array') walk(s.items)
   }
-  for (const s of [IDEAS_SCHEMA, RECIPES_SCHEMA, EVENTS_SCHEMA, GARDEN_SCHEMA]) walk(s)
+  for (const s of [IDEAS_SCHEMA, RECIPES_SCHEMA, PHOTO_RECIPE_SCHEMA, EVENTS_SCHEMA, GARDEN_SCHEMA]) walk(s)
 })
 
 test('the kitchen brief keeps the fish to what a Southern California supermarket stocks, and never trout', async () => {
   const { KITCHEN_BRIEF } = await import('../supabase/functions/_shared/claude.js')
   assert.match(KITCHEN_BRIEF, /Fish and shellfish: only kinds an ordinary Southern California supermarket stocks all year/)
   assert.match(KITCHEN_BRIEF, /Never trout/)
+})
+
+test('the chat opens the recipe it means, and only when it is sure', () => {
+  const list = [{ title: 'Mom’s Macaroni & Cheese', slug: 'moms-macaroni-cheese' }, { title: 'Miso salmon', slug: 'miso-salmon' }, { title: 'Miso salmon bowls', slug: 'miso-salmon-bowls' }, { title: 'Shrimp and white bean stew', slug: 'stew' }]
+  assert.equal(findRecipe(list, "mom's macaroni & cheese").slug, 'moms-macaroni-cheese')
+  assert.equal(findRecipe(list, 'Miso Salmon').slug, 'miso-salmon')
+  assert.equal(findRecipe(list, 'macaroni').slug, 'moms-macaroni-cheese')
+  assert.equal(findRecipe(list, 'white bean shrimp').slug, 'stew')
+  assert.equal(findRecipe(list, 'salmon'), null) // two of them: ask, don't guess
+  assert.equal(findRecipe(list, 'tacos'), null)
+  assert.equal(findRecipe(list, ''), null)
+  const names = kitchenTools().map((t) => t.name)
+  for (const n of ['read_recipe', 'propose_recipe_change']) assert.ok(names.includes(n), n)
+  assert.match(kitchenNow({ today: '2026-11-01', page: { slug: 'moms-macaroni-cheese', recipe: '# Mom’s' } }), /slug moms-macaroni-cheese/)
 })

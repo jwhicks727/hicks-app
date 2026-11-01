@@ -49,15 +49,24 @@ export function useRecipe(session, slug) {
 }
 
 /** Save recipe files: a new slug adds, a known one replaces (Jason re-exports from Obsidian). */
+/**
+ * Recipes saved by title (a same-titled one is replaced). A file may come as
+ * { md, slug } to change that recipe whatever its title says now (a change
+ * from the Kitchen chat), keeping its ratings and its place in the fridge.
+ */
 export async function saveRecipes(files) {
   const results = []
-  for (const md of files) {
+  for (const f of files) {
+    const md = typeof f === 'string' ? f : f.md
     const r = parseRecipe(md)
-    const row = { slug: r.slug, title: r.title.slice(0, 200), body: sharedBody(md).slice(0, 60000), total_minutes: r.total, hands_on_minutes: r.handsOn, serves: r.serves, tags: easyOnHands(md) ? ['easy-on-hands'] : [], art: artFor(r) }
+    const slug = typeof f === 'object' && f.slug ? f.slug : r.slug
+    const row = { slug, title: r.title.slice(0, 200), body: sharedBody(md).slice(0, 60000), total_minutes: r.total, hands_on_minutes: r.handsOn, serves: r.serves, tags: easyOnHands(md) ? ['easy-on-hands'] : [], art: artFor(r) }
     const { data, error } = await supabase.from('recipes').upsert(row, { onConflict: 'slug' }).select('id').single()
     if (error) { results.push({ title: r.title, error: error.message }); continue }
+    // A change that took Laurie's plate out takes it out of the private copy too (it was read before saving)
+    if (!r.laurie && typeof f === 'object' && f.slug) await supabase.from('recipe_private').delete().eq('recipe_id', data.id)
     if (r.laurie) await supabase.from('recipe_private').upsert({ recipe_id: data.id, laurie_plate: r.laurie.slice(0, 8000), updated_at: new Date().toISOString() }, { onConflict: 'recipe_id' })
-    results.push({ title: r.title, slug: r.slug, id: data.id, ok: true })
+    results.push({ title: r.title, slug, id: data.id, ok: true })
   }
   return results
 }

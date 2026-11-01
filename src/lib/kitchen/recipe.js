@@ -154,3 +154,25 @@ export function sharedBody(md) {
 const EASY = /\b(sheet[- ]pan|slow cooker|instant pot|pressure cooker|no[- ]cook|pre-?cut|pre-?sliced|frozen|kitchen scissors|scissors|parchment|one[- ]pot|rice cooker|air fryer)\b/i
 /** Easy on the hands: a sheet pan, a slow cooker or the Instant Pot, frozen or pre-cut produce, scissors over knives. */
 export const easyOnHands = (md) => (String(md).match(new RegExp(EASY, 'gi')) || []).length >= 2
+
+/**
+ * The whole recipe again: the shared file with Laurie's plate (kept apart,
+ * for the parents) back in its place, after Plating and before the other
+ * plates. For reading a change against the saved version.
+ */
+export function withLauriePlate(body, laurie) {
+  const md = String(body || '').replace(/\r\n?/g, '\n').trim()
+  if (!laurie || !String(laurie).trim()) return md + '\n'
+  const section = `**Laurie’s plate**\n${String(laurie).trim()}`
+  const lines = md.split('\n')
+  const at = lines.findIndex((line) => {
+    const t = line.trim(), h = t.match(/^#{2,4}\s+(.*)$/), b = t.match(/^\*\*([^*]+?)\*\*/)
+    const name = (h && sectionName(h[1])) || (b && sectionName(b[1]))
+    return name && name !== 'Plating' && name !== 'Laurie’s plate'
+  })
+  if (at < 0) return `${md}\n\n${section}\n`
+  return [...lines.slice(0, at), section, '', ...lines.slice(at)].join('\n').replace(/\n{3,}/g, '\n\n') + '\n'
+}
+
+/** A recipe as Claude proposed it, minus the note the app adds when showing it Laurie's plate. */
+export const tidyProposed = (md) => String(md || '').replace(/(\*\*Laurie’s plate\*\*)[ \t]*\(kept privately[^)\n]*\)/g, '$1')
