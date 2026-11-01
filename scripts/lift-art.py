@@ -27,6 +27,13 @@ Run on a computer with Python 3, Pillow and numpy:
        python3 scripts/lift-art.py leaves flat.png --region 0,1580,1080,1920 \\
          --slug witch-and-crow --count 24 --out public/paintings
 
+  5. autumn: flat.png -> <slug>-leaves.png, leaf-shaped pieces of her painted
+     foliage cut out at full size, her pixels and her canvas weave untouched,
+     a soft edge and nothing else. Needs scipy as well as Pillow and numpy.
+       python3 scripts/lift-art.py autumn flat.png --slug autumn-stream \\
+         --region 60,60,1740,1020 --region 0,1170,1800,1800 --count 24 --out public/paintings
+     Each --region is a box of foliage to cut from (leave out sky and trunks).
+
 The sky behind the bird is filled from its own surroundings (no image
 generator is involved), and the bird and the sky composite back to the
 painting: the error is printed. At rest the app always shows the painting
@@ -43,6 +50,9 @@ l = sub.add_parser('lift'); l.add_argument('flat'); l.add_argument('--region', r
 l.add_argument('--slug', required=True); l.add_argument('--bird', default='bird'); l.add_argument('--out', default='public/paintings'); l.add_argument('--dark', type=float, default=110)
 v = sub.add_parser('leaves'); v.add_argument('flat'); v.add_argument('--region', required=True); v.add_argument('--slug', required=True)
 v.add_argument('--count', type=int, default=24); v.add_argument('--out', default='public/paintings')
+au = sub.add_parser('autumn'); au.add_argument('flat'); au.add_argument('--region', action='append', required=True); au.add_argument('--slug', required=True)
+au.add_argument('--count', type=int, default=24); au.add_argument('--seed', type=int, default=5); au.add_argument('--out', default='public/paintings')
+au.add_argument('--length', default='52,96', help='half-length of a leaf in pixels, min,max (a leaf is twice this long)')
 i = sub.add_parser('illustrate'); i.add_argument('photo'); i.add_argument('out'); i.add_argument('--colours', type=int, default=7); i.add_argument('--max', type=int, default=1400)
 i.add_argument('--keep-background', action='store_true')
 args = ap.parse_args()
@@ -259,4 +269,55 @@ def illustrate():
     print(json.dumps({'size': [W, H], 'colours': [('#%02X%02X%02X' % tuple(int(v) for v in c)) for c in centres]}))
 
 
-{'flatten': flatten, 'lift': lift, 'leaves': leaves, 'illustrate': illustrate}[args.step]()
+def autumn():
+    """Leaf-shaped pieces of her painted foliage, cut out at full size and packed onto one sheet."""
+    import colorsys
+    from scipy import ndimage as ndi
+    A = np.asarray(Image.open(args.flat).convert('RGB')).astype(np.float64)
+    R, B = A[..., 0], A[..., 2]; mx, mn = A.max(axis=2), A.min(axis=2)
+    warm = ((R - B) > 24) & ((mx - mn) > 50) & (mx > 100)
+    warm = ndi.binary_erosion(ndi.binary_closing(warm, np.ones((3, 3), bool), iterations=2), np.ones((3, 3), bool))
+    rng = np.random.default_rng(args.seed); lo, hi = [float(v) for v in args.length.split(',')]
+    regions = [box(r) for r in args.region]
+    per = max(1, args.count // 3 + 2); buckets = {'red': 0, 'orange': 0, 'yellow': 0}
+    got, centres, tries = [], [], 0
+    while len(got) < args.count and tries < 120000:
+        tries += 1
+        x0, y0, x1, y1 = regions[tries % len(regions)]
+        a = rng.uniform(lo, hi); ang = rng.uniform(0, np.pi)
+        cx, cy = rng.uniform(x0 + a + 8, x1 - a - 8), rng.uniform(y0 + a + 8, y1 - a - 8)
+        if any(np.hypot(cx - px, cy - py) < a * 0.9 for px, py in centres): continue
+        n = int(a * 2 + 12); c = n / 2
+        yy, xx = np.mgrid[0:n, 0:n].astype(float); x, y = xx - c, yy - c
+        u = (x * np.cos(ang) + y * np.sin(ang)) / a; v = (-x * np.sin(ang) + y * np.cos(ang)) / a
+        fat, skew, bend = rng.uniform(0.34, 0.5), rng.uniform(-0.18, 0.18), rng.uniform(-0.08, 0.08)
+        half = fat * np.clip(1 - u ** 2, 0, 1) ** 0.85 * (1 + skew * u)
+        m = ((np.abs(u) < 1) & (np.abs(v - bend * (1 - u ** 2)) < half)).astype(float)   # a leaf: pointed both ends, fuller toward the stem
+        X0, Y0 = int(cx - n / 2), int(cy - n / 2)
+        if X0 < 0 or Y0 < 0 or X0 + n > A.shape[1] or Y0 + n > A.shape[0]: continue
+        area = m.sum(); win = warm[Y0:Y0 + n, X0:X0 + n]
+        if area < 200 or (win & (m > 0.5)).sum() / area < 0.97: continue                   # wholly bright foliage, no sky, no trunk
+        rgb = A[Y0:Y0 + n, X0:X0 + n]; inside = m > 0.5
+        mean = rgb[inside].mean(axis=0)
+        if rgb[inside].std(axis=0).mean() < 10: continue                                  # flat paint: we want her brushwork showing
+        h = colorsys.rgb_to_hsv(*(mean / 255))[0]
+        kind = 'red' if h < 0.035 or h > 0.95 else 'orange' if h < 0.095 else 'yellow'
+        if buckets[kind] >= per: continue
+        buckets[kind] += 1
+        al = np.clip((ndi.gaussian_filter(m, 1.1) - 0.1) / 0.8, 0, 1)                      # a soft edge; her pixels stay as they are
+        ys, xs = np.where(al > 0.02)
+        got.append(np.dstack([rgb, al * 255])[ys.min():ys.max() + 1, xs.min():xs.max() + 1]); centres.append((cx, cy))
+    # Pack them onto a sheet no wider than 2048, a few pixels apart so none bleeds into the next
+    gap, maxw = 6, 2048; x = y = rowh = sw = 0; boxes = []
+    for g in got:
+        h, w = g.shape[:2]
+        if x + w > maxw: x, y, rowh = 0, y + rowh + gap, 0
+        boxes.append([x, y, w, h]); x += w + gap; rowh = max(rowh, h); sw = max(sw, x)
+    sh = y + rowh
+    sheet = np.zeros((sh, sw, 4))
+    for g, (bx, by, bw, bh) in zip(got, boxes): sheet[by:by + bh, bx:bx + bw] = g
+    Image.fromarray(np.uint8(np.round(sheet)), 'RGBA').save(f'{args.out}/{args.slug}-leaves.png', optimize=True)
+    print(json.dumps({'sheet': [sw, sh], 'boxes': boxes, 'kinds': buckets}))
+
+
+{'flatten': flatten, 'lift': lift, 'leaves': leaves, 'autumn': autumn, 'illustrate': illustrate}[args.step]()

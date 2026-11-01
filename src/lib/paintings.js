@@ -32,6 +32,30 @@ export const PAINTINGS = [
     // The leaves she painted falling round the witch, lifted onto one sheet (scripts/lift-art.py leaves)
     leaves: { sheet: '/paintings/witch-and-crow-leaves.png', size: [842, 50], boxes: [[0,0,37,46],[39,0,54,39],[95,0,30,50],[127,0,48,28],[177,0,42,33],[221,0,43,47],[266,0,40,34],[308,0,35,38],[345,0,28,44],[375,0,30,46],[407,0,24,42],[433,0,31,37],[466,0,34,41],[502,0,30,38],[534,0,35,36],[571,0,32,39],[605,0,25,46],[632,0,36,34],[670,0,26,37],[698,0,24,42],[724,0,28,26],[754,0,28,30],[784,0,22,31],[808,0,32,25]] },
   },
+  {
+    slug: 'autumn-stream',
+    title: 'Autumn stream', // a working title until Laurie names it
+    named: false,
+    year: null, medium: null, size: null, // hers to tell; never guessed
+    src: '/paintings/autumn-stream.jpg', small: '/paintings/autumn-stream-720.jpg', w: 1600, h: 1600,
+    seasons: ['fall', 'thanksgiving'],
+    added: '2026-11-01',
+    focus: [0.05, 0.05, 0.95, 0.95],
+    // Leaf-shaped pieces of her own painted foliage, cut out whole at full size (scripts/lift-art.py autumn):
+    // `px` is how many of the sheet's pixels make one screen pixel at scale 1, so they stay sharp.
+    leaves: { sheet: '/paintings/autumn-stream-leaves.png', size: [1926, 139], px: 2, scale: [0.7, 1.15], boxes: [[0,0,75,107],[81,0,115,108],[202,0,138,58],[346,0,83,121],[435,0,148,65],[589,0,121,122],[716,0,79,139],[801,0,95,58],[902,0,106,105],[1014,0,102,74],[1122,0,56,132],[1184,0,52,112],[1242,0,152,126],[1400,0,58,115],[1464,0,48,117],[1518,0,64,107],[1588,0,69,102],[1663,0,111,88],[1780,0,42,105],[1828,0,92,129]] },
+  },
+  {
+    slug: 'autumn-pond',
+    title: 'Autumn pond', // a working title until Laurie names it
+    named: false,
+    year: null, medium: null, size: null, // hers to tell; never guessed
+    src: '/paintings/autumn-pond.jpg', small: '/paintings/autumn-pond-720.jpg', w: 1600, h: 1600,
+    seasons: ['fall', 'thanksgiving'],
+    added: '2026-11-01',
+    focus: [0.05, 0.05, 0.95, 0.95],
+    leaves: { sheet: '/paintings/autumn-pond-leaves.png', size: [2034, 268], px: 2, scale: [0.7, 1.15], boxes: [[0,0,163,103],[169,0,120,70],[295,0,114,88],[415,0,147,54],[568,0,148,65],[722,0,117,152],[845,0,103,60],[954,0,179,89],[1139,0,58,107],[1203,0,177,76],[1386,0,65,139],[1457,0,168,111],[1631,0,86,140],[1723,0,91,122],[1820,0,67,112],[1893,0,135,71],[0,158,167,85],[173,158,45,110],[224,158,73,85],[303,158,58,101]] },
+  },
 ]
 export const paintingBySlug = (slug, list = PAINTINGS) => list.find((p) => p.slug === slug) || null
 /** The painting for a season, else the newest. */

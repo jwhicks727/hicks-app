@@ -31,7 +31,9 @@ test('every painting is here with its files, and nothing about it is guessed', (
 
 test('her painting hangs in its season, and a season without one falls back to her newest', () => {
   // Her leaves fall in fall; a season with none of her paintings has no show
-  assert.equal(showFor('fall').painting.slug, 'witch-and-crow')
+  assert.equal(showFor('fall').painting.slug, 'autumn-stream')
+  assert.deepEqual(showFor('fall').sheets.map((x) => x.slug), ['autumn-stream', 'autumn-pond'], 'both of her autumn paintings give leaves')
+  assert.equal(showFor('halloween').painting.slug, 'witch-and-crow')
   assert.equal(showFor('christmas'), null)
   // The leaves rest along the top edge and let go one at a time, slowly
   const show = showFor('halloween'), perches = leafPerches(show, 7)
@@ -48,6 +50,30 @@ test('her painting hangs in its season, and a season without one falls back to h
     assert.ok(dropGap(show, r) >= 9 && dropGap(show, r) <= 17, 'one every nine to seventeen seconds')
   }
   assert.ok(MAX_DROPS >= 12 && MAX_DROPS <= 60)
+})
+
+test('autumn’s leaves are her own paint, cut out at full size and drawn at their own sharpness', () => {
+  const fall = showFor('fall'), perches = leafPerches(fall, 11)
+  assert.equal(new Set(perches.map((p) => p.si)).size, 2, 'leaves from both paintings')
+  for (const p of perches) {
+    const sh = fall.sheets[p.si]
+    assert.ok(sh.px >= 2 && p.scale >= sh.scale[0] && p.scale <= sh.scale[1], 'drawn no bigger than the sheet can bear')
+    assert.ok(sh.boxes.some((b) => b === p.leaf), 'a leaf that is on its sheet')
+  }
+  // Every leaf box sits inside its sheet, and no two overlap
+  for (const sh of fall.sheets) {
+    assert.ok(sh.boxes.length >= 16)
+    for (const [i, a] of sh.boxes.entries()) {
+      assert.ok(a[0] >= 0 && a[1] >= 0 && a[0] + a[2] <= sh.size[0] && a[1] + a[3] <= sh.size[1], `${sh.slug} leaf ${i} is on the sheet`)
+      for (const b of sh.boxes.slice(i + 1)) assert.ok(a[0] + a[2] <= b[0] || b[0] + b[2] <= a[0] || a[1] + a[3] <= b[1] || b[1] + b[3] <= a[1], `${sh.slug}: leaves ${i} overlap`)
+    }
+    assert.ok(sh.boxes.every((b) => Math.max(b[2], b[3]) >= 80), 'full-size leaves, not thumbnails')
+  }
+  // Her paintings say their titles are hers to give
+  for (const slug of ['autumn-stream', 'autumn-pond']) { const p = paintingBySlug(slug); assert.equal(p.named, false); assert.equal(p.year, null); assert.equal(p.medium, null) }
+  // The witch's older sheet still works, drawn larger, and is the fallback until the new paintings are in
+  const old = paintingBySlug('witch-and-crow'), only = showFor('fall', [old])
+  assert.equal(only.painting.slug, 'witch-and-crow'); assert.equal(only.sheets[0].px, 1.25); assert.deepEqual(only.sheets[0].scale, [1.1, 1.9])
   assert.ok(existsSync(pub(paintingBySlug('witch-and-crow').leaves.sheet)))
   assert.equal(seasonByKey('halloween').key, 'halloween')
   assert.equal(seasonByKey('nope'), null)

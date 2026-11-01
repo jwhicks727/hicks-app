@@ -14,15 +14,29 @@ import { seeded } from './scenes.js'
 export const SHOWS = {
   halloween: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top of the screen and drift down one at a time, and the crow flies on Home' },
   muertos: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top and drift down one at a time, slow, like marigold petals', slow: true },
-  thanksgiving: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top of the screen and drift down one at a time' },
-  fall: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top of the screen and drift down one at a time' },
+  // Autumn's leaves are pieces of her two autumn paintings, cut out at full size; until they are in, her witch's leaves stand in
+  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'leaves', what: 'leaves cut from her two autumn paintings rest along the top of the screen and drift down one at a time' },
+  fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'leaves', what: 'leaves cut from her two autumn paintings rest along the top of the screen and drift down one at a time' },
 }
 
-/** The show for a season with its painting (from `list`, the paintings the app has): { key, kind, what, painting, ... }, or null. */
+/** A painting's leaf sheet as the show uses it: the file, the boxes, how sharp to draw it, how big. Her older sheet is small, so it is drawn larger. */
+const sheetOf = (p) => ({ slug: p.slug, sheet: p.leaves.sheet, size: p.leaves.size, boxes: p.leaves.boxes, px: p.leaves.px || 1.25, scale: p.leaves.scale || [1.1, 1.9] })
+
+/**
+ * The show for a season with its painting(s) (from `list`, the paintings the
+ * app has): { key, kind, what, painting, sheets, ... }, or null. A season may
+ * draw its leaves from several of her paintings; one that has none of them in
+ * yet falls back to another's (her witch's), and has no show only if neither
+ * is there.
+ */
 export function showFor(key, list = PAINTINGS) {
-  const s = SHOWS[key], p = s && paintingBySlug(s.painting, list)
-  if (!s || !p || (s.kind === 'leaves' && !(p.leaves && p.leaves.sheet))) return null
-  return { key, ...s, painting: p }
+  const s = SHOWS[key]
+  if (!s) return null
+  const has = (slug) => { const p = paintingBySlug(slug, list); return p && p.leaves && p.leaves.sheet ? p : null }
+  const mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
+  const use = mine.length ? mine : [s.fallback && has(s.fallback)].filter(Boolean)
+  if (!use.length) return null
+  return { key, ...s, painting: use[0], sheets: use.map(sheetOf) }
 }
 
 /** How many leaves rest along the top edge. */
@@ -36,13 +50,16 @@ export const MAX_DROPS = 30
  * leaves it is. Spread out, never bunched, and the same for a given day.
  */
 export function leafPerches(show, seed = 1, count = PERCHES) {
-  const r = seeded(seed + 17), boxes = show.painting.leaves.boxes
-  return Array.from({ length: count }, (_, i) => ({
-    leaf: boxes[(i * 5 + 3) % boxes.length],
-    x: 5 + (i + 0.1 + r() * 0.75) * (88 / count),
-    tilt: Math.round(-45 + r() * 90),
-    scale: 1.1 + r() * 0.8,
-  }))
+  const r = seeded(seed + 17), sheets = show.sheets
+  return Array.from({ length: count }, (_, i) => {
+    const si = i % sheets.length, sh = sheets[si], [lo, hi] = sh.scale
+    return {
+      si, leaf: sh.boxes[(i * 5 + 3 + Math.floor(i / sheets.length) * 7) % sh.boxes.length],
+      x: 5 + (i + 0.1 + r() * 0.75) * (88 / count),
+      tilt: Math.round(-45 + r() * 90),
+      scale: lo + r() * (hi - lo),
+    }
+  })
 }
 
 /**

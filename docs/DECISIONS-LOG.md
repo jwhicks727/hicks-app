@@ -17,6 +17,21 @@ Big Bear and Anaheim just clear it, Redlands, Claremont and San Dimas don't),
 in the list's order, one a day, the same on every phone: the day's number
 modulo the list, so no state is kept.
 
+## 2026-11-01 — Autumn's leaves are cut from her two autumn paintings, at full size
+
+The leaves that drifted down in fall were 22 to 54 pixels wide, lifted from the
+bottom of her witch painting and enlarged: soft and strange. Laurie's two new
+autumn paintings (a stream through a forest, a pond of reflections) give foliage
+painted large enough to cut out whole. `scripts/lift-art.py autumn` cuts
+leaf-shaped pieces out of the flattened photos: her own pixels and the weave of
+her canvas, a soft edge and nothing more; nothing is redrawn or generated. The
+sheets are drawn at their own sharpness (`px`: two sheet pixels to a screen pixel),
+so a leaf is about 40 to 110 screen pixels long and crisp on a retina screen. Fall
+and Thanksgiving draw from both paintings; Halloween and the Day of the Dead keep
+her witch's leaves. Until the new paintings are moved into the bucket the old
+leaves stand in. Both paintings are working titles ("Autumn stream", "Autumn
+pond"): her titles, years and media are hers to tell.
+
 ## 2026-11-01 — The place on World says why we're looking there
 
 A label like "Today's place" is a pattern the eye learns to skip. The big card

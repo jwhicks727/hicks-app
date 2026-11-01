@@ -21,11 +21,11 @@ import './season-show.css'
 const QUIET = /^\/home\/(sit|breathe)|\/cook$/
 const FIRST_S = 3 // seconds after the page opens until the first leaf lets go
 
-// A leaf cut from her sheet, at a size
-const leafStyle = (sheet, size, box, scale) => ({
-  width: box[2] * scale * 0.8, height: box[3] * scale * 0.8, backgroundImage: `url(${sheet})`,
-  backgroundSize: `${size[0] * scale * 0.8}px ${size[1] * scale * 0.8}px`, backgroundPosition: `${-box[0] * scale * 0.8}px ${-box[1] * scale * 0.8}px`,
-})
+// A leaf cut from her sheet, at a size: `px` sheet pixels to a screen pixel at scale 1, so the bigger sheets stay sharp
+const leafStyle = (sh, box, scale) => {
+  const k = scale / sh.px
+  return { width: box[2] * k, height: box[3] * k, backgroundImage: `url(${sh.sheet})`, backgroundSize: `${sh.size[0] * k}px ${sh.size[1] * k}px`, backgroundPosition: `${-box[0] * k}px ${-box[1] * k}px` }
+}
 
 export default function SeasonShow() {
   const [prefs] = usePrefs()
@@ -72,18 +72,17 @@ export default function SeasonShow() {
   }, [show, perches])
 
   if (!show || !perches.length) return null
-  const { sheet, size } = show.painting.leaves
   return createPortal(
     <div className="season-show" aria-hidden="true">
       {perches.map((p, i) => !away.includes(i) && (
-        <span key={`${i}-${arrivals[i] || 0}`} className={'ss-perch' + (arrivals[i] ? ' arrives' : '')} style={{ left: `${p.x}vw`, '--tilt': `${p.tilt}deg`, '--h': `${p.leaf[3] * p.scale * 0.8}px` }}>
-          <i style={leafStyle(sheet, size, p.leaf, p.scale)} />
+        <span key={`${i}-${arrivals[i] || 0}`} className={'ss-perch' + (arrivals[i] ? ' arrives' : '')} style={{ left: `${p.x}vw`, '--tilt': `${p.tilt}deg`, '--h': `${p.leaf[3] * p.scale / show.sheets[p.si].px}px` }}>
+          <i style={leafStyle(show.sheets[p.si], p.leaf, p.scale)} />
         </span>
       ))}
       {drops.map(({ id, plan: f }) => (
-        <span key={id} className="ss-drop" style={{ '--x0': `${f.x}vw`, '--x1': `${f.x + f.drift}vw`, '--dur': `${f.dur}s`, '--h': `${f.leaf[3] * f.scale * 0.8}px` }}>
+        <span key={id} className="ss-drop" style={{ '--x0': `${f.x}vw`, '--x1': `${f.x + f.drift}vw`, '--dur': `${f.dur}s`, '--h': `${f.leaf[3] * f.scale / show.sheets[f.si].px}px` }}>
           <span className="ss-sway" style={{ '--sway': `${f.sway}px`, '--swaydur': `${f.swayDur}s` }}>
-            <i style={{ ...leafStyle(sheet, size, f.leaf, f.scale), '--tilt': `${f.tilt}deg`, '--spin': `${f.spin}deg`, '--dur': `${f.dur}s` }} />
+            <i style={{ ...leafStyle(show.sheets[f.si], f.leaf, f.scale), '--tilt': `${f.tilt}deg`, '--spin': `${f.spin}deg`, '--dur': `${f.dur}s` }} />
           </span>
         </span>
       ))}

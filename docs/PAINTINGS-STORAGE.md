@@ -48,3 +48,14 @@ may be reachable by someone who has only its address.
   yes": it can't be saved without that, and `said_yes_by` records who
   ticked it. Making one move (a bird, her leaves) is a step for a
   computer, with `scripts/lift-art.py`.
+
+## Autumn leaves from her paintings
+
+`python3 scripts/lift-art.py autumn flat.png --slug <slug> --region x0,y0,x1,y1 ... --count 24`
+cuts leaf-shaped pieces of her painted foliage (a region per patch of leaves, with
+no sky or trunk in it) onto `<slug>-leaves.png` and prints its boxes for
+`src/lib/paintings.js`; `px: 2` there says the sheet is drawn at half size so it stays
+sharp. It needs scipy as well as Pillow and numpy. Flatten the wall photo first
+(`flatten --corners`). Two autumn paintings came in this way; like the others, they sit
+in `public/paintings/` for a development copy and Laurie's gallery moves them into the
+bucket ("Move them now").
