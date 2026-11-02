@@ -217,6 +217,8 @@ html[data-motion="less"] .pm-seg-pill { transition: none; }
 .yg-step { display: flex; gap: 6px; } .yg-step button { min-height: 36px; padding: 0 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; } @media (pointer: coarse) { .yg-step button { min-height: 44px; } }
 .sk-big { display: block; font-family: var(--font-display); font-size: 40px; line-height: 1.1; font-weight: 400; }
 .sk-shadow { display: grid; gap: 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+/* The sentence changes as the shadow moves ("north" to "northeast", more digits): hold room for two lines so the page below never jumps. */
+.sk-shadow > p { min-height: calc(2 * 1.45em); margin: 0; line-height: 1.45; }
 .mp-now { display: flex; gap: 14px; align-items: center; } .mp-now p { margin: 2px 0 0; }
 .mp-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .mp-grid button { width: 100%; min-height: 56px; display: grid; justify-items: center; gap: 0; padding: 4px 0; border-radius: var(--r-control); border: 1.5px solid transparent; background: transparent; color: var(--ink); cursor: pointer; font: inherit; }
