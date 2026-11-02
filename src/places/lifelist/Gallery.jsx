@@ -89,32 +89,34 @@ function AddPainting({ onDone }) {
   const [pic, setPic] = useState(null), [busy, setBusy] = useState(null)
   const slugOf = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
   async function save() {
-    const slug = slugOf(f.title) || `painting-${Date.now()}`
+    const slug = slugOf(f.title || '') || `painting-${Date.now()}`
     setBusy('Saving…')
     const full = await prepareUpload(pic, { max: 2400, quality: 0.88 }), small = await prepareUpload(pic, { max: 720, quality: 0.84 })
     for (const [path, up] of [[`${slug}/${FILES.src}`, full], [`${slug}/${FILES.small}`, small]]) {
       const { error } = await supabase.storage.from('paintings').upload(path, up.blob, { contentType: 'image/jpeg', upsert: true })
       if (error) { setBusy(error.message); return }
     }
-    const { error } = await supabase.from('paintings').insert({ slug, title: f.title.trim(), named: f.named, year: Number(f.year) || null, medium: f.medium.trim() || null, size: f.size.trim() || null, w: full.width, h: full.height, seasons: f.seasons, added: new Date().toISOString().slice(0, 10), focus: [0, 0, 1, 1] })
+    const { error } = await supabase.from('paintings').insert({ slug, title: (f.title || '').trim(), named: f.named, year: Number(f.year) || null, medium: (f.medium || '').trim() || null, size: (f.size || '').trim() || null, w: full.width, h: full.height, seasons, added: new Date().toISOString().slice(0, 10), focus: [0, 0, 1, 1] })
     if (error) { setBusy(error.message); return }
     clear(); setPic(null); setBusy('Added to her gallery.'); onDone()
   }
+  // A draft kept on the device from an earlier version may lack a field: fill the gaps rather than fall over.
+  const seasons = (f && f.seasons) || []
   if (!f) return <div className="span-6"><button type="button" className="btn" onClick={() => setF({ title: '', named: true, year: '', medium: '', size: '', seasons: [] })}>Add a painting</button></div>
   return (
     <Card tint="#C0824F" label="A painting of Laurie’s" glyph="star" className="span-6">
       <Dropzone accept="image/*" label="The photo or scan" hint="docs/ART-CAPTURE.md says how; drop it, paste it, or choose it." onFiles={(files) => setPic(files[0])} />
       {pic && <p className="muted">{pic.name || 'A pasted picture'} is ready.</p>}
       <div className="form">
-        <label>Its title<input maxLength={200} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
+        <label>Its title<input maxLength={200} value={f.title || ''} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
         <label className="check-row"><input type="checkbox" checked={!f.named} onChange={(e) => setF({ ...f, named: !e.target.checked })} /> A working title, until Laurie names it</label>
-        <div className="form-row"><label>Year<input inputMode="numeric" maxLength={4} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value })} /></label><label>Medium<input maxLength={80} value={f.medium} onChange={(e) => setF({ ...f, medium: e.target.value })} placeholder="Acrylic on canvas" /></label></div>
-        <label>Size<input maxLength={40} value={f.size} onChange={(e) => setF({ ...f, size: e.target.value })} placeholder="18 × 24 in" /></label>
+        <div className="form-row"><label>Year<input inputMode="numeric" maxLength={4} value={f.year || ''} onChange={(e) => setF({ ...f, year: e.target.value })} /></label><label>Medium<input maxLength={80} value={f.medium || ''} onChange={(e) => setF({ ...f, medium: e.target.value })} placeholder="Acrylic on canvas" /></label></div>
+        <label>Size<input maxLength={40} value={f.size || ''} onChange={(e) => setF({ ...f, size: e.target.value })} placeholder="18 × 24 in" /></label>
         <fieldset className="choice-row"><legend>Its season (it hangs on Home then)</legend>
-          {SEASON_ORDER.map((k) => <button key={k} type="button" aria-pressed={f.seasons.includes(k)} onClick={() => setF({ ...f, seasons: f.seasons.includes(k) ? f.seasons.filter((x) => x !== k) : [...f.seasons, k] })}>{SEASONS[k].label}</button>)}
+          {SEASON_ORDER.map((k) => <button key={k} type="button" aria-pressed={seasons.includes(k)} onClick={() => setF({ ...f, seasons: seasons.includes(k) ? seasons.filter((x) => x !== k) : [...seasons, k] })}>{SEASONS[k].label}</button>)}
         </fieldset>
       </div>
-      <div className="form-actions"><button type="button" className="btn" disabled={!pic || !f.title.trim() || busy === 'Saving…'} onClick={save}>Add it to her gallery</button><button type="button" className="btn ghost" onClick={() => { clear(); setPic(null) }}>Cancel</button></div>
+      <div className="form-actions"><button type="button" className="btn" disabled={!pic || !(f.title || '').trim() || busy === 'Saving…'} onClick={save}>Add it to her gallery</button><button type="button" className="btn ghost" onClick={() => { clear(); setPic(null) }}>Cancel</button></div>
       {busy && <p className="muted" role="status">{busy}</p>}
     </Card>
   )
