@@ -90,8 +90,17 @@ async function main() {
     while (url && pages < MAX_PAGES && fresh.size < MAX_NEW_PER_RUN) {
       await page.goto(new URL(url, 'https://ebird.org').toString(), { waitUntil: 'domcontentloaded', timeout: 45000 })
       if (!hostOk(page.url(), SITE_HOSTS)) break
+      // The list may be drawn by the page's own scripts after it loads: wait for it (or for the page to go quiet).
+      await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {})
+      await page.waitForSelector('a[href*="/checklist/S"]', { timeout: 12000 }).catch(() => {})
       const html = await page.content(); pages++
-      if (DISCOVER && pages === 1) say('The checklists page, in counts: ' + JSON.stringify(outlineOf(html)) + ' at ' + safeUrl(page.url()))
+      if (DISCOVER && pages === 1) {
+        say('The checklists page, in counts: ' + JSON.stringify(outlineOf(html)) + ' at ' + safeUrl(page.url()))
+        // Where the page's links go, as shapes only (words kept, anything else hidden), so the steps can be aimed at the right one.
+        const shapes = await page.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href') || ''))
+        const tally = new Map(); for (const h of shapes) { const k = safeUrl(new URL(h, 'https://ebird.org').toString()); tally.set(k, (tally.get(k) || 0) + 1) }
+        say('Link shapes: ' + JSON.stringify([...tally.entries()].sort((x, y) => y[1] - x[1]).slice(0, 25)))
+      }
       for (const c of parseChecklistIndex(html)) if (!known.has(c.sub) && fresh.size < MAX_NEW_PER_RUN) fresh.set(c.sub, c)
       url = nextPageHref(html); await sleep(1500)
     }
