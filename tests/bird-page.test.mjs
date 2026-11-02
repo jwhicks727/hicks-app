@@ -1,15 +1,16 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { highlights, mostSeen, rareOnes, weekStart, bingoCard, bingoLines, birdingLine, findBirds } from '../src/lib/birdPage.js'
-import { shapeHotspots, shapeCounty, shapePossible, shapeNearest, km, hotspotsUrl, nearestUrl, validCode, statsUrl } from '../supabase/functions/_shared/birds.js'
+import { reportsWords, highlights, mostSeen, rareOnes, weekStart, bingoCard, bingoLines, birdingLine, findBirds } from '../src/lib/birdPage.js'
+import { nearbyChecklists, countSpecies, withFrequency, shapeHotspots, shapeCounty, shapePossible, shapeNearest, km, hotspotsUrl, nearestUrl, validCode, statsUrl } from '../supabase/functions/_shared/birds.js'
 
 const town = { lat: 34.09, lng: -117.43 }
-const b = (code, o = {}) => ({ code, name: code.toUpperCase(), sci: 'x y', last: '2026-11-01 08:00', sightings: 1, notable: false, ...o })
+const b = (code, o = {}) => ({ code, name: code.toUpperCase(), sci: 'x y', last: '2026-11-01 08:00', reports: 1, sample: 40, notable: false, ...o })
 
-test('most reported and rare near us: two short lists from the week', () => {
-  const list = [b('aaa', { sightings: 2 }), b('bbb', { sightings: 9 }), b('ccc', { notable: true, sightings: 0, last: '2026-11-02 07:00' }), b('ddd', { notable: true, sightings: 0 })]
-  assert.deepEqual(mostSeen(list, 2).map((x) => x.code), ['bbb', 'aaa'])
+test('most reported is by checklists, never a rare bird; rare ones are listed by how new they are', () => {
+  const list = [b('aaa', { reports: 12 }), b('bbb', { reports: 31 }), b('ccc', { notable: true, reports: 4, last: '2026-11-02 07:00' }), b('ddd', { notable: true, reports: 1 })]
+  assert.deepEqual(mostSeen(list, 5).map((x) => x.code), ['bbb', 'aaa'], 'a rare bird is never "most reported"')
   assert.deepEqual(rareOnes(list).map((x) => x.code), ['ccc', 'ddd'], 'the newest rare one first')
+  assert.equal(reportsWords({ reports: 31, sample: 40 }), 'On 31 of 40 recent checklists'); assert.equal(reportsWords({ reports: 0, sample: 0 }), 'Seen this week')
 })
 
 test('the bingo card is nine real birds, the same all week, and lines count', () => {
@@ -57,17 +58,28 @@ test('hotspots with the week at each, the county in numbers, what else is about,
 
 test('a highlight is a notable bird doing something: again and again, a group, or there today; a quiet week has none', () => {
   const list = [
-    b('quiet', { notable: true, sightings: 1, last: '2026-10-30 08:00' }),
-    b('busy', { notable: true, sightings: 6, last: '2026-11-01 08:00' }),
-    b('flock', { notable: true, sightings: 1, count: 14, last: '2026-10-31 08:00' }),
-    b('today', { notable: true, sightings: 1, last: '2026-11-02 07:00' }),
-    b('common', { sightings: 40, count: 30, last: '2026-11-02 07:00' }),
+    b('quiet', { notable: true, reports: 1, last: '2026-10-30 08:00' }),
+    b('busy', { notable: true, reports: 6, last: '2026-11-01 08:00' }),
+    b('flock', { notable: true, reports: 1, count: 14, last: '2026-10-31 08:00' }),
+    b('today', { notable: true, reports: 1, last: '2026-11-02 07:00' }),
+    b('common', { reports: 40, count: 30, last: '2026-11-02 07:00' }),
   ]
   const h = highlights(list, '2026-11-02')
   assert.equal(h.length, 2, 'at most two')
   assert.deepEqual(h.map((x) => x.bird.code), ['busy', 'today'], 'reported again and again first, then the one there today (the group scores lower)')
   assert.ok(h.every((x) => x.bird.notable), 'a common bird is never a highlight')
-  assert.match(h[0].headline, /^Reported 6 times/)
-  assert.equal(highlights([b('quiet', { notable: true, sightings: 1, last: '2026-10-30 08:00' })], '2026-11-02').length, 0)
+  assert.match(h[0].headline, /^Turning up on 6 of 40 recent checklists/)
+  assert.equal(highlights([b('quiet', { notable: true, reports: 1, last: '2026-10-30 08:00' })], '2026-11-02').length, 0)
   assert.equal(highlights([], '2026-11-02').length, 0)
+})
+
+test('how often a bird shows up comes from the latest checklists near town, not the one-line-a-species feed', () => {
+  const town = { lat: 34.09, lng: -117.43 }
+  const lists = [{ subId: 'S1111', obsDt: '2026-11-02 08:00', loc: { latitude: 34.1, longitude: -117.4 } }, { subId: 'S2222', obsDt: '2026-11-01 08:00', loc: { latitude: 34.1, longitude: -117.4 } }, { subId: 'S3333', obsDt: '2026-11-02 09:00', loc: { latitude: 35.5, longitude: -117.4 } }, { subId: 'bad' }]
+  assert.deepEqual(nearbyChecklists(lists, town), ['S1111', 'S2222'], 'near town only, newest first')
+  const { counts, sample } = countSpecies([{ obs: [{ speciesCode: 'houfin' }, { speciesCode: 'houfin' }, { speciesCode: 'amecro' }] }, { obs: [{ speciesCode: 'houfin' }] }, null, { obs: [{ speciesCode: 'purfin', obsValid: false }] }])
+  assert.equal(sample, 3); assert.deepEqual(counts, { houfin: 2, amecro: 1 }, 'a bird twice on one checklist counts once; an invalid line counts for nothing')
+  const kept = withFrequency([{ code: 'purfin', last: 'b', notable: true }, { code: 'houfin', last: 'a' }, { code: 'amecro', last: 'c' }], counts, sample, 2)
+  assert.deepEqual(kept.map((x) => x.code), ['purfin', 'houfin'], 'every notable bird is kept, then the most reported, up to the limit')
+  assert.equal(kept.find((x) => x.code === 'houfin').reports, 2)
 })

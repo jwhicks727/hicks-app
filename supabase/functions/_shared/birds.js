@@ -101,6 +101,34 @@ export const hotspotsUrl = ({ lat, lng }) => at(API + '/ref/hotspot/geo', { lat:
 export const regionRecentUrl = (region = COUNTY, back = 30) => at(`${API}/data/obs/${encodeURIComponent(region)}/recent`, { back, maxResults: 10000 })
 export const statsUrl = (date, region = COUNTY) => { const [y, m, d] = date.split('-').map(Number); return `${API}/product/stats/${encodeURIComponent(region)}/${y}/${m}/${d}` }
 export const nearestUrl = (code, { lat, lng }) => at(`${API}/data/nearest/geo/recent/${encodeURIComponent(code)}`, { lat: lat.toFixed(2), lng: lng.toFixed(2), dist: 50, back: 14, maxResults: 12 })
+
+// ---- How often each bird shows up: eBird's "recent sightings" give one line a species (its latest), so a
+// count of reports can't come from them. It comes from sampling the latest checklists near town instead. ----
+export const SAMPLE_KM = 25, SAMPLE_N = 40
+export const listsUrl = (region = COUNTY) => `${API}/product/lists/${encodeURIComponent(region)}?maxResults=200`
+export const checklistUrl = (sub) => `${API}/product/checklist/view/${encodeURIComponent(sub)}`
+/** The newest checklists from the county's feed that were made within SAMPLE_KM of town: their ids. */
+export function nearbyChecklists(lists, town, n = SAMPLE_N) {
+  return (lists || []).filter((l) => /^S\d{4,12}$/.test(String((l && l.subId) || '')) && l.loc && Number.isFinite(l.loc.latitude) && Number.isFinite(l.loc.longitude) && km(town, { lat: l.loc.latitude, lng: l.loc.longitude }) <= SAMPLE_KM)
+    .sort((a, b) => String(b.obsDt || '').localeCompare(String(a.obsDt || ''))).slice(0, n).map((l) => l.subId)
+}
+/** { counts: { code: how many of the checklists had it }, sample: how many checklists were read } from checklist views. */
+export function countSpecies(views) {
+  const counts = {}; let sample = 0
+  for (const v of views || []) {
+    if (!v || !Array.isArray(v.obs)) continue
+    sample++
+    for (const code of new Set(v.obs.filter((o) => o && o.obsValid !== false).map((o) => String(o.speciesCode || '')))) if (CODE.test(code)) counts[code] = (counts[code] || 0) + 1
+  }
+  return { counts, sample }
+}
+/** Put each bird's `reports` (checklists it was on) on the list; and keep every notable bird plus the most reported, newest first among ties. */
+export function withFrequency(species, counts, sample, keep = 70) {
+  const all = species.map((b) => ({ ...b, reports: (counts && counts[b.code]) || 0, sample }))
+  const rank = (a, b) => (b.reports - a.reports) || b.last.localeCompare(a.last)
+  const notable = all.filter((b) => b.notable), rest = all.filter((b) => !b.notable).sort(rank)
+  return [...notable, ...rest].slice(0, Math.max(keep, notable.length))
+}
 export const validCode = (c) => CODE.test(String(c || ''))
 
 /** Kilometres between two points (haversine). */

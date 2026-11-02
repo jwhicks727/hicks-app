@@ -4,8 +4,13 @@
 // Pure: the sightings come from the `birds` Edge Function (supabase/functions/_shared/birds.js),
 // the weather from src/lib/weather.js. Nothing here names a person.
 
-/** The five (or n) most reported birds this week, then the rarer notable ones, as two short lists. */
-export const mostSeen = (list, n = 5) => (list || []).filter((b) => b.sightings > 0).slice().sort((a, b) => b.sightings - a.sightings || b.last.localeCompare(a.last)).slice(0, n)
+/** How often a bird shows up, in words: the share of the latest checklists near town it was on. */
+export const reportsWords = (s) => (s && s.sample > 0 && s.reports > 0 ? `On ${s.reports} of ${s.sample} recent checklists` : 'Seen this week')
+/**
+ * The most reported birds: the ones on the most of the latest checklists near town (a sample the function reads,
+ * since eBird's recent-sightings feed gives only one line a species). A rare bird is never "most reported".
+ */
+export const mostSeen = (list, n = 5) => (list || []).filter((b) => !b.notable).slice().sort((a, b) => (b.reports || 0) - (a.reports || 0) || String(b.last).localeCompare(String(a.last))).slice(0, n)
 export const rareOnes = (list, n = 5) => (list || []).filter((b) => b.notable).slice().sort((a, b) => b.last.localeCompare(a.last)).slice(0, n)
 
 /**
@@ -19,11 +24,11 @@ export function highlights(list, today, n = 2) {
   for (const b of (list || []).filter((x) => x.notable)) {
     const age = b.last ? days(b.last) : 99, why = []
     let score = 0
-    if (b.sightings >= 3) { why.push(`reported ${b.sightings} times this week`); score += Math.min(b.sightings, 12) }
+    if (b.reports >= 3) { why.push(`turning up on ${b.reports} of ${b.sample} recent checklists`); score += Math.min(b.reports, 12) }
     if (b.count >= 8) { why.push(`as many as ${b.count} together`); score += Math.min(b.count / 4, 8) }
     if (age <= 0) { why.push('seen today'); score += 4 } else if (age === 1) { why.push('seen yesterday'); score += 2 }
     // Worth a highlight: seen more than once or in a group, or a rare bird that is there right now
-    if (!(b.sightings >= 3 || b.count >= 8 || (age <= 0 && b.sightings >= 1))) continue
+    if (!(b.reports >= 3 || b.count >= 8 || age <= 0)) continue
     out.push({ bird: b, why, score, headline: why[0] ? why[0][0].toUpperCase() + why[0].slice(1) : 'Notable' })
   }
   return out.sort((a, b) => b.score - a.score).slice(0, n)
@@ -39,7 +44,7 @@ export function weekStart(today) {
 const hash = (s) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) } return h >>> 0 }
 /** Nine birds that were really reported near us this week, the same nine all week and for everyone; "Notable" ones too (a bonus). */
 export function bingoCard(list, week) {
-  const pool = (list || []).filter((b) => b.sightings > 0 || b.notable)
+  const pool = list || []
   return pool.slice().sort((a, b) => hash(week + a.code) - hash(week + b.code)).slice(0, 9)
 }
 /** Rows and columns of a 3 by 3 card that are all ticked: how many lines. */

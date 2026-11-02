@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-02 — "Most reported" comes from sampled checklists, not eBird's recent-sightings feed
+
+eBird's recent-sightings call returns one line per species (its latest), so every bird
+had "1 report" and the rare ones, listed first, topped the "most reported" list. The
+`birds` function now reads the latest ~40 checklists made within 25 km of town (the
+county feed, then each checklist) and counts how many each bird is on; "most reported"
+is that count (a rare bird never appears in it), shown as "On 31 of 40 recent
+checklists", and highlights use it too. About 41 eBird calls an hour, kept for the hour.
+Unverified against the live service until deployed; the old cached answer shows until
+the next hourly refresh.
+
 ## 2026-11-02 — Birds around us grows: a page of its own, built on eBird's public API
 
 Home's Birds card now shows a short list (most reported this week) and, only when

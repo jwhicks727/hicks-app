@@ -6,7 +6,7 @@ import { useBirds, useBirdsMore, askNearest } from '../../lib/useOutside.js'
 import { useWeather } from '../../lib/useWeather.js'
 import { outsideWords } from '../../lib/outsideErrors.js'
 import { seenWhen, ebirdSpeciesUrl, ebirdChecklistUrl } from '../../lib/birdWords.js'
-import { highlights, mostSeen, rareOnes, bingoCard, bingoLines, birdingLine, findBirds, weekStart } from '../../lib/birdPage.js'
+import { reportsWords, highlights, mostSeen, rareOnes, bingoCard, bingoLines, birdingLine, findBirds, weekStart } from '../../lib/birdPage.js'
 import { todayAtHome } from '../../lib/useSources.js'
 import '../../parts/birdlists.css'
 import BirdHighlights from '../../parts/BirdHighlights.jsx'
@@ -46,7 +46,7 @@ export default function BirdsPage() {
 
       <Card tint="#2E7F86" label="Most reported this week" glyph="bird" tag={list.length ? `${list.length} kinds` : undefined} className="span-3">
         {!b && <p className="muted">Looking at this week’s sightings…</p>}
-        <ol className="bp-list">{mostSeen(list, 8).map((s, i) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><span className="bp-rank fig">{i + 1}</span><Thumb s={s} /><b>{s.name}</b><small className="fig">{s.sightings} reports</small></button></li>)}</ol>
+        <ol className="bp-list">{mostSeen(list, 8).map((s, i) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><span className="bp-rank fig">{i + 1}</span><Thumb s={s} /><b>{s.name}</b><small className="fig">{reportsWords(s)}</small></button></li>)}</ol>
       </Card>
       <Card tint="#5F8A4A" label="Rare near us" glyph="star" tag={rareOnes(list, 99).length ? `${rareOnes(list, 99).length} this week` : undefined} className="span-3">
         {b && !rareOnes(list).length && <p className="muted">Nothing unusual reported lately.</p>}
@@ -73,7 +73,7 @@ export default function BirdsPage() {
 
       <Card tint="#B3263A" label="Where’s that bird?" glyph="bird" className="span-6">
         <label className="bp-find">Type a bird<input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Roadrunner, hummingbird…" /></label>
-        <ul className="bp-list">{found.map((s) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><b>{s.name}</b><small>{s.sightings ? 'seen this week' : 'reported in the county lately'}</small></button></li>)}</ul>
+        <ul className="bp-list">{found.map((s) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><b>{s.name}</b><small>{s.last ? 'seen this week' : 'reported in the county lately'}</small></button></li>)}</ul>
         {q.length >= 2 && !found.length && <p className="muted">No bird by that name in this month’s reports.</p>}
       </Card>
 

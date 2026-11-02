@@ -6,7 +6,7 @@ import { outsideWords } from '../lib/outsideErrors.js'
 import { useSession } from '../lib/auth.js'
 import { seenWhen, ebirdSpeciesUrl, ebirdChecklistUrl } from '../lib/birdWords.js'
 import { todayAtHome } from '../lib/useSources.js'
-import { mostSeen } from '../lib/birdPage.js'
+import { mostSeen, reportsWords } from '../lib/birdPage.js'
 import BirdHighlights from './BirdHighlights.jsx'
 import { Link } from '../shell/Link.jsx'
 import './birdlists.css'
@@ -34,7 +34,7 @@ export default function BirdsCard({ className = 'span-3' }) {
         <div className="bd-snap">
           <section aria-label="Most reported this week">
             <h3>Most reported this week</h3>
-            <ol className="bp-list">{mostSeen(list, 5).map((s, i) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><span className="bp-rank fig">{i + 1}</span><Thumb s={s} /><b>{s.name}</b><small className="fig">{s.sightings} reports</small></button></li>)}</ol>
+            <ol className="bp-list">{mostSeen(list, 5).map((s, i) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><span className="bp-rank fig">{i + 1}</span><Thumb s={s} /><b>{s.name}</b><small className="fig">{reportsWords(s)}</small></button></li>)}</ol>
           </section>
           <BirdHighlights list={list} today={today} onOpen={setOpen} />
           <Link className="btn ghost" to="/world/birds">More about birds near us ›</Link>
@@ -54,7 +54,7 @@ export default function BirdsCard({ className = 'span-3' }) {
           <dl className="place-facts">
             <div><dt>Last seen</dt><dd>{seenWhen(open.last, today)}{open.where ? `, at ${open.where}` : ', at a private spot'}</dd></div>
             {open.count > 0 && <div><dt>As many as</dt><dd className="fig">{open.count}</dd></div>}
-            {open.sightings > 0 && <div><dt>Reports this week</dt><dd className="fig">{open.sightings}</dd></div>}
+            {open.reports > 0 && <div><dt>Recent checklists</dt><dd className="fig">{open.reports} of {open.sample}</dd></div>}
           </dl>
           <div className="place-go">
             <a className="btn" href={ebirdSpeciesUrl(open.code)} target="_blank" rel="noopener noreferrer">About this bird</a>

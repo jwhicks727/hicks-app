@@ -9,7 +9,7 @@
 // because it checks the caller itself.
 
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
-import { recentUrl, notableUrl, inatUrl, inatTaxonUrl, shapeBirds, photoOf, taxonIdOf, photoFromTaxon, inatObservationsUrl, photoFromObservations, KEEP_MS, KEEP_MORE_MS, KEEP_NEAREST_MS, hotspotsUrl, regionRecentUrl, statsUrl, nearestUrl, validCode, shapeHotspots, shapeCounty, shapePossible, shapeNearest, COUNTY } from '../_shared/birds.js'
+import { recentUrl, notableUrl, inatUrl, inatTaxonUrl, shapeBirds, photoOf, taxonIdOf, photoFromTaxon, inatObservationsUrl, photoFromObservations, KEEP_MS, KEEP_MORE_MS, KEEP_NEAREST_MS, hotspotsUrl, regionRecentUrl, statsUrl, nearestUrl, listsUrl, checklistUrl, nearbyChecklists, countSpecies, withFrequency, validCode, shapeHotspots, shapeCounty, shapePossible, shapeNearest, COUNTY } from '../_shared/birds.js'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -118,11 +118,19 @@ Deno.serve(async (req) => {
   try {
     const head = { 'X-eBirdApiToken': KEY }
     const [recent, notable] = await Promise.all([get(recentUrl(TOWN), head), get(notableUrl(TOWN), head).catch(() => [])])
-    const species = shapeBirds(recent, notable).slice(0, 40)
-    // The ones the screens show: the first nine, the five most reported and the eight notable ones
-    const shown = new Set([...species.slice(0, 9), ...[...species].sort((a, b) => b.sightings - a.sightings).slice(0, 5), ...species.filter((b) => b.notable).slice(0, 8)])
+    // How often each shows up: a sample of the latest checklists near town (the recent-sightings feed gives one line a species)
+    let counts: Record<string, number> = {}, sample = 0
+    try {
+      const subs = nearbyChecklists(await get(listsUrl(), head), TOWN)
+      const views: unknown[] = []
+      for (let i = 0; i < subs.length; i += 5) views.push(...await Promise.all(subs.slice(i, i + 5).map((s) => get(checklistUrl(s), head).catch(() => null))))
+      ;({ counts, sample } = countSpecies(views as never[]))
+    } catch (e) { console.error('sample:', String(e && (e as Error).message)) }
+    const species = withFrequency(shapeBirds(recent, notable), counts, sample)
+    // The ones the screens show: the most reported and the notable ones
+    const shown = new Set([...[...species.filter((b) => !b.notable)].sort((a, b) => b.reports - a.reports).slice(0, 8), ...species.filter((b) => b.notable).slice(0, 8)])
     await addPhotos([...shown] as unknown as Record<string, unknown>[])
-    const data = { at: Date.now(), species }
+    const data = { at: Date.now(), species, sample }
     memory = { data, at: Date.now() }
     const { error: writeErr } = await db.from('outside_cache').upsert({ key: 'birds', data, fetched_at: new Date().toISOString() })
     if (writeErr) console.error('outside_cache write:', writeErr.message)
