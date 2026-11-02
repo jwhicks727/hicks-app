@@ -1,5 +1,4 @@
 import SunCalc from 'suncalc'
-import { Card } from '../../ui/Card.jsx'
 import { Link } from '../../shell/Link.jsx'
 import { navigate } from '../../lib/router.js'
 import { usePlaceForecast, useWeather } from '../../lib/useWeather.js'
@@ -7,7 +6,7 @@ import { placeOfDay, distanceWords, aheadWords, milesBetween, minutesAhead } fro
 import { placeStory, compassFrom } from '../../lib/placeStory.js'
 import { HOME_TOWN } from '../../lib/sky.js'
 import WeatherIcon from '../../parts/WeatherIcon.jsx'
-import { HoursList, WeekList, Credit } from '../../parts/WeatherCard.jsx'
+import { Credit } from '../../parts/WeatherCard.jsx'
 import { WEEKDAYS } from '../../lib/cal/dates.js'
 import Scene, { placeSky } from './Scene.jsx'
 
@@ -53,29 +52,12 @@ export default function PlaceOfDay({ today, now }) {
             <Link className="place-tale-go" to={'/world/place/' + place.slug}>All about {place.name} ›</Link>
           </div>
         )}
-      </article>
-      <Card className="span-3" tint={place.colour} label={`Hour by hour in ${place.name}`} glyph="weather">
-        {f ? (
-          <>
-            <p className="muted">Feels like {f.now.feels}° · humidity {f.now.humidity}% · {f.now.wind.line.toLowerCase()}</p>
-            <HoursList hours={f.hours} />
-            <dl className="place-facts">
-              <div><dt>Sunrise</dt><dd className="fig">{hm.format(t.sunrise)}</dd></div>
-              <div><dt>Sunset</dt><dd className="fig">{hm.format(t.sunset)}</dd></div>
-              <div><dt>How far</dt><dd>{distanceWords(place)}</dd></div>
-            </dl>
-          </>
-        ) : <p className="muted">{error || 'Looking ahead…'}</p>}
-        <Link className="btn ghost" to={'/world/place/' + place.slug}>All about {place.name} ›</Link>
-      </Card>
-      <Card className="span-3" tint={place.colour} label={`The week in ${place.name}`} glyph="weather">
-        {f ? <WeekList days={f.days} /> : <p className="muted">{error || 'Looking ahead…'}</p>}
         <nav className="place-next" aria-label="The next places">
           <span>Up next</span>
           {next.map((p, i) => <a key={p.slug} href={'/world/place/' + p.slug} onClick={go(p.slug)}><i style={{ background: p.colour }} />{dayName(i + 1)}: {p.name}</a>)}
         </nav>
         <Credit />
-      </Card>
+      </article>
     </>
   )
 }
