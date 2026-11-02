@@ -8,8 +8,10 @@ new entry; the old one stays. The working rules for every project are in
 
 ## 2026-11-02 — Birds around us grows: a page of its own, built on eBird's public API
 
-Home's Birds card now shows two short lists (most reported this week, and rare
-near us) instead of a grid of nine, and opens `/world/birds`: birding places
+Home's Birds card now shows a short list (most reported this week) and, only when
+one is worth it, one or two tappable "Worth a look" highlights (a rare bird reported
+again and again, in a big group, or there today; nothing on a quiet week) instead of a
+grid of nine, and opens `/world/birds`: birding places
 (eBird hotspots, busiest first), the county's day in numbers, what else has been
 reported in the county this month, where one bird was last seen near us, a line
 about birding in today's weather, and a bird bingo card for Anna (nine birds really

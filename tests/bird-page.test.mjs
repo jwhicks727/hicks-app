@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mostSeen, rareOnes, weekStart, bingoCard, bingoLines, birdingLine, findBirds } from '../src/lib/birdPage.js'
+import { highlights, mostSeen, rareOnes, weekStart, bingoCard, bingoLines, birdingLine, findBirds } from '../src/lib/birdPage.js'
 import { shapeHotspots, shapeCounty, shapePossible, shapeNearest, km, hotspotsUrl, nearestUrl, validCode, statsUrl } from '../supabase/functions/_shared/birds.js'
 
 const town = { lat: 34.09, lng: -117.43 }
@@ -53,4 +53,21 @@ test('hotspots with the week at each, the county in numbers, what else is about,
   assert.ok(km(town, { lat: 34.19, lng: -117.43 }) > 10 && km(town, { lat: 34.19, lng: -117.43 }) < 12)
   assert.match(hotspotsUrl(town), /ref\/hotspot\/geo/); assert.match(nearestUrl('houspa', town), /nearest\/geo\/recent\/houspa/); assert.match(statsUrl('2026-11-01'), /stats\/US-CA-071\/2026\/11\/1$/)
   assert.equal(validCode('houspa'), true); assert.equal(validCode('../x'), false)
+})
+
+test('a highlight is a notable bird doing something: again and again, a group, or there today; a quiet week has none', () => {
+  const list = [
+    b('quiet', { notable: true, sightings: 1, last: '2026-10-30 08:00' }),
+    b('busy', { notable: true, sightings: 6, last: '2026-11-01 08:00' }),
+    b('flock', { notable: true, sightings: 1, count: 14, last: '2026-10-31 08:00' }),
+    b('today', { notable: true, sightings: 1, last: '2026-11-02 07:00' }),
+    b('common', { sightings: 40, count: 30, last: '2026-11-02 07:00' }),
+  ]
+  const h = highlights(list, '2026-11-02')
+  assert.equal(h.length, 2, 'at most two')
+  assert.deepEqual(h.map((x) => x.bird.code), ['busy', 'today'], 'reported again and again first, then the one there today (the group scores lower)')
+  assert.ok(h.every((x) => x.bird.notable), 'a common bird is never a highlight')
+  assert.match(h[0].headline, /^Reported 6 times/)
+  assert.equal(highlights([b('quiet', { notable: true, sightings: 1, last: '2026-10-30 08:00' })], '2026-11-02').length, 0)
+  assert.equal(highlights([], '2026-11-02').length, 0)
 })

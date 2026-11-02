@@ -21,3 +21,7 @@ a.bp-row { cursor: pointer; }
 .bp-bingo button[aria-pressed="true"] { background: color-mix(in srgb, #5F8A4A 24%, var(--card)); border-color: #5F8A4A; }
 .bp-bingo button[aria-pressed="true"] b::after { content: " ✓"; }
 .bd-snap { display: grid; gap: 14px; } .bd-snap h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin-bottom: 2px; }
+.bh { display: grid; gap: 8px; } .bh h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; }
+.bh-item { width: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 76px; padding: 8px; text-align: left; font: inherit; color: var(--ink); cursor: pointer; border: 1px solid color-mix(in srgb, #5F8A4A 45%, var(--line)); border-radius: 6px; background: color-mix(in srgb, #5F8A4A 14%, var(--card)); }
+.bh-item img, .bh-nophoto { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; background: color-mix(in srgb, #5F8A4A 20%, var(--card)); display: block; }
+.bh-words { display: grid; gap: 2px; min-width: 0; } .bh-words b { font-weight: 850; overflow-wrap: anywhere; } .bh-words small { color: var(--muted); font-weight: 700; }

@@ -8,6 +8,27 @@
 export const mostSeen = (list, n = 5) => (list || []).filter((b) => b.sightings > 0).slice().sort((a, b) => b.sightings - a.sightings || b.last.localeCompare(a.last)).slice(0, n)
 export const rareOnes = (list, n = 5) => (list || []).filter((b) => b.notable).slice().sort((a, b) => b.last.localeCompare(a.last)).slice(0, n)
 
+/**
+ * One or two highlights: a notable bird doing something worth a look. Only what the week's sightings show
+ * (no history is kept), so each says why in plain words: reported again and again, a big group, or turned up
+ * today. A quiet week gives none, and the screen shows nothing rather than filler.
+ */
+export function highlights(list, today, n = 2) {
+  const days = (when) => Math.round((Date.parse(today + 'T12:00:00Z') - Date.parse(String(when).slice(0, 10) + 'T12:00:00Z')) / 864e5)
+  const out = []
+  for (const b of (list || []).filter((x) => x.notable)) {
+    const age = b.last ? days(b.last) : 99, why = []
+    let score = 0
+    if (b.sightings >= 3) { why.push(`reported ${b.sightings} times this week`); score += Math.min(b.sightings, 12) }
+    if (b.count >= 8) { why.push(`as many as ${b.count} together`); score += Math.min(b.count / 4, 8) }
+    if (age <= 0) { why.push('seen today'); score += 4 } else if (age === 1) { why.push('seen yesterday'); score += 2 }
+    // Worth a highlight: seen more than once or in a group, or a rare bird that is there right now
+    if (!(b.sightings >= 3 || b.count >= 8 || (age <= 0 && b.sightings >= 1))) continue
+    out.push({ bird: b, why, score, headline: why[0] ? why[0][0].toUpperCase() + why[0].slice(1) : 'Notable' })
+  }
+  return out.sort((a, b) => b.score - a.score).slice(0, n)
+}
+
 /** The Sunday a week starts on, as YYYY-MM-DD, from a day at home. */
 export function weekStart(today) {
   const [y, m, d] = today.split('-').map(Number), t = new Date(Date.UTC(y, m - 1, d))

@@ -6,7 +6,8 @@ import { outsideWords } from '../lib/outsideErrors.js'
 import { useSession } from '../lib/auth.js'
 import { seenWhen, ebirdSpeciesUrl, ebirdChecklistUrl } from '../lib/birdWords.js'
 import { todayAtHome } from '../lib/useSources.js'
-import { mostSeen, rareOnes } from '../lib/birdPage.js'
+import { mostSeen } from '../lib/birdPage.js'
+import BirdHighlights from './BirdHighlights.jsx'
 import { Link } from '../shell/Link.jsx'
 import './birdlists.css'
 
@@ -35,11 +36,7 @@ export default function BirdsCard({ className = 'span-3' }) {
             <h3>Most reported this week</h3>
             <ol className="bp-list">{mostSeen(list, 5).map((s, i) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><span className="bp-rank fig">{i + 1}</span><Thumb s={s} /><b>{s.name}</b><small className="fig">{s.sightings} reports</small></button></li>)}</ol>
           </section>
-          <section aria-label="Rare near us">
-            <h3>Rare near us</h3>
-            {!rareOnes(list).length && <p className="muted">Nothing unusual reported lately.</p>}
-            <ol className="bp-list">{rareOnes(list, 5).map((s) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><Thumb s={s} /><b>{s.name}</b><small>{seenWhen(s.last, today)}{s.where ? ` · ${s.where}` : ''}</small></button></li>)}</ol>
-          </section>
+          <BirdHighlights list={list} today={today} onOpen={setOpen} />
           <Link className="btn ghost" to="/world/birds">More about birds near us ›</Link>
         </div>
       )}

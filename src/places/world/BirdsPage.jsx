@@ -6,9 +6,10 @@ import { useBirds, useBirdsMore, askNearest } from '../../lib/useOutside.js'
 import { useWeather } from '../../lib/useWeather.js'
 import { outsideWords } from '../../lib/outsideErrors.js'
 import { seenWhen, ebirdSpeciesUrl, ebirdChecklistUrl } from '../../lib/birdWords.js'
-import { mostSeen, rareOnes, bingoCard, bingoLines, birdingLine, findBirds, weekStart } from '../../lib/birdPage.js'
+import { highlights, mostSeen, rareOnes, bingoCard, bingoLines, birdingLine, findBirds, weekStart } from '../../lib/birdPage.js'
 import { todayAtHome } from '../../lib/useSources.js'
 import '../../parts/birdlists.css'
+import BirdHighlights from '../../parts/BirdHighlights.jsx'
 
 // /world/birds: the birds around us, in full. What is most reported and what is rare this week,
 // where the birding places are, today's weather for it, what else is about this month, where a
@@ -40,6 +41,7 @@ export default function BirdsPage() {
     <>
       <header className="hero span-6"><Crumb to="/world">World</Crumb><span className="kicker">From eBird</span><h1 className="greet">Birds around us</h1></header>
       {b && b.error && !list.length && <Card tint="#2E7F86" label="Birds" glyph="bird" className="span-6"><p className="muted" role="status">{outsideWords('birds', b)}</p></Card>}
+      {highlights(list, today).length > 0 && <Card tint="#5F8A4A" label="Worth a look" glyph="star" className="span-6"><BirdHighlights list={list} today={today} onOpen={setOpen} titled={false} /></Card>}
       {line && <Card tint="#C0824F" label="Birding today" glyph="weather" className="span-6"><p>{line}</p><p className="muted small">From the weather at home; a guess, not a promise.</p></Card>}
 
       <Card tint="#2E7F86" label="Most reported this week" glyph="bird" tag={list.length ? `${list.length} kinds` : undefined} className="span-3">
