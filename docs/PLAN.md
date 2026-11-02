@@ -266,6 +266,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [x] Her painting stands in for a photo wherever a parent has said what it shows
       (a bird, a park, a place): `PaintingSubjects.jsx`, `src/lib/life/subjects.js`.
       Where there is no painting, the thing's own drawing (no photos are fetched).
+- [x] Birds around us page `/world/birds` (hotspots, county numbers, this month's possibles, where's that bird, weather line, bingo; `BirdsPage.jsx`, `src/lib/birdPage.js`). Unverified live until the function is redeployed.
 - [x] Birds around us on Home, right after the weather: this week's
       sightings round town from eBird, the notable ones first in green,
       each a tap from when and where it was last seen.

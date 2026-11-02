@@ -11,12 +11,14 @@ import { outsideProblem } from './outsideErrors.js'
 const kept = {} // name -> { data, at }
 const subs = {} // name -> Set
 const asking = {}
-const AGAIN_MS = { stations: 15 * 60e3, birds: 60 * 60e3, wild: 12 * 60 * 60e3 }
+const AGAIN_MS = { stations: 15 * 60e3, birds: 60 * 60e3, 'birds-more': 3 * 60 * 60e3, wild: 12 * 60 * 60e3 }
+const FUNCTION = { 'birds-more': 'birds' } // which Edge Function answers, when not the name
+const BODY = { 'birds-more': { kind: 'more' } }
 
 async function ask(name) {
   if (asking[name]) return
   asking[name] = true
-  const { data, error } = await supabase.functions.invoke(name, { body: {} })
+  const { data, error } = await supabase.functions.invoke(FUNCTION[name] || name, { body: BODY[name] || {} })
   asking[name] = false
   const v = outsideProblem({ error, data, online: typeof navigator === 'undefined' || navigator.onLine !== false }) || data
   kept[name] = { data: v, at: Date.now() }
@@ -40,6 +42,13 @@ function useOutside(name) {
 export const useStations = () => useOutside('stations')
 /** { at, species: [...] } from eBird, or { error }, or null while asking. */
 export const useBirds = () => useOutside('birds')
+/** { at, hotspots, county, possible } from eBird, or { error }, or null while asking. */
+export const useBirdsMore = () => useOutside('birds-more')
+/** Where one bird was last seen near us: { sightings: [...] } or { error }. Asked when a bird is opened. */
+export async function askNearest(code) {
+  const { data, error } = await supabase.functions.invoke('birds', { body: { kind: 'nearest', code } })
+  return outsideProblem({ error, data, online: typeof navigator === 'undefined' || navigator.onLine !== false }) || data
+}
 
 /** { at, pictures: { [season id]: { url, page, credit } } } from the wild function, or { error }, or null while asking. */
 export const useWildPictures = () => useOutside('wild')

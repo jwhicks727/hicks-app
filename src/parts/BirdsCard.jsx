@@ -6,6 +6,11 @@ import { outsideWords } from '../lib/outsideErrors.js'
 import { useSession } from '../lib/auth.js'
 import { seenWhen, ebirdSpeciesUrl, ebirdChecklistUrl } from '../lib/birdWords.js'
 import { todayAtHome } from '../lib/useSources.js'
+import { mostSeen, rareOnes } from '../lib/birdPage.js'
+import { Link } from '../shell/Link.jsx'
+import './birdlists.css'
+
+const Thumb = ({ s }) => (s.photo ? <img className="bp-thumb" src={s.photo.url} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <span className="bp-thumb bp-none" aria-hidden="true" />)
 
 /**
  * "Birds around us": what birders have seen within a few miles of town this
@@ -25,20 +30,18 @@ export default function BirdsCard({ className = 'span-3' }) {
       {!b && <p className="muted">Looking at this week’s sightings…</p>}
       {b && b.error && <p className="muted" role="status">{outsideWords('birds', b)}</p>}
       {list.length > 0 && (
-        <>
-          <ul className="bd-grid">
-            {list.slice(0, 9).map((s) => (
-              <li key={s.code}>
-                <button type="button" className={'bd-bird' + (s.notable ? ' notable' : '')} onClick={() => setOpen(s)}>
-                  {s.photo ? <img src={s.photo.url} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <span className="bd-nophoto" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 15c3 0 5-2 6-5s3-5 6-5c2 0 3 1 3 3l2.5 1-2.5 1c0 4-3 7-8 7h-4z" /><path d="M9 20l1-3M12 20l1-3" /><circle cx="15.6" cy="7.8" r=".5" /></svg></span>}
-                  <b>{s.name}</b>
-                  <small>{s.notable ? 'Notable · ' : ''}{seenWhen(s.last, today)}</small>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {list.length > 9 && <p className="muted small">And {list.length - 9} more: {list.slice(9, 15).map((s) => s.name).join(', ')}{list.length > 15 ? '…' : ''}</p>}
-        </>
+        <div className="bd-snap">
+          <section aria-label="Most reported this week">
+            <h3>Most reported this week</h3>
+            <ol className="bp-list">{mostSeen(list, 5).map((s, i) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><span className="bp-rank fig">{i + 1}</span><Thumb s={s} /><b>{s.name}</b><small className="fig">{s.sightings} reports</small></button></li>)}</ol>
+          </section>
+          <section aria-label="Rare near us">
+            <h3>Rare near us</h3>
+            {!rareOnes(list).length && <p className="muted">Nothing unusual reported lately.</p>}
+            <ol className="bp-list">{rareOnes(list, 5).map((s) => <li key={s.code}><button type="button" onClick={() => setOpen(s)}><Thumb s={s} /><b>{s.name}</b><small>{seenWhen(s.last, today)}{s.where ? ` · ${s.where}` : ''}</small></button></li>)}</ol>
+          </section>
+          <Link className="btn ghost" to="/world/birds">More about birds near us ›</Link>
+        </div>
       )}
       {b && b.at && <p className="wx-credit">Sightings from <a href="https://ebird.org/" target="_blank" rel="noopener noreferrer">eBird</a> (Cornell Lab of Ornithology), within about ten miles of town · photos from iNaturalist, credited</p>}
       {open && (

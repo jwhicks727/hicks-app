@@ -20,7 +20,7 @@ export function outsideProblem({ error, data, online = true }) {
   return null
 }
 
-const NAME = { stations: 'Each school’s own station', birds: 'Birds around us' }
+const NAME = { stations: 'Each school’s own station', birds: 'Birds around us', 'birds-more': 'Birds around us' }
 const NEEDS = { stations: 'its function deployed and the Synoptic token set', birds: 'its function deployed and the eBird key set' }
 
 /** The sentence for a problem from outsideProblem(), for the card that shows `feature` ('stations' or 'birds'). */
