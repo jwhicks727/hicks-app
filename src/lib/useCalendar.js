@@ -1,3 +1,4 @@
+import { onePerPerson, sameDaysOnce } from './cal/people.js'
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
@@ -14,11 +15,11 @@ export async function fetchAll(build, size = 1000) {
 
 /** The family, their days, and the calendar sources (which school is whose), once per sign-in. */
 export function useFamily(session) {
-  const [state, setState] = useState({ members: [], days: [], sources: [], loaded: false, error: null })
+  const [state, setState] = useState({ members: [], people: [], canon: (id) => id, days: [], sources: [], loaded: false, error: null })
   const [n, setN] = useState(0)
   useEffect(() => {
     let live = true
-    if (!supabase || !session) { setState({ members: [], days: [], sources: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
+    if (!supabase || !session) { setState({ members: [], people: [], canon: (id) => id, days: [], sources: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
     Promise.all([
       supabase.from('family_members').select('id, name, email, role, colour').order('name'),
       fetchAll(() => supabase.from('family_days').select('id, title, month, day, year, kind, for_whom, note').order('month').order('day')),
@@ -26,7 +27,8 @@ export function useFamily(session) {
     ]).then(([m, d, s]) => {
       if (!live) return
       const error = (m.error || d.error || s.error || {}).message || null
-      setState({ members: m.data || [], days: d.data || [], sources: s.data || [], loaded: true, error })
+      const members = m.data || [], { people, canon } = onePerPerson(members)
+      setState({ members, people, canon, days: sameDaysOnce((d.data || []).map((x) => ({ ...x, for_whom: canon(x.for_whom) }))), sources: (s.data || []).map((x) => ({ ...x, for_whom: canon(x.for_whom) })), loaded: true, error })
     })
     return () => { live = false }
   }, [session, n])

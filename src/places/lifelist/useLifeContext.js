@@ -14,7 +14,7 @@ export function useLifeContext() {
   const email = session && session.user.email ? session.user.email.toLowerCase() : null
   const me = email ? family.members.find((m) => (m.email || '').toLowerCase() === email) || null : null
   return {
-    session, members: family.members, me, parent: Boolean(me && me.role === 'parent'), laurie: family.members.find((m) => m.name === 'Laurie') || null,
+    session, members: family.members, me, parent: Boolean(me && me.role === 'parent'), laurie: family.people.find((m) => m.name === 'Laurie') || null,
     today: todayAt(HOME_TOWN.tz, now), paintings, paintingsStored: stored, paintingsLoaded: loaded, reloadPaintings: reload,
   }
 }

@@ -44,9 +44,9 @@ export default function Calendar({ rest }) {
   const me = email ? family.members.find((m) => (m.email || '').toLowerCase() === email) : null
   const one = useEvent(rest[0] === 'event' ? session : null, rest[0] === 'event' ? rest[1] : null)
   if (rest[0] === 'day' && rest[2] === 'readings' && /^\d{4}-\d\d-\d\d$/.test(rest[1])) return <Readings date={rest[1]} variant={/^[A-Za-z0-9]{1,20}$/.test(rest[3] || '') ? rest[3] : ''} session={session} />
-  if (rest[0] === 'new') return <EventForm date={/^\d{4}-\d\d-\d\d$/.test(rest[1] || '') ? rest[1] : today} members={family.members} />
-  if (rest[0] === 'event' && rest[2] === 'edit') return one.loaded ? <EventForm event={one.event} date={one.event ? one.event.starts_on : today} members={family.members} /> : null
-  if (rest[0] === 'event') return <EventPage state={one} members={family.members} parent={Boolean(me && me.role === 'parent')} today={today} />
+  if (rest[0] === 'new') return <EventForm date={/^\d{4}-\d\d-\d\d$/.test(rest[1] || '') ? rest[1] : today} members={family.people} />
+  if (rest[0] === 'event' && rest[2] === 'edit') return one.loaded ? <EventForm event={one.event && { ...one.event, for_whom: family.canon(one.event.for_whom) }} date={one.event ? one.event.starts_on : today} members={family.people} /> : null
+  if (rest[0] === 'event') return <EventPage state={one} members={family.people} parent={Boolean(me && me.role === 'parent')} today={today} />
   return <Views rest={rest} today={today} session={session} family={family} />
 }
 
@@ -54,9 +54,9 @@ function Views({ rest, today, session, family }) {
   const { view, date } = parseCalPath(rest, today)
   const [from, to] = viewRange(view, date)
   const { events: raw } = useEvents(session, from, to)
-  const events = useMemo(() => dedupeEvents(annotateEvents(raw, family.sources, family.members)), [raw, family.sources, family.members])
+  const events = useMemo(() => dedupeEvents(annotateEvents(raw.map((e) => ({ ...e, for_whom: family.canon(e.for_whom) })), family.sources, family.people)), [raw, family.sources, family.people, family.canon])
   const [prefs, update] = usePrefs()
-  const who = family.members.some((m) => m.id === prefs.calendarWho) ? prefs.calendarWho : null
+  const who = family.people.some((m) => m.id === prefs.calendarWho) ? prefs.calendarWho : null
   const data = useMemo(() => ({ familyDays: family.days, events, groups: prefs.calendarGroups || null, who }), [family.days, events, prefs.calendarGroups, who])
   const View = VIEW[view]
   return (
@@ -65,7 +65,7 @@ function Views({ rest, today, session, family }) {
         {(view === 'month' || view === 'year') && <SeasonStrip date={date} today={today} />}
       </CalHead>
       {session && <Link className="btn new-event span-6" to={`/calendar/new/${view === 'day' ? date : today}`}>+ Something new</Link>}
-      <WhoFilter members={family.members} who={who} onChange={(id) => update({ calendarWho: id })} />
+      <WhoFilter members={family.people} who={who} onChange={(id) => update({ calendarWho: id })} />
       <View date={date} today={today} data={data} signedIn={Boolean(session)} family={family} />
       {view === 'month' && (
         <Coming tint="#3E7A4C" glyph="calendar" className="span-6" title="Still coming to the calendar" items={[

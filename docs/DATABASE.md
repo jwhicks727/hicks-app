@@ -202,7 +202,7 @@ sign-in link won't come back to the app.
 
 | Table | Holds | Who can read | Who can change |
 |---|---|---|---|
-| `family_members` | The three of us | The family | The SQL editor only |
+| `family_members` | The three of us. A person may have two rows (two sign-in addresses); the app treats same-named rows as one person (`src/lib/cal/people.js`, the lowest id stands for them) | The family | The SQL editor only |
 | `sources` | Every outside calendar, document, folder or feed, with what it covers and when it goes stale | The family | Parents |
 | `source_versions` | Each reading of a source, kept as history | The family | Parents add; nobody changes |
 | `calendar_events` | Events from sources and from us; "proposed" until approved when read from a document. Our own can have a place (name and coordinates) and be marked outdoors | The family | The family; parents remove |

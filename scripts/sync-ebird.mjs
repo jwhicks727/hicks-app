@@ -35,7 +35,9 @@ async function main() {
   const db = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } })
 
   // Her yes, and where her birds go
-  const [{ data: laurie }, { data: consent }, { data: parents }] = await Promise.all([db.from('family_members').select('id, name').eq('name', 'Laurie').maybeSingle(), db.from('sync_consents').select('source, said_yes_by').eq('source', 'ebird').maybeSingle(), db.from('family_members').select('id').eq('role', 'parent')])
+  const [{ data: lauries }, { data: consent }, { data: parents }] = await Promise.all([db.from('family_members').select('id, name').eq('name', 'Laurie'), db.from('sync_consents').select('source, said_yes_by').eq('source', 'ebird').maybeSingle(), db.from('family_members').select('id').eq('role', 'parent')])
+  // Laurie may have more than one sign-in address, so more than one row: the lowest id is her, as in the app.
+  const laurie = (lauries || []).slice().sort((a, b) => (a.id < b.id ? -1 : 1))[0] || null
   if (!consentOk(consent, laurie, parents || [])) { say('Nobody has switched this on in the app (Life List › Birds). Nothing was done.'); return 0 }
 
   // The log: may we sign in at all?

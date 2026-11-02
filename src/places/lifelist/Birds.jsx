@@ -222,8 +222,8 @@ const when = (iso) => new Date(iso).toLocaleString('en-US', { month: 'short', da
 /** Every night a job signs in to eBird as Laurie, but only while her own yes is here; this shows the yes and the last runs. */
 function NightlySync({ c, birds }) {
   const sync = useBirdSync(c.session), [busy, setBusy] = useState(false), [err, setErr] = useState(null)
-  const data = sync.rows[0] || { yes: null, runs: [] }, byLaurie = Boolean(c.laurie && data.yes && data.yes.said_yes_by === c.laurie.id)
-  const on = Boolean(data.yes), who = (c.members.find((m) => data.yes && m.id === data.yes.said_yes_by) || {}).name
+  const data = sync.rows[0] || { yes: null, runs: [] }, on = Boolean(data.yes), who = (c.members.find((m) => data.yes && m.id === data.yes.said_yes_by) || {}).name
+  const byLaurie = who === 'Laurie'
   async function flip() {
     setBusy(true); setErr(null)
     const { error } = on ? await takeBackSyncYes() : await sayYesToSync(c.me.id)
