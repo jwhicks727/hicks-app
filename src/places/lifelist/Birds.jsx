@@ -232,13 +232,13 @@ function NightlySync({ c, birds }) {
   const last = data.runs.find((r) => r.kind !== 'discover')
   return (
     <Card tint="#2F7F9A" label="Every night, by itself" glyph="sunmoon" className="span-6">
-      <p>Each night the app can sign in to eBird as Laurie, look for checklists it hasn’t seen, and add her birds, so nobody has to bring in a file. It takes up to 150 new checklists a night, newest first, so a long history fills in over a few nights.</p>
+      <p>Each night the app can look at eBird’s public checklist feed for our county, pick out the checklists submitted under Laurie’s name, and add her birds, so nobody has to bring in a file. It never signs in to her eBird account.</p>
       {on
         ? <p><b>{byLaurie ? 'Laurie has said yes.' : `${who || 'A parent'} switched this on for Laurie.`}</b> {last ? <>Last run {when(last.at)}: {RUN_WORDS[last.status] || last.status}{last.status === 'ok' ? `, ${last.checklists} new checklists` : ''}.{last.note ? ` ${last.note}` : ''}</> : 'It hasn’t run yet.'}</p>
-        : <p><b>Switched off.</b> Until a parent switches it on, nothing signs in to eBird.</p>}
+        : <p><b>Switched off.</b> Until a parent switches it on, nothing is read from eBird.</p>}
       <button type="button" className={on ? 'btn ghost' : 'btn'} disabled={busy} onClick={flip}>{busy ? 'One moment…' : on ? 'Switch off' : 'Switch on for Laurie'}</button>
       {err && <p className="err" role="alert">{err}</p>}
-      <p className="muted small">Her eBird password is kept only where the nightly job runs, never in the app or this repository. If eBird ever turns the sign-in down, the job stops for a day rather than trying again.</p>
+      <p className="muted small">Only the checklists, birds, days and places are kept. A checklist at a private place may not appear in eBird’s public feed; the file above catches those.</p>
     </Card>
   )
 }

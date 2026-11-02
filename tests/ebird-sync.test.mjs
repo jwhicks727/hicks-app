@@ -3,19 +3,6 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { hostOk, validateSteps, signInGate, consentOk, parseWhen, parseChecklistIndex, nextPageHref, viewUrl, taxonomyUrl, indexTaxonomy, shapeChecklist, safeUrl, outlineOf, MAX_NEW_PER_RUN, SIGN_IN_HOSTS } from '../scripts/lib/ebird-core.mjs'
 
-const steps = JSON.parse(fs.readFileSync(new URL('../scripts/ebird-steps.json', import.meta.url), 'utf8'))
-
-test('the sign-in page must be eBird’s or Cornell’s own, and the file must be complete', () => {
-  assert.deepEqual(validateSteps(steps), [])
-  assert.equal(hostOk('https://secure.birds.cornell.edu/cassso/login', SIGN_IN_HOSTS), true)
-  assert.equal(hostOk('https://evil.example/ebird.org', SIGN_IN_HOSTS), false); assert.equal(hostOk('https://ebird.org.evil.example/', SIGN_IN_HOSTS), false)
-  assert.equal(hostOk('http://ebird.org/', SIGN_IN_HOSTS), false); assert.equal(hostOk('https://user:pw@ebird.org/', SIGN_IN_HOSTS), false)
-  assert.match(validateSteps({ ...steps, signIn: { ...steps.signIn, url: 'https://phish.example/login' } })[0], /eBird’s own sites/)
-  assert.match(validateSteps({ ...steps, checklists: { url: 'https://secure.birds.cornell.edu/x' } })[0], /ebird\.org/)
-  assert.match(validateSteps({ ...steps, signIn: { ...steps.signIn, password: [] } })[0], /signIn\.password/)
-  assert.ok(validateSteps(null).length > 0)
-})
-
 test('a rejected sign-in, or a run that never finished, holds the next one for a day', () => {
   const now = Date.parse('2026-11-03T10:00:00Z'), ago = (h, status) => ({ at: new Date(now - h * 3600e3).toISOString(), status })
   assert.equal(signInGate([], now).ok, true); assert.equal(signInGate([ago(30, 'ok'), ago(54, 'ok')], now).ok, true)
@@ -81,4 +68,14 @@ test('the migration lets only the service role write a run, and only Laurie writ
   assert.match(sql, /create policy consents_add[^;]*said_yes_by = \(select public\.my_member_id\(\)\)/)
   assert.doesNotMatch(sql, /create policy [a-z_]+ on public\.bird_sync_runs for (insert|update|delete)/)
   assert.match(sql, /grant select on public\.bird_sync_runs to authenticated/)
+})
+
+test('the day feed: her checklists only, by display name; the days to ask about, newest first', async () => {
+  const { feedUrl, hersOnly, daysBetween } = await import('../scripts/lib/ebird-core.mjs')
+  assert.match(feedUrl('US-CA-071', '2026-10-05'), /product\/lists\/US-CA-071\/2026\/10\/5\?maxResults=200$/)
+  const list = [{ subId: 'S1', userDisplayName: ' Jane  Doe ', loc: { name: 'Home' } }, { subId: 'S2', userDisplayName: 'Someone Else' }, { userDisplayName: 'Jane Doe' }]
+  assert.deepEqual(hersOnly(list, 'jane doe').map((x) => x.sub), ['S1'])
+  assert.deepEqual(hersOnly(list, ''), [])
+  assert.deepEqual(daysBetween('2026-10-30', '2026-11-02', 10), ['2026-11-02', '2026-11-01', '2026-10-31', '2026-10-30'])
+  assert.equal(daysBetween('2000-01-01', '2026-11-02', 3).length, 3)
 })

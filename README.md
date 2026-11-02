@@ -96,9 +96,9 @@ Setting it all up, in order: `docs/MORNING.md`.
 - `supabase/functions/` — jobs that run on Supabase: `read-sources` reads
   the calendar feeds nightly. Its logic is in `_shared/`, plain JavaScript
   the tests run too.
-- `.github/workflows/sync-ebird.yml` — the nightly job that signs in to eBird
-  as Laurie (only with her own yes recorded in the app) and brings in her new
-  checklists (`scripts/sync-ebird.mjs`, steps in `scripts/ebird-steps.json`;
+- `.github/workflows/sync-ebird.yml` — the nightly job that brings in
+  Laurie's new checklists from eBird's API under her display name (only with a yes
+  recorded in the app) (`scripts/sync-ebird.mjs`; no sign-in;
   secrets in the `ebird` environment, `docs/SECRETS.md`). Runs at 10:23 UTC.
 - `docs/` — the decisions log, the design principles, the plan, and the
   clickable mockup the look was worked out in (`docs/mockup/`).

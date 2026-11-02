@@ -285,16 +285,15 @@ New since the first sitting. Each part works on its own; skip any for now.
     gallery and say what it shows ("What it shows"). Until the migration is run,
     the Life List screens say so rather than failing.
 13. **Nightly eBird sync (optional; the file in step 12 still works).** Run
-    `supabase/migrations/20261101233000_ebird_sync.sql` the same way. A parent opens
-    Life List › Birds › Bring in her birds and taps "Switch on for Laurie" (Laurie
-    can switch it off the same way); nothing signs in to eBird before that. Then, in GitHub:
-    Settings › Environments › New environment `ebird`, limited to the `main`
-    branch, with secrets `EBIRD_USERNAME`, `EBIRD_PASSWORD` (Laurie's eBird login),
-    `SUPABASE_SERVICE_ROLE_KEY` and `EBIRD_API_KEY`; the repository variable
-    `VITE_SUPABASE_URL` is already set. Run the **Sync eBird** workflow once by hand
-    with **discover** ticked: it prints an outline of eBird's pages (no names, no
-    values) so the sign-in steps in `scripts/ebird-steps.json` can be checked. The
-    sign-in and page steps are **unverified against live eBird** until that run.
-    After a rejected sign-in it stops for 24 hours; once the password is fixed, tick
-    **retry_login** for one run. It takes up to 150 new checklists a night, newest
-    first, so a long history fills in over a few nights.
+    `supabase/migrations/20261101233000_ebird_sync.sql` and
+    `20261102000500_ebird_sync_parent_can_stop.sql` the same way (done). A parent
+    opens Life List › Birds › Bring in her birds and taps "Switch on for Laurie".
+    In GitHub, the `ebird` environment (limited to `main`) holds secrets
+    `SUPABASE_SERVICE_ROLE_KEY` and `EBIRD_API_KEY`, and a **variable**
+    `EBIRD_DISPLAY_NAME` (the name eBird shows on her checklists); remove the old
+    `EBIRD_USERNAME` and `EBIRD_PASSWORD`. Run **Sync Laurie's birds** by hand with
+    **discover** ticked (it says in counts how many checklists are under her name,
+    and saves nothing), then with `since` set to the start of her history (for
+    example 2024-01-01) to fill it in, up to 400 days a run. It never signs in to
+    eBird. **Unverified against live eBird** until that run; checklists at private
+    places may not be in the public feed (then use the file in step 12).

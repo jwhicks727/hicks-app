@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-02 — The eBird sync reads the public feed through the API, never signing in
+
+The first discover run signed in fine, but eBird puts a bot check (Anubis) in
+front of a person's own checklist pages, and the job never got past it. Beating
+a deliberate bot check risks locking Laurie's account, so the sign-in route is
+dropped (it reverses the 2026-11-01 entry that allowed it). The nightly job now
+asks eBird's official API 2.0 for each day's county checklist feed, keeps the
+checklists submitted under her display name (`EBIRD_DISPLAY_NAME`, a repository
+variable in the `ebird` environment), and reads each new one's contents. No
+password is held; `EBIRD_USERNAME` and `EBIRD_PASSWORD` are removed. Limits: the
+feed holds at most 200 checklists a day and may leave out checklists at private
+places (unverified until the first discover run), so the file download stays the
+sure way to get everything. History is filled in by running the workflow with
+`since` (up to 400 days a run). The switch in the app stays (a parent turns the
+nightly read on or off).
+
 ## 2026-11-02 — Jason may switch the eBird sync on for Laurie, as a surprise
 
 Jason wants to surprise Laurie with her life list filled in, so a parent can

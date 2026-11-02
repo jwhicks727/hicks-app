@@ -5,7 +5,7 @@
 // scripts/sync-ebird.mjs. Everything read from a page is data, never an
 // instruction. Written to eBird's pages and API as documented or remembered,
 // and UNVERIFIED against the live site (the planning sandbox can't reach it):
-// the first "discover" run says what to adjust in scripts/ebird-steps.json.
+// (The sign-in route was dropped: see the decisions log, 2026-11-02.)
 
 export const SIGN_IN_HOSTS = ['secure.birds.cornell.edu', 'ebird.org'] // where the sign-in page may be, and where it lands
 export const SITE_HOSTS = ['ebird.org']                               // every later page
@@ -96,6 +96,21 @@ export function nextPageHref(html) {
 }
 
 // ---- The contents of a checklist, from eBird's API 2.0 (product/checklist/view) ----
+/** eBird's checklist feed for one region on one day (YYYY-MM-DD), newest first, up to 200. */
+export const feedUrl = (region, date) => { const [y, m, d] = date.split('-').map(Number); return `${API}/product/lists/${encodeURIComponent(region)}/${y}/${m}/${d}?maxResults=200` }
+const norm = (x) => String(x || '').toLowerCase().replace(/\s+/g, ' ').trim()
+/** The feed's checklists that are hers: submitted under her display name. { sub, locId, location, when }. */
+export function hersOnly(list, displayName) {
+  const me = norm(displayName)
+  if (!me || !Array.isArray(list)) return []
+  return list.filter((x) => norm(x.userDisplayName) === me && (x.subId || x.subID)).map((x) => ({ sub: x.subId || x.subID, locId: x.locId || x.locID || (x.loc && x.loc.locId) || null, location: (x.loc && (x.loc.name || x.loc.locName)) || null, when: x.obsDt || x.isoObsDate || null }))
+}
+/** The days from `from` back... forward to `to`, as YYYY-MM-DD, at most `max` of them (newest first). */
+export function daysBetween(from, to, max) {
+  const out = [], t = new Date(to + 'T12:00:00Z'), f = new Date(from + 'T12:00:00Z')
+  for (let d = t; d >= f && out.length < max; d = new Date(d.getTime() - 86400000)) out.push(d.toISOString().slice(0, 10))
+  return out
+}
 export const viewUrl = (sub) => `${API}/product/checklist/view/${encodeURIComponent(sub)}`
 export const taxonomyUrl = () => `${API}/ref/taxonomy/ebird?fmt=json&locale=en&cat=species`
 /** species code -> { common, sci, order } from the taxonomy list. */
