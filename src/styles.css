@@ -36,6 +36,9 @@ body {
   margin: 0; color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.5; background: #F1DCC0;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(var(--tabbar) + var(--tab-bottom) + 30px) max(16px, env(safe-area-inset-left, 0px));
 }
+/* A short page (Kitchen's) is as tall as the screen too, so the phone never lays it out shorter and leaves a band of page colour under the tab bar. */
+html { min-height: 100lvh; }
+body { min-height: 100lvh; }
 body.sky-dark { --sky-ink: #FFF8EE; }
 h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { text-wrap: balance; line-height: 1.12; }
