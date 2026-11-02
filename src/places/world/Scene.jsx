@@ -98,7 +98,12 @@ const bird = (c, key, y, dur, delay = 0, big = false) => (
 /** A bird circling over one spot (a hawk). */
 const hawk = (c, key, cx, cy, r, dur) => !c.night && (
   <g key={key} {...mv(c, 'spin', { transformOrigin: `${cx}px ${cy}px`, animationDuration: `${dur}s` })}>
-    <path d="M-6 0Q-3 -4 0 0Q3 -4 6 0" transform={`translate(${cx + r} ${cy})`} fill="none" stroke="#3A3350" strokeWidth="1.5" strokeLinecap="round" />
+    {/* Turned back as the ring turns, so the bird always flies right way up */}
+    <g transform={`translate(${cx + r} ${cy})`}>
+      <g {...mv(c, 'unspin', { animationDuration: `${dur}s` })}>
+        <path d="M-6 0Q-3 -4 0 0Q3 -4 6 0" fill="none" stroke="#3A3350" strokeWidth="1.5" strokeLinecap="round" />
+      </g>
+    </g>
   </g>
 )
 /** Smoke or steam: puffs lifting off and thinning out, from [x, y]. */
