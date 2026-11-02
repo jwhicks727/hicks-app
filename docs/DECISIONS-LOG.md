@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-02 — The eBird feed doesn't carry her checklists; the file is the way, and the nightly run is off
+
+The first discover run of the API route read 1,682 checklists from the county's
+feed over 30 days and found none under her display name. Most of her checklists
+are at private places (Home, address-like names), which eBird keeps out of its
+public feeds, so the route cannot see them. Signing in is blocked by eBird's bot
+check (entry above), so the file from My eBird › Download My Data, dropped on the
+Bring in her birds page, is the way to get and refresh her birds. The workflow
+has no schedule now and runs by hand only; the switch in the app is kept in case
+the feed ever helps.
+
 ## 2026-11-02 — The eBird sync reads the public feed through the API, never signing in
 
 The first discover run signed in fine, but eBird puts a bot check (Anubis) in

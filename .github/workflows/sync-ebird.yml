@@ -5,8 +5,8 @@
 # night, a minute or two: well inside the Actions budget.
 name: Sync Laurie's birds
 on:
-  schedule:
-    - cron: '23 10 * * *'   # 10:23 UTC, in the small hours at home
+  # No schedule: the public feed holds none of her checklists (most are at private
+  # places), so a nightly run finds nothing. Run by hand if that changes.
   workflow_dispatch:
     inputs:
       discover:

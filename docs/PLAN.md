@@ -257,7 +257,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       her life list, each day, each month, each place, each bird's story
       (`src/places/lifelist/Birds.jsx`, `src/lib/life/`). Merlin's finds come in
       through her eBird checklists. Unverified against her own file until the first upload.
-- [x] Nightly eBird sync (built, migration run, **unverified against live eBird**):
+- [x] eBird by file is the way (the nightly sync found none of her checklists: most are at private places; decisions log 2026-11-02). Built and tried:
       `sync-ebird.yml` reads eBird's API (no sign-in) for checklists under her display
       name, once a parent has switched it on. Still to do: set the `EBIRD_DISPLAY_NAME`
       variable; run the workflow with `discover`, then with `since` to fill in history. Steps: `docs/MORNING.md` 13.

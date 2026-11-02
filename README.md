@@ -99,7 +99,7 @@ Setting it all up, in order: `docs/MORNING.md`.
 - `.github/workflows/sync-ebird.yml` — the nightly job that brings in
   Laurie's new checklists from eBird's API under her display name (only with a yes
   recorded in the app) (`scripts/sync-ebird.mjs`; no sign-in;
-  secrets in the `ebird` environment, `docs/SECRETS.md`). Runs at 10:23 UTC.
+  secrets in the `ebird` environment, `docs/SECRETS.md`). Run by hand only (no schedule).
 - `docs/` — the decisions log, the design principles, the plan, and the
   clickable mockup the look was worked out in (`docs/mockup/`).
 

@@ -284,7 +284,7 @@ New since the first sitting. Each part works on its own; skip any for now.
     paintings stand in for a photo of a bird, a park or a place, open it in the
     gallery and say what it shows ("What it shows"). Until the migration is run,
     the Life List screens say so rather than failing.
-13. **Nightly eBird sync (optional; the file in step 12 still works).** Run
+13. **eBird sync (not scheduled; the file in step 12 is the way: the public feed holds none of her private-place checklists).** Run
     `supabase/migrations/20261101233000_ebird_sync.sql` and
     `20261102000500_ebird_sync_parent_can_stop.sql` the same way (done). A parent
     opens Life List › Birds › Bring in her birds and taps "Switch on for Laurie".
