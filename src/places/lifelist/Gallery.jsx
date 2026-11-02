@@ -47,17 +47,19 @@ export default function Gallery() {
         ))}
       </section>
       {list.length > 0 && <p className="gallery-note span-6">{list.length === 1 ? 'The first of her paintings here.' : `${list.length} of her paintings so far.`} More as each one is photographed.</p>}
-      {parent && !stored && import.meta.env.DEV && <MoveIn onDone={reload} />}
+      {parent && import.meta.env.DEV && <MoveIn have={stored ? list.map((x) => x.slug) : []} onDone={reload} />}
       {parent && stored && <AddPainting onDone={reload} />}
     </>
   )
 }
 
 /** The paintings bundled with the code, moved into the private bucket, files and all. */
-function MoveIn({ onDone }) {
+function MoveIn({ have, onDone }) {
   const [busy, setBusy] = useState(null)
+  // Only the ones not already stored, so details a parent has since added (what a painting shows) are never written over.
+  const todo = PAINTINGS.filter((p) => !have.includes(p.slug))
   async function move() {
-    for (const p of PAINTINGS) {
+    for (const p of todo) {
       setBusy(`Moving ${p.title}…`)
       const row = toRow(p), paths = storedPaths(p.slug, row)
       const local = { src: p.src, small: p.small, sprite: p.flyer && p.flyer.sprite, sky: p.flyer && p.flyer.sky, sheet: p.leaves && p.leaves.sheet }
@@ -71,9 +73,10 @@ function MoveIn({ onDone }) {
     }
     setBusy('Moved. They’re behind sign-in now.'); onDone()
   }
+  if (!todo.length) return null
   return (
     <Card tint="#B3263A" label="Into private storage" glyph="candle" className="span-6">
-      <p>The paintings here so far came in with the app’s code. Move them into the family’s private storage, so a hosted copy of the app shows them only to us, signed in.</p>
+      <p>{todo.map((p) => p.title).join(', ')} came in with the app’s code. Move {todo.length === 1 ? 'it' : 'them'} into the family’s private storage, so a hosted copy of the app shows them only to us, signed in.</p>
       <button type="button" className="btn" disabled={Boolean(busy && busy.endsWith('…'))} onClick={move}>Move them now</button>
       {busy && <p className="muted" role="status">{busy}</p>}
     </Card>
