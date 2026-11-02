@@ -8,6 +8,7 @@
 // and only falls back to a parent when the screen was opened directly.
 
 import { useEffect, useState } from 'react'
+import { reducedMotion } from './motion.js'
 
 export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'journal', 'garden', 'lifelist', 'jams', 'academy']
 // The tab bar: Home, Calendar, Kitchen, World, and Apps, which opens a sheet of
@@ -30,7 +31,8 @@ function depth() {
 }
 
 export function navigate(to, { replace = false } = {}) {
-  if (to === window.location.pathname) return
+  // Tapping where you already are (a tab, the rail, a crumb) takes you back to the top of it.
+  if (to === window.location.pathname) { if (!replace) window.scrollTo({ top: 0, left: 0, behavior: reducedMotion() ? 'instant' : 'smooth' }); return }
   const state = { depth: replace ? depth() : depth() + 1 }
   if (replace) window.history.replaceState(state, '', to)
   else window.history.pushState(state, '', to)
