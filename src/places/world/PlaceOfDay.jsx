@@ -1,13 +1,11 @@
 import SunCalc from 'suncalc'
 import { Link } from '../../shell/Link.jsx'
-import { navigate } from '../../lib/router.js'
 import { usePlaceForecast, useWeather } from '../../lib/useWeather.js'
 import { placeOfDay, distanceWords, aheadWords, milesBetween, minutesAhead } from '../../lib/places.js'
 import { placeStory, compassFrom } from '../../lib/placeStory.js'
 import { HOME_TOWN } from '../../lib/sky.js'
 import WeatherIcon from '../../parts/WeatherIcon.jsx'
 import { Credit } from '../../parts/WeatherCard.jsx'
-import { WEEKDAYS } from '../../lib/cal/dates.js'
 import Scene, { placeSky } from './Scene.jsx'
 
 // World's main weather: one of our places each day, in turn, in its own sky.
@@ -15,7 +13,6 @@ import Scene, { placeSky } from './Scene.jsx'
 // same one on every phone. Home's own weather sits below it.
 
 const fmt = (tz, o) => new Intl.DateTimeFormat('en-US', { timeZone: tz, ...o })
-const go = (slug) => (e) => { e.preventDefault(); navigate('/world/place/' + slug) }
 
 export default function PlaceOfDay({ today, now }) {
   const place = placeOfDay(today)
@@ -27,8 +24,6 @@ export default function PlaceOfDay({ today, now }) {
   const t = SunCalc.getTimes(now, place.lat, place.lng)
   const sun = now < t.sunrise ? `Sunrise ${hm.format(t.sunrise)}` : now < t.sunset ? `Sunset ${hm.format(t.sunset)}` : `Dark since ${hm.format(t.sunset)}`
   const story = placeStory({ place, f, home, ahead: minutesAhead(place.tz, now), miles: milesBetween(HOME_TOWN, place), direction: compassFrom(HOME_TOWN, place), dark, clock: hm.format(now), sunWords: sun })
-  const next = [1, 2, 3].map((n) => placeOfDay(today, n))
-  const dayName = (ahead) => (ahead === 1 ? 'Tomorrow' : WEEKDAYS[new Date(Date.UTC(+today.slice(0, 4), +today.slice(5, 7) - 1, +today.slice(8, 10) + ahead, 12)).getUTCDay()])
   return (
     <>
       <article className="card span-6 place-card place-today" style={{ '--tint': place.colour }}>
@@ -52,10 +47,6 @@ export default function PlaceOfDay({ today, now }) {
             <Link className="place-tale-go" to={'/world/place/' + place.slug}>All about {place.name} ›</Link>
           </div>
         )}
-        <nav className="place-next" aria-label="The next places">
-          <span>Up next</span>
-          {next.map((p, i) => <a key={p.slug} href={'/world/place/' + p.slug} onClick={go(p.slug)}><i style={{ background: p.colour }} />{dayName(i + 1)}: {p.name}</a>)}
-        </nav>
         <Credit />
       </article>
     </>

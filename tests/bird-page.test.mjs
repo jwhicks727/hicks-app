@@ -83,3 +83,14 @@ test('how often a bird shows up comes from the latest checklists near town, not 
   assert.deepEqual(kept.map((x) => x.code), ['purfin', 'houfin'], 'every notable bird is kept, then the most reported, up to the limit')
   assert.equal(kept.find((x) => x.code === 'houfin').reports, 2)
 })
+
+test('today against yesterday, in words, only when it is worth saying', async () => {
+  const { sinceYesterday } = await import('../src/lib/weather.js')
+  const days = (y, t) => [{ date: '2026-11-01', high: y }, { date: '2026-11-02', high: t, today: true }]
+  assert.equal(sinceYesterday(days(84, 68)).text, 'Much cooler than yesterday: a high of 68° against 84°')
+  assert.equal(sinceYesterday(days(70, 78)).text, 'Warmer than yesterday: a high of 78° against 70°')
+  assert.equal(sinceYesterday(days(70, 74)).text, 'A little warmer than yesterday: a high of 74° against 70°')
+  assert.equal(sinceYesterday(days(70, 71)), null, 'within 3° is not news')
+  assert.equal(sinceYesterday([{ date: '2026-11-02', high: 70, today: true }]), null)
+  assert.equal(sinceYesterday(null), null)
+})

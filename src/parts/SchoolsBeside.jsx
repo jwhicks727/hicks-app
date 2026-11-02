@@ -13,8 +13,8 @@ const SCHOOLS = [['kordyak', 'Kordyak', 'Laurie'], ['ruble', 'Wayne Ruble', 'Ann
 export default function SchoolsBeside({ homeTemp }) {
   const st = useStations()
   if (!st || st.error) {
-    // A parent can act on "not set up" and on what the service said; a dropped connection says nothing
-    if (st && (st.error === 'setup' || st.error === 'said')) return <p className="muted small wx-schools-note">{outsideWords('stations', st)}</p>
+    // The schools' own stations are an extra: not set up is no news (the schools' weather shows anyway); only what the service said is
+    if (st && st.error === 'said') return <p className="muted small wx-schools-note">{outsideWords('stations', st)}</p>
     return null
   }
   const places = st.places || {}

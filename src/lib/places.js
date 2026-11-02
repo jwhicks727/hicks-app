@@ -23,12 +23,12 @@ export const STOP_ORDER = ['home', 'socal', 'world']
 // out, it joins the group round home. `maps` is what a maps app searches for.
 export const PLACES = [
   { slug: 'home', name: 'Home', town: 'Fontana', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, tz: LA, stop: 'home', colour: '#D4553A', scene: 'home', line: 'Where Team Hicks lives', home: true },
-  { slug: 'kordyak', name: 'Kordyak', town: 'Fontana', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, tz: LA, stop: 'home', colour: '#E0662F', scene: 'kordyak', line: 'Laurie’s school, in Rialto Unified', maps: 'Nancy R. Kordyak Elementary School, Fontana, CA' },
+  { slug: 'kordyak', name: 'Kordyak', town: 'Fontana', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, tz: LA, stop: 'home', colour: '#B3263A', scene: 'kordyak', line: 'Laurie’s school, in Rialto Unified', maps: 'Nancy R. Kordyak Elementary School, Fontana, CA' },
   // Wayne Ruble: 6762 Juniper Ave (coordinates from a school directory). SOAR: 198 W Mill St (US Census
   // geocoder). Sacred Heart: 12704 Foothill Blvd (its Plus Code, 85644F4C+RC). Kordyak, 4580 Mango Ave,
   // stays at the town's centre until it is geocoded (docs/PLAN.md).
-  { slug: 'ruble', name: 'Wayne Ruble', town: 'Fontana', lat: 34.1317, lng: -117.4413, tz: LA, stop: 'home', colour: '#4A7FD6', scene: 'ruble', line: 'Anna’s school, in Fontana Unified', maps: 'Wayne Ruble Middle School, Fontana, CA' },
-  { slug: 'soar', name: 'SOAR', town: 'San Bernardino', lat: 34.0922, lng: -117.2873, tz: LA, stop: 'home', colour: '#5FA85A', scene: 'soar', line: 'Jason’s school', maps: 'SOAR Charter Academy, San Bernardino, CA' },
+  { slug: 'ruble', name: 'Wayne Ruble', town: 'Fontana', lat: 34.1317, lng: -117.4413, tz: LA, stop: 'home', colour: '#4F8A3C', scene: 'ruble', line: 'Anna’s school, in Fontana Unified', maps: 'Wayne Ruble Middle School, Fontana, CA' },
+  { slug: 'soar', name: 'SOAR', town: 'San Bernardino', lat: 34.0922, lng: -117.2873, tz: LA, stop: 'home', colour: '#3F6FCB', scene: 'soar', line: 'Jason’s school', maps: 'SOAR Charter Academy, San Bernardino, CA' },
   { slug: 'sacred-heart', name: 'Sacred Heart', town: 'Rancho Cucamonga', lat: 34.1068, lng: -117.5289, tz: LA, stop: 'home', colour: '#B3263A', scene: 'parish', line: 'Our parish', maps: 'Sacred Heart Catholic Church, Rancho Cucamonga, CA' },
   { slug: 'redlands', region: 'San Bernardino County', name: 'Redlands', town: 'Redlands', lat: 34.0556, lng: -117.1825, tz: LA, stop: 'home', colour: '#E8892B', scene: 'redlands', line: 'Orange groves under the San Bernardino Mountains' },
   { slug: 'claremont', region: 'Los Angeles County', name: 'Claremont', town: 'Claremont', lat: 34.0967, lng: -117.7198, tz: LA, stop: 'home', colour: '#7A6BB0', scene: 'claremont', line: 'The Village and the colleges, under Mount Baldy' },

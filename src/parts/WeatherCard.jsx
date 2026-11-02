@@ -5,7 +5,7 @@ import SunCalc from 'suncalc'
 import { useWeather, useAir, useYearAgo } from '../lib/useWeather.js'
 import { useNow } from '../lib/useNow.js'
 import { HOME_TOWN } from '../lib/sky.js'
-import { stargazing, rainbowChance, inchWords } from '../lib/weather.js'
+import { stargazing, rainbowChance, inchWords, sinceYesterday } from '../lib/weather.js'
 import WeatherIcon from './WeatherIcon.jsx'
 import SchoolsBeside from './SchoolsBeside.jsx'
 import { HourStrip, DayStrip, RainWind, WindArrow } from './WxStrips.jsx'
@@ -75,6 +75,7 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
   const { forecast: f, alerts, error } = useWeather()
   const now = useNow()
   const air = useAir()
+  const sinceYest = f ? sinceYesterday(f.allDays) : null
   const ago = useYearAgo(new Intl.DateTimeFormat('en-CA', { timeZone: HOME_TOWN.tz }).format(now))
   const treats = f ? treatsFor(f, now, air.air) : []
   return (
@@ -99,6 +100,7 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
               {treats.map((t) => <li key={t.key} style={{ '--c': t.colour }}>{t.to ? <Link to={t.to}><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></Link> : <div><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></div>}</li>)}
             </ul>
           )}
+          {sinceYest && <p className={'wx-yday' + (sinceYest.big ? ' big' : '')}>{sinceYest.text}.</p>}
           {ago && f.today && (
             <Link className="wx-ago" to={`/world/day/${ago.date}`}>
               <WeatherIcon pic={ago.pic} size={22} />
