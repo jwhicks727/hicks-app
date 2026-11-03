@@ -84,7 +84,7 @@ export function HourStrip({ timeline, nowIndex = 0 }) {
 export function DayStrip({ days }) {
   const box = useRef(null)
   const todayAt = Math.max(0, days.findIndex((d) => d.today))
-  useLayoutEffect(() => { if (box.current) box.current.scrollLeft = Math.max(0, (todayAt - 1) * 84) }, [todayAt, days.length])
+  useLayoutEffect(() => { if (box.current) box.current.scrollLeft = Math.max(0, (todayAt + 1) * 84 - 4) }, [todayAt, days.length]) // the "Earlier" cell comes first, so today is cell todayAt + 1: it sits at the left edge, as Now does in the hours
   const jump = (i) => box.current && box.current.scrollTo({ left: Math.max(0, i * 84 - 4), behavior: 'smooth' })
   if (!days.length) return null
   const earlier = (() => { const d = new Date(days[0].date + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10) })()
@@ -94,7 +94,7 @@ export function DayStrip({ days }) {
         <b>Day by day</b>
         <span className="wxs-jumps">
           <button type="button" onClick={() => jump(0)}>‹ Back</button>
-          <button type="button" onClick={() => jump(todayAt - 1)}>Today</button>
+          <button type="button" onClick={() => jump(todayAt + 1)}>Today</button>
           <button type="button" onClick={() => jump(days.length)}>Ahead ›</button>
         </span>
       </div>
