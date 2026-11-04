@@ -30,7 +30,7 @@ export default function Rules({ parent, me, members }) {
   const owner = rules.rows[0] ? members.find((m) => m.id === rules.rows[0].belongs_to) : laurie
   return (
     <>
-      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="greet">Rules &amp; preferences</h1><KitchenMenu current="rules" parent={parent} /></header>
+      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="sr">Rules &amp; preferences</h1><KitchenMenu current="rules" parent={parent} big /></header>
       <Versioned
         title="The kitchen’s preferences" tint="#E0662F" rows={prefs.rows} canEdit={parent} starter={STARTER} draftKey="kitchen.prefs.edit"
         about="Tastes, dislikes, what’s loved lately, the pantry, the equipment: what Claude goes by when it plans and talks. The family can read it; Jason and Laurie change it. Each change is kept."

@@ -2,6 +2,10 @@ import SunCalc from 'suncalc'
 import { phaseOf, skyGradient, SKIES, moonLitPath } from '../../lib/sky.js'
 import { reducedMotion } from '../../lib/motion.js'
 import * as S from '../../lib/scenes.js'
+import { placeBySlug } from '../../lib/places.js'
+
+// Each school's flag flies in that school's own colour (src/lib/places.js), so a change there changes the flag too
+const flagOf = (slug, fallback) => (placeBySlug(slug) || {}).colour || fallback
 
 // Each place's skyline in its own sky right now: the colour follows the sun
 // there, windows light up after dark, clouds come with cloudy weather.
@@ -127,7 +131,7 @@ const SCENES = {
   kordyak: (c) => [
     ...valley(c, 5),
     P(S.school(140) + S.swingSet(270), c.tone.near, 's'),
-    waveFlag(c, 140, '#C8553D', 'f'),
+    waveFlag(c, 140, flagOf('kordyak', '#B3263A'), 'f'),
     <g key="sw" {...mv(c, 'pend', { animationDuration: '2.6s' })}><path d="M286 129V142M296 129V142" stroke={c.tone.near} strokeWidth=".9" /><path d="M283 142H299V143.6H283Z" fill={c.tone.near} /></g>,
     c.lit && P('M150 132h8v4h-8zM166 132h8v4h-8zM196 124h8v4h-8zM218 132h8v4h-8zM234 132h8v4h-8z', c.lit, 'w'),
     ...plants(c, 'oak', [[80, 14], [-40, 16], [450, 13]], c.tone.near, 't', 0.8), ...plants(c, 'palm', [[340, 70, 4]], c.tone.near, 'tp'),
@@ -136,7 +140,7 @@ const SCENES = {
   ruble: (c) => [
     ...valley(c, 9),
     P(S.school(120) + S.bleachers(250) + S.bleachers(284), c.tone.near, 's'),
-    waveFlag(c, 120, '#4A7FD6', 'f'),
+    waveFlag(c, 120, flagOf('ruble', '#4F8A3C'), 'f'),
     <circle key="ball" cx="214" cy="146" r="2.6" fill={c.night ? '#CFC8E6' : '#FFFFFF'} stroke={c.tone.near} strokeWidth=".8" {...mv(c, 'bounce')} />,
     c.lit && P('M130 132h8v4h-8zM146 132h8v4h-8zM176 124h8v4h-8zM198 132h8v4h-8zM214 132h8v4h-8z', c.lit, 'w'),
     ...plants(c, 'palm', [[60, 74, -4], [80, 62, 3]], c.tone.near, 'tp'), ...plants(c, 'pine', [[360, 44], [-30, 50]], c.tone.near, 'tn', 0.9),
@@ -150,7 +154,7 @@ const SCENES = {
       P(S.arrowhead(210, 76), c.night ? '#5B5478' : '#D9C7A6', 'a'),
       range(31, 128, 16, c.tone.mid, null, { jag: 1 }),
       P(S.school(150), c.tone.near, 's'),
-      waveFlag(c, 150, '#5FA85A', 'f'),
+      waveFlag(c, 150, flagOf('soar', '#3F6FCB'), 'f'),
       c.lit && P('M160 132h8v4h-8zM176 132h8v4h-8zM206 124h8v4h-8zM228 132h8v4h-8zM244 132h8v4h-8z', c.lit, 'w'),
       ...plants(c, 'palm', [[100, 70, -3], [300, 64, 4]], c.tone.near, 'tp'), ...plants(c, 'oak', [[-50, 15], [420, 14]], c.tone.near, 'to', 0.8),
       hawk(c, 'hk', 290, 44, 26, 22),

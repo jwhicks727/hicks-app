@@ -44,8 +44,8 @@ export default function Cookbook({ book, family, parent, today }) {
     <>
       <header className="hero span-6">
         <span className="kicker">Kitchen</span>
-        <h1 className="greet">Cookbook</h1>
-        <KitchenMenu current="cookbook" parent={parent} />
+        <h1 className="sr">Cookbook</h1>
+        <KitchenMenu current="cookbook" parent={parent} big />
       </header>
 
       <Card tint="#E0662F" label="Find a recipe" glyph="pot" tag={book.loaded ? `${book.recipes.length} recipes` : undefined} className="span-6">
