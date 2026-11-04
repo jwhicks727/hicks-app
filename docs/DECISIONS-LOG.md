@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — Day by day is drawn like Weather Underground's forecast
+
+Jason asked for the day-by-day strip to look like Weather Underground's: each day's
+column has its day and night pictures, high | low, and chance of rain, and under the
+columns one temperature line runs through every hour (grey for what has happened,
+red ahead), each day's high and low marked with an open circle, night shaded from
+sunset to sunrise, and the rain filled in blue along the bottom (`src/lib/dayGraph.js`,
+`DayStrip`). Each column still opens that day's page. In the hour strip the chance of
+rain and the inches show only when there is some.
+
 ## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
 
 Phones kept showing an old version for up to an hour after a deploy: only files
