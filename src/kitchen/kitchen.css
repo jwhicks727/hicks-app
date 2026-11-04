@@ -244,3 +244,9 @@ html.phone-landscape .kchat-fab { bottom: 12px; }
 .rv textarea { font: 13px/1.5 ui-monospace, Menlo, monospace; width: 100%; min-height: 220px; padding: 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); resize: vertical; }
 .plan-old { margin: 0; padding: 10px 14px; border-radius: var(--r-control); border-left: 5px solid #E0662F; background: color-mix(in srgb, #E0662F 12%, var(--card)); font-weight: 700; }
 .wl-done { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-top: 12px; border-top: 1px solid var(--line); margin-top: 8px; }
+
+/* The Kitchen's menu: one row of places, the cookbook always among them */
+.ki-menu { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 6px; margin: 10px 0 0; scrollbar-width: none; }
+.ki-menu::-webkit-scrollbar { display: none; }
+.ki-item { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--line); background: color-mix(in srgb, var(--card) 70%, transparent); color: var(--ink); font-weight: 800; text-decoration: none; white-space: nowrap; }
+.ki-item[aria-current="page"] { background: var(--ink); color: var(--card); border-color: var(--ink); }

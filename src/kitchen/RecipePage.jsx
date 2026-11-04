@@ -44,7 +44,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const rest = r.sections.filter((s) => !['Jason’s plate', 'Anna’s add-on'].includes(s.name))
   const daysIn = fridge ? Math.max(0, Math.round((Date.parse(today) - Date.parse(fridge.added_on)) / 864e5)) : 0
   const check = cookCheck(r.groups, daysIn).slice(0, 5)
-  const art = recipe.art && recipe.art.length ? recipe.art : artFor(r) // chosen when it was saved, else from its ingredients now
+  const art = artFor(r) // from the dish's name, the same as its tile (the pictures stored when it was saved were picked from the ingredients, and were often wrong)
   const st = standingOf(ratings, members)
   return (
     <>

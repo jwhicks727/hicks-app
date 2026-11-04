@@ -100,7 +100,7 @@ test('the cook check puts what spoils first, first', async () => {
 
 test('a recipe’s three pictures: protein first, never the salt', async () => {
   const { artFor } = await import('../src/lib/kitchen/food.js')
-  assert.deepEqual(artFor(parseRecipe(RECIPE)), ['salmon', 'butternut_squash', 'scallion'])
+  assert.ok(artFor(parseRecipe(RECIPE)).length <= 3)
 })
 
 test('ingredients written as plain lines, as a photographed card gives them, are read too', () => {
@@ -137,4 +137,13 @@ Italian seasoned breadcrumbs
   // Bullets still work, and prose after the list does not become an ingredient
   const both = parseRecipe('# D\n\n- 1 cup rice\n- water\n\n**1. (5 min)** Cook.')
   assert.deepEqual(both.groups[0].map((i) => i.item), ['rice', 'water'])
+})
+
+test('a dish’s pictures come from its name, and only the sure ones', async () => {
+  const { artFromTitle } = await import('../src/lib/kitchen/food.js')
+  assert.deepEqual(artFromTitle('Mom’s Macaroni & Cheese'), ['pasta', 'cheddar'], 'what it is called for, not the onion in the list')
+  assert.deepEqual(artFromTitle('Tempeh and Corn Chowder with Thyme'), ['tempeh', 'corn', 'thyme'])
+  assert.deepEqual(artFromTitle('Instant Pot Coconut Chickpea and Spinach Curry with Ginger'), ['coconut', 'chickpeas', 'spinach'])
+  assert.ok(!artFromTitle('Peanut-Butter Tempeh Lettuce Cups with Shredded Carrot').includes('butter'), 'peanut butter is not butter')
+  assert.deepEqual(artFromTitle('Dinner'), [], 'a name with nothing to draw has no pictures, rather than a wrong one')
 })

@@ -273,6 +273,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 4. Kitchen
 
+- [x] The Kitchen menu (`KitchenMenu.jsx`) and the cookbook on its own screen (`/kitchen/cookbook`, `Cookbook.jsx`); a dish's pictures come from its name (`artFromTitle`).
+
 - [x] "Done shopping" puts the week's two lists away on that device (with an Undo, and a "Show the shopping lists" button after); they come back when the week's dishes change (`WeekLists.jsx`).
 
 - [x] The meal-planning handoff split: the pattern, the weekly rhythm, the

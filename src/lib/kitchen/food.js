@@ -79,17 +79,32 @@ export const KEEPS = [
   [/\b(lemons?|limes?|oranges?)\b/, 21, 'Citrus', 'Firm and fragrant.'],
 ]
 
-/** A recipe's three pictures, from its parsed groups: the protein first, then the produce. */
-export function artFor(parsed) {
-  const order = [parsed.groups[1] || [], parsed.groups[0] || [], ...parsed.groups.slice(2)]
-  const out = []
-  for (const g of order) for (const ing of g) {
-    const n = iconFor(ing.item)
-    if (n && !out.includes(n) && !/^(salt|black_pepper|olive_oil|water|vegetable_oil|canola_oil)$/.test(n)) out.push(n)
-    if (out.length === 3) return out
+// A dish's pictures come from its NAME: what it is called for is what it is. Ingredient lists hold flavourings
+// (an onion, a red pepper, a lemon) that were picking the wrong pictures, so they are not read for this.
+const TITLE_PHRASES = [[/\bpeanut butter\b/, 'peanuts'], [/\balmond butter\b/, 'almonds'], [/\bsour cream\b/, 'sour_cream'], [/\bcoconut milk\b/, 'coconut']]
+const TITLE_WORDS = [
+  [/\b(macaroni|spaghetti|linguine|penne|rigatoni|orzo|fusilli|bucatini|orecchiette|lasagna|ziti)\b/, 'pasta'],
+  [/\bcheese\b/, 'cheddar'],
+]
+/** Up to three pictures for the words of a dish's name, in the order they are said; fewer (or none) rather than a wrong one. */
+export function artFromTitle(title) {
+  let t = ' ' + String(title || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ') + ' '
+  const found = []
+  const take = (name, start, end) => { if (ICONS.has(name)) found.push({ name, start, end }); t = t.slice(0, start) + ' '.repeat(end - start) + t.slice(end) }
+  for (const [re, name] of TITLE_PHRASES) { const m = re.exec(t); if (m) take(name, m.index, m.index + m[0].length) } // "peanut butter" is not butter
+  for (const [re, name] of TITLE_WORDS) { const m = re.exec(t); if (m) take(name, m.index, m.index + m[0].length) }
+  for (const name of [...ICONS].sort((a, b) => b.length - a.length)) {
+    const words = name.replace(/_/g, ' ')
+    const base = words.endsWith('s') ? words.slice(0, -1) : words // "chickpea" is as good as "chickpeas"
+    const re = new RegExp(`(?<= )${base}(?:s|es)?(?= )`, 'g'); let m
+    while ((m = re.exec(t))) take(name, m.index, m.index + m[0].length)
   }
-  return out
+  const out = []
+  for (const f of found.sort((a, b) => a.start - b.start)) if (!out.includes(f.name) && !/^(salt|black_pepper|olive_oil|water|vegetable_oil|canola_oil)$/.test(f.name)) out.push(f.name)
+  return out.slice(0, 3)
 }
+/** A recipe's pictures: from its name. */
+export const artFor = (parsed) => artFromTitle(parsed.title)
 
 /**
  * The cook check: the fresh things in a recipe, fastest to spoil first, given

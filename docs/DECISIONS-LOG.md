@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — A dish's pictures come from its name; the Kitchen gets a menu with the Cookbook in it
+
+The pictures on a recipe were picked from its ingredient list, which holds flavourings
+(an onion, a red pepper, a lemon) and gave wrong ones (a macaroni and cheese drawn with a
+chilli, an onion and a lemon). They now come from the words of the dish's name
+(`artFromTitle`, `src/lib/kitchen/food.js`): up to three, in the order the name says them,
+and none rather than a wrong one. Tile and recipe page use the same function, so they agree;
+the pictures stored on each recipe when it was saved are no longer read. The pills at the top
+of the Kitchen became a menu (This week, Cookbook, Plan the week, Rules & preferences, Add
+recipes), and the cookbook has its own screen, `/kitchen/cookbook`, one tap away.
+
 ## 2026-11-02 — "Most reported" comes from sampled checklists, not eBird's recent-sightings feed
 
 eBird's recent-sightings call returns one line per species (its latest), so every bird
