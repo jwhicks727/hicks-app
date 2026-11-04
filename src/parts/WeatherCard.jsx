@@ -43,7 +43,7 @@ export function HoursList({ hours }) {
           <span className="wx-h">{h.label}</span>
           <WeatherIcon pic={h.pic} size={26} label={h.words} />
           <b>{Math.round(h.temp)}°</b>
-          <RainWind rain={h.rain} inches={h.inches} wind={h.wind} gusts={h.gusts} dir={h.dir} compact />
+          <RainWind rain={h.rain} inches={h.inches} wind={h.wind} gusts={h.gusts} dir={h.dir} compact quiet />
         </li>
       ))}
     </ol>
@@ -108,8 +108,8 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
             </Link>
           )}
           {schools && <SchoolsBeside homeTemp={f.now.temp} />}
+          <DayStrip days={f.allDays} timeline={f.timeline} />
           <HourStrip timeline={f.timeline} nowIndex={f.nowIndex} />
-          <DayStrip days={f.allDays} />
           {more && <Link className="btn ghost" to="/world">The week ›</Link>}
           <Credit />
         </>

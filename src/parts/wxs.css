@@ -70,3 +70,35 @@ html[data-motion="less"] .wxs-scroll { scroll-behavior: auto; }
 :root[data-theme="dark"] .wx-yday.cool { --yd: #8DB4F0; } :root[data-theme="dark"] .wx-yday.warm { --yd: #F0A67A; }
 .wx-yday-lead { color: var(--yd); text-transform: uppercase; letter-spacing: .05em; font-weight: 900; white-space: nowrap; }
 .wx-yday.big .wx-yday-lead { font-weight: 400; letter-spacing: .04em; }
+
+/* Day by day, drawn like a weather site: columns over one temperature line, rain filled in blue below (wxd-) */
+.wxs-days .wxs-scroll ol.wxd { gap: 0; }
+.wxs-days .wxs-scroll ol.wxd > li { width: 104px; position: relative; }
+.wxs-days .wxs-scroll ol.wxd > li > a { height: auto; gap: 3px; padding: 8px 0 0; border: 0; border-radius: 0; background: transparent; overflow: hidden; }
+.wxs-days .wxs-scroll ol.wxd > li.wxs-more > a { height: 100%; min-height: 210px; border: 1.5px dashed var(--line); border-radius: var(--r-control); }
+.wxs-days .wxs-scroll ol.wxd > li.now > a { background: color-mix(in srgb, var(--tint) 12%, transparent); }
+.wxs-days .wxs-scroll ol.wxd > li.past > a { opacity: 1; background: transparent; }
+.wxs-days .wxs-scroll ol.wxd > li.past .wxd-h, .wxs-days .wxs-scroll ol.wxd > li.past .wxd-t, .wxs-days .wxs-scroll ol.wxd > li.past .wxd-pics > * { opacity: .62; }
+.wxs-days .wxs-scroll ol.wxd > li > a:hover, .wxs-days .wxs-scroll ol.wxd > li > a:focus-visible { background: color-mix(in srgb, var(--tint) 16%, transparent); }
+.wxd-h { font-size: 12px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.wxd-pics { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+/* The night's picture sits on the line between its day and the next, as the night runs across midnight. Placed
+   from the column (the li), so the link's clipping doesn't cut it, and left at its own height in the row; it
+   takes no tap of its own, so the day under it still opens. */
+.wxd-moon { position: absolute; right: 0; transform: translateX(50%); z-index: 2; display: grid; pointer-events: none; }
+.wxd-t { font-size: 16px; font-weight: 800; white-space: nowrap; }
+.wxd-t i { font-style: normal; color: var(--muted); font-weight: 600; }
+.wxd-t small { font-size: 16px; font-weight: 700; color: var(--muted); }
+.wxd-rain { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 850; color: #2F5FA8; white-space: nowrap; }
+.wxd-rain svg { width: 9px; height: 11px; fill: currentColor; }
+:root[data-theme="dark"] .wxd-rain { color: #8DB4F0; }
+.wxd-graph { display: block; margin-top: 6px; overflow: visible; }
+.wxd-night { fill: color-mix(in srgb, var(--ink) 7%, transparent); }
+.wxd-grid { stroke: color-mix(in srgb, var(--ink) 22%, transparent); stroke-width: .8; stroke-dasharray: 3 3; }
+.wxd-sep { stroke: color-mix(in srgb, var(--ink) 16%, transparent); stroke-width: 1; }
+.wxd-base { stroke: #8DB4F0; stroke-width: 1.5; }
+.wxd-wet { fill: color-mix(in srgb, #4E8FD9 40%, transparent); stroke: #4E8FD9; stroke-width: 1.2; stroke-linejoin: round; }
+.wxd-line { fill: none; stroke: #D4675C; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.wxd-line.was { stroke: color-mix(in srgb, var(--ink) 45%, transparent); }
+.wxd-dot { fill: var(--card); stroke: #D4675C; stroke-width: 1.8; }
+.wxd-dot.was { stroke: color-mix(in srgb, var(--ink) 45%, transparent); }

@@ -121,7 +121,7 @@ export function shapeTimeline(json, nowIso) {
   const nowH = String(nowIso || '').slice(0, 13), today = String(nowIso || '').slice(0, 10)
   const timeline = h.time.map((t, i) => ({
     time: t, date: t.slice(0, 10), hour: hourOf(t), label: hourWord(hourOf(t)),
-    temp: num(h.temperature_2m?.[i]), feels: num(h.apparent_temperature?.[i]), humidity: num(h.relative_humidity_2m?.[i]),
+    temp: num(h.temperature_2m?.[i]), fine: num(h.temperature_2m?.[i], 10), feels: num(h.apparent_temperature?.[i]), humidity: num(h.relative_humidity_2m?.[i]),
     rain: num(h.precipitation_probability?.[i]), inches: num(h.precipitation?.[i], 100),
     wind: num(h.wind_speed_10m?.[i]), gusts: num(h.wind_gusts_10m?.[i]), dir: num(h.wind_direction_10m?.[i]), uv: num(h.uv_index?.[i], 10),
     clouds: h.cloud_cover_low ? { low: h.cloud_cover_low[i], mid: h.cloud_cover_mid?.[i] ?? null, high: h.cloud_cover_high?.[i] ?? null } : null,
