@@ -16,6 +16,12 @@ The screens' own headings are back above the tabs. It replaces the magazine-styl
 row of big words, tried the same day. In the Cookbook, "Short list" moved to its own
 line beside the recipe count, so it no longer sits against the sorts.
 
+The tabs are on every Kitchen page (a recipe, writing or changing one, adding
+recipes, the planner, the rules), so no Kitchen page has a "‹ Kitchen" link any
+more: the menu is always there to go elsewhere, and the phone's Back still walks
+back. A recipe and its editor light the Cookbook tab. Cook mode keeps the whole
+screen and leaves with Back.
+
 ## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
 
 Phones kept showing an old version for up to an hour after a deploy: only files
