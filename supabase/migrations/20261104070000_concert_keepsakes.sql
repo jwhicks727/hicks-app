@@ -30,4 +30,4 @@ values ('keepsakes', 'keepsakes', false, 10485760, array['image/jpeg', 'applicat
 on conflict (id) do nothing;
 create policy keepsakes_files_read on storage.objects for select to authenticated using (bucket_id = 'keepsakes' and (select public.is_family()));
 create policy keepsakes_files_add on storage.objects for insert to authenticated with check (bucket_id = 'keepsakes' and (select public.is_family()));
-create policy keepsakes_files_remove on storage.objects for delete to authenticated using (bucket_id = 'keepsakes' and (select public.is_family()));
+create policy keepsakes_files_remove on storage.objects for delete to authenticated using (bucket_id = 'keepsakes' and ((select public.is_parent()) or owner_id = (select auth.uid())::text)); -- the uploader or a parent, as for the rows
