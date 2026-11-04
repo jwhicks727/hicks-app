@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — The Kitchen's menu is recipe-box tabs
+
+The Kitchen's menu is a row of index tabs, like the dividers in a recipe box:
+square-cornered paper tabs with a small line drawing each (a fridge, an open book, a
+calendar with a pencil, a checklist). The tab you're on is the cards' paper, a little
+taller, joined to the strip under the row; the others sit a shade darker and lower.
+The screens' own headings are back above the tabs. It replaces the magazine-style
+row of big words, tried the same day. In the Cookbook, "Short list" moved to its own
+line beside the recipe count, so it no longer sits against the sorts.
+
+The tabs are on every Kitchen page (a recipe, writing or changing one, adding
+recipes, the planner, the rules), so no Kitchen page has a "‹ Kitchen" link any
+more: the menu is always there to go elsewhere, and the phone's Back still walks
+back. A recipe and its editor light the Cookbook tab. Cook mode keeps the whole
+screen and leaves with Back.
+
 ## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
 
 Phones kept showing an old version for up to an hour after a deploy: only files

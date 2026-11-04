@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Card } from '../ui/Card.jsx'
-import { Crumb } from '../shell/Link.jsx'
 import { navigate } from '../lib/router.js'
 import { useDraft } from '../lib/useDraft.js'
 import { parseRecipe, withLauriePlate } from '../lib/kitchen/recipe.js'
@@ -36,9 +35,9 @@ export default function RecipeEditor({ slug, data, parent }) {
   const [draft, setDraft, clear] = useDraft(`recipe.edit.${slug || 'new'}`, { text: null })
   const [busy, setBusy] = useState(false), [err, setErr] = useState(null)
   const back = slug ? `/kitchen/recipe/${slug}` : '/kitchen'
-  if (!parent) return <><Crumb to={back}>Back</Crumb><Card tint="#C42D20" label="Recipes" glyph="pot" className="span-6"><p>Only a parent can write or change a recipe.</p></Card></>
+  if (!parent) return <><header className="hero span-6"><KitchenMenu current="cookbook" parent={parent} /></header><Card tint="#C42D20" label="Recipes" glyph="pot" className="span-6"><p>Only a parent can write or change a recipe.</p></Card></>
   if (slug && (!data || !data.loaded)) return <p className="muted span-6">Opening the recipe…</p>
-  if (slug && start == null) return <><Crumb to="/kitchen">Kitchen</Crumb><Card tint="#C42D20" label="Not found" glyph="pot" className="span-6"><p>No recipe at this address.</p></Card></>
+  if (slug && start == null) return <><header className="hero span-6"><KitchenMenu current="cookbook" parent={parent} /></header><Card tint="#C42D20" label="Not found" glyph="pot" className="span-6"><p>No recipe at this address.</p></Card></>
   const text = draft.text == null ? start : draft.text
   const r = parseRecipe(text)
   const count = r.groups.reduce((n, g) => n + g.length, 0)
@@ -51,7 +50,7 @@ export default function RecipeEditor({ slug, data, parent }) {
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to={back}>{slug ? 'Back to the recipe' : 'Kitchen'}</Crumb><span className="kicker">Kitchen</span><h1 className="greet">{slug ? 'Edit recipe' : 'Write a recipe'}</h1><KitchenMenu current={slug ? 'none' : 'cookbook'} parent={parent} /></header>
+      <header className="hero span-6"><span className="kicker">Kitchen</span><h1 className="greet">{slug ? 'Edit recipe' : 'Write a recipe'}</h1><KitchenMenu current="cookbook" parent={parent} /></header>
       <Card tint="#E0662F" label="The recipe" glyph="pot" className="span-3 re-card">
         <label className="re-label">Its text, in the Kitchen’s format
           <textarea className="re-text" value={text} spellCheck="true" onChange={(e) => setDraft({ text: e.target.value })} aria-describedby="re-help" />

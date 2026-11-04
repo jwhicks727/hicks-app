@@ -44,8 +44,8 @@ export default function Cookbook({ book, family, parent, today }) {
     <>
       <header className="hero span-6">
         <span className="kicker">Kitchen</span>
-        <h1 className="sr">Cookbook</h1>
-        <KitchenMenu current="cookbook" parent={parent} big />
+        <h1 className="greet">Cookbook</h1>
+        <KitchenMenu current="cookbook" parent={parent} />
       </header>
 
       <Card tint="#E0662F" label="Find a recipe" glyph="pot" tag={book.loaded ? `${book.recipes.length} recipes` : undefined} className="span-6">
@@ -76,9 +76,10 @@ export default function Cookbook({ book, family, parent, today }) {
           <button type="button" aria-pressed={!shelf} onClick={() => setShelf('')}>All <small>{book.recipes.length}</small></button>
           {shelves.map((s) => <button key={s.key} type="button" aria-pressed={shelf === s.key} onClick={() => setShelf(shelf === s.key ? '' : s.key)}>{s.name} <small>{s.ids.length}</small></button>)}
         </div>
-        <div className="cb-bar">
-          <div className="cb-sorts" role="group" aria-label="Sort">{SORTS.map(([k, n]) => <button key={k} type="button" aria-pressed={sort === k} onClick={() => update({ cookbookSort: k })}>{n}</button>)}</div>
-          <button type="button" className="cb-view" aria-pressed={compact} onClick={() => update({ cookbookView: compact ? 'tiles' : 'list' })}>{compact ? 'Pictures' : 'Short list'}</button>
+        <div className="cb-sorts" role="group" aria-label="Sort">{SORTS.map(([k, n]) => <button key={k} type="button" aria-pressed={sort === k} onClick={() => update({ cookbookSort: k })}>{n}</button>)}</div>
+        <div className="cb-meta">
+          <span className="fig">{list.length} {list.length === 1 ? 'recipe' : 'recipes'}</span>
+          <button type="button" className="cb-view" aria-pressed={compact} onClick={() => update({ cookbookView: compact ? 'tiles' : 'list' })}>{compact ? 'Show pictures' : 'Short list'}</button>
         </div>
         {book.loaded && book.recipes.length === 0 && <p className="muted">No recipes yet.{parent ? ' Add the week’s from Obsidian, or write one.' : ''}</p>}
         {book.recipes.length > 0 && list.length === 0 && <p className="muted">Nothing matches{shelf ? ' on this shelf' : ''}.</p>}
