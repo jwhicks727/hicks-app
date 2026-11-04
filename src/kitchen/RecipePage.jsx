@@ -5,7 +5,7 @@ import { Crumb, Link } from '../shell/Link.jsx'
 import { navigate } from '../lib/router.js'
 import { usePrefs } from '../lib/prefs.js'
 import { useDraft } from '../lib/useDraft.js'
-import { iconFor, cookCheck } from '../lib/kitchen/food.js'
+import { iconFor, cookCheck, groupName } from '../lib/kitchen/food.js'
 import { easyOnHands } from '../lib/kitchen/recipe.js'
 import { startTimer } from '../lib/kitchen/timers.js'
 import { rate, addToFridge, finishFridge, removeRecipe } from '../lib/useKitchen.js'
@@ -18,12 +18,7 @@ import { standing as standingOf } from '../lib/kitchen/week.js'
 import { StandingBadge, UnicornGlow } from './Unicorn.jsx'
 
 const SECTION_ICON = { Plating: 'star', Heat: 'weather', Herbs: 'bird', Texture: 'star', 'Trader Joe’s shortcuts': 'pot', Notes: 'calendar', 'Why it works': 'star' }
-const GROUP_NAMES = (groups) => groups.map((g, i) => {
-  if (g.some((x) => /jason|anna|add-on|plate\)/i.test(x.item))) return 'For the plates'
-  if (i === 0) return 'Produce and herbs'
-  if (i === groups.length - 1 && groups.length > 2) return 'Pantry and fridge'
-  return i === 1 ? 'Protein' : ''
-})
+const GROUP_NAMES = (groups) => groups.map((g) => groupName(g)) // from what each group holds, never from where it sits
 const hhmm = (mins) => { const h = Math.floor(mins / 60) % 24, m = mins % 60; return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}` }
 
 /** One recipe, laid out for someone who reads fast and cooks tired. */
@@ -62,6 +57,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
           </p>
           <div className="rh-actions">
             <Link className="btn" to={`/kitchen/recipe/${slug}/cook`}>Cook it ›</Link>
+            {parent && <Link className="btn ghost" to={`/kitchen/recipe/${slug}/edit`}>Edit</Link>}
             {parent && (fridge
               ? <button type="button" className="btn ghost" onClick={async () => { await finishFridge(fridge.id, 'cooked', today); onChanged() }}>We cooked it</button>
               : <button type="button" className="btn ghost" onClick={async () => { await addToFridge(recipe.id, today); onChanged() }}>Add to this week</button>)}

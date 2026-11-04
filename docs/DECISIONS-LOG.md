@@ -6,6 +6,18 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — A recipe read from a photo holds only what the photo says; recipes can be written and changed by hand
+
+A macaroni and cheese read from a card came back with a protein group (a shallot, chili
+crisp, a lemon) and an add-on for Anna that the card never had: the photo ask told Claude to
+add Jason's plate and Anna's add-on "where the dish allows", and the app then named each
+group by its place in the list ("Protein" for the second). The ask now says to write only what
+the source says (no invented ingredients, add-ons or sections), and a group is named from
+what is in it (`groupName`), or not at all. Parents can write a recipe (`/kitchen/write`,
+"Write one" in the menu) or change one (`/kitchen/recipe/<slug>/edit`, the Edit button) as
+text in the Kitchen's format, with a live "how it reads" beside it. The `claude` function has
+to be redeployed for the changed ask.
+
 ## 2026-11-04 — A dish's pictures come from its name; the Kitchen gets a menu with the Cookbook in it
 
 The pictures on a recipe were picked from its ingredient list, which holds flavourings

@@ -103,6 +103,25 @@ export function artFromTitle(title) {
   for (const f of found.sort((a, b) => a.start - b.start)) if (!out.includes(f.name) && !/^(salt|black_pepper|olive_oil|water|vegetable_oil|canola_oil)$/.test(f.name)) out.push(f.name)
   return out.slice(0, 3)
 }
+const PRODUCE = /\b(onions?|shallots?|garlic|ginger|scallions?|leeks?|lemons?|limes?|oranges?|tomato(es)?|peppers?|chil(i|ies|es)|carrots?|celery|spinach|kale|lettuce|arugula|cabbage|broccoli|cauliflower|zucchini|squash|corn|potato(es)?|mushrooms?|cucumbers?|avocados?|fennel|herbs?|cilantro|parsley|basil|thyme|rosemary|sage|dill|mint|chives|apples?|berries|fruit|greens)\b/i
+const PROTEIN = /\b(salmon|cod|halibut|trout|tilapia|fish|shrimp|prawns|crab|scallops|tuna|chicken|beef|pork|turkey|lamb|sausage|bacon|ham|tempeh|tofu|eggs?|seitan|steak)\b/i
+const PANTRY = /\b(flour|oil|salt|sugar|butter|milk|cream|cheese|cheddar|pasta|macaroni|spaghetti|rice|noodles?|broth|stock|vinegar|sauce|paste|spices?|powder|bread|crumbs|beans|lentils|chickpeas|honey|syrup|mustard|mayo|yogurt|vanilla|baking|cumin|paprika|pepper flakes)\b/i
+/**
+ * A heading for one group of ingredients, from what is in it, or '' when it is mixed or unclear (no heading
+ * rather than a wrong one). "For the plates" is a group of per-person add-ons.
+ */
+export function groupName(items) {
+  const list = (items || []).map((x) => String((x && x.item) || x || ''))
+  if (!list.length) return ''
+  if (list.some((s) => /\b(for (jason|anna|laurie))\b|add-on|\(plate\)|jason’s plate|anna’s add/i.test(s))) return 'For the plates'
+  const share = (re) => list.filter((s) => re.test(s)).length / list.length
+  const [p, r, a] = [share(PRODUCE), share(PROTEIN), share(PANTRY)]
+  if (r >= 0.6) return 'Protein'
+  if (p >= 0.6) return 'Produce and herbs'
+  if (a >= 0.6) return 'Pantry and fridge'
+  return ''
+}
+
 /** A recipe's pictures: from its name. */
 export const artFor = (parsed) => artFromTitle(parsed.title)
 

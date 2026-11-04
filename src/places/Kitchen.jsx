@@ -10,6 +10,7 @@ import CookMode from '../kitchen/CookMode.jsx'
 import AddRecipes from '../kitchen/AddRecipes.jsx'
 import PlanWeek from '../kitchen/PlanWeek.jsx'
 import Rules from '../kitchen/Rules.jsx'
+import RecipeEditor from '../kitchen/RecipeEditor.jsx'
 import KitchenChat from '../kitchen/KitchenChat.jsx'
 import { navigate } from '../lib/router.js'
 import '../kitchen/kitchen.css'
@@ -19,6 +20,8 @@ import '../kitchen/kitchen.css'
 // /kitchen/recipe/<slug>        a recipe
 // /kitchen/recipe/<slug>/cook   cook mode (Back leaves it)
 // /kitchen/add                  adding recipes (parents)
+// /kitchen/write                writing a recipe by hand (parents)
+// /kitchen/recipe/<slug>/edit   changing a recipe by hand (parents)
 // /kitchen/plan                 planning the week (parents)
 // /kitchen/rules                the preferences, and Laurie's food rules (parents)
 // Everywhere in the Kitchen, once signed in: the Ask button, to talk with Claude
@@ -33,7 +36,9 @@ export default function Kitchen({ rest }) {
   const [view, slug, sub] = rest
   const book = useCookbook(!view || view === 'cookbook' ? session : null)
   const one = useRecipe(view === 'recipe' ? session : null, view === 'recipe' ? slug : null)
-  const screen = view === 'recipe' && sub === 'cook' ? <CookMode data={one} slug={slug} parent={parent} />
+  const screen = view === 'recipe' && sub === 'edit' ? <RecipeEditor slug={slug} data={one} parent={parent} />
+    : view === 'write' ? <RecipeEditor slug={null} parent={parent} />
+    : view === 'recipe' && sub === 'cook' ? <CookMode data={one} slug={slug} parent={parent} />
     : view === 'recipe' ? <RecipePage data={one} slug={slug} me={me} members={family.members} parent={parent} today={today} onChanged={one.reload} />
       : view === 'add' ? <AddRecipes parent={parent} onSaved={() => navigate('/kitchen', { replace: true })} />
         : view === 'plan' ? <PlanWeek parent={parent} me={me} members={family.members} today={today} />

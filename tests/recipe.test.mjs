@@ -147,3 +147,11 @@ test('a dish’s pictures come from its name, and only the sure ones', async () 
   assert.ok(!artFromTitle('Peanut-Butter Tempeh Lettuce Cups with Shredded Carrot').includes('butter'), 'peanut butter is not butter')
   assert.deepEqual(artFromTitle('Dinner'), [], 'a name with nothing to draw has no pictures, rather than a wrong one')
 })
+
+test('a group of ingredients is named from what is in it, never from where it sits', async () => {
+  const { groupName } = await import('../src/lib/kitchen/food.js')
+  assert.equal(groupName([{ item: 'elbow macaroni' }, { item: 'unsalted butter' }, { item: 'milk' }]), 'Pantry and fridge')
+  assert.equal(groupName([{ item: 'salmon fillets' }, { item: 'tempeh' }]), 'Protein')
+  assert.equal(groupName([{ item: 'cooked ham, for Anna' }]), 'For the plates')
+  assert.equal(groupName([{ item: 'widgets' }, { item: 'a lemon' }]), '', 'mixed or unknown: no heading rather than a wrong one')
+})

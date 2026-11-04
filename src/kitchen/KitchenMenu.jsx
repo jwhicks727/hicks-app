@@ -10,7 +10,7 @@ export default function KitchenMenu({ current, parent }) {
     ['cookbook', 'Cookbook', '/kitchen/cookbook'],
     ...(parent ? [['plan', 'Plan the week', '/kitchen/plan']] : []),
     ['rules', 'Rules & preferences', '/kitchen/rules'],
-    ...(parent ? [['add', 'Add recipes', '/kitchen/add']] : []),
+    ...(parent ? [['add', 'Add recipes', '/kitchen/add'], ['write', 'Write one', '/kitchen/write']] : []),
   ]
   return (
     <nav className="ki-menu" aria-label="The Kitchen">
