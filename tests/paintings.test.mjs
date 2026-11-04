@@ -147,3 +147,12 @@ test('leading down: the page follows the bird to a place below the fold, and lea
   let last = 0
   for (let t = 0; t <= 1; t += 0.05) { const f = followAt(t); assert.ok(f >= last - 1e-12); last = f }
 })
+
+test('the app’s own pages are never cached, so a deploy shows on the next open; the hashed files are kept a year', async () => {
+  const { readFileSync } = await import('node:fs')
+  const h = JSON.parse(readFileSync(new URL('../firebase.json', import.meta.url), 'utf8')).hosting.headers
+  const cc = (source) => ((h.find((x) => x.source === source) || { headers: [] }).headers.find((x) => x.key === 'Cache-Control') || {}).value
+  assert.equal(cc('/'), 'no-cache', 'the installed app opens at /')
+  assert.equal(cc('**/!(*.*)'), 'no-cache', 'every screen’s address (/kitchen/cookbook) is the app’s page too')
+  assert.match(cc('/assets/**'), /immutable/)
+})

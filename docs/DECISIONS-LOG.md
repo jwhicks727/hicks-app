@@ -6,6 +6,14 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
+
+Phones kept showing an old version for up to an hour after a deploy: only files
+ending in `.html` were marked `no-cache`, but the app is opened at `/` and at
+addresses like `/kitchen/cookbook`, which Firebase serves (as `index.html`) with
+its default one-hour cache. `firebase.json` now marks `/` and every address without
+a file extension `no-cache`; the built files in `/assets/` keep their year-long cache
+(their names change with every build).
 ## 2026-11-04 — Every change is a branch with a preview again
 
 Jason's call: no more work straight to `main` (reverses 2026-11-01). Each change
