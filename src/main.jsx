@@ -4,8 +4,10 @@ import { createRoot } from 'react-dom/client'
 import './styles.css'
 import App from './App.jsx'
 import { applyPrefs } from './lib/prefs.js'
+import { blockPageZoom } from './lib/noZoom.js'
 
 applyPrefs()
+blockPageZoom()
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
