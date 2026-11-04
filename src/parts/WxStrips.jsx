@@ -100,7 +100,8 @@ export function DayStrip({ days, timeline = [] }) {
   const scale = useMemo(() => graphScale(days), [days])
   if (!days.length) return null
   const earlier = (() => { const d = new Date(days[0].date + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10) })()
-  const next = (date) => { const d = new Date(date + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + 1); return byDate[d.toISOString().slice(0, 10)] }
+  const shift = (date, n) => { const d = new Date(date + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return byDate[d.toISOString().slice(0, 10)] }
+  const next = (date) => shift(date, 1)
   return (
     <div className="wxs wxs-days">
       <div className="wxs-head">
@@ -117,7 +118,7 @@ export function DayStrip({ days, timeline = [] }) {
           {days.map((d) => {
             const hours = byDate[d.date] || []
             const night = hours.find((h) => h.hour === 21) || hours[hours.length - 1]
-            const g = dayLine(hours, next(d.date), scale, { W: COL, H: GRAPH_H })
+            const g = dayLine(hours, next(d.date), scale, { W: COL, H: GRAPH_H, prev: shift(d.date, -1) })
             const wet = g && rainPath(g.rain, { H: GRAPH_H })
             return (
               <li key={d.date} className={(d.past ? 'past ' : '') + (d.today ? 'now' : '')}>

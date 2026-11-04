@@ -16,6 +16,16 @@ sunset to sunrise, and the rain filled in blue along the bottom (`src/lib/dayGra
 `DayStrip`). Each column still opens that day's page. In the hour strip the chance of
 rain and the inches show only when there is some.
 
+The line is a smooth curve through the hourly forecast, not finer data: at about
+four pixels an hour, fifteen-minute readings would add a pixel between hours and
+nothing you could see. It bends with Steffen's monotone method (as charting
+libraries do), so it passes through every hour without inventing a peak or dipping
+the rain below zero; it is drawn at the forecast's tenth of a degree rather than
+the whole degrees shown as figures, which had made it climb in steps; and each
+column knows the hour either side of midnight, so the columns meet without a corner.
+Weather Underground's own method isn't published; this is what makes ours look
+like theirs.
+
 ## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
 
 Phones kept showing an old version for up to an hour after a deploy: only files
