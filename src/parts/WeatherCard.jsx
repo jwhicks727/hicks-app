@@ -108,8 +108,8 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
             </Link>
           )}
           {schools && <SchoolsBeside homeTemp={f.now.temp} />}
-          <HourStrip timeline={f.timeline} nowIndex={f.nowIndex} />
           <DayStrip days={f.allDays} timeline={f.timeline} />
+          <HourStrip timeline={f.timeline} nowIndex={f.nowIndex} />
           {more && <Link className="btn ghost" to="/world">The week ›</Link>}
           <Credit />
         </>

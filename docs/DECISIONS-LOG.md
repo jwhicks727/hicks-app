@@ -12,9 +12,17 @@ Jason asked for the day-by-day strip to look like Weather Underground's: each da
 column has its day and night pictures, high | low, and chance of rain, and under the
 columns one temperature line runs through every hour (grey for what has happened,
 red ahead), each day's high and low marked with an open circle, night shaded from
-sunset to sunrise, and the rain filled in blue along the bottom (`src/lib/dayGraph.js`,
-`DayStrip`). Each column still opens that day's page. In the hour strip the chance of
-rain and the inches show only when there is some.
+sunset to sunrise, and each hour's chance of rain filled in blue from the bottom
+(`src/lib/dayGraph.js`, `DayStrip`). Each column still opens that day's page. Day by day
+sits above hour by hour in the weather card. In the hour strip the chance of rain and
+the inches show only when there is some.
+
+The blue is the chance, not the amount, as on Weather Underground: a day of 3-16%
+chances shows low bumps though no rain is forecast to fall, 100% fills the graph, and
+each day's highest bump is the percentage printed above it (the daily figure is the
+highest hourly one). An hour the forecast gives no chance for (one long past) counts
+as 100% if rain fell and 0% if it didn't. A first version drew the inches, which left
+the graph flat on every day with a chance of showers.
 
 The line is a smooth curve through the hourly forecast, not finer data: at about
 four pixels an hour, fifteen-minute readings would add a pixel between hours and

@@ -1,7 +1,7 @@
 // ============================================
 // dayGraph.js -- the shapes under the day-by-day strip, as a weather site draws
 // them: each day's temperature line through its hours, its high and low marked,
-// night shaded from sunset to sunrise, and the rain as a filled blue band.
+// night shaded from sunset to sunrise, and the chance of rain as a filled blue shape.
 // ============================================
 // Pure geometry: each day's column draws its own 24 hours (and the next
 // midnight, so the line runs on into the next column without a break), all on
@@ -59,7 +59,7 @@ export function dayLine(hours, next, scale, { W, H, top = 10, bottom = 24, prev 
   if (!own.length) return null
   const t = (h) => (Number.isFinite(h.fine) ? h.fine : h.temp)
   const y = (v) => top + (1 - (v - scale.lo) / (scale.hi - scale.lo || 1)) * (H - top - bottom)
-  const at = (h, x) => ({ x, y: y(t(h)), past: Boolean(h.past), temp: h.temp, inches: h.inches || 0, hour: h.hour })
+  const at = (h, x) => ({ x, y: y(t(h)), past: Boolean(h.past), temp: h.temp, chance: chanceOf(h), hour: h.hour })
   // the column's own hours, the next midnight at the right edge, and an hour beyond each edge for the bend
   const before = prev && prev.length && prev[prev.length - 1].hour === 23 && own[0].hour === 0 && Number.isFinite(prev[prev.length - 1].temp) ? at(prev[prev.length - 1], -W / 24) : null
   const after = close && next[1] && next[1].hour === 1 && Number.isFinite(next[1].temp) ? at(next[1], W + W / 24) : null
@@ -73,7 +73,7 @@ export function dayLine(hours, next, scale, { W, H, top = 10, bottom = 24, prev 
   const past = cut === -1 ? pts : cut === 0 ? [] : pts.slice(0, cut + 1)
   const future = cut === -1 ? [] : pts.slice(cut)
   // the rain keeps the hours beyond the edges (marked `beyond`) so its curve bends across midnight too
-  const rain = all.map((p) => ({ x: r1(p.x), inches: p.inches, ...(p === before || p === after ? { beyond: true } : {}) }))
+  const rain = all.map((p) => ({ x: r1(p.x), chance: p.chance, ...(p === before || p === after ? { beyond: true } : {}) }))
   return { past, future, high, low, rain }
 }
 
@@ -88,14 +88,24 @@ export function linePath(pts) {
 }
 
 /**
- * The rain as a filled shape along the bottom: inches per hour, scaled so `fullIn` fills `band` pixels, its
- * top edge curved like the temperature line and capped before the curve is worked out, so a downpour fills
- * the band and no more. Points marked `beyond` (an hour past each edge) only bend the curve. Null when dry.
+ * An hour's chance of rain, 0-100, as the forecast gives it. Where it gives none (an hour long past, say),
+ * the rain that fell answers: it rained (100) or it didn't (0).
  */
-export function rainPath(rain, { H, band = 16, fullIn = 0.15 }) {
+export function chanceOf(h) {
+  if (Number.isFinite(h.rain)) return Math.max(0, Math.min(100, h.rain))
+  return h.inches > 0 ? 100 : 0
+}
+
+/**
+ * The chance of rain as a filled shape rising from the bottom, as a weather site draws it: 100% fills
+ * `band` pixels (the whole graph, by default), so a 15% afternoon is a low bump and a sure thing a wall. Its
+ * top edge curves like the temperature line; points marked `beyond` (an hour past each edge) only bend the
+ * curve. Null when every hour in the column is 0%.
+ */
+export function rainPath(rain, { H, band = H }) {
   const inside = rain.filter((r) => !r.beyond)
-  if (!inside.some((r) => r.inches > 0)) return null
-  const pts = rain.map((r) => ({ x: r.x, y: H - Math.min(1, r.inches / fullIn) * band, beyond: r.beyond }))
+  if (!inside.some((r) => r.chance > 0)) return null
+  const pts = rain.map((r) => ({ x: r.x, y: H - (Math.min(100, Math.max(0, r.chance || 0)) / 100) * band, beyond: r.beyond }))
   const m = slopes(pts)
   const edge = pts.map((p, i) => ({ x: p.x, y: r1(p.y), m: Math.round(m[i] * 1000) / 1000, beyond: p.beyond })).filter((p) => !p.beyond)
   return `M${edge[0].x} ${H} ${linePath(edge).replace(/^M/, 'L')} L${edge[edge.length - 1].x} ${H} Z`

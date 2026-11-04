@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { graphScale, hoursByDate, dayLine, linePath, rainPath, nightBands, slopes } from '../src/lib/dayGraph.js'
+import { graphScale, hoursByDate, dayLine, linePath, rainPath, nightBands, slopes, chanceOf } from '../src/lib/dayGraph.js'
 
 const day = (date, temps, o = {}) => temps.map((t, hour) => ({ date, hour, temp: t, inches: 0, past: false, ...o }))
 
@@ -24,15 +24,27 @@ test('a day’s line runs into the next midnight, splits at now, and marks its h
   assert.equal(allFuture.past.length, 0); assert.equal(allFuture.future.length, 2)
 })
 
-test('rain is a filled band only when it rains, and night is shaded from sunset to sunrise', () => {
-  assert.equal(rainPath([{ x: 0, inches: 0 }, { x: 10, inches: 0 }], { H: 96 }), null)
-  const p = rainPath([{ x: 0, inches: 0 }, { x: 10, inches: 0.15 }, { x: 20, inches: 0.3 }], { H: 96 })
-  assert.match(p, / 10 80 /); assert.match(p, / 20 80 L20 96 Z$/, 'a downpour fills the band and no more')
-  const ys = [...p.matchAll(/-?\d+(?:\.\d+)? (-?\d+(?:\.\d+)?)/g)].map((m) => Number(m[1]))
-  assert.ok(ys.every((y) => y >= 80 && y <= 96), 'the curved edge never rises above the band or dips under the line')
-  assert.equal(rainPath([{ x: -4, inches: 0.2, beyond: true }, { x: 0, inches: 0 }, { x: 10, inches: 0 }], { H: 96 }), null, 'rain only beyond the edge is not this column’s')
+test('the chance of rain is a filled shape, a bump on a 15% day, and night is shaded from sunset to sunrise', () => {
+  assert.equal(rainPath([{ x: 0, chance: 0 }, { x: 10, chance: 0 }], { H: 96 }), null, 'nothing drawn on a 0% day')
+  const p = rainPath([{ x: 0, chance: 0 }, { x: 10, chance: 15 }, { x: 20, chance: 0 }], { H: 96, band: 80 })
+  assert.match(p, / 10 84 /, 'a 15% hour rises 15% of the band (80 px), to 12 px above the bottom')
+  const full = rainPath([{ x: 0, chance: 50 }, { x: 10, chance: 100 }, { x: 20, chance: 140 }], { H: 96, band: 80 })
+  assert.match(full, / 20 16 L20 96 Z$/, 'a sure thing fills the band and no more')
+  const ys = [...full.matchAll(/-?\d+(?:\.\d+)? (-?\d+(?:\.\d+)?)/g)].map((m) => Number(m[1]))
+  assert.ok(ys.every((y) => y >= 16 && y <= 96), 'the curved edge never rises above the band or dips under the line')
+  assert.equal(rainPath([{ x: -4, chance: 60, beyond: true }, { x: 0, chance: 0 }, { x: 10, chance: 0 }], { H: 96 }), null, 'rain only beyond the edge is not this column’s')
   assert.deepEqual(nightBands({ sunrise: '2026-11-04T06:00', sunset: '2026-11-04T18:00' }, 96), [[0, 24], [72, 96]])
   assert.deepEqual(nightBands({}, 96), [])
+})
+
+test('an hour’s chance comes from the forecast, or from the rain that fell when the forecast gives none', () => {
+  assert.equal(chanceOf({ rain: 16, inches: 0 }), 16)
+  assert.equal(chanceOf({ rain: 0, inches: 0.02 }), 0, 'the forecast’s own chance wins where there is one')
+  assert.equal(chanceOf({ rain: null, inches: 0.02 }), 100); assert.equal(chanceOf({ rain: null, inches: 0 }), 0)
+  const hours = Array.from({ length: 24 }, (_, hour) => ({ date: '2026-11-12', hour, temp: 60, rain: hour >= 12 && hour < 18 ? 16 : 3, inches: 0, past: false }))
+  const g = dayLine(hours, null, { lo: 40, hi: 80 }, { W: 104, H: 96 })
+  assert.equal(g.rain[13].chance, 16)
+  assert.ok(rainPath(g.rain, { H: 96, band: 86 }), 'a day of 3-16% chances shows its bumps, though no rain is forecast to fall')
 })
 
 test('the line is a smooth curve through every hour, never swinging past its neighbours', () => {
@@ -57,7 +69,7 @@ test('the line is a smooth curve through every hour, never swinging past its nei
 
 test('two days meet at midnight without a corner, at the forecast’s tenth of a degree', () => {
   const temps = (base) => Array.from({ length: 24 }, (_, i) => base + 10 * Math.sin(((i - 9) / 24) * Math.PI * 2))
-  const mk = (date, base) => temps(base).map((t, hour) => ({ date, hour, temp: Math.round(t), fine: Math.round(t * 10) / 10, inches: hour > 20 ? 0.05 : 0, past: false }))
+  const mk = (date, base) => temps(base).map((t, hour) => ({ date, hour, temp: Math.round(t), fine: Math.round(t * 10) / 10, rain: hour > 20 ? 30 : 0, inches: 0, past: false }))
   const d1 = mk('2026-11-04', 55), d2 = mk('2026-11-05', 50), d3 = mk('2026-11-06', 52)
   const scale = { lo: 30, hi: 80 }, box = { W: 104, H: 96 }
   const a = dayLine(d1, d2, scale, box), b = dayLine(d2, d3, scale, { ...box, prev: d1 })

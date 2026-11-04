@@ -119,7 +119,7 @@ export function DayStrip({ days, timeline = [] }) {
             const hours = byDate[d.date] || []
             const night = hours.find((h) => h.hour === 21) || hours[hours.length - 1]
             const g = dayLine(hours, next(d.date), scale, { W: COL, H: GRAPH_H, prev: shift(d.date, -1) })
-            const wet = g && rainPath(g.rain, { H: GRAPH_H })
+            const wet = g && rainPath(g.rain, { H: GRAPH_H, band: GRAPH_H - 10 })
             return (
               <li key={d.date} className={(d.past ? 'past ' : '') + (d.today ? 'now' : '')}>
                 <Link to={`/world/day/${d.date}`} aria-label={`${dayName(d.date, true)} ${md(d.date)}: high ${d.high}, low ${d.low}, ${d.words}, ${d.rain ?? 0} percent chance of rain`}>
