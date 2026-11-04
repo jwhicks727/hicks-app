@@ -1,8 +1,8 @@
 import { Link } from '../shell/Link.jsx'
 
 /**
- * The Kitchen's menu: where you can go from here, one tap each. The cookbook is always among them;
- * planning and adding are the parents'.
+ * The Kitchen's menu: where you can go from here, one tap each. The cookbook is always among them
+ * (adding and writing recipes live inside it); planning is the parents'.
  */
 export default function KitchenMenu({ current, parent }) {
   const items = [
@@ -10,7 +10,6 @@ export default function KitchenMenu({ current, parent }) {
     ['cookbook', 'Cookbook', '/kitchen/cookbook'],
     ...(parent ? [['plan', 'Plan the week', '/kitchen/plan']] : []),
     ['rules', 'Rules & preferences', '/kitchen/rules'],
-    ...(parent ? [['add', 'Add recipes', '/kitchen/add'], ['write', 'Write one', '/kitchen/write']] : []),
   ]
   return (
     <nav className="ki-menu" aria-label="The Kitchen">

@@ -254,3 +254,23 @@ html.phone-landscape .kchat-fab { bottom: 12px; }
 .re-text { width: 100%; min-height: 56vh; padding: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 15px; line-height: 1.5; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control); resize: vertical; }
 .re-label { display: grid; gap: 6px; font-weight: 800; }
 .re-warn { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-weight: 700; }
+
+/* The Cookbook tab */
+.cb-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.cb-shelves, .cb-sorts { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.cb-shelves::-webkit-scrollbar, .cb-sorts::-webkit-scrollbar { display: none; }
+.cb-shelves button, .cb-sorts button, .cb-view { flex: none; min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-weight: 750; white-space: nowrap; cursor: pointer; }
+.cb-shelves button small { margin-left: 4px; color: var(--muted); font-weight: 800; }
+.cb-shelves button[aria-pressed="true"], .cb-sorts button[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.cb-shelves button[aria-pressed="true"] small { color: inherit; opacity: .8; }
+.cb-bar { display: flex; gap: 8px; align-items: center; margin: 8px 0 10px; min-width: 0; }
+.cb-bar .cb-sorts { flex: 1; min-width: 0; }
+.cb-sorts button { min-height: 36px; font-size: 14px; }
+@media (pointer: coarse) { .cb-shelves button, .cb-sorts button, .cb-view { min-height: 44px; } }
+.tiles.compact { grid-template-columns: minmax(0, 1fr) !important; gap: 2px; }
+.tiles.compact .recipe-art { display: none; }
+.tiles.compact .recipe-tile { padding: 8px 10px; }
+.serve-step { display: inline-flex; align-items: center; gap: 4px; }
+.serve-step button { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-weight: 900; cursor: pointer; }
+@media (pointer: coarse) { .serve-step button { width: 44px; height: 44px; } }
+.scaled-note { color: var(--muted); font-weight: 700; font-size: 13px; }

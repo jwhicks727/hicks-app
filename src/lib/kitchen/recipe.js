@@ -183,3 +183,43 @@ export function withLauriePlate(body, laurie) {
 
 /** A recipe as Claude proposed it, minus the note the app adds when showing it Laurie's plate. */
 export const tidyProposed = (md) => String(md || '').replace(/(\*\*Laurie’s plate\*\*)[ \t]*\(kept privately[^)\n]*\)/g, '$1')
+
+const FRACS = [[1 / 8, '⅛'], [1 / 4, '¼'], [1 / 3, '⅓'], [1 / 2, '½'], [2 / 3, '⅔'], [3 / 4, '¾']]
+const VULGAR = { '½': 0.5, '¼': 0.25, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3, '⅛': 0.125 }
+/** "1 1/2", "1 ½", "½", "1.5", "3/4" -> a number, or null. */
+export function amountValue(s) {
+  const t = String(s || '').trim()
+  let m = t.match(/^(\d+)\s+(\d+)\/(\d+)$/); if (m) return Number(m[1]) + Number(m[2]) / Number(m[3])
+  m = t.match(/^(\d+)?\s*([½¼¾⅓⅔⅛])$/); if (m) return (m[1] ? Number(m[1]) : 0) + VULGAR[m[2]]
+  m = t.match(/^(\d+)\/(\d+)$/); if (m) return Number(m[1]) / Number(m[2])
+  m = t.match(/^\d+(?:[.,]\d+)?$/); if (m) return Number(t.replace(',', '.'))
+  return null
+}
+/** A number as a cook writes it: whole, with a kitchen fraction (¼, ⅓, ½, ⅔, ¾, ⅛), or to one decimal place. */
+export function amountWords(v) {
+  if (v == null || !Number.isFinite(v)) return ''
+  const whole = Math.floor(v + 1e-9), rest = v - whole
+  if (rest < 0.06) return String(whole || (v > 0 ? '⅛' : 0))
+  if (rest > 0.94) return String(whole + 1)
+  const near = FRACS.find(([f]) => Math.abs(rest - f) < 0.045)
+  if (near) return whole ? `${whole} ${near[1]}` : near[1]
+  return String(Math.round(v * 10) / 10)
+}
+/** An amount scaled by `factor`: "1 1/2" x2 -> "3", "1–2" x2 -> "2–4"; text it can't read is left as it is. */
+export function scaleAmount(amount, factor) {
+  if (!amount || factor === 1) return amount
+  const range = String(amount).split(/\s*(?:[–-]|to)\s*/)
+  const vals = range.map(amountValue)
+  if (vals.some((v) => v == null)) return amount
+  return vals.map((v) => amountWords(v * factor)).join('–')
+}
+/** The recipe as plain text for sharing: name, time, ingredients and steps. Laurie's plate is never in it. */
+export function plainRecipe(r) {
+  const out = [r.title]
+  const bits = [r.total != null ? `${r.total} min` : '', r.serves ? `serves ${r.serves}` : ''].filter(Boolean)
+  if (bits.length) out.push(bits.join(' · '))
+  out.push('', 'Ingredients')
+  for (const g of r.groups) { for (const x of g) out.push(`- ${x.text || x.item}`); out.push('') }
+  if (r.steps.length) { out.push('Steps'); r.steps.forEach((s, i) => out.push(`${i + 1}. ${String(s.text || '').replace(/\*\*/g, '')}`)) }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n'
+}

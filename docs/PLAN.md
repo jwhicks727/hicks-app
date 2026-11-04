@@ -273,6 +273,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 4. Kitchen
 
+- [x] The Cookbook tab: shelves, sorts, ingredient search, what can I make with, tonight's weather pick, opened lately, surprise me, short list, cooked counts (`Cookbook.jsx`, `src/lib/kitchen/cookbook.js`); servings scaler and Share on a recipe.
+
 - [x] Write a recipe by hand (`/kitchen/write`) and edit one (`/kitchen/recipe/<slug>/edit`), parents only: `RecipeEditor.jsx`, with a live reading of the text.
 
 - [x] The Kitchen menu (`KitchenMenu.jsx`) and the cookbook on its own screen (`/kitchen/cookbook`, `Cookbook.jsx`); a dish's pictures come from its name (`artFromTitle`).

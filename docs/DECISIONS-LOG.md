@@ -6,6 +6,21 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — The Cookbook tab: shelves, sorts, search by ingredient, and picks
+
+The Cookbook (`/kitchen/cookbook`) now has, all worked out on the device from the recipes
+themselves (`src/lib/kitchen/cookbook.js`): shelves (under 30 minutes, easy on the hands,
+soups and stews, pasta, salads and bowls, tacos and wraps, curries, fish, tempeh and tofu,
+beans, sheet pan, Instant Pot and slow cooker, one pot, no oven, everyone loved, Anna's
+favourites, not cooked yet, not in a while, and for parents only "needs Laurie's plate");
+sorts (A–Z, newest, top rated, quickest, most cooked, not lately, remembered on the device);
+search by name or ingredient; "what can I make with…"; a pick for tonight's weather (a hot day
+wants no oven, a cool or wet one a soup); the recipes opened lately on that phone; "Surprise
+me"; a short-list view; and each recipe's cooked count. A recipe page scales its servings
+(amounts only; the steps keep the original) and shares itself as plain text without Laurie's
+plate. Adding and writing recipes moved from the Kitchen menu into the Cookbook. Shelves, sorts
+and searches stay out of the address.
+
 ## 2026-11-04 — A recipe read from a photo holds only what the photo says; recipes can be written and changed by hand
 
 A macaroni and cheese read from a card came back with a protein group (a shallot, chili

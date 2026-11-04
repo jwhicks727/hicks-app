@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { Confirm } from '../ui/Confirm.jsx'
 import { Crumb, Link } from '../shell/Link.jsx'
@@ -6,7 +6,9 @@ import { navigate } from '../lib/router.js'
 import { usePrefs } from '../lib/prefs.js'
 import { useDraft } from '../lib/useDraft.js'
 import { iconFor, cookCheck, groupName } from '../lib/kitchen/food.js'
-import { easyOnHands } from '../lib/kitchen/recipe.js'
+import { easyOnHands, scaleAmount, plainRecipe } from '../lib/kitchen/recipe.js'
+import { noteRecent } from '../lib/kitchen/recent.js'
+import { Toast } from '../ui/Toast.jsx'
 import { startTimer } from '../lib/kitchen/timers.js'
 import { rate, addToFridge, finishFridge, removeRecipe } from '../lib/useKitchen.js'
 import { FoodIcon, RecipeArt } from './FoodIcon.jsx'
@@ -28,9 +30,13 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const [got, setGot] = useDraft(`recipe.${slug}.mise`, {})
   const [checked, setChecked] = useDraft(`recipe.${slug}.check`, {})
   const [removing, setRemoving] = useState(false)
+  const [people, setPeople] = useState(null) // servings for this cooking only: not kept, not in the address
+  const [said, setSaid] = useState(null)
+  useEffect(() => { if (slug) noteRecent(slug) }, [slug])
   if (!loaded) return <p className="muted span-6">Opening the recipe…</p>
   if (!recipe) return <><Crumb to="/kitchen">Kitchen</Crumb><Card tint="#C42D20" label="Not found" glyph="pot" className="span-6"><p>No recipe at this address.</p></Card></>
   const r = parsed(recipe.body)
+  const factor = people && r.serves ? people / r.serves : 1
   const names = GROUP_NAMES(r.groups)
   const dinner = prefs.dinnerAt || '18:30'
   const [dh, dm] = dinner.split(':').map(Number)
@@ -52,12 +58,22 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
           <h1>{r.title}</h1>
           <p className="rh-meta">
             {r.total != null && <span className="chip"><b>{timeWords(r.total)}</b>{r.handsOn != null && ` · ${timeWords(r.handsOn)} hands-on`}</span>}
-            {r.serves && <span className="chip">Serves {r.serves}</span>}
+            {r.serves && (
+              <span className="chip serve-step">
+                <button type="button" aria-label="Fewer servings" onClick={() => setPeople(Math.max(1, (people || r.serves) - 1))}>−</button>
+                Serves <b className="fig">{people || r.serves}</b>
+                <button type="button" aria-label="More servings" onClick={() => setPeople(Math.min(24, (people || r.serves) + 1))}>+</button>
+              </span>
+            )}
             {easyOnHands(recipe.body) && <span className="chip easy">Easy on the hands</span>}
           </p>
           <div className="rh-actions">
             <Link className="btn" to={`/kitchen/recipe/${slug}/cook`}>Cook it ›</Link>
             {parent && <Link className="btn ghost" to={`/kitchen/recipe/${slug}/edit`}>Edit</Link>}
+            <button type="button" className="btn ghost" onClick={async () => {
+              const text = plainRecipe(r) // the shared recipe only: Laurie’s plate is never in it
+              try { if (navigator.share) { await navigator.share({ title: r.title, text }); return } await navigator.clipboard.writeText(text); setSaid('Copied the recipe, without Laurie’s plate.') } catch (e) { if (e && e.name !== 'AbortError') setSaid('Couldn’t share it from here.') }
+            }}>Share</button>
             {parent && (fridge
               ? <button type="button" className="btn ghost" onClick={async () => { await finishFridge(fridge.id, 'cooked', today); onChanged() }}>We cooked it</button>
               : <button type="button" className="btn ghost" onClick={async () => { await addToFridge(recipe.id, today); onChanged() }}>Add to this week</button>)}
@@ -124,6 +140,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
       )}
 
       <Card tint="#E0662F" label="Ingredients" glyph="pot" tag={`${r.groups.flat().filter((x) => got[x.text]).length} of ${r.groups.flat().length} out`} className="span-2 ingredients-card">
+          {factor !== 1 && <p className="scaled-note">Amounts for {people} instead of {r.serves}. The steps still say the original amounts and times.</p>}
         {r.groups.map((g, gi) => (
           <div key={gi} className="ing-group">
             {names[gi] && <h3>{names[gi]}</h3>}
@@ -133,7 +150,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
                   <label className={got[x.text] ? 'got' : ''}>
                     <input type="checkbox" checked={Boolean(got[x.text])} onChange={(e) => setGot({ ...got, [x.text]: e.target.checked })} />
                     <FoodIcon name={iconFor(x.item)} size={30} />
-                    <span>{x.amount && <b className="amt">{x.amount}{x.unit ? ` ${x.unit}` : ''}</b>} {x.item}</span>
+                    <span>{x.amount && <b className="amt">{scaleAmount(x.amount, factor)}{x.unit ? ` ${x.unit}` : ''}</b>} {x.item}</span>
                   </label>
                 </li>
               ))}
@@ -168,6 +185,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
         </Confirm>
       )}
       <Timers />
+      {said && <Toast onClose={() => setSaid(null)}>{said}</Toast>}
     </>
   )
 }

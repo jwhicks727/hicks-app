@@ -90,3 +90,29 @@ export function useRecipeBodies(session, ids) {
   }, [session, key]) // eslint-disable-line react-hooks/exhaustive-deps
   return bodies
 }
+
+/** Every recipe's shared file (never Laurie's plate), for searching by ingredient and sorting into shelves: id -> body. */
+export function useAllBodies(session, enabled = true) {
+  const [bodies, setBodies] = useState({})
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session || !enabled) { setBodies({}); return undefined }
+    fetchAll(() => supabase.from('recipes').select('id, body').order('id')).then(({ data }) => {
+      if (live) setBodies(Object.fromEntries((data || []).map((r) => [r.id, r.body])))
+    })
+    return () => { live = false }
+  }, [session, enabled])
+  return bodies
+}
+
+/** Which recipes have Laurie's plate written (parents only: the table answers nobody else): a Set of ids, or null. */
+export function useLaurieWritten(session, parent) {
+  const [ids, setIds] = useState(null)
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session || !parent) { setIds(null); return undefined }
+    fetchAll(() => supabase.from('recipe_private').select('recipe_id').order('recipe_id')).then(({ data, error }) => { if (live) setIds(error ? null : new Set((data || []).map((r) => r.recipe_id))) })
+    return () => { live = false }
+  }, [session, parent])
+  return ids
+}

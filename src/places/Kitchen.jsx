@@ -43,7 +43,7 @@ export default function Kitchen({ rest }) {
       : view === 'add' ? <AddRecipes parent={parent} onSaved={() => navigate('/kitchen', { replace: true })} />
         : view === 'plan' ? <PlanWeek parent={parent} me={me} members={family.members} today={today} />
           : view === 'rules' ? <Rules parent={parent} me={me} members={family.members} />
-            : view === 'cookbook' ? <Cookbook book={book} family={family} parent={parent} />
+            : view === 'cookbook' ? <Cookbook book={book} family={family} parent={parent} today={today} />
               : <KitchenHome book={book} family={family} session={session} me={me} parent={parent} today={today} />
   return (
     <>
