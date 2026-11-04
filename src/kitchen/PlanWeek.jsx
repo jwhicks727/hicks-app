@@ -191,7 +191,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   const previews = written.recipes.map((md) => ({ md, r: parseRecipe(md) }))
   return (
     <>
-      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen · week of {(plan ? plan.week_of : week).slice(5).replace('-', '/')}</span><h1 className="sr">Plan the week</h1><KitchenMenu current="plan" parent={parent} big /></header>
+      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen · week of {(plan ? plan.week_of : week).slice(5).replace('-', '/')}</span><h1 className="sr">Weekly planner</h1><KitchenMenu current="plan" parent={parent} big /></header>
 
       <Card tint="#C42D20" label="Ask" glyph="pot" className="span-3">
         <div className="form">

@@ -271,7 +271,7 @@ New since the first sitting. Each part works on its own; skip any for now.
     `supabase/migrations/20261101214500_plans_stay_until_dismissed.sql` (the
     same way as the others: copy it, Supabase › SQL Editor › paste › Run). Then
     `npx supabase functions deploy wild --no-verify-jwt --project-ref <project-ref>`.
-    Until the migration is run, Plan the week still shows the newest list
+    Until the migration is run, Weekly planner still shows the newest list
     (so nothing is lost at midnight) but "Put this list away" says it needs it,
     and written recipes are kept on the device only. Until `wild` is deployed,
     each wild season keeps its drawing and has no picture.

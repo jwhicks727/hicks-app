@@ -124,7 +124,7 @@ From the handoff, for the recipes and for whoever writes them:
 
 ## Planning the week, the rules, and asking Claude
 
-- **Plan the week** (`/kitchen/plan`, Jason and Laurie):
+- **Weekly planner** (`/kitchen/plan`, Jason and Laurie):
   1. Ask for ideas: ten unless changed, and anything added to the ask
      ("three breakfasts too", "a slow-cooker night", "my hands are sore
      this week").

@@ -12,7 +12,7 @@ export default function KitchenMenu({ current, parent, big = false }) {
   const items = [
     ['', 'This week', '/kitchen'],
     ['cookbook', 'Cookbook', '/kitchen/cookbook'],
-    ...(parent ? [['plan', 'Plan the week', '/kitchen/plan']] : []),
+    ...(parent ? [['plan', 'Weekly planner', '/kitchen/plan']] : []),
     ['rules', 'Rules', '/kitchen/rules'],
   ]
   // The word you're on starts in view, even when it's far along the row
