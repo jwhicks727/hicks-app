@@ -19,11 +19,16 @@ export const Link = forwardRef(function Link({ to, children, ...rest }, ref) {
   )
 })
 
-/** Back, walking the same history as the browser's Back; to `to` when opened directly. */
+/**
+ * Back, walking the same history as the browser's Back; to `to` when opened directly.
+ * It always reads "Back": where it lands depends on where the person came from, so
+ * the parent's name (`children`) is only the fallback, kept for the screen reader.
+ */
 export function Crumb({ to, children }) {
+  const parent = typeof children === 'string' ? children : ''
   return (
-    <a className="crumb" href={to} onClick={(e) => { e.preventDefault(); goBack(to) }}>
-      ‹ {children}
+    <a className="crumb" href={to} aria-label={parent ? `Back (or ${parent} if opened directly)` : undefined} onClick={(e) => { e.preventDefault(); goBack(to) }}>
+      ‹ Back
     </a>
   )
 }
