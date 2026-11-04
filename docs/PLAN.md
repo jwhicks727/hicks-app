@@ -273,6 +273,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 4. Kitchen
 
+- [x] "Done shopping" puts the week's two lists away on that device (with an Undo, and a "Show the shopping lists" button after); they come back when the week's dishes change (`WeekLists.jsx`).
+
 - [x] The meal-planning handoff split: the pattern, the weekly rhythm, the
       recipe format and the design are in `docs/KITCHEN.md`; Laurie's food
       rules stay out of the repository.
