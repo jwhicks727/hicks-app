@@ -4,6 +4,7 @@ import { Crumb } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
 import { useDraft } from '../lib/useDraft.js'
 import { usePreferences, useFoodRules, savePreferences, saveFoodRules } from '../lib/useKitchenPlan.js'
+import KitchenMenu from './KitchenMenu.jsx'
 
 const when = (iso) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 const STARTER = `Store: Trader Joe's, mostly.
@@ -29,7 +30,7 @@ export default function Rules({ parent, me, members }) {
   const owner = rules.rows[0] ? members.find((m) => m.id === rules.rows[0].belongs_to) : laurie
   return (
     <>
-      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="greet">Rules &amp; preferences</h1></header>
+      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="greet">Rules &amp; preferences</h1><KitchenMenu current="rules" parent={parent} /></header>
       <Versioned
         title="The kitchen’s preferences" tint="#E0662F" rows={prefs.rows} canEdit={parent} starter={STARTER} draftKey="kitchen.prefs.edit"
         about="Tastes, dislikes, what’s loved lately, the pantry, the equipment: what Claude goes by when it plans and talks. The family can read it; Jason and Laurie change it. Each change is kept."

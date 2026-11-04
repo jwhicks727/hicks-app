@@ -6,6 +6,7 @@ import { useDraft } from '../lib/useDraft.js'
 import { parseRecipe, withLauriePlate } from '../lib/kitchen/recipe.js'
 import { saveRecipes } from '../lib/useKitchen.js'
 import { timeWords } from './art.js'
+import KitchenMenu from './KitchenMenu.jsx'
 
 // A recipe in Jason's format, written or changed by hand (parents). The same Markdown the app reads
 // everywhere, with a live "this is how it reads" under it so a slip shows before saving.
@@ -50,7 +51,7 @@ export default function RecipeEditor({ slug, data, parent }) {
   }
   return (
     <>
-      <header className="hero span-6"><Crumb to={back}>{slug ? 'Back to the recipe' : 'Kitchen'}</Crumb><span className="kicker">Kitchen</span><h1 className="greet">{slug ? 'Edit recipe' : 'Write a recipe'}</h1></header>
+      <header className="hero span-6"><Crumb to={back}>{slug ? 'Back to the recipe' : 'Kitchen'}</Crumb><span className="kicker">Kitchen</span><h1 className="greet">{slug ? 'Edit recipe' : 'Write a recipe'}</h1><KitchenMenu current={slug ? 'none' : 'write'} parent={parent} /></header>
       <Card tint="#E0662F" label="The recipe" glyph="pot" className="span-3 re-card">
         <label className="re-label">Its text, in the Kitchen’s format
           <textarea className="re-text" value={text} spellCheck="true" onChange={(e) => setDraft({ text: e.target.value })} aria-describedby="re-help" />

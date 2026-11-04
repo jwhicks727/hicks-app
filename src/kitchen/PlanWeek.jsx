@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { Confirm } from '../ui/Confirm.jsx'
 import { Toast, Working } from '../ui/Toast.jsx'
+import KitchenMenu from './KitchenMenu.jsx'
 import { Crumb, Link } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
 import { useDraft } from '../lib/useDraft.js'
@@ -190,7 +191,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   const previews = written.recipes.map((md) => ({ md, r: parseRecipe(md) }))
   return (
     <>
-      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen · week of {(plan ? plan.week_of : week).slice(5).replace('-', '/')}</span><h1 className="greet">Plan the week</h1></header>
+      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen · week of {(plan ? plan.week_of : week).slice(5).replace('-', '/')}</span><h1 className="greet">Plan the week</h1><KitchenMenu current="plan" parent={parent} /></header>
 
       <Card tint="#C42D20" label="Ask" glyph="pot" className="span-3">
         <div className="form">

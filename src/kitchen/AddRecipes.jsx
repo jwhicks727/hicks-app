@@ -8,6 +8,7 @@ import { timeWords } from './art.js'
 import { Sheet } from '../ui/Sheet.jsx'
 import Dropzone from '../ui/Dropzone.jsx'
 import { askClaude, prepareUpload } from '../lib/claude.js'
+import KitchenMenu from './KitchenMenu.jsx'
 
 const TEXT = /\.(md|markdown|txt)$/i
 
@@ -54,7 +55,7 @@ export default function AddRecipes({ parent, onSaved }) {
   if (!parent) return <Card tint="#C42D20" label="Adding recipes" glyph="pot" className="span-6"><p>Jason and Laurie add recipes.</p></Card>
   return (
     <>
-      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="greet">Add recipes</h1></header>
+      <header className="hero span-6"><Crumb to="/kitchen">Kitchen</Crumb><span className="kicker">Kitchen</span><h1 className="greet">Add recipes</h1><KitchenMenu current="add" parent={parent} /></header>
       <Card tint="#C42D20" label="Recipes in" glyph="pot" className="span-6">
         <p>The week’s files from Obsidian (several at once), a recipe pasted below, or a photo or screenshot of one. A recipe with the same title replaces the old one. “Laurie’s plate” is kept where only the two of you can read it.</p>
         <Dropzone accept=".md,.markdown,.txt,text/markdown,text/plain,image/*" multiple label="Recipe files, or a photo of a recipe" hint="Drop files here, paste a screenshot, or choose them." onFiles={take} onText={(t) => setDraft({ text: t })} disabled={Boolean(reading && reading.endsWith('…'))} />
