@@ -249,16 +249,19 @@ export function rainbowChance(hour, sunAltDeg) {
 }
 
 /**
- * Today's high against yesterday's, in words: "Much cooler than yesterday: a high of 68° against 84°". Nothing
- * when the two are within 3° (nothing to say), and nothing when either day is missing.
+ * Today's high against yesterday's, in words: "Much cooler than yesterday: a high of 68° against 84°".
+ * { text (the whole sentence), lead ("Much cooler": the screen sets it in capitals and a colour), rest,
+ * tone ('cool' | 'warm' | 'same'), big (15° or more), d }. Within 3° it says "About the same as
+ * yesterday" rather than nothing, so the line is always there; null only when either day is missing.
  */
 export function sinceYesterday(allDays) {
   const today = (allDays || []).find((d) => d.today), i = today ? allDays.indexOf(today) : -1, y = i > 0 ? allDays[i - 1] : null
   if (!today || !y || today.high == null || y.high == null) return null
   const d = today.high - y.high, a = Math.abs(d)
-  if (a < 3) return null
+  const figures = `a high of ${today.high}° against ${y.high}°`
+  if (a < 3) return { big: false, d, tone: 'same', lead: 'About the same', rest: `as yesterday: ${figures}`, text: `About the same as yesterday: ${figures}` }
   const word = a >= 15 ? 'Much' : a >= 8 ? '' : 'A little'
   const way = d > 0 ? 'warmer' : 'cooler'
   const lead = word ? `${word} ${way}` : way[0].toUpperCase() + way.slice(1)
-  return { big: a >= 15, d, text: `${lead} than yesterday: a high of ${today.high}° against ${y.high}°` }
+  return { big: a >= 15, d, tone: d > 0 ? 'warm' : 'cool', lead, rest: `than yesterday: ${figures}`, text: `${lead} than yesterday: ${figures}` }
 }
