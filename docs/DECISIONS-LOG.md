@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — The back link always says "Back"
+
+The link at the top of a screen read "‹ World" (or "‹ Life List", "‹ Trips") but walks
+the same history as the phone's Back, so it could land on Today when Today was where
+the person came from. It now always reads "‹ Back". The parent's name is only where it
+goes when the screen was opened directly, and is kept in the link's spoken label
+(`Crumb`, `src/shell/Link.jsx`). Reverses nothing: Back was already history, not the parent.
+
+---
+
 ## 2026-11-04 — "Today will be much cooler than yesterday" is always there, in capitals and a colour
 
 The weather card's line comparing today's high with yesterday's disappeared whenever
