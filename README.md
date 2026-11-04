@@ -53,10 +53,20 @@ connected. Copy it to `.env` (never committed) and fill it in.
 The app is on Firebase Hosting (the free plan), and its data on Supabase.
 Setting it all up, in order: `docs/MORNING.md`.
 
-- **Merging to `main` deploys it** (`.github/workflows/deploy.yml`).
+- **Every change is a branch with a draft pull request** (CLAUDE.md,
+  "Branches, previews and merging"); nothing is committed straight to `main`.
 - **Every pull request gets a preview link,** drafts included
-  (`.github/workflows/preview.yml`). The link is posted on the pull
-  request and lasts a week.
+  (`.github/workflows/preview.yml`): the branch's name is checked, the tests
+  run, the app is built and put on its own Firebase preview channel. The link
+  is posted on the pull request and lasts a week. The preview uses the live
+  database, so try changes there with care.
+- **Merging to `main` deploys it** (`.github/workflows/deploy.yml`).
+- **Before a merge,** `node scripts/pre-submit.mjs` lists what the branch
+  touches and what to check in each area.
+- **Signing in on a preview with an emailed link** needs the preview addresses
+  in Supabase: Authentication › URL Configuration › Redirect URLs, add
+  `https://hicks--*.web.app/**` (the pattern is unverified until tried; the
+  password sign-in works without it).
 - **Laurie's paintings are never in the hosted files.** They live behind
   sign-in, in private storage (`docs/PAINTINGS-STORAGE.md`).
 
