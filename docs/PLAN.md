@@ -160,7 +160,7 @@ Built in this order, each part in daily use before the next.
       same dates over the past five years), each night's moon and dark
       skies, meteor showers, and what iNaturalist's observers have seen
       nearby that month: birds first, with photos and their credits.
-- [ ] Concerts as special events with their ticket and scrapbook.
+- [x] Concerts as special events with their ticket and scrapbook: a show's page keeps its ticket (a photo, screenshot or PDF) and the days until it, and afterwards a scrapbook of photos and words (`Keepsakes.jsx`, `event_keepsakes`, the private `keepsakes` bucket).
 
 Art to check before use: Christicons (Christian line icons), the Wellcome
 Collection's public-domain saint engravings, Corpus Christi Watershed's free

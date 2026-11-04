@@ -16,6 +16,7 @@ import { KIND_STYLE } from './kinds.js'
 import { GlowWrap } from '../ui/Glow.jsx'
 import { occasionFor } from '../lib/occasions.js'
 import { dayView } from '../lib/cal/day.js'
+import Keepsakes from './Keepsakes.jsx'
 
 const day = (d) => { const [y, m, dd] = parts(d); return `${WEEKDAYS[new Date(Date.UTC(y, m - 1, dd)).getUTCDay()].slice(0, 3)} ${MONTHS[m - 1].slice(0, 3)} ${dd}` }
 const hm = (iso, tz = 'America/Los_Angeles') => new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
@@ -111,7 +112,7 @@ function Sightings({ ev }) {
 }
 
 /** One event: what, when, where, whose; outdoors, its weather, nights and sightings. */
-export default function EventPage({ state, members, parent, today }) {
+export default function EventPage({ state, members, parent, today, me }) {
   const { event: ev, loaded } = state
   const [removing, setRemoving] = useState(false)
   if (!loaded) return <p className="muted span-6">Opening…</p>
@@ -138,6 +139,7 @@ export default function EventPage({ state, members, parent, today }) {
         </Card>
         </GlowWrap>
       )}
+      {ev.kind === 'show' && <Keepsakes ev={ev} me={me} today={today} />}
       {ev.outdoors && ev.lat != null && (
         <>
           <Weather ev={ev} today={today} />
