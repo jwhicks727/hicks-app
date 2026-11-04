@@ -22,6 +22,37 @@ more: the menu is always there to go elsewhere, and the phone's Back still walks
 back. A recipe and its editor light the Cookbook tab. Cook mode keeps the whole
 screen and leaves with Back.
 
+## 2026-11-04 — Day by day is drawn like Weather Underground's forecast
+
+Jason asked for the day-by-day strip to look like Weather Underground's: each day's
+column has its day and night pictures, high | low, and chance of rain, and under the
+columns one temperature line runs through every hour (grey for what has happened,
+red ahead), each day's high and low marked with an open circle, night shaded from
+sunset to sunrise, and each hour's chance of rain filled in blue from the bottom
+(`src/lib/dayGraph.js`, `DayStrip`). Each night's picture sits on the line between its
+day and the next, over the shaded night, since a night runs across midnight; the day's
+picture is centred in its column. Each column still opens that day's page. Day by day
+sits above hour by hour in the weather card. In the hour strip the chance of rain and
+the inches show only when there is some.
+
+The blue is the chance, not the amount, as on Weather Underground: a day of 3-16%
+chances shows low bumps though no rain is forecast to fall, 100% fills the graph, and
+each day's highest bump is the percentage printed above it (the daily figure is the
+highest hourly one). An hour the forecast gives no chance for (one long past) counts
+as 100% if rain fell and 0% if it didn't. A first version drew the inches, which left
+the graph flat on every day with a chance of showers.
+
+The line is a smooth curve through the hourly forecast, not finer data: at about
+four pixels an hour, fifteen-minute readings would add a pixel between hours and
+nothing you could see. It bends with Steffen's monotone method (as charting
+libraries do), so it passes through every hour without inventing a peak or dipping
+the rain below zero; it is drawn at the forecast's tenth of a degree rather than
+the whole degrees shown as figures, which had made it climb in steps; and each
+column knows the hour either side of midnight, so the columns meet without a corner.
+Weather Underground's own method isn't published; this is what makes ours look
+like theirs.
+
+
 ## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
 
 Phones kept showing an old version for up to an hour after a deploy: only files
