@@ -405,3 +405,7 @@ html[data-motion="less"] .bd-bird:hover { transform: none; }
 .sky-link { color: inherit; text-decoration: none; display: grid; gap: 6px; border-radius: var(--r-control); }
 .sky-link:hover, .sky-link:focus-visible { background: color-mix(in srgb, var(--tint) 9%, transparent); outline: none; }
 .sky-more { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* The app never zooms. iOS Safari zooms the page when a field under 16px takes focus, so every field is at least 16px (it still grows with Settings' text size), and a double-tap or pinch never zooms the page. */
+input, textarea, select { font-size: max(16px, 1em) !important; }
+html, body { touch-action: manipulation; }
