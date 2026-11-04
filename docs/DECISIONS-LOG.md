@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — The Kitchen's menu is recipe-box tabs
+
+The Kitchen's menu is a row of index tabs, like the dividers in a recipe box:
+square-cornered paper tabs with a small line drawing each (a fridge, an open book, a
+calendar with a pencil, a checklist). The tab you're on is the cards' paper, a little
+taller, joined to the strip under the row; the others sit a shade darker and lower.
+The screens' own headings are back above the tabs. It replaces the magazine-style
+row of big words, tried the same day. In the Cookbook, "Short list" moved to its own
+line beside the recipe count, so it no longer sits against the sorts.
+
+The tabs are on every Kitchen page (a recipe, writing or changing one, adding
+recipes, the planner, the rules), so no Kitchen page has a "‹ Kitchen" link any
+more: the menu is always there to go elsewhere, and the phone's Back still walks
+back. A recipe and its editor light the Cookbook tab. Cook mode keeps the whole
+screen and leaves with Back.
+
 ## 2026-11-04 — Day by day is drawn like Weather Underground's forecast
 
 Jason asked for the day-by-day strip to look like Weather Underground's: each day's
@@ -36,6 +52,7 @@ column knows the hour either side of midnight, so the columns meet without a cor
 Weather Underground's own method isn't published; this is what makes ours look
 like theirs.
 
+
 ## 2026-11-04 — The app's page is never cached, so a deploy shows on the next open
 
 Phones kept showing an old version for up to an hour after a deploy: only files
@@ -44,6 +61,18 @@ addresses like `/kitchen/cookbook`, which Firebase serves (as `index.html`) with
 its default one-hour cache. `firebase.json` now marks `/` and every address without
 a file extension `no-cache`; the built files in `/assets/` keep their year-long cache
 (their names change with every build).
+## 2026-11-04 — Every change is a branch with a preview again
+
+Jason's call: no more work straight to `main` (reverses 2026-11-01). Each change
+is a branch named for its work, pushed with a draft pull request opened at once
+(no need to ask), built, tested and deployed to its own Firebase preview channel
+by the Preview workflow, which also checks the branch's name. Before asking to
+merge, a pre-submit pass (`scripts/pre-submit.mjs`) stands in for the second
+reviewer SOAR has; the merge happens only when Jason says so, and merging
+deploys. A Claude Code hook refuses commits on `main` and pushes to it. The
+preview shares the live database and functions, so migrations stay additive and
+functions are deployed after the merge. The rule is in CLAUDE.md, "Branches,
+previews and merging".
 
 ## 2026-11-04 — The Cookbook tab: shelves, sorts, search by ingredient, and picks
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { Confirm } from '../ui/Confirm.jsx'
-import { Crumb, Link } from '../shell/Link.jsx'
+import { Link } from '../shell/Link.jsx'
 import { navigate } from '../lib/router.js'
 import { usePrefs } from '../lib/prefs.js'
 import { useDraft } from '../lib/useDraft.js'
@@ -12,6 +12,7 @@ import { Toast } from '../ui/Toast.jsx'
 import { startTimer } from '../lib/kitchen/timers.js'
 import { rate, addToFridge, finishFridge, removeRecipe } from '../lib/useKitchen.js'
 import { FoodIcon, RecipeArt } from './FoodIcon.jsx'
+import KitchenMenu from './KitchenMenu.jsx'
 import { artFor } from '../lib/kitchen/food.js'
 import { Inline, Prose } from './Inline.jsx'
 import { parsed, timeWords, PEOPLE } from './art.js'
@@ -34,7 +35,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const [said, setSaid] = useState(null)
   useEffect(() => { if (slug) noteRecent(slug) }, [slug])
   if (!loaded) return <p className="muted span-6">Opening the recipe…</p>
-  if (!recipe) return <><Crumb to="/kitchen">Kitchen</Crumb><Card tint="#C42D20" label="Not found" glyph="pot" className="span-6"><p>No recipe at this address.</p></Card></>
+  if (!recipe) return <><header className="hero span-6 recipe-top"><KitchenMenu current="cookbook" parent={parent} /></header><Card tint="#C42D20" label="Not found" glyph="pot" className="span-6"><p>No recipe at this address.</p></Card></>
   const r = parsed(recipe.body)
   const factor = people && r.serves ? people / r.serves : 1
   const names = GROUP_NAMES(r.groups)
@@ -49,7 +50,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const st = standingOf(ratings, members)
   return (
     <>
-      <div className="span-6 recipe-top"><Crumb to="/kitchen">Kitchen</Crumb></div>
+      <header className="hero span-6 recipe-top"><KitchenMenu current="cookbook" parent={parent} /></header>
       <UnicornGlow standing={st} slug={slug} title={r.title} today={today} className="span-6">
       <article className={'recipe-hero span-6' + (st.unicorn ? ' is-unicorn' : '')}>
         <RecipeArt names={art} />

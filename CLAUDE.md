@@ -279,17 +279,47 @@ licence nobody wrote down.
   A reading that doesn't look right is never kept, and the screen says
   which source it's showing.
 
+## Branches, previews and merging (every change)
+
+Every change, however small, is made on its own branch and reaches `main`
+only by a merge Jason asks for (decided 2026-11-04, decisions log). This is
+SOAR's pipeline cut down for one developer: no second reviewer, so a
+self-review pass stands in for one.
+
+1. **Start a branch from `main`**: `git fetch origin main` then
+   `git checkout -b <type>/<two-or-more-words> origin/main`. Types: feat,
+   fix, chore, docs, refactor, test, perf, ci, hotfix; lower case with
+   hyphens, at most 60 characters (`scripts/lib/branchName.mjs`). One piece
+   of work per branch. A cloud session's random branch is renamed before its
+   first commit. `.claude/hooks/no-main.mjs` refuses a commit on `main` and a
+   push to it.
+2. **Work, test, build**: `npm test` while working; `npm test` and
+   `npm run build` before each push.
+3. **Push and open a draft pull request at once** (Jason's standing ask, so
+   no need to ask first). Its description says what changes for the family
+   in plain words, which docs were updated, and anything Jason must run (a
+   migration, a function deploy). The **Preview** workflow checks the
+   branch's name, runs the tests, builds, and deploys to its own Firebase
+   preview channel; the link is posted on the pull request and lives 7 days.
+   Docs-only changes don't build a preview. Try it on a phone.
+4. **The pre-submit pass** before asking to merge: `node scripts/pre-submit.mjs`
+   lists what the branch touches and the questions a reviewer would ask of
+   each area; read the whole diff against them, fix in one round, push once.
+5. **Merge only on Jason's words** ("merge it"): mark the pull request ready,
+   merge it (a merge commit, never `--admin`), delete the branch. Merging to
+   `main` deploys to https://hicks.web.app.
+
+The preview and the live app share **one** Supabase database and one set of
+Edge Functions. So a migration on a branch is additive and safe to run
+before the merge (Jason runs it to try the preview, and it is live from
+then), and a changed Edge Function is deployed after the merge, not from a
+branch. Say both in the pull request.
+
 ## How much to check, and when
 
-- While working: `npm test` (seconds). Before a commit: `npm test` and
-  `npm run build`, and a look at 390px and on a desktop for anything visible.
-- **For now, work goes straight to `main`** (Jason's call, 2026-11-01, while
-  the app is being set up: see the decisions log). Test and build first;
-  every push to `main` deploys to https://hicks.web.app. When Jason says
-  branches are back, the rule is: each piece of work on its own branch
-  (`<type>/<two-or-more-words>`, e.g. `feat/calendar-month-view`), one at a
-  time, with a draft pull request opened only after asking him, and the
-  Preview workflow's link to try it on a phone before merging.
+- While working: `npm test` (seconds). Before a push: `npm test` and
+  `npm run build`, and a look at 390px and on a desktop for anything visible
+  (the preview link makes this easy on a phone).
 - Laurie's paintings never go in `public/` to be deployed: they live in
   the private `paintings` bucket (docs/PAINTINGS-STORAGE.md), and
   `firebase.json` leaves `public/paintings/` out.

@@ -1,5 +1,6 @@
-# A preview of the app for every pull request, drafts included, while it's
-# being worked on: built, tested, and put on its own Firebase Hosting
+# Every change is a branch with a draft pull request (CLAUDE.md, "Branches,
+# previews and merging"). For each one, drafts included, while it's being
+# worked on: the branch's name is checked, then the app is built, tested, and put on its own Firebase Hosting
 # preview channel. The link is posted on the pull request and lives 7 days.
 # Docs-only changes don't build. A new push cancels the build in progress.
 name: Preview
@@ -25,6 +26,11 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
+      # Every branch is named for its work (CLAUDE.md, "Branches, previews and merging")
+      - name: Check the branch's name
+        run: node scripts/check-branch.mjs
+        env:
+          BRANCH: ${{ github.head_ref }}
       # A wrong value here is built into the app for good (scripts/check-settings.mjs)
       - name: Check the settings are right
         run: node scripts/check-settings.mjs
