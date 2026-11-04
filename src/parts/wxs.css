@@ -62,7 +62,14 @@ html[data-motion="less"] .wxs-scroll { scroll-behavior: auto; }
 .op-trip-t { grid-area: t; display: grid; min-width: 0; } .op-trip-t b { overflow-wrap: anywhere; line-height: 1.2; } .op-trip-t small, .op-trip-w small { color: var(--muted); font-size: 12px; font-weight: 700; }
 .op-trip-w { grid-area: w; display: grid; justify-items: center; gap: 0; text-align: center; } .op-trip-w small { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
 .op-flag { grid-area: f; font-size: 13px; font-weight: 800; color: #8A1F11; } :root[data-theme="dark"] .op-flag { color: #F2A38F; }
-.wx-yday { margin: 0; padding: 6px 2px; font-weight: 750; } .wx-yday.big { font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.2; }
+.wx-yday { --yd: var(--muted); margin: 0; padding: 6px 2px; font-weight: 750; }
+.wx-yday.big { font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.2; }
+/* The lead words ("Much cooler") in capitals and the colour of the change: blue for cooler, warm orange for warmer,
+   the muted ink for about the same. The capitals are CSS, so a screen reader says the words, not the letters. */
+.wx-yday.cool { --yd: #2F5FA8; } .wx-yday.warm { --yd: #C4561F; }
+:root[data-theme="dark"] .wx-yday.cool { --yd: #8DB4F0; } :root[data-theme="dark"] .wx-yday.warm { --yd: #F0A67A; }
+.wx-yday-lead { color: var(--yd); text-transform: uppercase; letter-spacing: .05em; font-weight: 900; white-space: nowrap; }
+.wx-yday.big .wx-yday-lead { font-weight: 400; letter-spacing: .04em; }
 
 /* Day by day, drawn like a weather site: columns over one temperature line, rain filled in blue below (wxd-) */
 .wxs-days .wxs-scroll ol.wxd { gap: 0; }

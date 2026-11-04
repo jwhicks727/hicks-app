@@ -100,7 +100,7 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
               {treats.map((t) => <li key={t.key} style={{ '--c': t.colour }}>{t.to ? <Link to={t.to}><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></Link> : <div><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></div>}</li>)}
             </ul>
           )}
-          {sinceYest && <p className={'wx-yday' + (sinceYest.big ? ' big' : '')}>{sinceYest.text}.</p>}
+          {sinceYest && <p className={`wx-yday ${sinceYest.tone}` + (sinceYest.big ? ' big' : '')}>{sinceYest.intro} <b className="wx-yday-lead">{sinceYest.lead}</b> {sinceYest.rest}.</p>}
           {ago && f.today && (
             <Link className="wx-ago" to={`/world/day/${ago.date}`}>
               <WeatherIcon pic={ago.pic} size={22} />

@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-04 — "Today will be much cooler than yesterday" is always there, in capitals and a colour
+
+The weather card's line comparing today's high with yesterday's disappeared whenever
+the two were within 3°, which looked like it had been lost. It now always reads as a
+sentence, "Today will be …": "nearly the same as yesterday" within 3°, "a little
+warmer/cooler" from 3°, plain "warmer/cooler" from 8°, and "much warmer/cooler" from
+15°, which is also set large in the display font; the high of each day follows. The
+words after "Today will be" are in capitals and the colour of the change (blue for
+cooler, warm orange for warmer, the muted ink for the same), with a lighter shade of
+each in dark mode. The capitals come from CSS, so a screen reader says the words, not
+the letters. It stays absent only when yesterday's high isn't known (`sinceYesterday`,
+`src/lib/weather.js`).
+
 ## 2026-11-04 — The Kitchen's menu is recipe-box tabs
 
 The Kitchen's menu is a row of index tabs, like the dividers in a recipe box:
