@@ -66,15 +66,19 @@ html[data-motion="less"] .wxs-scroll { scroll-behavior: auto; }
 
 /* Day by day, drawn like a weather site: columns over one temperature line, rain filled in blue below (wxd-) */
 .wxs-days .wxs-scroll ol.wxd { gap: 0; }
-.wxs-days .wxs-scroll ol.wxd > li { width: 104px; }
+.wxs-days .wxs-scroll ol.wxd > li { width: 104px; position: relative; }
 .wxs-days .wxs-scroll ol.wxd > li > a { height: auto; gap: 3px; padding: 8px 0 0; border: 0; border-radius: 0; background: transparent; overflow: hidden; }
 .wxs-days .wxs-scroll ol.wxd > li.wxs-more > a { height: 100%; min-height: 210px; border: 1.5px dashed var(--line); border-radius: var(--r-control); }
 .wxs-days .wxs-scroll ol.wxd > li.now > a { background: color-mix(in srgb, var(--tint) 12%, transparent); }
 .wxs-days .wxs-scroll ol.wxd > li.past > a { opacity: 1; background: transparent; }
-.wxs-days .wxs-scroll ol.wxd > li.past .wxd-h, .wxs-days .wxs-scroll ol.wxd > li.past .wxd-t, .wxs-days .wxs-scroll ol.wxd > li.past .wxd-pics { opacity: .62; }
+.wxs-days .wxs-scroll ol.wxd > li.past .wxd-h, .wxs-days .wxs-scroll ol.wxd > li.past .wxd-t, .wxs-days .wxs-scroll ol.wxd > li.past .wxd-pics > * { opacity: .62; }
 .wxs-days .wxs-scroll ol.wxd > li > a:hover, .wxs-days .wxs-scroll ol.wxd > li > a:focus-visible { background: color-mix(in srgb, var(--tint) 16%, transparent); }
 .wxd-h { font-size: 12px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 .wxd-pics { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+/* The night's picture sits on the line between its day and the next, as the night runs across midnight. Placed
+   from the column (the li), so the link's clipping doesn't cut it, and left at its own height in the row; it
+   takes no tap of its own, so the day under it still opens. */
+.wxd-moon { position: absolute; right: 0; transform: translateX(50%); z-index: 2; display: grid; pointer-events: none; }
 .wxd-t { font-size: 16px; font-weight: 800; white-space: nowrap; }
 .wxd-t i { font-style: normal; color: var(--muted); font-weight: 600; }
 .wxd-t small { font-size: 16px; font-weight: 700; color: var(--muted); }

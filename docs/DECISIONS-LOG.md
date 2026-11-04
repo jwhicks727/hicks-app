@@ -13,7 +13,9 @@ column has its day and night pictures, high | low, and chance of rain, and under
 columns one temperature line runs through every hour (grey for what has happened,
 red ahead), each day's high and low marked with an open circle, night shaded from
 sunset to sunrise, and each hour's chance of rain filled in blue from the bottom
-(`src/lib/dayGraph.js`, `DayStrip`). Each column still opens that day's page. Day by day
+(`src/lib/dayGraph.js`, `DayStrip`). Each night's picture sits on the line between its
+day and the next, over the shaded night, since a night runs across midnight; the day's
+picture is centred in its column. Each column still opens that day's page. Day by day
 sits above hour by hour in the weather card. In the hour strip the chance of rain and
 the inches show only when there is some.
 

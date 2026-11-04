@@ -122,9 +122,9 @@ export function DayStrip({ days, timeline = [] }) {
             const wet = g && rainPath(g.rain, { H: GRAPH_H, band: GRAPH_H - 10 })
             return (
               <li key={d.date} className={(d.past ? 'past ' : '') + (d.today ? 'now' : '')}>
-                <Link to={`/world/day/${d.date}`} aria-label={`${dayName(d.date, true)} ${md(d.date)}: high ${d.high}, low ${d.low}, ${d.words}, ${d.rain ?? 0} percent chance of rain`}>
+                <Link to={`/world/day/${d.date}`} aria-label={`${dayName(d.date, true)} ${md(d.date)}: high ${d.high}, low ${d.low}, ${d.words}, ${d.rain ?? 0} percent chance of rain${night && night.words ? `; overnight ${night.words.toLowerCase()}` : ''}`}>
                   <span className="wxd-h">{d.today ? 'Today' : `${dayName(d.date)} ${Number(d.date.slice(8, 10))}`}</span>
-                  <span className="wxd-pics"><WeatherIcon pic={d.pic} size={30} />{night && <WeatherIcon pic={night.pic} size={22} />}</span>
+                  <span className="wxd-pics"><WeatherIcon pic={d.pic} size={30} />{night && <span className="wxd-moon" aria-hidden="true"><WeatherIcon pic={night.pic} size={24} /></span>}</span>
                   <b className="wxd-t fig">{Math.round(d.high)}°<i> | </i><small>{Math.round(d.low)}°</small></b>
                   <span className="wxd-rain fig"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M5 1C3.5 4 2 5.6 2 7.6A3 3 0 0 0 8 7.6C8 5.6 6.5 4 5 1z" /></svg>{d.rain != null ? `${Math.round(d.rain)}%` : '–'}</span>
                   <svg className="wxd-graph" viewBox={`0 0 ${COL} ${GRAPH_H}`} width={COL} height={GRAPH_H} aria-hidden="true">
