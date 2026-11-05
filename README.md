@@ -28,9 +28,11 @@ The apps (each at its own address):
 | **Journal** (`/journal`) | Each person's own journal, readable by them alone: the day's question, anything else, gratitudes; this day in other years; notes to your future self. |
 | **The Academy** (`/academy`) | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 | **Life List** (`/lifelist`) | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off. |
-| **The Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in. |
+| **Laurie's Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in. |
+| **Anna's Gallery** (`/drawings`) | Anna's drawings, taped to a wall, behind sign-in; anyone in the family can add one. |
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 | **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
+| **Pets** (`/pets`) | Coming soon: Appa and the cats, launched with a scene around Anna's drawing of them. |
 
 What's built so far, and what's next: [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -120,6 +122,10 @@ photos, or free libraries whose licences allow it. Each source is credited
 where it appears and listed here. How Laurie's paintings are photographed
 and added: `docs/ART-CAPTURE.md`.
 
+- **Autumn's wind** lifts Laurie's painted leaves from the very places she painted them
+  (measured by `scripts/leaf-origins.py`, which only fits her own cut-out pixels back into
+  her painting) and blows them with the real wind at home, from the same Open-Meteo forecast
+  the weather card reads. Her painting itself is never changed.
 - **Anna's drawings** are hers: each is added in Anna's Gallery and kept in the family's
   private storage, behind sign-in, never in the app's own files. The Pets launch
   hangs her drawing "My Cats" in a scene drawn in code (the moon, wall, cats, hearts,

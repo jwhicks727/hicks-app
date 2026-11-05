@@ -82,7 +82,7 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
   }
 
   return (
-    <div className={'pf ' + className} ref={frame} style={style}>
+    <div className={'pf ' + className} ref={frame} style={style} data-art-slug={p.slug}>
       {crop && <img className="pf-img" src={p.src} alt={label || `${p.title}, a painting by Laurie`} draggable="false" style={{ width: crop.width, height: crop.height, left: crop.left, top: crop.top }} />}
       {crop && flyer && <img className={'pf-sky' + (away ? ' on' : '')} src={flyer.sky} alt="" draggable="false" style={boxIn(crop, flyer.skyAt)} />}
       {linkTo && <Link className="pf-link" to={linkTo} aria-label={`${p.title}: open Laurie’s Gallery`} />}
