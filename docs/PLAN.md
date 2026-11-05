@@ -198,6 +198,19 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       notes to your future self; your outlets.
 - [x] Bringing a journal in (the file Claude made, or a Google Doc as
       plain text) and taking it out.
+- [x] **Kept in step with your own Google Doc** (2026-11-05,
+      `/journal/doc`): each person may link one Doc. A day saved in the app
+      goes into the Doc at once (while signed in to Google that hour); a day
+      written in the Doc comes into the app the next time the journal opens.
+      New days go at the bottom of the days, above the line you say they stop
+      at (a stash of prompts kept below them stays untouched), written the
+      Doc's own way. A day changed in both places is shown both ways to
+      choose; a day removed in one place is asked about, never removed on its
+      own. The first sync shows what it will do before it does it. Runs only
+      in the browser, with the writer's own Google sign-in (CLAUDE.md). Needs
+      the one-time Google setup (README, "Journal and Google Docs"). Off on
+      preview links: Google only lets sign-in come back to the app's own
+      address.
 - [ ] A gentle reminder on the phone once hosted, if wanted.
 
 ## 1d. The garden (an app)

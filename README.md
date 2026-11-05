@@ -70,6 +70,44 @@ Setting it all up, in order: `docs/MORNING.md`.
 - **Laurie's paintings are never in the hosted files.** They live behind
   sign-in, in private storage (`docs/PAINTINGS-STORAGE.md`).
 
+## Journal and Google Docs
+
+Anyone in the family can keep their journal in step with a Google Doc of their
+own (Journal › Keep it in step with a Google Doc). It runs in their browser with
+their own Google sign-in; no server reads it. It needs a Google Cloud project
+once, for the whole family. Google's console moves its menus around, so the
+names below may differ a little (unverified against the current console):
+
+1. In the Google Cloud console, make a project (for instance "Team Hicks").
+2. **APIs & Services › Library:** turn on the Google Docs API, the Google Drive
+   API and the Google Picker API.
+3. **OAuth consent screen** (Google Auth Platform): an External app named Team
+   Hicks, left in **Testing**. Add each family member's Google address as a test
+   user, and add the scope `https://www.googleapis.com/auth/drive.file` (the
+   files the person picks for the app, and nothing else). While it is in
+   Testing, Google shows a "hasn't verified this app" page at sign-in; continue
+   past it.
+4. **Credentials › Create credentials › OAuth client ID**, a Web application:
+   - Authorized JavaScript origins: `https://hicks.web.app` and
+     `http://localhost:5173`
+   - Authorized redirect URIs: `https://hicks.web.app/google-return.html` and
+     `http://localhost:5173/google-return.html`
+
+   Its client ID is `VITE_GOOGLE_CLIENT_ID`.
+5. **Credentials › Create credentials › API key**, restricted to websites
+   `https://hicks.web.app/*` and `http://localhost:5173/*`, and to the Google
+   Picker API only. That is `VITE_GOOGLE_API_KEY`.
+6. The project's **number** (the console's project settings) is
+   `VITE_GOOGLE_APP_ID`.
+7. Put all three in GitHub › Settings › Secrets and variables › Actions ›
+   **Variables** (the builds read them) and in `.env` for a computer. The next
+   deploy builds them in.
+
+Preview links can't use it: Google accepts sign-in only from the addresses in
+step 4, and each preview has its own. To try a branch's sync, run it on a
+computer (`npm run dev`) or add that preview's address to the client for a
+while.
+
 ## Where things are
 
 - `src/places/` — one file per place, and the screens under each.

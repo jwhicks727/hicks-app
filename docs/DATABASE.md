@@ -227,9 +227,9 @@ sign-in link won't come back to the app.
 | `bird_sightings` | Laurie's birds from her eBird download: one row per bird per checklist, the place by name and to about a kilometre | Parents only | Parents (the file is read in the browser; same file twice changes nothing) |
 | `outings` | Camping trips, Disneyland trips, trips and outings: dates, place, who came, a national park if it was one, notes | The family | Parents |
 | `park_marks` | The national parks: the day we went, whether it's starred as next, a note | The family | Parents |
-| `journal_entries` | A person's journal: one page a day, the day's question and answer, anything else, gratitudes; whether it was brought in from elsewhere | Its writer only, not even a parent | Its writer only |
+| `journal_entries` | A person's journal: one page a day, the day's question and answer, anything else, gratitudes; whether it was brought in from elsewhere; each day's fingerprint in the writer's Google Doc and here as the two last agreed (`doc_hash`, `app_hash`) | Its writer only, not even a parent | Its writer only |
 | `journal_notes` | Notes to your future self: written, sealed until their day (a surprise day isn't shown), opened | Its writer only | Its writer only |
-| `journal_settings` | A person's journal settings: which questions, their own questions, their outlets | Its writer only | Its writer only |
+| `journal_settings` | A person's journal settings: which questions, their own questions, their outlets; the Google Doc it keeps in step with (`doc_id`, `doc_title`), the line its days stop above (`doc_stop`), when they last agreed, and days removed here since (`doc_removed`) | Its writer only | Its writer only |
 | `academy_settings` | Anna's academy: its name, motto, colours, mascot (one row) | The family | The family |
 | `academy_rooms` | Its rooms: kind, name, square on the campus, walls and floor, and what's in each (a list of pictures with their square, size, flip and colour) | The family | The family |
 | `academy_tasks` | Anna's tasks: what, which class, when due, when done (each done lights a star) | The family | The family |
@@ -260,5 +260,6 @@ Migration index:
 | `20261102120000_birds_more_cache` | `outside_cache` also takes the key `birds-more` (hotspots, county numbers, this month's possibles) |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
+| `20261105143346_journal_doc_sync` | A journal kept in step with its writer's Google Doc: the link and its state on `journal_settings`, each day's fingerprints on `journal_entries`. No new policy or grant: both tables are already the writer's only. |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |
