@@ -2,7 +2,9 @@
 // merging"). Lists what the branch changes against main and prints the questions a reviewer would ask of
 // those areas. Run it on the branch before asking to merge: node scripts/pre-submit.mjs
 import { execFileSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
 import { branchProblem } from './lib/branchName.mjs'
+import { handoff, refFromEnv, PROJECT_REF } from './lib/handoff.mjs'
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim()
 const branch = git('rev-parse', '--abbrev-ref', 'HEAD')
@@ -11,6 +13,8 @@ try { git('fetch', '--quiet', 'origin', 'main') } catch { /* offline: compare wi
 const base = ['origin/main', 'main', 'FETCH_HEAD'].find((r) => { try { git('rev-parse', '--verify', '--quiet', r); return true } catch { return false } })
 const committed = base ? git('diff', '--name-only', `${base}...HEAD`).split('\n') : []
 const files = [...new Set([...committed, ...git('diff', '--name-only', 'HEAD').split('\n')])].filter(Boolean) // and anything not committed yet
+// What the branch adds (committed, staged or not yet added), for the hand-off's migration links
+const added = [...new Set([...(base ? git('diff', '--name-only', '--diff-filter=A', `${base}...HEAD`).split('\n') : []), ...git('diff', '--name-only', '--diff-filter=A', '--cached').split('\n'), ...git('ls-files', '--others', '--exclude-standard').split('\n')])].filter(Boolean)
 
 const AREAS = [
   [/^supabase\/migrations\//, 'The database', [
@@ -50,3 +54,8 @@ for (const [re, title, asks] of AREAS) {
   for (const a of asks) console.log(`  - ${a}`)
 }
 console.log('\nAlways: npm test and npm run build pass; the docs the change makes wrong are fixed in this branch; the decisions log has an entry if something was decided.')
+
+// The hand-off (CLAUDE.md, "Handing work over"): the links Jason gets when the work is done
+const ref = (existsSync('.env') && refFromEnv(readFileSync('.env', 'utf8'))) || PROJECT_REF
+console.log('\nHand-off, for the last message (with the pull request\'s own link and its preview link):')
+for (const l of handoff({ branch, added, changed: files, ref })) console.log(`  ${l}`)

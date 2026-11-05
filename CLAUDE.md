@@ -219,14 +219,12 @@ licence nobody wrote down.
   (`yyyymmddhhmmss_short_description.sql`), run once in order (docs/DATABASE.md).
   Never edit one that has run; fix it with a new one.
   `tests/migrations.test.mjs` checks the rules below.
-- **Giving Jason a migration to run** (Jason's preference, 2026-11-01): one
-  PowerShell line that copies the file to the clipboard, starting with the
-  `cd`, then the dashboard steps one at a time. Say what the SQL does in a
-  sentence first, and that it runs once (a second run errors with "already
-  exists"):
+- **Giving Jason a migration to run** is part of the hand-off (below,
+  "Handing work over"): what the SQL does in a sentence, that it runs once (a
+  second run errors with "already exists"), the link to the file on its
+  branch, the SQL editor's link, and what "Success" looks like. At the
+  Windows box he can also copy it with one PowerShell line:
   `cd C:\Users\Admin\projects\hicks-app-clone; git pull; Get-Content supabase\migrations\<file>.sql -Raw | Set-Clipboard`
-  then Supabase dashboard → SQL Editor → new query → paste → Run, and what
-  "Success" looks like. Never ask him to open or copy the file by hand.
 - New tables are not exposed automatically: each migration grants its
   tables to `authenticated`, never to `anon`, and switches on row-level
   security. Never `using (true)`: a signed-in stranger must see nothing.
@@ -312,9 +310,34 @@ self-review pass stands in for one.
 4. **The pre-submit pass** before asking to merge: `node scripts/pre-submit.mjs`
    lists what the branch touches and the questions a reviewer would ask of
    each area; read the whole diff against them, fix in one round, push once.
-5. **Merge only on Jason's words** ("merge it"): mark the pull request ready,
+5. **Hand it over** (below): the links to test, every time work is finished.
+6. **Merge only on Jason's words** ("merge it"): mark the pull request ready,
    merge it (a merge commit, never `--admin`), delete the branch. Merging to
    `main` deploys to https://hicks.web.app.
+
+### Handing work over (every branch, every session)
+
+Jason's standing ask (2026-11-05, decisions log): when a piece of work is
+finished, and whenever a session stops with work waiting on him, the last
+message ends with what he needs to try it, as links he can tap:
+
+1. **Each pull request's link**, and its **preview link** once the Preview
+   workflow has posted it on the pull request (say if it is still building;
+   a docs-only change has none).
+2. **Each migration the branch adds**, in the order they run: one sentence on
+   what it does and that it runs once; the link to the file on its branch,
+   `https://github.com/jwhicks727/hicks-app/blob/<branch>/supabase/migrations/<file>.sql`
+   (GitHub's copy button there copies the whole file); the **SQL editor**,
+   https://supabase.com/dashboard/project/giuhyozekzguutczhafg/sql/new
+   (paste, Run); and what "Success" looks like. With no migration, say "No
+   migration".
+3. **Anything else he must do**, one step at a time: an Edge Function to
+   deploy after the merge, a secret to set, a setting to change.
+
+`node scripts/pre-submit.mjs` ends by printing the pull request, migration
+and SQL editor links for the branch (`scripts/lib/handoff.mjs`). The project
+ref in those links is a public identifier (every copy of the app carries the
+Supabase URL), not a secret.
 
 The preview and the live app share **one** Supabase database and one set of
 Edge Functions. So a migration on a branch is additive and safe to run
