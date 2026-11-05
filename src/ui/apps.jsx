@@ -12,7 +12,7 @@ export const APPS = [
     icon: <g {...S}><path d="M3.5 20.5h17M5 20.5V11l7-4.5 7 4.5v9.5" /><path d="M10 20.5v-4.5h4v4.5" /><path d="M12 6.5V2.5l3.5 1.2L12 5" /><circle cx="12" cy="11.5" r="1.4" /></g> },
   { key: 'lifelist', to: '/lifelist', name: 'Life List', sub: 'Birds, trips, parks', colours: ['#7FC6C2', '#2E7F86'],
     icon: <g {...S}><path d="M3 15c3 0 5-2 6-5 1-3 3-5 6-5 2 0 3 1 3 3l3 1-3 1c0 4-3 7-8 7H6z" /><path d="M9 20l1-3M12 20l1-3" /><circle cx="15.2" cy="7.6" r=".4" fill="currentColor" /></g> },
-  { key: 'gallery', to: '/lifelist/paintings', name: 'The Gallery', sub: 'Laurie’s paintings', colours: ['#E9A08A', '#B3401A'],
+  { key: 'gallery', to: '/lifelist/paintings', name: 'Laurie’s Gallery', sub: 'Her paintings', colours: ['#E9A08A', '#B3401A'],
     icon: <g {...S}><rect x="3.5" y="5" width="17" height="14" rx="2" /><path d="M3.5 16l4.8-4.8 3.8 3.8 2.6-2.6 5.8 5.6" /><circle cx="15.5" cy="9" r="1.6" /></g> },
   { key: 'drawings', to: '/drawings', name: 'Anna’s Gallery', sub: 'Her drawings', colours: ['#F3B7CE', '#C14D83'],
     icon: <g {...S}><rect x="5" y="4" width="14" height="16.5" rx="1.6" /><path d="M9.5 4h5" /><path d="M12 16.4s-3.8-2.3-4.8-4.6C6.6 10.3 7.5 8.8 9.1 8.8c1 0 1.9.5 2.9 1.6 1-1.1 1.9-1.6 2.9-1.6 1.6 0 2.5 1.5 1.9 3-1 2.3-4.8 4.6-4.8 4.6z" /></g> },

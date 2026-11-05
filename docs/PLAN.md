@@ -5,7 +5,7 @@ Built in this order, each part in daily use before the next.
 ## 0. Foundations — started 2026-10-31
 
 - [x] Five tabs, the same for everyone: Home, Calendar, Kitchen, World and
-      Apps, a sheet of the journal, the academy, Life List, the Gallery, Jams
+      Apps, a sheet of the journal, the academy, Life List, Laurie's Gallery, Jams
       and the Garden (2026-11-01), with Anna's Gallery and Pets after
       (2026-11-05).
 - [x] Light and dark, chosen in Settings or following the device; a sun

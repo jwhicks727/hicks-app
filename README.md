@@ -28,9 +28,11 @@ The apps (each at its own address):
 | **Journal** (`/journal`) | Each person's own journal, readable by them alone: the day's question, anything else, gratitudes; this day in other years; notes to your future self. |
 | **The Academy** (`/academy`) | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 | **Life List** (`/lifelist`) | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off. |
-| **The Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in. |
+| **Laurie's Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in. |
+| **Anna's Gallery** (`/drawings`) | Anna's drawings, taped to a wall, behind sign-in; anyone in the family can add one. |
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 | **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
+| **Pets** (`/pets`) | Coming soon: Appa and the cats, launched with a scene around Anna's drawing of them. |
 
 What's built so far, and what's next: [`docs/PLAN.md`](docs/PLAN.md).
 
