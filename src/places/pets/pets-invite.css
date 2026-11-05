@@ -1,0 +1,59 @@
+/* A cat invites everyone to Pets (src/places/pets/PetsInvite.jsx). Every class and animation starts pi-.
+   On a phone the layer lies along the top edge of the floating tab bar, the same width as the bar, so the
+   cat rises from behind it just over Apps and its paws hold on to the bar's rim. On a computer it peeks up
+   from the bottom of the window. Transforms and opacity only. The cat keeps its own colours in light and
+   dark; the speech bubble is a card. */
+
+.pi { --pi: 76px; --col: calc((100% - 18px) / 10 + 5px); /* the middle of the Apps tab, from the bar's right edge */
+  position: fixed; z-index: 21; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(var(--tab-bottom) + var(--tabbar)); max-width: 600px; height: 0; margin: 0 auto; pointer-events: none; }
+
+/* The cat, behind the bar: the window's foot is the bar's top edge */
+/* a little wider than the cat, so its whiskers aren't cut */
+.pi-window { position: absolute; bottom: 0; right: calc(var(--col) - var(--pi) * .62); width: calc(var(--pi) * 1.24); height: calc(var(--pi) * .8); overflow: hidden; pointer-events: auto; }
+.pi-cat { display: block; width: var(--pi); height: var(--pi); margin: 0 auto; -webkit-tap-highlight-color: transparent; animation: pi-rise .75s cubic-bezier(.2, 1.3, .4, 1) both; }
+.pi-cat svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.pi .pt-eyes, .pi .pt-ear-r { transform-box: fill-box; }
+.pi .pt-eyes { transform-origin: 50% 50%; animation: pi-blink 4.2s 1.3s infinite both; }
+.pi .pt-ear-r { transform-origin: 85% 95%; animation: pi-twitch 5.5s 2.4s infinite both; }
+
+/* Its paws, over the bar's rim */
+.pi-paws { position: absolute; bottom: -7px; right: calc(var(--col) - 30px); width: 60px; height: 15px; overflow: visible; animation: pi-paws .3s .55s ease-out both; }
+
+/* What it says, beside it */
+.pi-bubble { position: absolute; bottom: calc(var(--pi) * .3); right: calc(var(--col) + var(--pi) / 2 - 2px); max-width: min(250px, calc(100% - var(--col) - var(--pi) / 2));
+  display: flex; align-items: flex-start; pointer-events: auto; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r-card, 6px);
+  box-shadow: 0 2px 4px rgba(90, 50, 20, .12), 0 14px 28px -12px rgba(60, 30, 10, .5); transform-origin: 100% 85%; animation: pi-pop .45s .7s cubic-bezier(.2, 1.4, .4, 1) both; }
+.pi-bubble::after { content: ""; position: absolute; right: -6px; bottom: 14px; width: 10px; height: 10px; background: var(--card); border: solid var(--line); border-width: 1px 1px 0 0; transform: rotate(45deg); }
+.pi-say { flex: 1; min-width: 0; display: grid; gap: 2px; padding: 9px 4px 10px 12px; color: inherit; text-decoration: none; }
+.pi-say b { font-family: var(--font-display); font-weight: 400; font-size: 17px; line-height: 1.15; }
+.pi-say span { font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--muted); }
+.pi-say:focus-visible, .pi-x:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: var(--r-control, 4px); }
+.pi-x { flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin: 3px 3px 0 0; padding: 0; border: 0; border-radius: var(--r-control, 4px); background: none; color: var(--muted); cursor: pointer; }
+.pi-x svg { width: 16px; height: 16px; }
+@media (pointer: coarse) { .pi-x { width: 44px; height: 44px; margin: 0; } }
+
+/* Going back down */
+.pi-out .pi-cat { animation: pi-sink .4s ease-in both; }
+.pi-out .pi-paws, .pi-out .pi-bubble { animation: pi-gone .25s ease-in both; }
+
+/* Less motion: it appears and goes, still */
+.pi-still .pi-cat, .pi-still .pi-paws, .pi-still .pi-bubble { animation: pi-here .3s ease both; }
+.pi-still .pt-eyes, .pi-still .pt-ear-r { animation: none; }
+.pi-still.pi-out .pi-cat, .pi-still.pi-out .pi-paws, .pi-still.pi-out .pi-bubble { animation: pi-gone .25s ease both; }
+
+/* A computer: no tab bar along the bottom, so it peeks up from the window's foot, at the right */
+@media (min-width: 960px) {
+  .pi { --pi: 88px; --col: 64px; left: auto; right: max(24px, env(safe-area-inset-right, 0px)); bottom: env(safe-area-inset-bottom, 0px); width: 380px; max-width: none; margin: 0; }
+  .pi-paws { display: none; }
+  .pi-bubble { bottom: calc(var(--pi) * .34); }
+}
+
+@keyframes pi-rise { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes pi-sink { from { transform: none; } to { transform: translateY(100%); } }
+@keyframes pi-paws { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes pi-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+@keyframes pi-here { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pi-gone { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pi-blink { 0%, 6%, 100% { transform: none; } 3% { transform: scaleY(.1); } }
+@keyframes pi-twitch { 0%, 9%, 100% { transform: none; } 3% { transform: rotate(14deg); } 6% { transform: rotate(-4deg); } }

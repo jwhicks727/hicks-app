@@ -239,6 +239,14 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       Appa howling at the moon. Plays by itself the first time on a device,
       "Watch it again" after, never under Reduce Motion. The drawing is whichever
       one in Anna's Gallery is marked "Our pets" (`src/places/pets/`).
+- [x] **A cat says Pets is new** (2026-11-05): on Home, one of the three cats
+      (they take turns, one a day) peeks up from behind the tab bar just over
+      Apps, paws on its rim, and says "Psst! It's Kona. Pets is new in Apps. Come
+      and meet us"; on a computer it peeks up from the bottom of the window.
+      The cat and its words open Pets; × waves it away. Once a day at most, on
+      five days at most, and never again on a device once Pets has been opened
+      there (`src/places/pets/PetsInvite.jsx`, `src/lib/petsInvite.js`). The
+      cats are drawn once, in `CatFace.jsx`, for this and the launch.
 - [ ] A page for each of them: photo or Anna's drawing, birthday or gotcha day,
       weight over time.
 - [ ] Vet visits, shots and medicines, with reminders on the calendar.

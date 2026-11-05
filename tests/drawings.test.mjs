@@ -122,11 +122,12 @@ test('the Pets launch is drawn in code, never plays under Reduce Motion, and use
 })
 
 test('the dog is Appa, and each cat is coloured as Jason describes her', () => {
-  for (const f of ['src/places/pets/Pets.jsx', 'src/places/pets/PetsLaunch.jsx', 'src/places/pets/pets.css', 'src/ui/apps.jsx']) assert.doesNotMatch(read(f), /zappa/i, `${f}: his name is Appa`)
-  const jsx = read('src/places/pets/PetsLaunch.jsx')
+  for (const f of ['src/places/pets/Pets.jsx', 'src/places/pets/PetsLaunch.jsx', 'src/places/pets/CatFace.jsx', 'src/places/pets/PetsInvite.jsx', 'src/places/pets/pets.css', 'src/ui/apps.jsx']) assert.doesNotMatch(read(f), /zappa/i, `${f}: his name is Appa`)
+  // The cats are drawn once (CatFace.jsx), for the launch and for the cat that invites everyone to Pets
+  const jsx = read('src/places/pets/CatFace.jsx')
   assert.match(jsx, /kona: \{[^]*?eyes: 'blue'/, 'Kona has blue eyes')
   assert.match(jsx, /kona: \{[^]*?fill="#EA9340"[^]*?fill="#2B2330"[^]*?portia:/, 'Kona has one calico splotch (orange with black in it) on her head')
   assert.match(jsx, /portia: \{\s*fur: '#2B2330'/, 'Portia is black')
   assert.match(jsx, /portia: \{[^]*?fill="#FCFBF9"[^]*?goldie:/, 'Portia has a tuxedo’s white')
-  assert.match(jsx, /<Cat look="kona" [^>]*\/><Cat look="portia" [^>]*\/><Cat look="goldie" /, 'Kona, Portia, Goldie, left to right as in Anna’s drawing')
+  assert.match(read('src/places/pets/PetsLaunch.jsx'), /<Cat look="kona" [^>]*\/><Cat look="portia" [^>]*\/><Cat look="goldie" /, 'Kona, Portia, Goldie, left to right as in Anna’s drawing')
 })
