@@ -125,7 +125,8 @@ and added: `docs/ART-CAPTURE.md`.
   hangs her drawing "My Cats" in a scene drawn in code (the moon, wall, cats, hearts,
   stars, pegs and Appa are this repository's own shapes, no one's artwork), with
   the cats coloured as Jason describes them; no image generator is involved
-  (`src/places/pets/PetsLaunch.jsx`).
+  (`src/places/pets/PetsLaunch.jsx`). The same cats, drawn once in
+  `src/places/pets/CatFace.jsx`, peek over the tab bar on Home to say Pets is new.
 - **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence). The
   wordmark "Team Hicks" is set in Agbalumo (Sorkin Type, SIL Open Font Licence,
   from Google Fonts), the home-screen icon's own font.

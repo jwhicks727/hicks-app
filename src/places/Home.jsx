@@ -30,6 +30,7 @@ import { occasionFor } from '../lib/occasions.js'
 import { dedupeEvents } from '../lib/cal/tidy.js'
 import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 import { todayAt } from '../lib/cal/dates.js'
+import PetsInvite from './pets/PetsInvite.jsx'
 import '../calendar/calendar.css'
 
 const dateFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, weekday: 'long', month: 'long', day: 'numeric' })
@@ -81,6 +82,7 @@ function HomeScreen() {
       {prefs.mindful !== false && <MindfulCard today={today} />}
       <JournalCard session={session} me={me} today={today} />
       <SkyToday />
+      <PetsInvite today={today} />
     </>
   )
 }

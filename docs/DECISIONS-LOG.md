@@ -6,6 +6,27 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-05 — A cat peeks up to say Pets is new
+
+Jason asked whether one of the little cats could pop up from the bottom and
+invite everyone into Pets. Decided:
+
+- **Over the tab bar, just above Apps**, on Home only: the cat rises from
+  behind the bar with its paws on the rim, next to a speech bubble ("Psst! It's
+  Kona. Pets is new in Apps. Come and meet us"), so it also shows where Pets
+  lives. On a computer, where the tabs are a side rail, it peeks up from the
+  bottom of the window.
+- **The three take turns**, one a day by the date, so everyone meets all of
+  them.
+- **Rare, like every shine:** once a day at most, on five days at most, and
+  back down after twenty seconds. It never comes again on a device once Pets
+  has been opened there (the launch's own mark) or × has been tapped. Kept on
+  the device: it's a nudge, not the family's data.
+- **The cats are drawn once** (`src/places/pets/CatFace.jsx`), for this and
+  the launch, so a change to how one looks reaches both.
+
+---
+
 ## 2026-11-05 — Anna's Gallery, and Pets launches around her drawing
 
 Jason brought one of Anna's drawings ("My Cats", her three cats) and asked for her own
