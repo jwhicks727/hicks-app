@@ -62,7 +62,9 @@ Setting it all up, in order: `docs/MORNING.md`.
   database, so try changes there with care.
 - **Merging to `main` deploys it** (`.github/workflows/deploy.yml`).
 - **Before a merge,** `node scripts/pre-submit.mjs` lists what the branch
-  touches and what to check in each area.
+  touches and what to check in each area, and ends with the hand-off: the
+  pull request, each migration's file on the branch, and the Supabase SQL
+  editor's link, which the person running the app gets when work is done.
 - **Signing in on a preview with an emailed link** needs the preview addresses
   in Supabase: Authentication › URL Configuration › Redirect URLs, add
   `https://hicks--*.web.app/**` (the pattern is unverified until tried; the

@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-05 — Every piece of work ends with the links to try it
+
+Jason asked for the pull request links to test, any migration's link and the
+SQL editor's link whenever work is finished, and for that to be the practice
+on every branch and in every session. Decided:
+
+- **The hand-off is a step of every branch** (CLAUDE.md, "Handing work
+  over"): each pull request and its preview link, each migration's file on
+  its branch with what it does, the SQL editor, and anything else to do, one
+  step at a time.
+- **Links replace the clipboard line as the first way** to run a migration
+  (the 2026-11-01 preference): a link works from the phone as well as the
+  Windows box. The PowerShell line stays for the Windows box.
+- **The pre-submit pass prints the links**, so a session can't forget them:
+  `scripts/lib/handoff.mjs`, tested. The Supabase project ref in them is
+  written down; it is public (in every copy of the app), not a secret.
+
+---
+
 ## 2026-11-05 — Anna's Gallery, and Pets launches around her drawing
 
 Jason brought one of Anna's drawings ("My Cats", her three cats) and asked for her own
