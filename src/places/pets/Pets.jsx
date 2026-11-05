@@ -6,8 +6,8 @@ import PetsLaunch from './PetsLaunch.jsx'
 const TINT = '#8A5A33'
 
 // /pets: coming soon. The launch scene is the first thing here (PetsLaunch.jsx); what the app will
-// hold is honest about being unbuilt. Who lives here, for the record: Zappa, a giant white
-// husky/Malinois, and three cats, drawn by Anna.
+// hold is honest about being unbuilt. Who lives here, for the record: Appa, a giant white
+// husky/Malinois, and three cats, Kona, Portia and Goldie, drawn by Anna.
 export default function Pets() {
   return (
     <>
@@ -20,14 +20,16 @@ export default function Pets() {
         'A page for each of them: a photo or one of Anna’s drawings, birthday or gotcha day, and weight over time',
         'Vet visits, shots and medicines, with reminders on the calendar',
         'Feeding and walks, so everyone can see who did what today and nobody is fed twice',
-        'Zappa’s walks and runs, with the weather for them',
+        'Appa’s walks and runs, with the weather for them',
       ]} />
       <Card tint={TINT} glyph="star" label="Who lives here" className="span-3">
         <ul className="pt-roll">
-          <li><b>Zappa</b><span>a giant white husky/Malinois</span></li>
-          <li><b>Three cats</b><span>drawn by Anna</span></li>
+          <li><b>Appa</b><span>a giant white husky/Malinois</span></li>
+          <li><b>Kona</b><span>a white cat with blue eyes and one calico splotch on her head</span></li>
+          <li><b>Portia</b><span>a mostly black tuxedo cat</span></li>
+          <li><b>Goldie</b><span>a calico cat</span></li>
         </ul>
-        <p className="muted small"><Link to="/drawings">Anna’s Gallery</Link> keeps her drawings of them.</p>
+        <p className="muted small">The cats are in Anna’s drawing above. <Link to="/drawings">Anna’s Gallery</Link> keeps her drawings of all of them.</p>
       </Card>
     </>
   )

@@ -20,7 +20,7 @@ export const APPS = [
     icon: <g {...S}><path d="M9 18V6l11-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="17.5" cy="16" r="2.5" /></g> },
   { key: 'garden', to: '/garden', name: 'The Garden', sub: 'Yard and rooms', colours: ['#A9C98F', '#4E6C3D'],
     icon: <g {...S}><path d="M6.5 14h11l-1.4 6.5H7.9z" /><path d="M12 14v-4.5" /><path d="M12 9.5c-3.2 0-4.9-1.7-4.9-4.6 3.2 0 4.9 1.7 4.9 4.6zM12 9.5c0-3 1.7-4.8 4.9-4.8 0 3-1.7 4.8-4.9 4.8z" /></g> },
-  { key: 'pets', to: '/pets', name: 'Pets', sub: 'Zappa and the cats', colours: ['#DDBA92', '#8A5A33'],
+  { key: 'pets', to: '/pets', name: 'Pets', sub: 'Appa and the cats', colours: ['#DDBA92', '#8A5A33'],
     icon: <g {...S}><circle cx="6.3" cy="11.2" r="1.9" /><circle cx="9.9" cy="6.6" r="1.9" /><circle cx="14.1" cy="6.6" r="1.9" /><circle cx="17.7" cy="11.2" r="1.9" /><path d="M12 12.6c-3 0-5.6 3-5.6 5.2 0 1.6 1.4 2.3 2.8 2 .9-.2 1.7-.5 2.8-.5s1.9.3 2.8.5c1.4.3 2.8-.4 2.8-2 0-2.2-2.6-5.2-5.6-5.2z" /></g> },
 ]
 

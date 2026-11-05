@@ -235,8 +235,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 - [x] **The launch** (2026-11-05): a twilight scene drawn in code with Anna's
       "My Cats" drawing pegged to a clothesline, her three cats peeking over the
-      wall in the colours she drew, hearts and stars rising as on her page, and
-      Zappa howling at the moon. Plays by itself the first time on a device,
+      wall (Kona, Portia and Goldie), hearts and stars rising as on her page, and
+      Appa howling at the moon. Plays by itself the first time on a device,
       "Watch it again" after, never under Reduce Motion. The drawing is whichever
       one in Anna's Gallery is marked "Our pets" (`src/places/pets/`).
 - [ ] A page for each of them: photo or Anna's drawing, birthday or gotcha day,

@@ -22,15 +22,16 @@ gallery and an animation around it to launch a Pets app. Decided:
 - **The launch is drawn in code and her drawing is shown whole.** Cutting the cats out
   of her page would have lost their pencil and white, and altering it would break the
   rule we keep for Laurie's paintings, so the drawing hangs unchanged on a clothesline
-  in a twilight scene: three cats peek over a wall in the colours she drew them,
-  hearts and stars rise as on her page, and Zappa, our giant white husky/Malinois,
+  in a twilight scene: three cats peek over a wall (Kona white with blue eyes and one
+  calico splotch on her head, Portia a mostly black tuxedo, Goldie a calico),
+  hearts and stars rise as on her page, and Appa, our giant white husky/Malinois,
   howls at the moon. It plays by itself the first time on a device, again from
   "Watch it again", and never under Reduce Motion (the finished picture is all there
   is). Transforms and opacity only.
-- **Pets starts as a coming-soon screen** (what it will hold, who lives here). The
-  cats' names aren't on it: they're in Anna's handwriting on her drawing, and a name
-  read off a child's writing is for the family to type in when the pets get their own
-  pages.
+- **Pets starts as a coming-soon screen** (what it will hold, who lives here). The dog is
+  Appa (first written as Zappa, corrected 2026-11-05). The cats' names went on it only
+  once Jason had written them out himself (Kona, Portia, Goldie); a name read off a
+  child's handwriting is never taken from the drawing.
 
 ## 2026-11-04 — The back link always says "Back"
 

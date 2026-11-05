@@ -8,7 +8,7 @@
   box-shadow: 0 2px 4px rgba(30, 16, 40, .28), 0 18px 34px -10px rgba(30, 16, 40, .5); background: #4F4380; }
 .pt-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Only what animates measures from its own box; every plain transform="..." in the scene keeps the drawing's own origin */
-.pt-moon, .pt-twinkle, .pt-cat-in, .pt-eyes, .pt-ear-r, .pt-zappa-in, .pt-riser-in, .pt-awoo-g, .pt-waves { transform-box: fill-box; }
+.pt-moon, .pt-twinkle, .pt-cat-in, .pt-eyes, .pt-ear-r, .pt-appa-in, .pt-riser-in, .pt-awoo-g, .pt-waves { transform-box: fill-box; }
 
 /* The resting picture */
 .pt-riser { opacity: 0; }
@@ -35,7 +35,7 @@
 .pt-roll span { color: var(--muted); font-weight: 700; }
 @media (pointer: coarse) { .pt-under .btn { min-height: 44px; } }
 
-/* The launch: sky and moon, the drawing swings in, hearts and stars rise, the cats peek up, Zappa howls */
+/* The launch: sky and moon, the drawing swings in, hearts and stars rise, the cats peek up, Appa howls */
 .play .pt-moon { animation: pt-moon-rise 1.5s .1s cubic-bezier(.2, .7, .2, 1) both; }
 .play .pt-twinkle { animation: pt-twinkle 1.3s ease-in-out calc(var(--d) * 1s) 3 both; }
 .play .pt-paper { animation: pt-swing 2.4s .3s ease-out both; }
@@ -45,16 +45,16 @@
 .play .pt-cat-in { animation: pt-peek .7s calc(1.5s + var(--i) * .27s) cubic-bezier(.2, 1.35, .4, 1) both; }
 .play .pt-eyes { animation: pt-blink .32s calc(3.1s + var(--i) * .45s) 2 both; }
 .play .pt-ear-r { animation: pt-twitch .45s calc(3.9s + var(--i) * .3s) 1 both; }
-.play .pt-zappa-in { animation: pt-zappa-in .9s 2.2s ease-out both; }
-.play .pt-zhead { animation: pt-howl 1.3s 2.8s cubic-bezier(.3, 1.4, .5, 1) both; }
+.play .pt-appa-in { animation: pt-appa-in .9s 2.2s ease-out both; }
+.play .pt-ahead { animation: pt-howl 1.3s 2.8s cubic-bezier(.3, 1.4, .5, 1) both; }
 .play .pt-waves { animation: pt-wave 1.9s 3.3s ease-out both; }
 .play .pt-awoo-g { animation: pt-awoo .8s 3.3s ease-out both; }
 .play .pt-awoo-l { animation: pt-awoo-l .45s calc(3.4s + var(--k) * .12s) ease-out both; }
 .pt-cat-in { transform-origin: 50% 100%; }
 .pt-scene .pt-ear-r { transform-origin: 85% 95%; }
 .pt-scene .pt-eyes { transform-origin: 50% 50%; }
-/* The head turns at the neck: a point in Zappa's own drawing, not in the head's box */
-.pt-scene .pt-zhead { transform-box: view-box; transform-origin: 52px 58px; }
+/* The head turns at the neck: a point in Appa's own drawing, not in the head's box */
+.pt-scene .pt-ahead { transform-box: view-box; transform-origin: 52px 58px; }
 
 @keyframes pt-moon-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @keyframes pt-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
@@ -65,7 +65,7 @@
 @keyframes pt-peek { from { transform: translateY(80px); } to { transform: none; } }
 @keyframes pt-blink { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.08); } }
 @keyframes pt-twitch { 0%, 100% { transform: rotate(0); } 35% { transform: rotate(14deg); } 70% { transform: rotate(-4deg); } }
-@keyframes pt-zappa-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+@keyframes pt-appa-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
 @keyframes pt-howl { 0% { transform: rotate(-44deg); } 55% { transform: rotate(7deg); } 78% { transform: rotate(-3deg); } 100% { transform: none; } }
 @keyframes pt-wave { 0% { opacity: 0; transform: scale(.6); } 25% { opacity: 1; } 100% { opacity: .42; transform: scale(1); } }
 @keyframes pt-awoo { from { opacity: 0; transform: translateY(2.2px); } to { opacity: 1; transform: none; } }
