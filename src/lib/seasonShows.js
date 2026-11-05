@@ -3,8 +3,10 @@
 // ============================================
 // The sky keeps its own colours all year (decisions log, 2026-11-01). A
 // season instead plays a short animation across the screen, made from what
-// she painted: the leaves round her witch rest along the top edge of the
-// screen, just out of sight, and let go one at a time through fall and Halloween.
+// she painted: at Halloween the leaves round her witch rest along the top edge
+// of the screen, just out of sight, and let go one at a time; in autumn the wind
+// at home lifts leaves out of her autumn paintings and blows them across the
+// page (kind 'wind': src/lib/wind.js, src/shell/WindShow.jsx).
 // A season with none of her paintings yet has no show; it waits for one.
 // Pure, so tests run it in Node.
 
@@ -15,8 +17,8 @@ export const SHOWS = {
   halloween: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top of the screen and drift down one at a time, and the crow flies on Home' },
   muertos: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top and drift down one at a time, slow, like marigold petals', slow: true },
   // Autumn's leaves are pieces of her two autumn paintings, cut out at full size; until they are in, her witch's leaves stand in
-  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'leaves', what: 'leaves cut from her two autumn paintings rest along the top of the screen and drift down one at a time' },
-  fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'leaves', what: 'leaves cut from her two autumn paintings rest along the top of the screen and drift down one at a time' },
+  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her two autumn paintings and blows them across the page, where they settle on the cards' },
+  fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her two autumn paintings and blows them across the page, where they settle on the cards' },
 }
 
 /** A painting's leaf sheet as the show uses it: the file, the boxes, how sharp to draw it, how big. Her older sheet is small, so it is drawn larger. */

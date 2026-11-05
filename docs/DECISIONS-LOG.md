@@ -6,6 +6,35 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-05 — Autumn is the wind; Home's Paintings card becomes Art
+
+Jason loved how Halloween's crow left the painting and flew round the page, and found
+autumn's falling leaves too like Halloween's. Decided, on his idea of wind:
+
+- **Autumn and Thanksgiving are the wind at home.** The show reads the real wind (speed,
+  gusts, the direction it comes from) from the forecast the weather card already uses:
+  a calm day loosens a few leaves, a breezy one carries them across, a Santa Ana day
+  streams them. A wind from the east carries leaves left, as on a map. With no reading it
+  blows a calm and says nothing it doesn't know. Halloween and the Day of the Dead keep
+  their falling leaves, so each season moves its own way.
+- **The leaves come out of her painting, from where she painted them.** They are her own
+  pixels cut out whole, so each fits back into the painting exactly; `scripts/leaf-origins.py`
+  measures where, and each leaf lifts off from that spot when the gust reaches it, in the
+  wind's direction across the trees. What flies is a copy: her painting stays whole.
+  Leaves whose places are cropped out, or under Anna's paper, blow in from upwind instead.
+- **The page is the landscape.** Leaves settle on the top edges of the cards below (on a
+  phone; on a wide screen they mostly sail past), a strong gust lifts them again, and a
+  quick scroll stirs them. Gusts are measured against the screen's width, so one takes
+  seconds to cross a phone and doesn't race across a desktop. A handful of leaves, a few
+  gusts a visit, transforms only, asleep whenever nothing is in the air, and never under
+  Reduce Motion.
+- **The card is "Art", both artists every day.** Laurie's painting stays the frame (the
+  shows come from her paintings), with Anna's newest drawing taped over a bottom corner,
+  the way a child's drawing is tucked into a picture frame: the corner away from the
+  crow, and with fewer of the places leaves lift from. Each opens its own gallery. In
+  autumn "Play again" becomes "A gust", and every gust makes Anna's paper flutter against
+  its tape. Merging the two gallery tiles into one "Art" app was offered and left for now.
+
 ## 2026-11-05 — Anna's Gallery, and Pets launches around her drawing
 
 Jason brought one of Anna's drawings ("My Cats", her three cats) and asked for her own

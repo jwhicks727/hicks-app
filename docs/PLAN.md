@@ -20,10 +20,16 @@ Built in this order, each part in daily use before the next.
 - [ ] The family's own Supabase project (Jason creates it; settings in `.env`).
       West US (North California); new tables not exposed automatically;
       automatic row-level security on.
-- [x] The season's show: once a day, something from one of Laurie's
-      paintings moves across the screen (her painted leaves fall through
-      fall and Halloween; the crow flies on Home). The sky keeps its own
+- [x] The season's show: something from one of Laurie's paintings moves
+      across the screen, starting in her painting on Home. At Halloween her
+      painted leaves fall and the crow flies out of the painting and home again;
+      in autumn and Thanksgiving the real wind at home lifts leaves out of her
+      autumn paintings from where she painted them, blows them across the page,
+      and lets them settle on the cards (2026-11-05). The sky keeps its own
       colours. Settings can try another season's show.
+- [x] Home's **Art** card: Laurie's painting with Anna's newest drawing taped
+      over a corner, each a tap from its gallery; "A gust" in autumn, and
+      Anna's paper flutters in every gust (2026-11-05).
 - [ ] A show for every season, as she paints them: Christmas, Advent,
       Lent, Easter, spring, summer, July 4th.
 - [x] A plan stays until it's put away: Weekly planner shows the newest list nobody has dismissed, with the recipes written from it (`week_plans.dismissed_at`, `week_plan_recipes`).

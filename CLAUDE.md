@@ -94,6 +94,14 @@ licence nobody wrote down.
 - Colour means something: each place has its own. A shine in a place's own
   colour means something is waiting on you; a rainbow gleam means something
   wonderful happened. Rare, one at a time.
+- **Every season's show starts in the art on Home and plays with the page**
+  (`src/lib/seasonShows.js`): the crow flies out of her painting and home again;
+  autumn's wind (`src/lib/wind.js`, `src/shell/WindShow.jsx`) reads the real wind
+  at home and lifts leaves from where she painted them (`src/lib/leafOrigins.js`,
+  measured by `scripts/leaf-origins.py`), then lets them settle on the cards. A new
+  season's show finds its own motion rather than reusing another's, uses only real
+  data (no stand-in wind), and never alters her painting: what moves is a copy of
+  her pixels, over a painting that stays whole (`tests/wind.test.mjs`).
 - **The swirling light** (`GlowWrap` in `src/ui/Glow.jsx`) is for
   occasions, and only ever round the occasion's own card, never the whole
   screen: a concert's event card, the family day's celebration card, the

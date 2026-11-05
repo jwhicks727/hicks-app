@@ -59,3 +59,10 @@ sharp. It needs scipy as well as Pillow and numpy. Flatten the wall photo first
 (`flatten --corners`). Two autumn paintings came in this way; like the others, they sit
 in `public/paintings/` for a development copy and Laurie's gallery moves them into the
 bucket ("Move them now").
+
+**Where each leaf came from.** `python3 scripts/leaf-origins.py autumn-pond autumn-stream`
+fits every leaf on a sheet back into the painting it was cut from (they are her own pixels,
+so each fits exactly) and writes `src/lib/leafOrigins.js`, which autumn's wind uses to lift
+each leaf off from its own place. Run it again after a sheet is cut or recut; it refuses to
+write if a leaf doesn't fit. It reads only the development copies and measures; it changes
+nothing of hers.

@@ -120,6 +120,10 @@ photos, or free libraries whose licences allow it. Each source is credited
 where it appears and listed here. How Laurie's paintings are photographed
 and added: `docs/ART-CAPTURE.md`.
 
+- **Autumn's wind** lifts Laurie's painted leaves from the very places she painted them
+  (measured by `scripts/leaf-origins.py`, which only fits her own cut-out pixels back into
+  her painting) and blows them with the real wind at home, from the same Open-Meteo forecast
+  the weather card reads. Her painting itself is never changed.
 - **Anna's drawings** are hers: each is added in Anna's Gallery and kept in the family's
   private storage, behind sign-in, never in the app's own files. The Pets launch
   hangs her drawing "My Cats" in a scene drawn in code (the moon, wall, cats, hearts,
