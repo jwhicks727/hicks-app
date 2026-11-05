@@ -120,6 +120,12 @@ photos, or free libraries whose licences allow it. Each source is credited
 where it appears and listed here. How Laurie's paintings are photographed
 and added: `docs/ART-CAPTURE.md`.
 
+- **Anna's drawings** are hers: each is added in Anna's Gallery and kept in the family's
+  private storage, behind sign-in, never in the app's own files. The Pets launch
+  hangs her drawing "My Cats" in a scene drawn in code (the moon, wall, cats, hearts,
+  stars, pegs and Appa are this repository's own shapes, no one's artwork), with
+  the cats coloured as Jason describes them; no image generator is involved
+  (`src/places/pets/PetsLaunch.jsx`).
 - **Fonts:** Nunito and Caprasimo from Google Fonts (SIL Open Font Licence). The
   wordmark "Team Hicks" is set in Agbalumo (Sorkin Type, SIL Open Font Licence,
   from Google Fonts), the home-screen icon's own font.

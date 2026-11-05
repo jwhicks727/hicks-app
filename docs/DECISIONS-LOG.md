@@ -6,6 +6,33 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-05 — Anna's Gallery, and Pets launches around her drawing
+
+Jason brought one of Anna's drawings ("My Cats", her three cats) and asked for her own
+gallery and an animation around it to launch a Pets app. Decided:
+
+- **Anna's Gallery is its own app** (`/drawings`), not a room inside Laurie's gallery:
+  her drawings taped to a wall rather than framed in dark wood. Anyone in the family
+  adds one (Anna herself, or a parent for her); whoever added it, or a parent, changes
+  or takes it down, with an Undo.
+- **Her pictures are private, like Laurie's paintings:** a private bucket and signed
+  links, never `public/` or the app's own files. The first drawing goes in from the
+  app, not the code, for that reason. The Pets launch finds the drawing marked "Our
+  pets" in her gallery; until there is one it shows a place for it, not a stand-in.
+- **The launch is drawn in code and her drawing is shown whole.** Cutting the cats out
+  of her page would have lost their pencil and white, and altering it would break the
+  rule we keep for Laurie's paintings, so the drawing hangs unchanged on a clothesline
+  in a twilight scene: three cats peek over a wall (Kona white with blue eyes and one
+  calico splotch on her head, Portia a mostly black tuxedo, Goldie a calico),
+  hearts and stars rise as on her page, and Appa, our giant white husky and Belgian Malinois mix,
+  howls at the moon. It plays by itself the first time on a device, again from
+  "Watch it again", and never under Reduce Motion (the finished picture is all there
+  is). Transforms and opacity only.
+- **Pets starts as a coming-soon screen** (what it will hold, who lives here). The dog is
+  Appa (first written as Zappa, corrected 2026-11-05). The cats' names went on it only
+  once Jason had written them out himself (Kona, Portia, Goldie); a name read off a
+  child's handwriting is never taken from the drawing.
+
 ## 2026-11-04 — The back link always says "Back"
 
 The link at the top of a screen read "‹ World" (or "‹ Life List", "‹ Trips") but walks

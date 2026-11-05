@@ -6,7 +6,8 @@ Built in this order, each part in daily use before the next.
 
 - [x] Five tabs, the same for everyone: Home, Calendar, Kitchen, World and
       Apps, a sheet of the journal, the academy, Life List, the Gallery, Jams
-      and the Garden (2026-11-01).
+      and the Garden (2026-11-01), with Anna's Gallery and Pets after
+      (2026-11-05).
 - [x] Light and dark, chosen in Settings or following the device; a sun
       or moon on Home switches between them in one tap
       (2026-11-01).
@@ -217,6 +218,31 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [x] Rooms indoors as a side view: each pot's kind of plant, size and pot.
 - [ ] A photo timeline for each plant, side by side; a reminder pushed to a
       phone once the app is hosted.
+
+## 1e. Anna's Gallery (an app)
+
+- [x] Her drawings taped to a wall, newest first, each one tap from large; anyone
+      in the family adds one (a photo, with a title, the day she drew it if
+      known, her own words if she said any, and whether it's about the pets);
+      whoever added it, or a parent, changes it or takes it down, with an Undo
+      (`src/places/Drawings.jsx`, `annas_drawings`, the private `drawings`
+      bucket; never in the app's own files).
+- [ ] Cropping and straightening a photo of the paper inside the app (for now,
+      crop it close in the phone's own photo editor first).
+- [ ] Drawings tied to a person or a pet's page once Pets is built.
+
+## 1f. Pets (an app)
+
+- [x] **The launch** (2026-11-05): a twilight scene drawn in code with Anna's
+      "My Cats" drawing pegged to a clothesline, her three cats peeking over the
+      wall (Kona, Portia and Goldie), hearts and stars rising as on her page, and
+      Appa howling at the moon. Plays by itself the first time on a device,
+      "Watch it again" after, never under Reduce Motion. The drawing is whichever
+      one in Anna's Gallery is marked "Our pets" (`src/places/pets/`).
+- [ ] A page for each of them: photo or Anna's drawing, birthday or gotcha day,
+      weight over time.
+- [ ] Vet visits, shots and medicines, with reminders on the calendar.
+- [ ] Feeding and walks: who did what today.
 
 ## 2. World
 

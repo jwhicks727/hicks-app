@@ -1,0 +1,77 @@
+/* Pets: the launch scene (src/places/pets/PetsLaunch.jsx). A twilight picture drawn in code, with Anna's drawing hung
+   in it. Transforms and opacity only; every animation name starts pt-; every class starts pt-. The base style IS the
+   resting picture, and `.play` adds the animation on top, so with no animation (Reduce Motion, or after the first
+   time) the scene is simply finished. It is an illustration: it keeps its own colours in light and dark. */
+
+.pt-wrap { display: grid; gap: 10px; justify-items: center; }
+.pt-stage { container-type: inline-size; position: relative; width: 100%; max-width: 560px; aspect-ratio: 5 / 6; overflow: hidden; border-radius: var(--r-card);
+  box-shadow: 0 2px 4px rgba(30, 16, 40, .28), 0 18px 34px -10px rgba(30, 16, 40, .5); background: #4F4380; }
+.pt-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* Only what animates measures from its own box; every plain transform="..." in the scene keeps the drawing's own origin */
+.pt-moon, .pt-twinkle, .pt-cat-in, .pt-eyes, .pt-ear-r, .pt-appa-in, .pt-riser-in, .pt-awoo-g, .pt-waves { transform-box: fill-box; }
+
+/* The resting picture */
+.pt-riser { opacity: 0; }
+.pt-awoo { font-family: var(--font-display); font-size: 4.6px; fill: #FFF3D6; paint-order: stroke; stroke: rgba(60, 30, 70, .45); stroke-width: .5px; letter-spacing: .15px; }
+.pt-waves { opacity: .42; }
+
+/* Anna's drawing, hung from the line by two pegs */
+.pt-paper { position: absolute; left: 4%; top: 9.2%; width: 62%; transform-origin: 50% 0; }
+.pt-drawing { display: block; padding: 1.7cqw; background: #FFFCF4; border-radius: 2px; text-decoration: none; color: #3A2A33;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset, 0 2px 3px rgba(30, 16, 40, .3), 0 10px 18px -6px rgba(30, 16, 40, .55); }
+.pt-drawing img { display: block; width: 100%; height: auto; box-shadow: 0 0 0 1px rgba(60, 40, 30, .18); }
+.pt-drawing:focus-visible { outline: 3px solid #FFF3D6; outline-offset: 3px; }
+.pt-empty { display: grid; align-content: center; justify-items: center; gap: 1.2cqw; aspect-ratio: 3 / 2; padding: 3cqw; text-align: center; border: .5cqw dashed #C9B8A8; }
+.pt-empty b { font-family: var(--font-display); font-weight: 400; font-size: clamp(14px, 4.6cqw, 24px); line-height: 1.15; }
+.pt-empty span { font-weight: 700; font-size: clamp(12px, 3cqw, 15px); line-height: 1.25; }
+.pt-pin { position: absolute; z-index: 2; top: -3.6cqw; width: 3.2cqw; height: 7.4cqw; border-radius: .9cqw; background: linear-gradient(90deg, #DDB27E 0 44%, #A8733F 44% 54%, #DDB27E 54%); box-shadow: 0 1px 2px rgba(30, 16, 40, .4); }
+.pt-pin-l { left: 8%; } .pt-pin-r { right: 8%; }
+
+.pt-under { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; width: 100%; max-width: 560px; }
+.pt-cap { color: var(--sky-ink); font-weight: 700; opacity: .9; text-align: center; }
+.pt-roll { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.pt-roll li { display: grid; gap: 1px; }
+.pt-roll b { font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.pt-roll span { color: var(--muted); font-weight: 700; }
+@media (pointer: coarse) { .pt-under .btn { min-height: 44px; } }
+
+/* The launch: sky and moon, the drawing swings in, hearts and stars rise, the cats peek up, Appa howls */
+.play .pt-moon { animation: pt-moon-rise 1.5s .1s cubic-bezier(.2, .7, .2, 1) both; }
+.play .pt-twinkle { animation: pt-twinkle 1.3s ease-in-out calc(var(--d) * 1s) 3 both; }
+.play .pt-paper { animation: pt-swing 2.4s .3s ease-out both; }
+.play .pt-pin { animation: pt-fade .4s .3s both; }
+.play .pt-riser-in { animation: pt-float var(--t) var(--d) cubic-bezier(.2, .6, .3, 1) both; }
+.play .pt-riser { opacity: 1; }
+.play .pt-cat-in { animation: pt-peek .7s calc(1.5s + var(--i) * .27s) cubic-bezier(.2, 1.35, .4, 1) both; }
+.play .pt-eyes { animation: pt-blink .32s calc(3.1s + var(--i) * .45s) 2 both; }
+.play .pt-ear-r { animation: pt-twitch .45s calc(3.9s + var(--i) * .3s) 1 both; }
+.play .pt-appa-in { animation: pt-appa-in .9s 2.2s ease-out both; }
+.play .pt-ahead { animation: pt-howl 1.3s 2.8s cubic-bezier(.3, 1.4, .5, 1) both; }
+.play .pt-waves { animation: pt-wave 1.9s 3.3s ease-out both; }
+.play .pt-awoo-g { animation: pt-awoo .8s 3.3s ease-out both; }
+.play .pt-awoo-l { animation: pt-awoo-l .45s calc(3.4s + var(--k) * .12s) ease-out both; }
+.pt-cat-in { transform-origin: 50% 100%; }
+.pt-scene .pt-ear-r { transform-origin: 85% 95%; }
+.pt-scene .pt-eyes { transform-origin: 50% 50%; }
+/* The head turns at the neck: a point in Appa's own drawing, not in the head's box */
+.pt-scene .pt-ahead { transform-box: view-box; transform-origin: 52px 58px; }
+
+@keyframes pt-moon-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes pt-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+@keyframes pt-swing { 0% { opacity: 0; transform: rotate(16deg) translateY(-3cqw); } 14% { opacity: 1; } 30% { transform: rotate(-9deg); } 48% { transform: rotate(5.5deg); } 66% { transform: rotate(-3deg); } 84% { transform: rotate(1.2deg); } 100% { opacity: 1; transform: none; } }
+@keyframes pt-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pt-float { 0% { opacity: 0; transform: translate(0, 0) scale(.3) rotate(0); } 14% { opacity: 1; transform: translate(0, -12px) scale(1) rotate(0); } 80% { opacity: .95; } 100% { opacity: 0; transform: translate(var(--dx), -108px) scale(1.05) rotate(var(--r)); } }
+/* a cat's own units are scaled to a quarter, so this is a drop of about nineteen scene units: fully behind the wall */
+@keyframes pt-peek { from { transform: translateY(80px); } to { transform: none; } }
+@keyframes pt-blink { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.08); } }
+@keyframes pt-twitch { 0%, 100% { transform: rotate(0); } 35% { transform: rotate(14deg); } 70% { transform: rotate(-4deg); } }
+@keyframes pt-appa-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+@keyframes pt-howl { 0% { transform: rotate(-44deg); } 55% { transform: rotate(7deg); } 78% { transform: rotate(-3deg); } 100% { transform: none; } }
+@keyframes pt-wave { 0% { opacity: 0; transform: scale(.6); } 25% { opacity: 1; } 100% { opacity: .42; transform: scale(1); } }
+@keyframes pt-awoo { from { opacity: 0; transform: translateY(2.2px); } to { opacity: 1; transform: none; } }
+@keyframes pt-awoo-l { from { fill-opacity: 0; stroke-opacity: 0; } to { fill-opacity: 1; stroke-opacity: 1; } }
+
+/* Reduce Motion (Settings, or the device's): the finished picture, still. pets/PetsLaunch.jsx never adds .play then;
+   this is for someone who switches it on while the scene is playing. */
+html[data-motion="less"] .pt-stage *, html[data-motion="less"] .pt-stage { animation: none !important; }
+html[data-motion="less"] .pt-riser { opacity: 0 !important; }
