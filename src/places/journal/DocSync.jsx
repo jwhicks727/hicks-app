@@ -5,7 +5,7 @@ import { Confirm } from '../../ui/Confirm.jsx'
 import { Working } from '../../ui/Toast.jsx'
 import { useDraft } from '../../lib/useDraft.js'
 import { longDate } from '../../lib/journal.js'
-import { docDays, guessStop, stopChoices, beginsAhead, hasWords } from '../../lib/journalDoc.js'
+import { docDays, guessStop, stopChoices, beginsAhead, hasWords, combineDays, tooLong, docSyncFor } from '../../lib/journalDoc.js'
 import { googleReady, allowedHere, googleToken, googleError, signInWithGoogle, forgetGoogle, pickDoc } from '../../lib/google.js'
 import { readDoc, lookAt, carryOut, waiting, SAVED } from '../../lib/docSync.js'
 import { saveDocLink, forgetFingerprints } from '../../lib/useJournal.js'
@@ -115,6 +115,7 @@ export default function DocPage({ j, me, today }) {
   const [ask, setAsk] = useState(null) // { item, choice } waiting on a yes
   const [unlink, setUnlink] = useState(false)
   const [restop, setRestop] = useState(null)
+  const [mix, setMix] = useState(null) // the date whose combined day is being looked at
   const token = googleToken()
 
   useEffect(() => { if (j.loaded && s.doc_id && token && !why && !st.look && !st.step) run() }, [j.loaded, s.doc_id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -159,6 +160,14 @@ export default function DocPage({ j, me, today }) {
     try { const r = await readDoc(s.doc_id, null, token); setRestop({ paras: r.paras, stop: s.doc_stop }) } catch (e) { setMsg(e.message) }
   }
 
+  if (!docSyncFor(me) && !s.doc_id) {
+    return (
+      <>
+        <header className="hero span-6"><Crumb to="/journal">Journal</Crumb><span className="kicker">Only you can read this</span><h1 className="greet">Google Doc</h1></header>
+        <Card tint="#7A5C9E" label="Not set up for this journal" glyph="star" className="span-6"><p>Keeping a journal in step with a Google Doc is set up for Jason’s journal only. Your journal is all here, and only you can read it.</p></Card>
+      </>
+    )
+  }
   const plan = st.look && st.look.plan
   const items = st.kind === 'first' ? [] : waiting(plan, st.choices)
   const decide = (item, choice) => (choice === 'remove' || (choice === 'doc' && item.empty) ? setAsk({ item, choice }) : run({ choices: { ...(st.choices || {}), [item.date]: choice } }))
@@ -253,7 +262,25 @@ export default function DocPage({ j, me, today }) {
               <div className="form-actions">
                 {!it.long && <button type="button" className={it.empty ? 'btn ghost' : 'btn'} onClick={() => decide(it, 'doc')}>{it.empty ? 'Remove it here too' : 'Keep the Doc’s'}</button>}
                 {!it.unsafe && <button type="button" className="btn ghost" onClick={() => decide(it, 'here')}>Keep this one</button>}
+                {!it.unsafe && !it.long && !it.empty && <button type="button" className="btn ghost" aria-expanded={mix === it.date} onClick={() => setMix(mix === it.date ? null : it.date)}>Combine them</button>}
               </div>
+              {mix === it.date && (() => {
+                const both = { ...combineDays(it.day.entry, it.entry), on_date: it.date }
+                const over = tooLong(both)
+                return (
+                  <section className="jr-mixed" aria-label="The two combined">
+                    <h3>Combined</h3>
+                    <p className="muted">Everything from both, each line once; where one only added to a line, the longer is kept.</p>
+                    <DayWords e={both} />
+                    {over ? <p className="err">Together they’re longer than the app keeps (twelve gratitudes at most), so they can’t be combined here. Combine them in the Doc instead.</p> : (
+                      <div className="form-actions">
+                        <button type="button" className="btn" onClick={() => { setMix(null); decide(it, 'both') }}>Keep the combined day</button>
+                        <button type="button" className="btn ghost" onClick={() => setMix(null)}>Not this</button>
+                      </div>
+                    )}
+                  </section>
+                )
+              })()}
               {it.unsafe && <p className="muted">That day has a picture, chip or table in your Doc, so it’s only ever changed there.</p>}
               {it.long && <p className="muted">That day is longer in your Doc than the app keeps, so the Doc’s can’t come across.</p>}
             </>

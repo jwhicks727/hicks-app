@@ -51,7 +51,8 @@ and write the code fresh. SOAR's code belongs to the school.
   never a word of either (`tests/migrations.test.mjs` checks the policies).
 - **A journal's Google Doc sync runs only in its writer's browser, with
   their own Google sign-in** (`src/lib/journalDoc.js`, `src/lib/docSync.js`;
-  decisions log, 2026-11-05). It asks Google only for `drive.file` (the one
+  decisions log, 2026-11-05), and is set up for Jason's journal only
+  (`DOC_SYNC_FOR`). It asks Google only for `drive.file` (the one
   Doc they pick), keeps Google's hour-long key on the device and forgets it
   on sign-out, and never goes through a server: no Edge Function names the
   journal tables or Google Docs (`tests/journal-doc.test.mjs`). It never

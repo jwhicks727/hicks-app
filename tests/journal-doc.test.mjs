@@ -410,3 +410,51 @@ test('a day removed takes the blank lines above it, so the gap above the questio
   assert.equal(r.days[0].blanks, 6, 'the gap before the questions is as it was')
   assert.deepEqual(r.paras.slice(r.stopAt).map((p) => p.text), WEEK.map((p) => p.text))
 })
+
+// ---- Combining a day written in both places, and whose journal the sync is for ----
+
+import { combineDays, docSyncFor, DOC_SYNC_FOR } from '../src/lib/journalDoc.js'
+
+test('combining keeps everything from both, each line once, and the longer line where one only added to it', () => {
+  const doc = { date: '2026-11-03', prompt_title: 'Say hello.', prompt: 'Who should I check on?', answer: 'Call the neighbour.\n\nWrite to the cousins.', reflection: '', gratitudes: ['A long walk', 'Soup'] }
+  const here = { on_date: '2026-11-03', prompt_title: 'Say hello.', prompt: 'Who should I check on?', answer: 'Call the neighbour about the fence.', reflection: 'Rain later, maybe.', gratitudes: ['Soup', 'An early night'] }
+  const c = combineDays(doc, here)
+  assert.equal(c.answer, 'Call the neighbour about the fence.\n\nWrite to the cousins.', 'the longer line replaces the shorter; the Doc’s other line stays')
+  assert.equal(c.reflection, 'Rain later, maybe.')
+  assert.deepEqual(c.gratitudes, ['A long walk', 'Soup', 'An early night'], 'every gratitude once, the Doc’s first')
+  assert.equal(c.prompt, 'Who should I check on?')
+  assert.equal(c.on_date, '2026-11-03')
+})
+
+test('combining doesn’t repeat what the Doc read as part of its answer, and takes a question from whichever side has one', () => {
+  // The Doc can't tell an answer from what follows it, so the app's "anything else" can sit inside the Doc's answer
+  const doc = { date: '2026-11-03', prompt_title: null, prompt: null, answer: '', reflection: 'Tidy the shed.\n\nRain later, maybe.', gratitudes: [] }
+  const here = { on_date: '2026-11-03', prompt_title: 'Aim small.', prompt: 'What is one thing to finish?', answer: 'Tidy the shed.', reflection: 'Rain later, maybe.', gratitudes: ['Tea'] }
+  const c = combineDays(doc, here)
+  assert.equal(c.prompt, 'What is one thing to finish?')
+  assert.equal(c.answer, 'Tidy the shed.')
+  assert.equal(c.reflection, 'Rain later, maybe.', 'each paragraph once, across the answer and anything else')
+  assert.deepEqual(c.gratitudes, ['Tea'])
+})
+
+test('too many gratitudes together can’t be combined in the app', () => {
+  const doc = { date: '2026-11-03', gratitudes: Array.from({ length: 8 }, (_, i) => `Doc ${i}`) }
+  const here = { on_date: '2026-11-03', gratitudes: Array.from({ length: 8 }, (_, i) => `Here ${i}`) }
+  assert.ok(tooLong(combineDays(doc, here)))
+})
+
+test('the Doc sync is set up for Jason’s journal only', () => {
+  assert.deepEqual(DOC_SYNC_FOR, ['Jason'])
+  assert.ok(docSyncFor({ name: 'Jason', role: 'parent' }))
+  assert.ok(!docSyncFor({ name: 'Laurie', role: 'parent' }))
+  assert.ok(!docSyncFor({ name: 'Anna', role: 'child' }))
+  assert.ok(!docSyncFor(null))
+  const page = file('src/places/journal/DocSync.jsx'), home = file('src/places/journal/Journal.jsx')
+  assert.match(page, /if \(!docSyncFor\(me\) && !s\.doc_id\)/, 'anyone else sees that it isn’t set up for their journal')
+  assert.match(home, /docSyncFor\(me\) \|\| \(j\.settings && j\.settings\.doc_id\)\) && <Link to="\/journal\/doc">/, 'and isn’t offered it')
+})
+
+test('a short gratitude never swallows a different, longer one', () => {
+  const c = combineDays({ date: '2026-11-03', gratitudes: ['Soup'] }, { on_date: '2026-11-03', gratitudes: ['Soup kitchen night'] })
+  assert.deepEqual(c.gratitudes, ['Soup', 'Soup kitchen night'])
+})

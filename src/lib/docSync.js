@@ -7,7 +7,7 @@
 // the writer's device and nowhere else.
 
 import { getDoc, editDoc, googleToken, GoogleError } from './google.js'
-import { docParagraphs, docDays, docFormat, docHash, appHash, planSync, buildRequests, rowOf, aheadDue } from './journalDoc.js'
+import { docParagraphs, docDays, docFormat, docHash, appHash, planSync, buildRequests, rowOf, aheadDue, combineDays, tooLong } from './journalDoc.js'
 import { saveSynced, saveDocLink, removeEntry } from './useJournal.js'
 
 export const SAVED = 'hicks:journal-saved'
@@ -45,8 +45,8 @@ export function waiting(plan, choices = {}) {
 }
 
 /**
- * Carry out the plan: what goes across by itself, and the writer's choices, { [date]: 'doc' | 'here' |
- * 'remove' | 'restore' }. With "begin tomorrow ahead" on, tomorrow's page is begun in the Doc once today has
+ * Carry out the plan: what goes across by itself, and the writer's choices, { [date]: 'doc' | 'here' | 'both' |
+ * 'remove' | 'restore' } ('both': the day combined, written to both sides). With "begin tomorrow ahead" on, tomorrow's page is begun in the Doc once today has
  * words. Returns { toDoc, here, removed }, the counts for the screen.
  */
 export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => {}, today = null) {
@@ -62,6 +62,11 @@ export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => 
     if (k === 'doc' && c.empty) removeHere.push(c.entry) // emptied in the Doc, and the writer said remove it here too
     else if (k === 'doc' && !c.long) pulls.push(c)
     if (k === 'here' && !c.unsafe) writes.push({ type: 'replace', day: c.day, entry: c.entry })
+    if (k === 'both' && !c.unsafe && !c.empty) {
+      const raw = combineDays(c.day.entry, c.entry)
+      const merged = tooLong(raw) ? null : rowOf({ ...raw, date: c.day.date }) // too long to keep whole: not combined
+      if (merged) writes.push({ type: 'replace', day: c.day, entry: merged, combined: c.entry })
+    }
   }
   for (const g of plan.goneFromDoc) {
     const k = choices[g.entry.on_date]
@@ -99,7 +104,10 @@ export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => 
   for (const w of writes) {
     if (w.type === 'delete' || w.entry.skeleton) continue
     const d = after.days.find((x) => x.date === w.entry.on_date)
-    if (d) prints.push({ on_date: w.entry.on_date, doc_hash: d.hash, app_hash: w.entry.now || (await appHash(w.entry)) })
+    if (!d) continue
+    // A combined day is new here too: the whole day is saved, not only its fingerprints
+    if (w.combined) whole.push({ ...w.entry, imported: Boolean(w.combined.imported), doc_hash: d.hash, app_hash: await appHash(w.entry) })
+    else prints.push({ on_date: w.entry.on_date, doc_hash: d.hash, app_hash: w.entry.now || (await appHash(w.entry)) })
   }
   let res = await saveSynced(whole)
   if (!res.error) res = await saveSynced(prints)

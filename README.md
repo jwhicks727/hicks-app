@@ -72,18 +72,18 @@ Setting it all up, in order: `docs/MORNING.md`.
 
 ## Journal and Google Docs
 
-Anyone in the family can keep their journal in step with a Google Doc of their
-own (Journal › Keep it in step with a Google Doc). It runs in their browser with
-their own Google sign-in; no server reads it. It needs a Google Cloud project
-once, for the whole family. Google's console moves its menus around, so the
+Jason's journal can keep in step with his Google Doc (Journal › Keep it in step
+with a Google Doc); it's set up for his journal only (`DOC_SYNC_FOR` in
+`src/lib/journalDoc.js`). It runs in the browser with his own Google sign-in; no
+server reads it. It needs a Google Cloud project once. Google's console moves its menus around, so the
 names below may differ a little (unverified against the current console):
 
 1. In the Google Cloud console, make a project (for instance "Team Hicks").
 2. **APIs & Services › Library:** turn on the Google Docs API, the Google Drive
    API and the Google Picker API.
 3. **OAuth consent screen** (Google Auth Platform): an External app named Team
-   Hicks, left in **Testing**. Add each family member's Google address as a test
-   user, and add the scope `https://www.googleapis.com/auth/drive.file` (the
+   Hicks, left in **Testing**. Add Jason's Google address as a test user, and
+   add the scope `https://www.googleapis.com/auth/drive.file` (the
    files the person picks for the app, and nothing else). While it is in
    Testing, Google shows a "hasn't verified this app" page at sign-in; continue
    past it.

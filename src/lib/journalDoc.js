@@ -305,6 +305,50 @@ export function planSync({ days, entries, removed = [] }) {
   return plan
 }
 
+// ---- Combining a day written in both places ----------------------------------------------------
+
+/** The journal whose Doc sync is set up: Jason's only (decisions log, 2026-11-05). Laurie and Anna don't keep one. */
+export const DOC_SYNC_FOR = ['Jason']
+export const docSyncFor = (member) => Boolean(member && DOC_SYNC_FOR.includes(member.name))
+
+const paragraphs = (s) => String(s || '').split(/\n\n+/).map((x) => x.trim()).filter(Boolean)
+const core = (t) => normal(t).replace(/[.!?…:;,]+$/, '').trim()
+/** The same line, give or take spacing, quotes and a closing full stop. */
+const same = (a, b) => core(a) === core(b)
+/** `big` is `small` with words added after it (a line of a dozen characters or more, so "Soup" never swallows "Soup kitchen"). */
+const extends_ = (big, small) => {
+  const b = core(big), s = core(small)
+  return s.length >= 12 && b.length > s.length && b.startsWith(s) && /[\s,;:—–-]/.test(b[s.length])
+}
+/** Two runs of lines, every line kept once: one already there (or there with words added) is dropped, and a longer one replaces the line it adds to. */
+function keepEach(first, second) {
+  const out = [...first]
+  for (const p of second) {
+    if (out.some((q) => same(q, p) || extends_(q, p))) continue
+    const k = out.findIndex((q) => extends_(p, q))
+    if (k >= 0) out[k] = p; else out.push(p)
+  }
+  return out
+}
+
+/**
+ * A day written in both places, combined: the Doc's question (or this one's), every paragraph of both
+ * answers and of both "anything else" kept once, and every gratitude kept once (the Doc's first). Where one
+ * side only added words to a line, the longer line is kept. The writer sees it before it's kept.
+ */
+export function combineDays(doc, here) {
+  const answer = keepEach(paragraphs(doc.answer), paragraphs(here.answer))
+  // A Doc's day can't tell its answer from what follows it, so a paragraph already in the answer isn't repeated
+  const reflection = keepEach(paragraphs(doc.reflection), paragraphs(here.reflection)).filter((p) => !answer.some((q) => same(q, p) || (core(p).length >= 12 && core(q).includes(core(p)))))
+  const ask = doc.prompt ? doc : here
+  return {
+    on_date: here.on_date || doc.date,
+    prompt_title: ask.prompt_title || null, prompt: ask.prompt || null,
+    answer: answer.join('\n\n'), reflection: reflection.join('\n\n'),
+    gratitudes: keepEach((doc.gratitudes || []).filter(Boolean), (here.gratitudes || []).filter(Boolean)),
+  }
+}
+
 // ---- Writing to the Doc --------------------------------------------------------------------------
 
 const CLEAR = 'bold,italic,underline,strikethrough,fontSize,weightedFontFamily,foregroundColor,backgroundColor,link'

@@ -13,6 +13,7 @@ import { HOME_TOWN } from '../../lib/sky.js'
 import { PROMPT_SETS, SET_CHOICES, LATER, promptFor, seasonSet, longDate, blankEntry, cleanEntry, parseJournalText, readImport, onThisDay, journalBirthday, gratitudeWords, entriesWithWord, openDate, notesDue, agoWords } from '../../lib/journal.js'
 import { useJournal, saveEntry, removeEntry, addNote, openNote, removeNote, saveSettings, importEntries, rememberRemoved } from '../../lib/useJournal.js'
 import { savedPage } from '../../lib/docSync.js'
+import { docSyncFor } from '../../lib/journalDoc.js'
 import DocPage, { DocBar } from './DocSync.jsx'
 import './journal.css'
 
@@ -105,7 +106,7 @@ function JournalHome({ j, me, today }) {
             <Link to="/journal/grateful">What you’re grateful for<span>What comes up most</span></Link>
             <Link to="/journal/notes">Notes to Future {me ? me.name : 'you'}<span>Written now, opened on their day</span></Link>
             <Link to="/journal/settings">Questions, outlets, bringing a journal in<span>How your journal works</span></Link>
-            <Link to="/journal/doc">{j.settings && j.settings.doc_id ? 'Your Google Doc' : 'Keep it in step with a Google Doc'}<span>Write here or there; each updates the other</span></Link>
+            {(docSyncFor(me) || (j.settings && j.settings.doc_id)) && <Link to="/journal/doc">{j.settings && j.settings.doc_id ? 'Your Google Doc' : 'Keep it in step with a Google Doc'}<span>Write here or there; each updates the other</span></Link>}
           </nav>
           <button type="button" className="btn ghost" onClick={() => setOutlets(true)}>Need an outlet?</button>
         </Card>

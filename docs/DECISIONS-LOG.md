@@ -21,7 +21,9 @@ update each other so he can write in either. Decided (Jason: "do all 4"):
   kept on the device and forgotten on sign-out. Sign-in goes by Google's
   page and back (not a pop-up), which also works in the installed app on a
   phone (unverified until tried on an iPhone).
-- **One Doc each, for anyone who wants it**, not only Jason's.
+- **Jason's journal only.** Laurie and Anna don't keep a journal in a Doc,
+  so only Jason's journal offers the link (`DOC_SYNC_FOR` in
+  `src/lib/journalDoc.js`); anyone else's journal says it isn't set up for it.
 - **Days end where the writer says.** Jason keeps the week's questions below
   his days, each under its weekday's name, so new days go straight after the
   newest day, above a line he picks on screen (the app guesses a weekday on
@@ -33,9 +35,13 @@ update each other so he can write in either. Decided (Jason: "do all 4"):
   fills it; and with "Begin tomorrow's page" on (on at linking when the Doc
   already does it), the app begins tomorrow's once today has words, never
   more than one ahead.
-- **Changed in both places: shown, both ways, to choose.** Each side keeps a
-  fingerprint of each day as the two last agreed; a day changed on one side
-  only goes across. The first sync shows what it will do first.
+- **Changed in both places: shown, both ways, to choose, or combined.** Each
+  side keeps a fingerprint of each day as the two last agreed; a day changed
+  on one side only goes across. A day that differs offers Keep the Doc's,
+  Keep this one, or Combine them: everything from both, each line once, and
+  where one side only added words to a line, the longer line. The combined
+  day is shown before it's kept, and then written to both. The first sync
+  shows what it will do first.
 - **Nothing is removed on its own.** A day gone from one side is asked
   about. A day with a picture, chip or table is never rewritten by the app.
   A write happens only if the Doc hasn't changed since it was read.
