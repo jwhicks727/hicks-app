@@ -30,4 +30,9 @@ export const REGISTRY = [
   { key: 'academy', name: 'Academy', colour: '#3FA34D',
     setup: [{ key: 'pictures', title: 'Pictures we add (each with its licence)', ready: true }, { key: 'qparent', title: 'Grades from QParent', ready: false }],
     reports: [] },
+  { key: 'drawings', name: 'Anna’s Gallery', colour: '#C14D83',
+    setup: [], reports: [] },
+  { key: 'pets', name: 'Pets', colour: '#8A5A33',
+    setup: [{ key: 'pets', title: 'Our pets: their pages, vet visits and reminders', ready: false }],
+    reports: [] },
 ]

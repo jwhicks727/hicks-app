@@ -145,6 +145,13 @@ licence nobody wrote down.
   shown. Never put one through an image generator. Her title, year and
   medium come from her, never guessed (`src/lib/paintings.js`,
   `tests/paintings.test.mjs`).
+- **Anna's drawings are hers, and private** (`src/places/Drawings.jsx`): they live
+  in the private `drawings` bucket and are read through signed links, never in
+  `public/` or `src/` (anything in the built app can be opened by anyone with the
+  address), and a drawing is shown whole, as she drew it: crop and frame it, never
+  alter it. Her title, the day and her words are what the person adding it typed,
+  never guessed from the picture. Anything that moves around a drawing (the Pets
+  launch) is drawn in code (`tests/drawings.test.mjs`).
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything
   large: iPhones repaint it slowly. Soft shapes come from gradients.

@@ -12,6 +12,8 @@ import Calendar from './places/Calendar.jsx'
 import Kitchen from './places/Kitchen.jsx'
 import LifeList from './places/LifeList.jsx'
 import Jams from './places/Jams.jsx'
+import Drawings from './places/Drawings.jsx'
+import Pets from './places/pets/Pets.jsx'
 import Journal from './places/journal/Journal.jsx'
 import Garden from './places/garden/Garden.jsx'
 import Settings from './consoles/Settings.jsx'
@@ -20,7 +22,7 @@ import Reports from './consoles/Reports.jsx'
 // Anna's academy loads when it's opened: its rooms and pictures are only for there
 const Academy = lazy(() => import('./academy/Academy.jsx'))
 
-const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, journal: Journal, garden: Garden, lifelist: LifeList, jams: Jams, academy: Academy, settings: Settings, admin: Setup, reports: Reports }
+const SCREENS = { home: Home, world: World, calendar: Calendar, kitchen: Kitchen, journal: Journal, garden: Garden, lifelist: LifeList, jams: Jams, drawings: Drawings, pets: Pets, academy: Academy, settings: Settings, admin: Setup, reports: Reports }
 
 // Nothing shows until someone has signed in and is on the family list
 // (src/lib/gate.js): not the tab bar, not a place, not a card.
