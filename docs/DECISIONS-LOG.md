@@ -24,7 +24,7 @@ gallery and an animation around it to launch a Pets app. Decided:
   rule we keep for Laurie's paintings, so the drawing hangs unchanged on a clothesline
   in a twilight scene: three cats peek over a wall (Kona white with blue eyes and one
   calico splotch on her head, Portia a mostly black tuxedo, Goldie a calico),
-  hearts and stars rise as on her page, and Appa, our giant white husky/Malinois,
+  hearts and stars rise as on her page, and Appa, our giant white husky and Belgian Malinois mix,
   howls at the moon. It plays by itself the first time on a device, again from
   "Watch it again", and never under Reduce Motion (the finished picture is all there
   is). Transforms and opacity only.

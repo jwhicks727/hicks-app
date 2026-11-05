@@ -7,7 +7,7 @@ const TINT = '#8A5A33'
 
 // /pets: coming soon. The launch scene is the first thing here (PetsLaunch.jsx); what the app will
 // hold is honest about being unbuilt. Who lives here, for the record: Appa, a giant white
-// husky/Malinois, and three cats, Kona, Portia and Goldie, drawn by Anna.
+// husky and Belgian Malinois mix, and three cats, Kona, Portia and Goldie, drawn by Anna.
 export default function Pets() {
   return (
     <>
@@ -24,7 +24,7 @@ export default function Pets() {
       ]} />
       <Card tint={TINT} glyph="star" label="Who lives here" className="span-3">
         <ul className="pt-roll">
-          <li><b>Appa</b><span>a giant white husky/Malinois</span></li>
+          <li><b>Appa</b><span>a giant white husky and Belgian Malinois mix</span></li>
           <li><b>Kona</b><span>a white cat with blue eyes and one calico splotch on her head</span></li>
           <li><b>Portia</b><span>a mostly black tuxedo cat</span></li>
           <li><b>Goldie</b><span>a calico cat</span></li>
