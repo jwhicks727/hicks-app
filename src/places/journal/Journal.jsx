@@ -10,8 +10,11 @@ import { useFamily } from '../../lib/useCalendar.js'
 import { useDraft } from '../../lib/useDraft.js'
 import { todayAt, parts, MONTHS } from '../../lib/cal/dates.js'
 import { HOME_TOWN } from '../../lib/sky.js'
-import { PROMPT_SETS, SET_CHOICES, LATER, promptFor, seasonSet, longDate, blankEntry, parseJournalText, readImport, onThisDay, journalBirthday, gratitudeWords, entriesWithWord, openDate, notesDue, agoWords } from '../../lib/journal.js'
-import { useJournal, saveEntry, removeEntry, addNote, openNote, removeNote, saveSettings, importEntries } from '../../lib/useJournal.js'
+import { PROMPT_SETS, SET_CHOICES, LATER, promptFor, seasonSet, longDate, blankEntry, cleanEntry, parseJournalText, readImport, onThisDay, journalBirthday, gratitudeWords, entriesWithWord, openDate, notesDue, agoWords } from '../../lib/journal.js'
+import { useJournal, saveEntry, removeEntry, addNote, openNote, removeNote, saveSettings, importEntries, rememberRemoved } from '../../lib/useJournal.js'
+import { savedPage } from '../../lib/docSync.js'
+import { docSyncFor } from '../../lib/journalDoc.js'
+import DocPage, { DocBar } from './DocSync.jsx'
 import './journal.css'
 
 // /journal               today's page, a note from your past self, this day in other years
@@ -46,6 +49,7 @@ export default function Journal({ rest = [] }) {
   if (rest[0] === 'grateful') return <Grateful {...props} />
   if (rest[0] === 'notes') return <Notes {...props} />
   if (rest[0] === 'settings') return <JournalSettings {...props} />
+  if (rest[0] === 'doc') return <DocPage {...props} />
   return <JournalHome {...props} />
 }
 
@@ -72,6 +76,7 @@ function JournalHome({ j, me, today }) {
   return (
     <>
       <Head title="Journal" />
+      <DocBar j={j} me={me} today={today} />
       {birthday > 0 && (
         <section className="jr-birthday span-6" aria-label="The journal’s birthday">
           <b>{YEARS[birthday] || `${birthday} years`} of journaling today.</b>
@@ -101,6 +106,7 @@ function JournalHome({ j, me, today }) {
             <Link to="/journal/grateful">What you’re grateful for<span>What comes up most</span></Link>
             <Link to="/journal/notes">Notes to Future {me ? me.name : 'you'}<span>Written now, opened on their day</span></Link>
             <Link to="/journal/settings">Questions, outlets, bringing a journal in<span>How your journal works</span></Link>
+            {(docSyncFor(me) || (j.settings && j.settings.doc_id)) && <Link to="/journal/doc">{j.settings && j.settings.doc_id ? 'Your Google Doc' : 'Keep it in step with a Google Doc'}<span>Write here or there; each updates the other</span></Link>}
           </nav>
           <button type="button" className="btn ghost" onClick={() => setOutlets(true)}>Need an outlet?</button>
         </Card>
@@ -147,7 +153,8 @@ function Editor({ j, me, date, entry, onDone }) {
     setBusy('Saving…')
     const { error } = await saveEntry(f, entry && entry.id)
     if (error) { setBusy(error.message); return }
-    clear(); setBusy(null); j.reload(); onDone()
+    if (entry && !cleanEntry(f)) await rememberRemoved(j, me, entry) // emptied, so removed: the Doc's copy is asked about
+    clear(); setBusy(null); savedPage(); j.reload(); onDone()
   }
   return (
     <div className="form jr-form">
@@ -203,6 +210,7 @@ function DayPage({ j, me, date, today }) {
   return (
     <>
       <Head title={longDate(date)} crumb={['/journal', 'Journal']} />
+      <DocBar j={j} me={me} today={today} />
       <Card tint="#7A5C9E" label={date === today ? 'Today' : agoWords(date, today).replace(/^./, (c) => c.toUpperCase())} glyph="star" className="span-6">
         {!j.loaded ? <p className="muted">Opening…</p> : (entry || date <= today) ? <Entry key={date + (entry ? entry.id : '')} j={j} me={me} date={date} entry={entry} /> : <p className="muted">That day hasn’t come yet.</p>}
         {entry && <button type="button" className="jr-skip" onClick={() => setGone(true)}>Remove this page</button>}
@@ -211,7 +219,7 @@ function DayPage({ j, me, date, today }) {
         {older ? <Link to={`/journal/${older.on_date}`}>‹ {short(older.on_date)}</Link> : <span />}
         {newer ? <Link to={`/journal/${newer.on_date}`}>{short(newer.on_date)} ›</Link> : <span />}
       </nav>
-      {gone && <Confirm title="Remove this page?" yes="Remove it" danger onNo={() => setGone(false)} onYes={async () => { await removeEntry(entry.id); setGone(false); j.reload(); navigate('/journal', { replace: true }) }}>{longDate(date)} goes for good. Nobody else could see it, and nobody can bring it back.</Confirm>}
+      {gone && <Confirm title="Remove this page?" yes="Remove it" danger onNo={() => setGone(false)} onYes={async () => { const { error } = await removeEntry(entry.id); if (!error) await rememberRemoved(j, me, entry); setGone(false); j.reload(); navigate('/journal', { replace: true }) }}>{longDate(date)} goes for good. Nobody else could see it, and nobody can bring it back.</Confirm>}
     </>
   )
 }

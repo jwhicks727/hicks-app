@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { clearDrafts } from './useDraft.js'
+import { forgetGoogle } from './google.js'
 
 /** The signed-in session, or null; `undefined` while it's still being read. */
 export function useSession() {
@@ -37,5 +38,6 @@ export function signInWithCode(email, token) {
 /** Signing out also forgets anything half-typed on this device. */
 export function signOut() {
   clearDrafts()
+  forgetGoogle() // the hour's key for a journal's Doc goes with the person
   return supabase.auth.signOut()
 }

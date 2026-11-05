@@ -84,3 +84,38 @@
 @media (prefers-reduced-motion: reduce) { .jr-note.open { animation: none; } }
 .jc-note { font-weight: 800; color: #5B4580; }
 .journal-card .btn { justify-self: start; }
+
+/* The journal's Google Doc (DocSync.jsx): the line on the journal, the Doc page, a day shown both ways */
+.jr-docbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border-radius: var(--r-card); background: color-mix(in srgb, #7A5C9E 10%, var(--card)); border: 1px solid var(--line); }
+.jr-docline { flex: 1 1 200px; min-width: 0; display: grid; gap: 1px; }
+.jr-docline b { font-weight: 850; overflow-wrap: anywhere; }
+.jr-docline span { font-size: 14px; font-weight: 650; color: var(--muted); }
+.jr-docshine { flex: 1 1 220px; }
+.jr-docshine b { font-family: var(--font-display); font-weight: 400; font-size: 22px; white-space: nowrap; }
+.jr-doclink { font-weight: 800; font-size: 14px; color: #5B4580; min-height: 44px; display: inline-flex; align-items: center; }
+:root[data-theme="dark"] .jr-doclink { color: #C9B6F2; }
+.jr-docabout { display: grid; gap: 8px; margin-bottom: 12px; line-height: 1.5; }
+.jr-docwhy { font-weight: 750; }
+.jr-docfirst, .jr-docstat { display: grid; gap: 10px; justify-items: start; }
+.jr-docsum { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.jr-docsum b { font-family: var(--font-display); font-weight: 400; font-size: 20px; white-space: nowrap; }
+.jr-docahead { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.jr-docahead > span { display: grid; gap: 2px; min-width: 0; }
+.jr-docahead small { color: var(--muted); font-size: 13px; font-weight: 650; line-height: 1.35; }
+.jr-docmore { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.jr-docmore > span { flex: 1 1 100%; color: var(--muted); font-weight: 650; overflow-wrap: anywhere; }
+.jr-docmsg { font-weight: 750; color: var(--sky-ink); }
+.jr-stop { display: grid; gap: 10px; margin-bottom: 12px; }
+.jr-stoplist { border: 0; margin: 0; padding: 0; display: grid; gap: 2px; max-height: 340px; overflow-y: auto; }
+.jr-stoplist legend { font-weight: 800; margin-bottom: 6px; }
+.jr-stoplist .check-row { min-height: 44px; align-items: center; overflow-wrap: anywhere; }
+.jr-stoph { font-weight: 850; }
+.jr-differ-why { color: var(--muted); font-weight: 700; margin: 0 0 10px; }
+.jr-both { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-bottom: 12px; }
+.jr-both section { min-width: 0; padding: 10px 12px; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 5%, var(--card)); }
+.jr-both h3 { margin: 0 0 6px; font-size: 13px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.jr-mixed { margin-top: 12px; padding: 12px; border-radius: var(--r-control); border: 1.5px dashed color-mix(in srgb, #C0824F 55%, var(--line)); display: grid; gap: 8px; }
+.jr-mixed h3 { margin: 0; font-size: 13px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.jr-mixed .muted { margin: 0; font-size: 14px; }
+@media (max-width: 640px) { .jr-both { grid-template-columns: minmax(0, 1fr); } }
+@media (pointer: coarse) { .jr-docbar .btn, .jr-docmore .jr-skip { min-height: 44px; } }

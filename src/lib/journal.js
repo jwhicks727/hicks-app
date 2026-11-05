@@ -81,6 +81,10 @@ const GRAT_HEAD = /^gratitudes?\s*[.:]?\s*$/i
 const NUMBERED = /^(\d{1,2})[.)]\s*[​ ]*\s*(.*)$/
 const BULLET = /^[●•*\-–◦▪]\s*[​ ]*\s*(.+)$/
 const clean = (s) => s.replace(/[​﻿]/g, '').replace(/\s+/g, ' ').trim()
+/** The day's question line: `Zoom out. “What matters…”` */
+export const isPromptLine = (line) => PROMPT_LINE.test(clean(String(line || '')))
+/** The Gratitudes heading. */
+export const isGratHead = (line) => GRAT_HEAD.test(clean(String(line || '')))
 
 /** Lines into paragraphs: a PDF wraps long lines; a Google Doc's download keeps each paragraph on one. */
 function paragraphs(lines) {
@@ -105,45 +109,59 @@ function paragraphs(lines) {
  */
 export function parseJournalText(text) {
   const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n')
+  const outlets = []
+  const entries = splitDays(lines).map(({ date, lines: body }) => readDay(date, body, outlets))
+  return { entries: entries.filter((e) => e.answer || e.reflection || e.gratitudes.length), outlets }
+}
+
+/** A dated heading ("Thursday, November 5, 2026" or "November 5, 2026"), as { weekday, y, m, d }, or null. */
+export function dateLine(line) {
+  const m = clean(String(line || '')).match(DATE_LINE)
+  return m ? { weekday: m[1] ? WEEKDAYS.indexOf(m[1]) : null, y: +m[4], m: MONTHS.indexOf(m[2]) + 1, d: +m[3] } : null
+}
+
+/**
+ * Lines into days: [{ date, at, lines }], `at` being the index of the day's heading and `lines` what follows it
+ * up to the next. Dates written with a slip are put right from their neighbours (fixDates).
+ */
+export function splitDays(lines) {
   const raw = []
   let cur = null
-  for (const line of lines) {
-    const m = clean(line).match(DATE_LINE)
-    if (m) {
-      cur = { weekday: m[1] ? WEEKDAYS.indexOf(m[1]) : null, y: +m[4], m: MONTHS.indexOf(m[2]) + 1, d: +m[3], lines: [] }
-      raw.push(cur)
-    } else if (cur) cur.lines.push(line)
-  }
-  const dated = fixDates(raw)
-  const outlets = []
-  const entries = dated.map(({ date, lines: body }) => {
-    const e = { date, prompt_title: null, prompt: null, answer: '', reflection: '', gratitudes: [] }
-    let mode = 'reflection', before = [], after = [], grat = null
-    for (let i = 0; i < body.length; i++) {
-      const line = clean(body[i])
-      if (!line) { (mode === 'answer' ? after : before).push(''); continue }
-      if (GRAT_HEAD.test(line)) { mode = 'gratitudes'; continue }
-      if (mode === 'gratitudes') {
-        const n = line.match(NUMBERED)
-        if (n) { grat = clean(n[2]); e.gratitudes.push(grat); continue }
-        if (grat != null && e.gratitudes.length) { e.gratitudes[e.gratitudes.length - 1] = clean(`${e.gratitudes[e.gratitudes.length - 1]} ${line}`); continue }
-        mode = e.prompt ? 'answer' : 'reflection'
-      }
-      const p = !e.prompt && line.match(PROMPT_LINE)
-      if (p) {
-        let q = p[2]
-        while (!/["”]\s*$/.test(q) && i + 1 < body.length && clean(body[i + 1]) && !GRAT_HEAD.test(clean(body[i + 1]))) q = `${q} ${clean(body[++i])}`
-        e.prompt_title = p[1]; e.prompt = clean(q.replace(/["”]\s*$/, '')); mode = 'answer'
-        continue
-      }
-      if (/^outlets\s*:?$/i.test(line)) { i = readOutlets(body, i + 1, outlets) - 1; continue }
-      ;(mode === 'answer' ? after : before).push(body[i])
-    }
-    e.reflection = keepLists(before)
-    e.answer = keepLists(after)
-    return e
+  lines.forEach((line, at) => {
+    const d = dateLine(line)
+    if (d) { cur = { ...d, at, lines: [] }; raw.push(cur) } else if (cur) cur.lines.push(line)
   })
-  return { entries: entries.filter((e) => e.answer || e.reflection || e.gratitudes.length), outlets }
+  return fixDates(raw)
+}
+
+/** One day's lines (after its heading) into an entry; an "Outlets" list found in them goes into `outlets`. */
+export function readDay(date, body, outlets = []) {
+  const e = { date, prompt_title: null, prompt: null, answer: '', reflection: '', gratitudes: [] }
+  let mode = 'reflection', grat = null
+  const before = [], after = []
+  for (let i = 0; i < body.length; i++) {
+    const line = clean(body[i])
+    if (!line) { (mode === 'answer' ? after : before).push(''); continue }
+    if (GRAT_HEAD.test(line)) { mode = 'gratitudes'; continue }
+    if (mode === 'gratitudes') {
+      const n = line.match(NUMBERED)
+      if (n) { grat = clean(n[2]); e.gratitudes.push(grat); continue }
+      if (grat != null && e.gratitudes.length) { e.gratitudes[e.gratitudes.length - 1] = clean(`${e.gratitudes[e.gratitudes.length - 1]} ${line}`); continue }
+      mode = e.prompt ? 'answer' : 'reflection'
+    }
+    const p = !e.prompt && line.match(PROMPT_LINE)
+    if (p) {
+      let q = p[2]
+      while (!/["”]\s*$/.test(q) && i + 1 < body.length && clean(body[i + 1]) && !GRAT_HEAD.test(clean(body[i + 1]))) q = `${q} ${clean(body[++i])}`
+      e.prompt_title = p[1]; e.prompt = clean(q.replace(/["”]\s*$/, '')); mode = 'answer'
+      continue
+    }
+    if (/^outlets\s*:?$/i.test(line)) { i = readOutlets(body, i + 1, outlets) - 1; continue }
+    ;(mode === 'answer' ? after : before).push(body[i])
+  }
+  e.reflection = keepLists(before)
+  e.answer = keepLists(after)
+  return e
 }
 
 /** Paragraphs, with numbered and bulleted lines kept as their own lines. */
@@ -196,7 +214,7 @@ function fixDates(raw) {
     // Two entries on one date: the second is the next free day
     while (used.has(date)) date = addDays(date, 1)
     used.add(date)
-    out.push({ date, lines: r.lines })
+    out.push({ date, at: r.at, lines: r.lines })
   })
   return out
 }

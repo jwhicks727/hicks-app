@@ -49,6 +49,20 @@ and write the code fresh. SOAR's code belongs to the school.
   elsewhere is turned into its import file outside the repository and handed
   to its owner. Home shows only that a page is written or a note is waiting,
   never a word of either (`tests/migrations.test.mjs` checks the policies).
+- **A journal's Google Doc sync runs only in its writer's browser, with
+  their own Google sign-in** (`src/lib/journalDoc.js`, `src/lib/docSync.js`;
+  decisions log, 2026-11-05), and is set up for Jason's journal only
+  (`DOC_SYNC_FOR`). It asks Google only for `drive.file` (the one
+  Doc they pick), keeps Google's hour-long key on the device and forgets it
+  on sign-out, and never goes through a server: no Edge Function names the
+  journal tables or Google Docs (`tests/journal-doc.test.mjs`). It never
+  deletes a day on its own, never rewrites a day that holds a picture, chip
+  or table, never touches anything below the line the writer said their
+  days stop at, and writes only if the Doc hasn't changed since it was read.
+  Google's sign-in comes back to `public/google-return.html`, the one page
+  outside the gate: it shows nothing and reads no database, keeps the key
+  only if it answers the sign-in that device started, and returns into the
+  app.
 - **Anna's grades** are the family's only, and the academy never says a
   word about a dip: it cheers an A or a grade that went up, and is quiet
   otherwise.

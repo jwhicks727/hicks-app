@@ -6,6 +6,49 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-05 — A journal can keep in step with its writer's Google Doc
+
+Jason missed his old journal, kept in a Google Doc, and asked for the two to
+update each other so he can write in either. Decided (Jason: "do all 4"):
+
+- **In the writer's browser, with their own Google sign-in, never a server.**
+  The journal rule says no Edge Function reads a journal; a nightly job would
+  need a server holding a key to the Doc and reading both. So the sync runs
+  when the journal is open: a day saved here goes to the Doc at once, a day
+  written in the Doc arrives the next time the journal opens.
+- **The least Google allows:** `drive.file`, the files the person picks in
+  Google's own picker, not their whole Drive. Google's key lasts an hour, is
+  kept on the device and forgotten on sign-out. Sign-in goes by Google's
+  page and back (not a pop-up), which also works in the installed app on a
+  phone (unverified until tried on an iPhone).
+- **Jason's journal only.** Laurie and Anna don't keep a journal in a Doc,
+  so only Jason's journal offers the link (`DOC_SYNC_FOR` in
+  `src/lib/journalDoc.js`); anyone else's journal says it isn't set up for it.
+- **Days end where the writer says.** Jason keeps the week's questions below
+  his days, each under its weekday's name, so new days go straight after the
+  newest day, above a line he picks on screen (the app guesses a weekday on
+  its own, then a heading, then a line after a long gap). Only the Doc's shape
+  went into the code, from his description; tests use made-up pages.
+- **Tomorrow's page, begun ahead.** Jason writes the next day's date and an
+  empty Gratitudes each day, ready for the morning. A begun day with no words
+  is never brought into the app or asked about; writing that day in the app
+  fills it; and with "Begin tomorrow's page" on (on at linking when the Doc
+  already does it), the app begins tomorrow's once today has words, never
+  more than one ahead.
+- **Changed in both places: shown, both ways, to choose, or combined.** Each
+  side keeps a fingerprint of each day as the two last agreed; a day changed
+  on one side only goes across. A day that differs offers Keep the Doc's,
+  Keep this one, or Combine them: everything from both, each line once, and
+  where one side only added words to a line, the longer line. The combined
+  day is shown before it's kept, and then written to both. The first sync
+  shows what it will do first.
+- **Nothing is removed on its own.** A day gone from one side is asked
+  about. A day with a picture, chip or table is never rewritten by the app.
+  A write happens only if the Doc hasn't changed since it was read.
+- **Off on preview links**, which Google won't accept as a sign-in address.
+
+---
+
 ## 2026-11-05 — Anna's Gallery, and Pets launches around her drawing
 
 Jason brought one of Anna's drawings ("My Cats", her three cats) and asked for her own
