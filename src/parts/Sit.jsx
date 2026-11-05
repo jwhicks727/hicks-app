@@ -7,6 +7,7 @@ import { todayAt } from '../lib/cal/dates.js'
 import { HOME_TOWN, morningSky } from '../lib/sky.js'
 import { useSession } from '../lib/auth.js'
 import { useJournalGlance } from '../lib/useJournalGlance.js'
+import { markSitDay } from '../lib/sitReminder.js'
 
 // /home/sit: a morning sit. One short line to clear the mind, a length
 // (ten minutes unless changed; it remembers), the bowl to begin and end,
@@ -29,7 +30,11 @@ export default function Sit() {
   const session = useSession()
   const glance = useJournalGlance(session, today, state === 'done')
   const bowl = () => { if (prefs.bell === false) return; try { audio.current = audio.current || new (window.AudioContext || window.webkitAudioContext)(); audio.current.resume?.(); strikeBowl(audio.current, 0.3) } catch { /* silent */ } }
-  const finish = () => { setSat(Math.round((Date.now() - started.current) / 60000)); setState('done'); bowl() }
+  const finish = () => {
+    const m = Math.round((Date.now() - started.current) / 60000)
+    setSat(m); setState('done'); bowl()
+    if (m >= 1) markSitDay(localStorage, today, 'sat', m) // the day's reminder on Home is answered
+  }
 
   useEffect(() => {
     if (state !== 'sitting') return undefined

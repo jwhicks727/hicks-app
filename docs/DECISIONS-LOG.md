@@ -6,6 +6,26 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-05 — The day's sit is first on Home until it's done or skipped
+
+Jason asked for his ten-minute sit to be front and centre when he opens the
+app in the morning, gone once it's done for the day or skipped. Decided:
+
+- **The top of the feed**, right under the greeting and above everything
+  else, as a card rather than a banner: it carries the day's line, so it is
+  worth reading even on a skipped day.
+- **Three answers, each at once with an Undo:** Sit now (finishing a sit of a
+  minute or more marks the day), Done already (for one sat elsewhere), and
+  Skip today. A new day asks again.
+- **On for the parents by default**, off for Anna, and off whenever the
+  mindful moment is: a reminder only makes sense to someone who sits. Settings
+  can switch it on or off for anyone.
+- **Kept on the device**, like the sit's length: it is a convenience, not
+  the family's data, so it needs no table. The cost is that a sit finished on
+  the phone doesn't clear the card on the desktop; "Done already" does.
+
+---
+
 ## 2026-11-05 — Anna's Gallery, and Pets launches around her drawing
 
 Jason brought one of Anna's drawings ("My Cats", her three cats) and asked for her own

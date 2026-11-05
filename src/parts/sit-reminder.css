@@ -1,0 +1,13 @@
+/* The day's sit, first on Home (src/parts/SitReminder.jsx). Every class starts sr-. A quiet card: the morning sky
+   as a soft wash along its top, the day's line, and three ways forward. */
+.sr-card { position: relative; overflow: hidden; }
+.sr-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 72px; pointer-events: none;
+  background: linear-gradient(180deg, color-mix(in srgb, #F2B9A6 26%, transparent), transparent); }
+.sr-card > * { position: relative; }
+.sr-head { margin: 4px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; }
+.sr-line { margin: 6px 0 0; font-weight: 700; line-height: 1.4; }
+.sr-line small { display: block; margin-top: 2px; color: var(--muted); font-weight: 700; font-size: 13px; }
+.sr-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.sr-go { font-weight: 800; }
+.sr-off { margin-top: 10px; min-height: 36px; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@media (pointer: coarse) { .sr-acts .btn { min-height: 44px; } .sr-off { min-height: 44px; } }
