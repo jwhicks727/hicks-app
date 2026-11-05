@@ -7,7 +7,7 @@
 // the writer's device and nowhere else.
 
 import { getDoc, editDoc, googleToken, GoogleError } from './google.js'
-import { docParagraphs, docDays, docFormat, docHash, appHash, planSync, buildRequests, rowOf } from './journalDoc.js'
+import { docParagraphs, docDays, docFormat, docHash, appHash, planSync, buildRequests, rowOf, aheadDue } from './journalDoc.js'
 import { saveSynced, saveDocLink, removeEntry } from './useJournal.js'
 
 export const SAVED = 'hicks:journal-saved'
@@ -46,19 +46,21 @@ export function waiting(plan, choices = {}) {
 
 /**
  * Carry out the plan: what goes across by itself, and the writer's choices, { [date]: 'doc' | 'here' |
- * 'remove' | 'restore' }. Returns { toDoc, here, removed }, the counts for the screen.
+ * 'remove' | 'restore' }. With "begin tomorrow ahead" on, tomorrow's page is begun in the Doc once today has
+ * words. Returns { toDoc, here, removed }, the counts for the screen.
  */
-export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => {}) {
+export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => {}, today = null) {
   const s = j.settings || {}
   const token = googleToken()
   if (!token) throw new GoogleError('Sign in with Google to reach your Doc.', 'signin')
-  const writes = [], pulls = [...plan.pull], prints = [], removeHere = [], settled = new Set()
+  const writes = [], pulls = [...plan.pull], prints = [], removeHere = [], settled = new Set(plan.clear || [])
   for (const { day, entry } of plan.push) writes.push({ type: 'replace', day, entry })
   for (const { entry } of plan.add) writes.push({ type: 'add', entry })
   for (const { day, entry } of plan.mark) prints.push({ on_date: entry.on_date, doc_hash: day.hash, app_hash: entry.now })
   for (const c of plan.conflicts) {
     const k = choices[c.day.date]
-    if (k === 'doc' && !c.long) pulls.push(c)
+    if (k === 'doc' && c.empty) removeHere.push(c.entry) // emptied in the Doc, and the writer said remove it here too
+    else if (k === 'doc' && !c.long) pulls.push(c)
     if (k === 'here' && !c.unsafe) writes.push({ type: 'replace', day: c.day, entry: c.entry })
   }
   for (const g of plan.goneFromDoc) {
@@ -71,6 +73,12 @@ export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => 
     if (k === 'remove') writes.push({ type: 'delete', day: g.day })
     if (k === 'restore') pulls.push({ day: g.day, entry: null })
     if (k) settled.add(g.day.date)
+  }
+
+  // Tomorrow's page, begun ahead the way the writer does it
+  if (s.doc_ahead && today) {
+    const next = aheadDue({ days: r.days, entries: j.entries, today })
+    if (next && !writes.some((w) => w.entry && w.entry.on_date === next)) writes.push({ type: 'add', entry: { on_date: next, skeleton: true } })
   }
 
   // The Doc first, and only as it was read: if it changed meanwhile, Google refuses and nothing is half-done
@@ -89,7 +97,7 @@ export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => 
     if (row) whole.push({ ...row, imported: entry ? Boolean(entry.imported) : true, doc_hash: day.hash, app_hash: await appHash(row) })
   }
   for (const w of writes) {
-    if (w.type === 'delete') continue
+    if (w.type === 'delete' || w.entry.skeleton) continue
     const d = after.days.find((x) => x.date === w.entry.on_date)
     if (d) prints.push({ on_date: w.entry.on_date, doc_hash: d.hash, app_hash: w.entry.now || (await appHash(w.entry)) })
   }
@@ -103,5 +111,5 @@ export async function carryOut(j, me, { r, plan }, choices = {}, onStep = () => 
   const left = (s.doc_removed || []).filter((d) => !settled.has(d))
   const link = await saveDocLink({ doc_synced_at: new Date().toISOString(), doc_removed: left }, me)
   if (link.error) throw new GoogleError(link.error.message, 'here')
-  return { toDoc: writes.filter((w) => w.type !== 'delete').length, here: whole.length, removed: removeHere.length + writes.filter((w) => w.type === 'delete').length }
+  return { toDoc: writes.filter((w) => w.type !== 'delete' && !w.entry.skeleton).length, begun: writes.some((w) => w.entry && w.entry.skeleton), here: whole.length, removed: removeHere.length + writes.filter((w) => w.type === 'delete').length }
 }

@@ -22,10 +22,17 @@ update each other so he can write in either. Decided (Jason: "do all 4"):
   page and back (not a pop-up), which also works in the installed app on a
   phone (unverified until tried on an iPhone).
 - **One Doc each, for anyone who wants it**, not only Jason's.
-- **Days end where the writer says.** Jason keeps a stash of prompts below
-  his days, so new days go at the bottom of the days, above a line he picks
-  on screen (the app guesses the first heading after the days). Nothing about
-  the Doc's contents goes into the code.
+- **Days end where the writer says.** Jason keeps the week's questions below
+  his days, each under its weekday's name, so new days go straight after the
+  newest day, above a line he picks on screen (the app guesses a weekday on
+  its own, then a heading, then a line after a long gap). Only the Doc's shape
+  went into the code, from his description; tests use made-up pages.
+- **Tomorrow's page, begun ahead.** Jason writes the next day's date and an
+  empty Gratitudes each day, ready for the morning. A begun day with no words
+  is never brought into the app or asked about; writing that day in the app
+  fills it; and with "Begin tomorrow's page" on (on at linking when the Doc
+  already does it), the app begins tomorrow's once today has words, never
+  more than one ahead.
 - **Changed in both places: shown, both ways, to choose.** Each side keeps a
   fingerprint of each day as the two last agreed; a day changed on one side
   only goes across. The first sync shows what it will do first.

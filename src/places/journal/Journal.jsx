@@ -75,7 +75,7 @@ function JournalHome({ j, me, today }) {
   return (
     <>
       <Head title="Journal" />
-      <DocBar j={j} me={me} />
+      <DocBar j={j} me={me} today={today} />
       {birthday > 0 && (
         <section className="jr-birthday span-6" aria-label="The journal’s birthday">
           <b>{YEARS[birthday] || `${birthday} years`} of journaling today.</b>
@@ -209,7 +209,7 @@ function DayPage({ j, me, date, today }) {
   return (
     <>
       <Head title={longDate(date)} crumb={['/journal', 'Journal']} />
-      <DocBar j={j} me={me} />
+      <DocBar j={j} me={me} today={today} />
       <Card tint="#7A5C9E" label={date === today ? 'Today' : agoWords(date, today).replace(/^./, (c) => c.toUpperCase())} glyph="star" className="span-6">
         {!j.loaded ? <p className="muted">Opening…</p> : (entry || date <= today) ? <Entry key={date + (entry ? entry.id : '')} j={j} me={me} date={date} entry={entry} /> : <p className="muted">That day hasn’t come yet.</p>}
         {entry && <button type="button" className="jr-skip" onClick={() => setGone(true)}>Remove this page</button>}

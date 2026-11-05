@@ -323,3 +323,90 @@ test('no server reads a journal or its Doc: no Edge Function names the journal t
   }
   for (const f of ['src/lib/docSync.js', 'src/lib/google.js', 'src/places/journal/DocSync.jsx']) assert.doesNotMatch(file(f), /functions\.invoke|\/functions\/v1/, `${f} talks to Google from the browser only`)
 })
+
+// ---- A Doc shaped like one that begins tomorrow's page ahead, with a week of questions kept below ----
+// (Made-up words in that shape: plain date lines, straight quotes, two blank lines between days, tomorrow's
+// date with an empty Gratitudes list already waiting, a long gap, then each weekday's question under its name.)
+
+import { aheadDue, beginsAhead, hasWords } from '../src/lib/journalDoc.js'
+
+const PLAIN_DAY = (date, q, answer, grats) => [
+  { text: date }, ...(q ? [{ text: q }] : []), ...(answer ? [{ text: answer }] : []),
+  { text: 'Gratitudes' }, ...grats.map((g) => ({ text: g, bullet: true })), { text: '' }, { text: '' },
+]
+const AHEAD = (date) => [{ text: date }, { text: 'Gratitudes' }, { text: '', bullet: true }]
+const WEEK = [{ text: 'Monday' }, { text: 'Aim small. "What is one thing to finish?"' }, { text: '' }, { text: 'Tuesday' }, { text: 'Say hello. "Who should I check on?"' }]
+const ahead = () => new FakeDoc([
+  ...PLAIN_DAY('Monday, November 2, 2026', 'Aim small. "What is one thing to finish?"', 'The shelf in the hall.', ['Toast', 'A dry morning']),
+  ...PLAIN_DAY('Tuesday, November 3, 2026', null, null, ['A good book']),
+  ...AHEAD('Wednesday, November 4, 2026'),
+  { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' },
+  ...WEEK,
+])
+
+test('the week of questions below is found by its first weekday, and tomorrow’s page begun ahead is not a day to bring in', async () => {
+  const paras = docParagraphs(ahead().json())
+  assert.equal(guessStop(paras), 'Monday')
+  const { days } = docDays(paras, 'Monday')
+  assert.deepEqual(days.map((d) => d.date), ['2026-11-02', '2026-11-03', '2026-11-04'])
+  assert.equal(hasWords(days[2].entry), false, 'a date, Gratitudes and an empty line have no words')
+  assert.ok(beginsAhead(days))
+  const f = docFormat(paras, days)
+  assert.equal(f.open, '"', 'straight quotes, as the Doc writes them')
+  assert.equal(f.gap, 2)
+  assert.equal(f.styles.date.named, 'NORMAL_TEXT')
+  for (const d of days) d.hash = await docHash(d)
+  const nothing = planSync({ days, entries: [] })
+  assert.equal(nothing.pull.length, 2, 'only the days with words come in')
+  // Written here on the day it was begun: the words fill the Doc's day, no question asked
+  const filled = planSync({ days, entries: [{ on_date: '2026-11-04', answer: '', reflection: 'Rain at last.', gratitudes: ['Rain'], now: 'x' }] })
+  assert.equal(filled.push.length, 1)
+  assert.equal(filled.conflicts.length, 0)
+})
+
+test('writing a day begun ahead fills it, begins the next, and the gap above the questions stays where it was', () => {
+  const fake = ahead()
+  let paras = docParagraphs(fake.json())
+  let r = { paras, ...docDays(paras, 'Monday') }
+  const f = docFormat(r.paras, r.days)
+  const today = '2026-11-04'
+  const entry = { on_date: today, prompt_title: null, prompt: null, answer: '', reflection: 'Rain at last.', gratitudes: ['Rain', 'Soup'] }
+  const next = aheadDue({ days: r.days, entries: [entry], today })
+  assert.equal(next, '2026-11-05')
+  fake.apply(buildRequests({ paras: r.paras, days: r.days, stopAt: r.stopAt, f, writes: [
+    { type: 'replace', day: r.days[2], entry },
+    { type: 'add', entry: { on_date: next, skeleton: true } },
+  ] }))
+  paras = docParagraphs(fake.json())
+  r = { paras, ...docDays(paras, 'Monday') }
+  assert.deepEqual(r.days.map((d) => d.date), ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05'])
+  assert.deepEqual(r.days[2].entry.gratitudes, ['Rain', 'Soup'])
+  assert.equal(r.days[2].entry.reflection, 'Rain at last.')
+  assert.equal(hasWords(r.days[3].entry), false, 'tomorrow is begun, empty, ready')
+  assert.equal(r.days[3].text.split('\n')[1], 'Gratitudes')
+  assert.equal(r.days[2].blanks, 2, 'two blank lines between today and tomorrow, as between the other days')
+  assert.equal(r.days[3].blanks, 6, 'the long gap still sits above the questions')
+  assert.deepEqual(r.paras.slice(r.stopAt).map((p) => p.text), WEEK.map((p) => p.text), 'the questions are untouched')
+  assert.equal(aheadDue({ days: r.days, entries: [entry], today }), null, 'begun once, not again')
+})
+
+test('beginning ahead never piles up: only once today has words, and never past a day already begun', () => {
+  const days = [{ date: '2026-11-03', entry: { date: '2026-11-03', answer: 'x', reflection: '', gratitudes: [] } }]
+  assert.equal(aheadDue({ days, entries: [], today: '2026-11-04' }), null, 'nothing written today yet')
+  assert.equal(aheadDue({ days, entries: [{ on_date: '2026-11-04' }], today: '2026-11-04' }), '2026-11-05')
+  assert.equal(aheadDue({ days: [...days, { date: '2026-11-05', entry: { gratitudes: [''] } }], entries: [{ on_date: '2026-11-04' }], today: '2026-11-04' }), null)
+})
+
+test('a day removed takes the blank lines above it, so the gap above the questions stays', () => {
+  const fake = ahead()
+  let paras = docParagraphs(fake.json())
+  let r = { paras, ...docDays(paras, 'Monday') }
+  const f = docFormat(r.paras, r.days)
+  fake.apply(buildRequests({ paras: r.paras, days: r.days, stopAt: r.stopAt, f, writes: [{ type: 'delete', day: r.days[1] }, { type: 'delete', day: r.days[2] }] }))
+  paras = docParagraphs(fake.json())
+  r = { paras, ...docDays(paras, 'Monday') }
+  assert.deepEqual(r.days.map((d) => d.date), ['2026-11-02'])
+  assert.deepEqual(r.days[0].entry.gratitudes, ['Toast', 'A dry morning'])
+  assert.equal(r.days[0].blanks, 6, 'the gap before the questions is as it was')
+  assert.deepEqual(r.paras.slice(r.stopAt).map((p) => p.text), WEEK.map((p) => p.text))
+})

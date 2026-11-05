@@ -5,7 +5,7 @@ import { Confirm } from '../../ui/Confirm.jsx'
 import { Working } from '../../ui/Toast.jsx'
 import { useDraft } from '../../lib/useDraft.js'
 import { longDate } from '../../lib/journal.js'
-import { docDays, guessStop, stopChoices } from '../../lib/journalDoc.js'
+import { docDays, guessStop, stopChoices, beginsAhead, hasWords } from '../../lib/journalDoc.js'
 import { googleReady, allowedHere, googleToken, googleError, signInWithGoogle, forgetGoogle, pickDoc } from '../../lib/google.js'
 import { readDoc, lookAt, carryOut, waiting, SAVED } from '../../lib/docSync.js'
 import { saveDocLink, forgetFingerprints } from '../../lib/useJournal.js'
@@ -29,7 +29,7 @@ function blocked() {
 }
 
 /** One sync at a time: read, compare, carry out (after the writer says yes, the first time). */
-function useDocSync(j, me) {
+function useDocSync(j, me, today) {
   const s = j.settings || {}
   const [st, setSt] = useState({ step: null, look: null, err: null, kind: null, result: null })
   const busy = useRef(false)
@@ -44,24 +44,24 @@ function useDocSync(j, me) {
       if (!s.doc_synced_at && !first) { setSt({ step: null, look, err: null, kind: 'first', result: null }); return }
       const step = (t) => setSt((x) => ({ ...x, step: t }))
       let result
-      try { result = await carryOut(j, me, look, choices, step) } catch (e) {
+      try { result = await carryOut(j, me, look, choices, step, today) } catch (e) {
         if (e.kind !== 'moved') throw e
         look = await lookAt(j) // the Doc changed as the app wrote: read it again and try once more
-        result = await carryOut(j, me, look, choices, step)
+        result = await carryOut(j, me, look, choices, step, today)
       }
       setSt({ step: null, look, err: null, kind: null, result, choices })
       j.reload()
     } catch (e) {
       setSt((x) => ({ ...x, step: null, err: e.message || 'The sync didn’t finish.', kind: e.kind || 'other' }))
     } finally { busy.current = false }
-  }, [j, me, s.doc_id, s.doc_synced_at])
+  }, [j, me, today, s.doc_id, s.doc_synced_at])
   return [st, run]
 }
 
 /** The journal's line about its Doc: in step, syncing, or something waiting. */
-export function DocBar({ j, me }) {
+export function DocBar({ j, me, today }) {
   const s = j.settings || {}
-  const [st, run] = useDocSync(j, me)
+  const [st, run] = useDocSync(j, me, today)
   const want = useRef(false)
   // Opening the journal with a key in hand syncs, at most once a minute
   useEffect(() => { if (j.loaded && s.doc_id && s.doc_synced_at && googleToken() && Date.now() - lastRun > 60000) run() }, [j.loaded, s.doc_id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -93,21 +93,22 @@ export function DocBar({ j, me }) {
 /** A day as it reads, for comparing the Doc's with the one here. */
 function DayWords({ e }) {
   const body = [e.answer, e.reflection].filter(Boolean).join('\n\n').split(/\n\n+/).filter(Boolean)
+  const grats = (e.gratitudes || []).filter(Boolean)
   return (
     <div className="jr-text">
       {e.prompt && <p className="jr-tq"><b>{e.prompt_title}</b> {e.prompt}</p>}
       {body.map((p, i) => <p key={i}>{p}</p>)}
-      {(e.gratitudes || []).length > 0 && <ol className="jr-tg">{e.gratitudes.map((g, i) => <li key={i}>{g}</li>)}</ol>}
-      {!body.length && !(e.gratitudes || []).length && !e.prompt && <p className="muted">Nothing written.</p>}
+      {grats.length > 0 && <ol className="jr-tg">{grats.map((g, i) => <li key={i}>{g}</li>)}</ol>}
+      {!body.length && !grats.length && !e.prompt && <p className="muted">Nothing written.</p>}
     </div>
   )
 }
 
 /** /journal/doc: link a Doc, say where its days stop, sync, and settle what differs. */
-export default function DocPage({ j, me }) {
+export default function DocPage({ j, me, today }) {
   const s = j.settings || {}
   const why = blocked()
-  const [st, run] = useDocSync(j, me)
+  const [st, run] = useDocSync(j, me, today)
   const [pick, setPick, clearPick] = useDraft('journal.doc-link', null) // { id, title, stop }: survives the app being closed mid-way
   const [cand, setCand] = useState(null) // the picked Doc, read: { paras }
   const [msg, setMsg] = useState(() => { const e = googleError(); return e === 'access_denied' ? 'Google sign-in was cancelled, so nothing was linked.' : e ? 'Google sign-in didn’t finish. Try again.' : null })
@@ -136,7 +137,8 @@ export default function DocPage({ j, me }) {
   async function link() {
     const changed = s.doc_id !== pick.id
     if (changed) { const { error } = await forgetFingerprints(); if (error) { setMsg(error.message); return } }
-    const { error } = await saveDocLink({ doc_id: pick.id, doc_title: pick.title.slice(0, 300), doc_stop: pick.stop || null, ...(changed ? { doc_synced_at: null, doc_removed: [] } : {}) }, me)
+    const ahead = beginsAhead(docDays(cand.paras, pick.stop || null).days) // the Doc already has tomorrow begun: keep doing it
+    const { error } = await saveDocLink({ doc_id: pick.id, doc_title: pick.title.slice(0, 300), doc_stop: pick.stop || null, ...(changed ? { doc_synced_at: null, doc_removed: [], doc_ahead: ahead } : {}) }, me)
     if (error) { setMsg(error.message); return }
     clearPick(); setCand(null); j.reload()
   }
@@ -159,7 +161,8 @@ export default function DocPage({ j, me }) {
 
   const plan = st.look && st.look.plan
   const items = st.kind === 'first' ? [] : waiting(plan, st.choices)
-  const decide = (item, choice) => (choice === 'remove' ? setAsk({ item, choice }) : run({ choices: { ...(st.choices || {}), [item.date]: choice } }))
+  const decide = (item, choice) => (choice === 'remove' || (choice === 'doc' && item.empty) ? setAsk({ item, choice }) : run({ choices: { ...(st.choices || {}), [item.date]: choice } }))
+  const ahead = async () => { const { error } = await saveDocLink({ doc_ahead: !s.doc_ahead }, me); if (error) setMsg(error.message); else j.reload() }
 
   return (
     <>
@@ -212,12 +215,16 @@ export default function DocPage({ j, me }) {
           )}
           {token && st.kind !== 'first' && (
             <div className="jr-docstat">
-              <p>{st.err ? <span className="err" role="alert">{st.err}</span> : s.doc_synced_at || st.result ? <>In step {st.result ? 'just now' : agoText(s.doc_synced_at)}.{st.result && (st.result.toDoc || st.result.here || st.result.removed) ? ` ${[st.result.toDoc && `${st.result.toDoc} to the Doc`, st.result.here && `${st.result.here} from the Doc`, st.result.removed && `${st.result.removed} removed`].filter(Boolean).join(', ')}.` : ''}</> : 'Not synced yet.'}</p>
+              <p>{st.err ? <span className="err" role="alert">{st.err}</span> : s.doc_synced_at || st.result ? <>In step {st.result ? 'just now' : agoText(s.doc_synced_at)}.{st.result && (st.result.toDoc || st.result.here || st.result.removed || st.result.begun) ? ` ${[st.result.toDoc && `${st.result.toDoc} to the Doc`, st.result.here && `${st.result.here} from the Doc`, st.result.removed && `${st.result.removed} removed`, st.result.begun && 'tomorrow begun'].filter(Boolean).join(', ')}.` : ''}</> : 'Not synced yet.'}</p>
               {st.kind === 'stop' && <button type="button" className="btn" onClick={startRestop}>Choose where your days stop</button>}
               <button type="button" className="btn ghost" disabled={Boolean(st.step)} onClick={() => run({ choices: st.choices || {} })}>Sync now</button>
             </div>
           )}
           {plan && plan.stuck.length > 0 && st.kind !== 'first' && <p className="muted">{plan.stuck.length === 1 ? 'One day is' : `${plan.stuck.length} days are`} longer than the app keeps, so {plan.stuck.length === 1 ? 'it stays' : 'they stay'} only in the Doc: {plan.stuck.map((x) => longDate(x.day.date)).join('; ')}.</p>}
+          <div className="jr-docahead">
+            <span><b>Begin tomorrow’s page</b><small>Once today has words, tomorrow’s date and an empty Gratitudes go in the Doc, ready for the morning</small></span>
+            <button type="button" className="switch" role="switch" aria-checked={Boolean(s.doc_ahead)} aria-label="Begin tomorrow’s page in the Doc" onClick={ahead}><i /></button>
+          </div>
           <div className="jr-docmore">
             <span>{s.doc_stop ? <>Your days stop above “{s.doc_stop}”.</> : 'Your days run to the end of the Doc.'}</span>
             {token && <button type="button" className="jr-skip" onClick={startRestop}>Change</button>}
@@ -238,13 +245,13 @@ export default function DocPage({ j, me }) {
         <Card key={it.kind + it.date} tint="#C0824F" label={longDate(it.date)} glyph="calendar" className="span-6 jr-differ">
           {it.kind === 'differ' && (
             <>
-              <p className="jr-differ-why">{it.entry.doc_hash ? 'Changed in both places since they last agreed.' : 'Written in both places, and they say different things.'}</p>
+              <p className="jr-differ-why">{it.empty ? 'Emptied in your Doc since they last agreed; it still has words here.' : it.entry.doc_hash ? 'Changed in both places since they last agreed.' : 'Written in both places, and they say different things.'}</p>
               <div className="jr-both">
                 <section><h3>In your Doc</h3><DayWords e={it.day.entry} /></section>
                 <section><h3>Here</h3><DayWords e={it.entry} /></section>
               </div>
               <div className="form-actions">
-                {!it.long && <button type="button" className="btn" onClick={() => decide(it, 'doc')}>Keep the Doc’s</button>}
+                {!it.long && <button type="button" className={it.empty ? 'btn ghost' : 'btn'} onClick={() => decide(it, 'doc')}>{it.empty ? 'Remove it here too' : 'Keep the Doc’s'}</button>}
                 {!it.unsafe && <button type="button" className="btn ghost" onClick={() => decide(it, 'here')}>Keep this one</button>}
               </div>
               {it.unsafe && <p className="muted">That day has a picture, chip or table in your Doc, so it’s only ever changed there.</p>}
@@ -276,9 +283,9 @@ export default function DocPage({ j, me }) {
 
       {msg && <p className="span-6 jr-docmsg" role="status">{msg}</p>}
       {ask && (
-        <Confirm title={ask.item.kind === 'goneFromDoc' ? 'Remove this page here?' : 'Remove this day from your Doc?'} yes="Remove it" danger onNo={() => setAsk(null)}
+        <Confirm title={ask.item.kind === 'removedHere' ? 'Remove this day from your Doc?' : 'Remove this page here?'} yes="Remove it" danger onNo={() => setAsk(null)}
           onYes={() => { const { item, choice } = ask; setAsk(null); run({ choices: { ...(st.choices || {}), [item.date]: choice } }) }}>
-          {longDate(ask.item.date)} goes for good {ask.item.kind === 'goneFromDoc' ? 'from your journal here' : 'from your Doc (its version history in Google Docs still has it)'}.
+          {longDate(ask.item.date)} goes for good {ask.item.kind === 'removedHere' ? 'from your Doc (its version history in Google Docs still has it)' : 'from your journal here'}.
         </Confirm>
       )}
       {unlink && (
@@ -293,10 +300,12 @@ export default function DocPage({ j, me }) {
 /** Where the days stop: the app's guess, and the lines it could be, to tap. */
 function StopPicker({ paras, stop, onStop }) {
   const { days } = docDays(paras, stop)
+  const written = days.filter((d) => hasWords(d.entry))
+  const begun = days.length && !hasWords(days[days.length - 1].entry) ? days[days.length - 1] : null
   const choices = stopChoices(paras).slice(-40)
   return (
     <div className="jr-stop">
-      <p>{days.length ? <><b>{days.length} {days.length === 1 ? 'day' : 'days'}</b>, {longDate(days[0].date)} to {longDate(days[days.length - 1].date)}.</> : 'No dated days found above that line.'}</p>
+      <p>{written.length ? <><b>{written.length} {written.length === 1 ? 'day' : 'days'}</b> written, {longDate(written[0].date)} to {longDate(written[written.length - 1].date)}{begun ? <>, and {longDate(begun.date)} begun ahead</> : null}.</> : 'No written days found above that line.'}</p>
       <fieldset className="jr-stoplist">
         <legend>New days go at the bottom of your days, above:</legend>
         {choices.map((c) => (

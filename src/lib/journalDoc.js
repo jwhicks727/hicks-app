@@ -15,7 +15,7 @@
 // the writer to choose. Nothing is ever deleted on its own.
 
 import { splitDays, readDay, cleanEntry, longDate, dateLine, isPromptLine, isGratHead } from './journal.js'
-import { parts, MONTHS } from './cal/dates.js'
+import { parts, MONTHS, addDays } from './cal/dates.js'
 
 // ---- The Doc as paragraphs -------------------------------------------------------------------------
 
@@ -139,10 +139,29 @@ export function stopChoices(paras) {
     .map(({ i, text, heading }) => ({ i, text, heading }))
 }
 
-/** A first guess at the stop line: the first heading after the first day that isn't one of a day's own. */
+const WEEKDAY = /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s*:?$/i
+
+/**
+ * A first guess at the stop line, for the writer to confirm: a weekday on its own after the newest day (a
+ * week of questions kept below the days, each under its day's name); else the first heading after the first
+ * day that isn't one of a day's own; else the first line after a long run of blank lines below the newest day.
+ */
 export function guessStop(paras) {
-  const c = stopChoices(paras).find((x) => x.heading && !dayLine(x.text))
-  return c ? c.text : null
+  const choices = stopChoices(paras)
+  const all = splitDays(paras.map((p) => p.line))
+  if (!all.length) return null
+  const lastAt = all[all.length - 1].at
+  const weekday = choices.find((c) => c.i > lastAt && WEEKDAY.test(c.text))
+  if (weekday) return weekday.text
+  const heading = choices.find((c) => c.heading)
+  if (heading) return heading.text
+  let blank = 0
+  for (let i = lastAt + 1; i < paras.length; i++) {
+    if (!paras[i].text.trim() && !paras[i].list) { blank++; continue }
+    if (blank >= 3) { const c = choices.find((x) => x.i === i); if (c) return c.text }
+    blank = 0
+  }
+  return null
 }
 
 // ---- How the Doc writes a day --------------------------------------------------------------------
@@ -155,32 +174,37 @@ const look = (run) => {
   return Object.keys(t).length ? t : null
 }
 
-/** How this Doc writes a day, from its newest plain day: the date's form, the quotes, the Gratitudes heading, the styles, the gap. */
+/**
+ * How this Doc writes a day, learnt from its newest days with words (a day begun ahead has none to learn
+ * from): the date's form, the quotes, the Gratitudes heading, the styles, the gap between days.
+ */
 export function docFormat(paras, days) {
   const f = { weekday: true, open: '“', close: '”', gratHead: 'Gratitudes', listed: true, gap: 1, styles: { date: null, prompt: null, gratHead: null, body: 'NORMAL_TEXT' } }
   const plain = days.filter((d) => d.plain)
-  const recent = plain[plain.length - 1]
-  if (!recent) return f
-  const own = paras.slice(recent.from, recent.last + 1)
-  const dp = own[0]
+  const worded = plain.filter((d) => hasWords(d.entry))
+  const pool = (worded.length ? worded : plain).slice().reverse() // newest first
+  if (!pool.length) return f
+  const own = (d) => paras.slice(d.from, d.last + 1)
+  const dp = own(pool[0])[0]
   const dl = dateLine(dp.text)
   f.weekday = Boolean(dl && dl.weekday != null)
   f.styles.date = { named: dp.named, text: look(dp.runs[0]) }
-  const pp = own.find((p) => isPromptLine(p.text))
+  const find = (test) => { for (const d of pool) { const o = own(d), p = o.find(test); if (p) return [p, o] } return [null, null] }
+  const [pp] = find((p) => isPromptLine(p.text))
   if (pp) {
     if (!pp.text.includes('“')) { f.open = '"'; f.close = '"' }
     f.styles.prompt = { named: pp.named, title: look(pp.runs[0]), rest: look(pp.runs[pp.runs.length - 1]) }
   }
-  const gh = own.find((p) => isGratHead(p.text))
+  const [gh, go] = find((p) => isGratHead(p.text))
   if (gh) {
     f.gratHead = gh.text.trim()
     f.styles.gratHead = { named: gh.named, text: look(gh.runs[0]) }
-    const next = own[own.indexOf(gh) + 1]
+    const next = go[go.indexOf(gh) + 1]
     f.listed = Boolean(next && next.list)
   }
-  const bp = own.find((p, i) => i > 0 && p !== pp && p !== gh && !p.list && p.text.trim())
+  const [bp] = find((p) => p !== dp && !isPromptLine(p.text) && !isGratHead(p.text) && !dateLine(p.text) && !p.list && p.text.trim())
   if (bp) f.styles.body = bp.named
-  const between = plain.length > 1 ? plain[plain.length - 2] : recent
+  const between = pool.length > 1 ? pool[1] : pool[0]
   f.gap = Math.max(0, Math.min(3, between.blanks))
   return f
 }
@@ -189,6 +213,8 @@ export function docFormat(paras, days) {
 export function renderDay(entry, f) {
   const [y, m, d] = parts(entry.on_date)
   const rows = [{ kind: 'date', text: f.weekday ? longDate(entry.on_date) : `${MONTHS[m - 1]} ${d}, ${y}` }]
+  // A day begun ahead, the way some of us leave tomorrow's page ready: its date, Gratitudes, an empty first line
+  if (entry.skeleton) return [...rows, { kind: 'gratHead', text: f.gratHead }, { kind: 'grat', text: f.listed ? '' : '1. ' }]
   const paras = (s) => String(s || '').split(/\n+/).map((x) => x.trim()).filter(Boolean)
   if (entry.prompt) {
     const title = (entry.prompt_title || '').trim()
@@ -206,7 +232,22 @@ export function renderDay(entry, f) {
 
 // ---- What to do ----------------------------------------------------------------------------------
 
-const hasWords = (e) => Boolean(e.answer || e.reflection || (e.gratitudes || []).length)
+/** Whether a day read from the Doc has any words (a day begun ahead, with only its date and an empty list, has none). */
+export const hasWords = (e) => rowOf(e) != null
+
+/** Whether the writer begins tomorrow's page ahead: their Doc's newest day is begun but empty. */
+export const beginsAhead = (days) => days.length > 0 && !hasWords(days[days.length - 1].entry)
+
+/**
+ * The day to begin ahead, as the writer does: tomorrow, once today has words (here or in the Doc) and nothing
+ * is begun past today. Null otherwise, so it never piles up empty days.
+ */
+export function aheadDue({ days, entries, today }) {
+  if (days.some((d) => d.date > today)) return null
+  const doc = days.find((d) => d.date === today)
+  if (!entries.some((e) => e.on_date === today) && !(doc && hasWords(doc.entry))) return null
+  return addDays(today, 1)
+}
 
 /**
  * Compare the Doc's days with the entries here. `days` carry `hash` (docHash); `entries` carry `now` (appHash
@@ -222,20 +263,26 @@ const hasWords = (e) => Boolean(e.answer || e.reflection || (e.gratitudes || [])
  * - stuck: a day too long to bring across, left as it is
  */
 export function planSync({ days, entries, removed = [] }) {
-  const plan = { pull: [], push: [], add: [], mark: [], conflicts: [], goneFromDoc: [], removedHere: [], stuck: [], same: 0 }
+  const plan = { pull: [], push: [], add: [], mark: [], conflicts: [], goneFromDoc: [], removedHere: [], stuck: [], clear: [], same: 0 }
   const here = new Map(entries.map((e) => [e.on_date, e]))
   const gone = new Set(removed)
   const inDoc = new Set()
   for (const day of days) {
     inDoc.add(day.date)
     const e = here.get(day.date)
-    const long = tooLong(day.entry)
+    const long = tooLong(day.entry), words = hasWords(day.entry)
     if (!e) {
+      if (!words) { if (gone.has(day.date)) plan.clear.push(day.date); continue } // begun ahead, or only a heading: nothing to bring
       if (gone.has(day.date)) plan.removedHere.push({ day })
-      else if (!hasWords(day.entry)) continue
       else if (long) plan.stuck.push({ day })
       else plan.pull.push({ day, entry: null })
       continue
+    }
+    if (!words) {
+      // The Doc has the day begun and the words are here: they go in, filling it
+      if (!e.doc_hash) { if (day.plain) plan.push.push({ day, entry: e }); else plan.conflicts.push({ day, entry: e, unsafe: true, empty: true }); continue }
+      // In step before, emptied in the Doc since: asked, never removed on its own
+      if (e.doc_hash !== day.hash) { plan.conflicts.push({ day, entry: e, unsafe: !day.plain, empty: true }); continue }
     }
     if (!e.doc_hash || !e.app_hash) {
       if (sameDay(day.entry, e)) plan.mark.push({ day, entry: e })
@@ -254,6 +301,7 @@ export function planSync({ days, entries, removed = [] }) {
     if (e.doc_hash) plan.goneFromDoc.push({ entry: e })
     else plan.add.push({ entry: e })
   }
+  for (const d of gone) if (!inDoc.has(d)) plan.clear.push(d) // removed here and not in the Doc either: nothing to ask
   return plan
 }
 
@@ -293,20 +341,31 @@ export function buildRequests({ paras, days, stopAt, f, writes }) {
   const bodyEnd = paras.length ? paras[paras.length - 1].end : 1
   const blanks = (n) => Array.from({ length: n }, () => ({ kind: 'blank', text: '' }))
   const startOf = (k) => (k != null && k < paras.length ? paras[k].start : null)
+  const deleting = new Set(writes.filter((w) => w.type === 'delete').map((w) => w.day.date))
+  const kept = days.filter((d) => !deleting.has(d.date))
   const ops = writes.map((w) => {
     if (w.type === 'replace') return { at: w.day.start, order: 0, w }
-    if (w.type === 'delete') return { at: w.day.start, order: 0, w }
-    const later = days.find((d) => d.date > w.entry.on_date)
-    const at = later ? later.start : startOf(stopAt)
-    return { at: at == null ? bodyEnd : at, order: 1, w, end: at == null }
+    if (w.type === 'delete') {
+      const i = days.findIndex((d) => d.date === w.day.date)
+      const prev = i > 0 ? days[i - 1] : null
+      // With a day before it, it goes with the blank lines above it, so the lines below it (the gap above a stash) stay
+      if (prev) return { at: prev.end, order: 0, w, from: prev.end, to: w.day.end >= bodyEnd ? bodyEnd - 1 : w.day.end }
+      const next = startOf(w.day.to)
+      return { at: w.day.start, order: 0, w, from: w.day.start, to: next == null ? bodyEnd - 1 : next }
+    }
+    const later = kept.find((d) => d.date > w.entry.on_date)
+    if (later) return { at: later.start, order: 1, w, mode: 'before' }
+    const last = kept[kept.length - 1]
+    // The newest day yet: straight after the newest day's words, ahead of any blank lines between it and a stash
+    if (last) return last.end >= bodyEnd ? { at: bodyEnd, order: 1, w, mode: 'end' } : { at: last.end, order: 1, w, mode: 'after' }
+    const s = startOf(stopAt)
+    return s == null ? { at: bodyEnd, order: 1, w, mode: 'end' } : { at: s, order: 1, w, mode: 'before' }
   }).sort((a, b) => b.at - a.at || a.order - b.order || (b.w.entry && a.w.entry ? (a.w.entry.on_date < b.w.entry.on_date ? 1 : -1) : 0))
   const req = []
   for (const op of ops) {
     const { w } = op
     if (w.type === 'delete') {
-      const next = startOf(w.day.to)
-      const e = next == null ? bodyEnd - 1 : next
-      if (e > w.day.start) req.push({ deleteContentRange: { range: { startIndex: w.day.start, endIndex: e } } })
+      if (op.to > op.from) req.push({ deleteContentRange: { range: { startIndex: op.from, endIndex: op.to } } })
       continue
     }
     const rows = renderDay(w.entry, f)
@@ -318,12 +377,12 @@ export function buildRequests({ paras, days, stopAt, f, writes }) {
       req.push(...styleRows(w.day.start, rows, f))
       continue
     }
-    if (op.end) {
+    if (op.mode === 'end') {
       const all = [...blanks(f.gap), ...rows]
       req.push({ insertText: { location: { index: bodyEnd - 1 }, text: `\n${all.map((r) => r.text).join('\n')}` } })
       req.push(...styleRows(bodyEnd, all, f))
     } else {
-      const all = [...rows, ...blanks(f.gap)]
+      const all = op.mode === 'after' ? [...blanks(f.gap), ...rows] : [...rows, ...blanks(f.gap)]
       req.push({ insertText: { location: { index: op.at }, text: `${all.map((r) => r.text).join('\n')}\n` } })
       req.push(...styleRows(op.at, all, f))
     }
