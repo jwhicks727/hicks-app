@@ -254,3 +254,14 @@ html[data-motion="less"] .confetti { display: none; }
 .reading-text { display: grid; gap: 12px; font-size: 18px; line-height: 1.7; max-width: 42em; }
 .reading-text .refrain { font-weight: 800; color: color-mix(in srgb, var(--lc) 55%, var(--ink)); }
 .reading-foot { display: grid; gap: 8px; justify-items: start; }
+
+/* A concert's ticket and scrapbook (ks-) */
+.ks-ticket-pic img { display: block; width: 100%; max-height: 420px; object-fit: contain; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 5%, var(--card)); }
+.ks-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ks-items li { position: relative; }
+.ks-note { grid-column: 1 / -1; padding: 10px 12px; border-radius: var(--r-control); background: color-mix(in srgb, #8A5BC4 10%, var(--card)); font-weight: 650; }
+.ks-pic img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-control); }
+.ks-x { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: var(--r-control); border: 0; background: color-mix(in srgb, var(--card) 85%, transparent); color: var(--ink); font: inherit; font-weight: 900; cursor: pointer; }
+@media (pointer: coarse) { .ks-x { width: 44px; height: 44px; } }
+.ks-add { display: grid; gap: 10px; margin-top: 10px; }
+.ks-words { display: grid; gap: 4px; font-weight: 800; } .ks-words textarea { min-height: 84px; }

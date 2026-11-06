@@ -241,6 +241,7 @@ sign-in link won't come back to the app.
 | `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
 | `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | A parent records a yes under their own id; either parent can remove it |
 | `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
+| `event_keepsakes` | A show's ticket and its scrapbook of photos and words (files in the private `keepsakes` bucket) | The family | Anyone in the family adds their own; whoever added it, or a parent, takes it out |
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
 | `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
 
@@ -258,6 +259,7 @@ Migration index:
 | `20261101090100_academy` | Anna's academy: settings, rooms, tasks, goals, grades, cheers, the family's own pictures and the private `academy` bucket (family reads; parents add pictures). |
 | `20261101120000_parish_stations_birds` | What the app reads from outside: Sacred Heart's schedules (every version), the station each place reads (the schools' seeded, home's set in Admin), and the last answer from Synoptic and eBird. The family reads; the functions write; parents choose the stations. |
 | `20261102120000_birds_more_cache` | `outside_cache` also takes the key `birds-more` (hotspots, county numbers, this month's possibles) |
+| `20261104070000_concert_keepsakes` | A show's ticket and scrapbook (`event_keepsakes`) and their private bucket `keepsakes` |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |

@@ -46,7 +46,7 @@ export default function Calendar({ rest }) {
   if (rest[0] === 'day' && rest[2] === 'readings' && /^\d{4}-\d\d-\d\d$/.test(rest[1])) return <Readings date={rest[1]} variant={/^[A-Za-z0-9]{1,20}$/.test(rest[3] || '') ? rest[3] : ''} session={session} />
   if (rest[0] === 'new') return <EventForm date={/^\d{4}-\d\d-\d\d$/.test(rest[1] || '') ? rest[1] : today} members={family.people} />
   if (rest[0] === 'event' && rest[2] === 'edit') return one.loaded ? <EventForm event={one.event && { ...one.event, for_whom: family.canon(one.event.for_whom) }} date={one.event ? one.event.starts_on : today} members={family.people} /> : null
-  if (rest[0] === 'event') return <EventPage state={one} members={family.people} parent={Boolean(me && me.role === 'parent')} today={today} />
+  if (rest[0] === 'event') return <EventPage state={one} members={family.people} parent={Boolean(me && me.role === 'parent')} today={today} me={me} />
   return <Views rest={rest} today={today} session={session} family={family} />
 }
 
@@ -73,7 +73,6 @@ function Views({ rest, today, session, family }) {
           'The school calendars read from Admin: Kordyak, Wayne Ruble and SOAR side by side in the year view',
           'Laurie’s lectoring from her monthly email, and Anna’s altar serving and ministry',
           'Catholic and saint line art for the feasts, and art for the seasons and holidays',
-          'Concerts as special events, with their ticket and scrapbook',
         ]} />
       )}
     </>
