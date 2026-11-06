@@ -13,5 +13,8 @@
 @keyframes show-sway { from { transform: translateX(calc(var(--sway) * -1)) rotateX(0deg); } to { transform: translateX(var(--sway)) rotateX(55deg); } }
 @keyframes show-spin { from { transform: rotate(var(--tilt)); } to { transform: rotate(var(--spin)); } }
 @keyframes show-arrive { from { opacity: 0; } to { opacity: 1; } }
-html[data-motion="less"] .season-show { display: none; }
-@media (prefers-reduced-motion: reduce) { .season-show { display: none; } }
+/* Autumn's wind (src/shell/WindShow.jsx): leaves moved by transforms alone, over everything, never taking a tap */
+.wind-show { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
+.ws-leaf { position: absolute; left: 0; top: 0; display: block; background-repeat: no-repeat; transform-origin: 50% 50%; will-change: transform; backface-visibility: visible; }
+html[data-motion="less"] .season-show, html[data-motion="less"] .wind-show { display: none; }
+@media (prefers-reduced-motion: reduce) { .season-show, .wind-show { display: none; } }
