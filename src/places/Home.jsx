@@ -9,6 +9,7 @@ import FridgeCard from '../parts/FridgeCard.jsx'
 import RateNudge from '../kitchen/RateNudge.jsx'
 import MindfulCard from '../parts/MindfulCard.jsx'
 import Sit from '../parts/Sit.jsx'
+import SitReminder from '../parts/SitReminder.jsx'
 import JournalCard from '../parts/JournalCard.jsx'
 import TableCard from '../parts/TableCard.jsx'
 import AcademyCard from '../parts/AcademyCard.jsx'
@@ -64,6 +65,7 @@ function HomeScreen() {
         {/* Each of us by name once signed in; the wall will greet Team Hicks. */}
         <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
       </header>
+      <SitReminder me={me} today={today} hour={hour} />
       <RolloverShine />
       <RateNudge book={book} me={me} today={today} />
       <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />

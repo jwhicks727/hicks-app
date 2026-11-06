@@ -11,9 +11,14 @@ import { showFor } from '../lib/seasonShows.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import { todayAt } from '../lib/cal/dates.js'
 import { navigate } from '../lib/router.js'
+import { useFamily } from '../lib/useCalendar.js'
+import { reminderOn } from '../lib/sitReminder.js'
 
 export default function Settings() {
   const session = useSession()
+  const family = useFamily(session)
+  const myEmail = session && session.user.email ? session.user.email.toLowerCase() : null
+  const meHere = myEmail ? family.members.find((m) => (m.email || '').toLowerCase() === myEmail) : null
   const [prefs, update] = usePrefs()
   const [tryKey, setTry] = useSeasonTry()
   const { list: paintings } = usePaintings()
@@ -81,6 +86,10 @@ export default function Settings() {
         <div className="switch-row">
           <span><b>A mindful moment on Home</b><span>A line from the teaching each day, a word on it on Sundays, and the morning sit</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.mindful !== false} aria-label="A mindful moment on Home" onClick={() => update({ mindful: prefs.mindful === false })}><i /></button>
+        </div>
+        <div className="switch-row">
+          <span><b>Remind me to sit</b><span>First on Home each day, until today’s sit is done or skipped</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={reminderOn(prefs, meHere)} aria-label="Remind me to sit" onClick={() => update({ sitReminder: !reminderOn(prefs, meHere) })}><i /></button>
         </div>
         <div className="switch-row">
           <span><b>The bowl</b><span>A struck bowl begins and ends a sit</span></span>

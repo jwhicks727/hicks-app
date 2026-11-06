@@ -362,6 +362,16 @@ teaching each day, and on Sundays a word on one idea with one small thing to
 try; two Buddhist days on the calendar (Vesak, Bodhi Day), each with a
 practice. Teaching stays light: Jason reads about it and doesn't practise.
 
+**Built (2026-11-05):** the day's sit waits at the top of Home, right under
+the greeting (`src/parts/SitReminder.jsx`, `src/lib/sitReminder.js`): the
+morning's heading ("Your ten minutes this morning", then "whenever you can"
+after noon and "before bed" after six), the day's line, and Sit now, Done
+already and Skip today. Finishing a sit of a minute or more marks the day;
+each answer goes at once with an Undo, and the card is back the next day.
+It is on for the parents unless the mindful moment is off, and Settings
+("Remind me to sit") or the card's own small line switches it off. The
+day's answer and the switch are kept on the device, like the sit's length.
+
 **To settle first**
 
 - Which traditions or teachers speak to him (Zen, Plum Village and Thich
