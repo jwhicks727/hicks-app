@@ -118,7 +118,8 @@ export default function Settings() {
         <ul className="here-pack">
           <li>Your phone is asked only while the app is open: when it opens, and when you come back to it, at most every ten minutes. Never in the background.</li>
           <li>Where you are is rounded to about a kilometre at once and kept only on this phone. It’s forgotten after six hours, when you sign out, or when this is switched off. No history is kept.</li>
-          <li>The rounded position goes to Open-Meteo for the weather, the National Weather Service for alerts, and OpenStreetMap for the town’s name. Nothing goes to Claude.</li>
+          <li>The rounded position goes to Open-Meteo for the weather, the National Weather Service for alerts, and OpenStreetMap for the town’s name. Away from home, the birds and the map are asked about the area only, to about ten kilometres.</li>
+          <li>Away from home, What’s around here? writes itself: Claude is sent the town, the area to about ten kilometres and the family’s interests (Admin › What’s around here), never who you are. The guide is kept for the family by place, never by person.</li>
           <li>Coming next: while you’re away, the rest of the family will see which town you’re in. This card will say so on the day it starts.</li>
         </ul>
         {prefs.here === true && <HereStatus here={here} />}

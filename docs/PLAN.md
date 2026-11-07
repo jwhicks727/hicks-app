@@ -329,8 +329,21 @@ and the phases are in issue #19; what's built is ticked here.
       on the phone from her own sightings, `src/lib/life/lifers.js`). eBird is asked
       about a tenth-of-a-degree cell, ten new places a day at most. Unverified live
       until migration 20261107230000 runs and the `birds` function is deployed again.
-- [ ] What's around here?: the map layer, then the guide (written by itself when we're
-      away or a trip is coming up), with high-quality free photos.
+- [x] **What's around here?** (2026-11-07): away, Home leads with a guide to the place
+      that writes itself (no button): the place's picture (Laurie's painting where a
+      parent has said she painted it, else a Featured or Quality photo from Wikimedia
+      Commons, credited), its height, weather and sunset, then hikes (short, medium,
+      long, with when to set off before sunset), the village, coffee roasters,
+      brewpubs, the local food, things for Anna, records and books, art, Mass and the
+      sky, in the moment's order (`/world/around`; a kept one at `/world/around/<id>`).
+      Every place has its sources, distance, OpenStreetMap's hours where known, and
+      Directions. What the open map and Wikipedia know nearby shows at once, and the
+      guide streams in within about a minute, kept for the family for a month. A trip
+      on the calendar gets its guide written two days ahead, linked from Coming up.
+      Out and about, a small card offers it. Admin › What's around here keeps the
+      family's interests; Reports counts guides and their cost, never the places.
+      Unverified live until migration 20261107231000 runs and the `around` and
+      `claude` functions are deployed.
 - [ ] Which town each of us is in, on the others' Home (decided: full transparency).
 - [ ] The travel app: countdown, packing, Anna's trip quest, the postcard, Our day,
       recipes from the trip (tagged to it), the scrapbook, the passport and the rest.

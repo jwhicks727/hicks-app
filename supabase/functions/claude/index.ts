@@ -15,9 +15,12 @@ import {
   FALLBACK_SONNET, pickLatest, costCents, overCap, CAPS, checkUpload, uploadBlock, checkHistory,
   TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk,
 } from '../_shared/claude.js'
+import { cellOf, validCellId, clean as cleanText, GUIDE_TOOL, GUIDE_BRIEF, guideAsk, cleanGuide, searchedUrls, searchesIn, SEARCH_CENTS, matchPlace, publicSite, GUIDE_KEEP_MS, BUILDING_STALE_MS, GUIDES_A_DAY, UA } from '../_shared/around.js'
+import { previewImage, isPicture } from '../_shared/wildpics.js'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const caps = { dayCents: Number(Deno.env.get('AI_DAILY_CAP_CENTS') ?? CAPS.dayCents), monthCents: Number(Deno.env.get('AI_MONTHLY_CAP_CENTS') ?? CAPS.monthCents) }
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
 const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
@@ -93,6 +96,9 @@ Deno.serve(async (req) => {
   const refused = (msg: { stop_reason?: string | null }) => msg.stop_reason === 'refusal'
 
   try {
+    // ---- What's around here: a guide to the place, written in the background ----------
+    if (body.task === 'around-here') return await aroundHere(db, body, base, parent === true)
+
     // ---- The Kitchen's conversation, with tools that only propose -------------------
     if (body.task === 'kitchen-chat') {
       const why = checkHistory(body.messages)
@@ -236,4 +242,105 @@ async function readRecipe(db: any, list: Array<{ id: string, slug: string, title
   const { data } = await db.from('recipes').select('id, body').eq('id', hit.id).maybeSingle()
   if (!data) return 'That recipe couldn’t be read.'
   return `slug: ${hit.slug}\n\n${(await withPrivate(db, data, isParent)).slice(0, 30000)}`
+}
+
+// ---- What's around here ---------------------------------------------------------------
+// The guide is information about a place, not a change to the family's data, so it's
+// kept like the outside services' answers: in area_guides, by area (never by person),
+// every version a new row, written only here with the service role. One guide is
+// written at a time for an area; a few new ones a day; inside the family's Claude caps,
+// with each web search counted. The app polls area_guides for it while it's written.
+// deno-lint-ignore no-explicit-any
+async function aroundHere(db: any, body: any, base: any, isParent: boolean) {
+  if (!SERVICE_KEY) return reply(503, { error: 'Not set up yet' })
+  if (!validCellId(body.cell)) return reply(400, { error: 'Not an area' })
+  const [la, ln] = String(body.cell).split(',').map(Number)
+  const cell = cellOf(la, ln)
+  if (!cell) return reply(400, { error: 'Not an area' })
+  const town = cleanText(body.town, 80), region = cleanText(body.region, 60), cc = /^[A-Z]{2}$/.test(String(body.cc || '')) ? String(body.cc) : ''
+  const svc = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } })
+  const { data: rows } = await svc.from('area_guides').select('id, status, fetched_at').eq('cell', cell.id).eq('kind', 'guide').order('fetched_at', { ascending: false }).limit(5)
+  const ready = (rows ?? []).find((r: { status: string }) => r.status === 'ready')
+  const building = (rows ?? []).find((r: { status: string }) => r.status === 'building')
+  if (building && Date.now() - Date.parse(building.fetched_at) < BUILDING_STALE_MS) return reply(200, { status: 'building', id: building.id })
+  if (building) await svc.from('area_guides').update({ status: 'failed', data: { error: 'took too long' } }).eq('id', building.id)
+  if (ready && Date.now() - Date.parse(ready.fetched_at) < GUIDE_KEEP_MS && !(body.fresh && isParent)) return reply(200, { status: 'ready', id: ready.id })
+  const since = new Date(Date.now() - 864e5).toISOString()
+  const { count } = await svc.from('area_guides').select('id', { count: 'exact', head: true }).eq('kind', 'guide').gte('fetched_at', since)
+  if ((count ?? 0) >= GUIDES_A_DAY) return reply(200, { error: 'Enough new guides have been written today: try again tomorrow' })
+
+  const [{ data: maps }, { data: settings }] = await Promise.all([
+    svc.from('area_guides').select('data').eq('cell', cell.id).eq('kind', 'map').eq('status', 'ready').order('fetched_at', { ascending: false }).limit(1),
+    db.from('travel_settings').select('interests').eq('id', 1).maybeSingle(),
+  ])
+  const mapData = maps && maps[0] ? maps[0].data : {}
+  const interests = settings && settings.interests ? settings.interests : ''
+  const { data: row, error: insErr } = await svc.from('area_guides').insert({ cell: cell.id, kind: 'guide', status: 'building', town: town || null, data: {} }).select('id').single()
+  if (insErr || !row) return reply(200, { status: 'building' }) // another phone started it a moment ago
+  const work = writeGuide(db, svc, row.id, { cell, town, region, cc, interests, mapData, base }).catch(async (e) => {
+    console.error('around-here:', String(e && (e as Error).message))
+    await svc.from('area_guides').update({ status: 'failed', data: { error: 'Claude couldn’t write it just now' } }).eq('id', row.id)
+  })
+  // deno-lint-ignore no-explicit-any
+  const rt = (globalThis as any).EdgeRuntime
+  if (rt && typeof rt.waitUntil === 'function') { rt.waitUntil(work); return reply(200, { status: 'building', id: row.id }) }
+  await work
+  return reply(200, { status: 'ready', id: row.id })
+}
+
+// deno-lint-ignore no-explicit-any
+async function writeGuide(db: any, svc: any, rowId: number, o: any) {
+  const date = today()
+  const web = { type: 'web_search_20260209', name: 'web_search', max_uses: 12, ...(o.town && o.cc ? { user_location: { type: 'approximate', city: o.town, region: o.region || undefined, country: o.cc } } : {}) }
+  const tools = [web, GUIDE_TOOL]
+  const messages: unknown[] = [{ role: 'user', content: guideAsk({ town: o.town, region: o.region, cell: o.cell, date, interests: o.interests, map: o.mapData.map || {}, sights: o.mapData.sights || [] }) }]
+  const searched: string[] = []
+  let saved: unknown = null, model = ''
+  for (let round = 0; round < 8 && !saved; round++) {
+    const msg = await ask({ ...o.base, max_tokens: 16000, system: GUIDE_BRIEF, tools, messages }, true)
+    model = msg.model || model
+    // deno-lint-ignore no-explicit-any
+    const u = (msg.usage ?? {}) as any
+    await db.rpc('ai_record', { p_task: 'around-here', p_model: msg.model ?? o.base.model, p_in: (u.input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), p_out: u.output_tokens ?? 0, p_cents: costCents(u) + searchesIn(u) * SEARCH_CENTS })
+    if (msg.stop_reason === 'refusal') break
+    const content = msg.content.filter((b: { type: string }) => b.type !== 'fallback')
+    searched.push(...searchedUrls(content))
+    const use = content.find((b: { type: string, name?: string }) => b.type === 'tool_use' && b.name === 'save_guide')
+    if (use) { saved = (use as { input: unknown }).input; break }
+    messages.push({ role: 'assistant', content })
+    if (msg.stop_reason !== 'pause_turn') messages.push({ role: 'user', content: 'Please call save_guide now with the finished guide.' })
+  }
+  if (!saved) { await svc.from('area_guides').update({ status: 'failed', data: { error: 'No guide came back' } }).eq('id', rowId); return }
+  const guide = cleanGuide(saved, searched, o.mapData.map || {})
+  await addPhotos(guide, o.mapData.sights || [])
+  const data = { at: Date.now(), cell: { lat: o.cell.lat, lng: o.cell.lng }, town: o.town, region: o.region, date, ...guide, model, sent: 'the town, the area to about ten kilometres, and the family’s interests' }
+  await svc.from('area_guides').update({ status: 'ready', data, fetched_at: new Date().toISOString() }).eq('id', rowId)
+}
+
+// A photo for each place: its Wikipedia article's Commons photo where the place is one, else the
+// preview picture its own website names (checked to be a real picture on the site's own host).
+// deno-lint-ignore no-explicit-any
+async function addPhotos(guide: any, sights: any[]) {
+  const byTitle = { map: sights.map((s) => ({ ...s, name: s.title })) }
+  const todo: Array<() => Promise<void>> = []
+  for (const sec of guide.sections) {
+    for (const it of sec.items) {
+      const sight = matchPlace(it.name, byTitle)
+      if (sight && sight.photo) { it.photo = { ...sight.photo, from: 'Wikimedia Commons' }; continue }
+      if (it.website && publicSite(it.website) && todo.length < 16) {
+        todo.push(async () => {
+          try {
+            const res = await fetch(it.website, { signal: AbortSignal.timeout(8000), headers: { 'User-Agent': UA, Accept: 'text/html' } })
+            if (!res.ok || !publicSite(res.url)) return
+            const url = previewImage((await res.text()).slice(0, 1_500_000), res.url)
+            if (!url) return
+            const head = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(6000), headers: { 'User-Agent': UA } })
+            if (!head.ok || !isPicture(head.headers.get('content-type'), head.headers.get('content-length'))) return
+            it.photo = { url, credit: `From ${new URL(it.website).hostname.replace(/^www\./, '')}`, page: it.website, from: 'its own website' }
+          } catch { /* no picture: the card draws one */ }
+        })
+      }
+    }
+  }
+  for (let i = 0; i < todo.length; i += 4) await Promise.all(todo.slice(i, i + 4).map((f) => f()))
 }

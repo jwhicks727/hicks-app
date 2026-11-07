@@ -126,6 +126,8 @@ export const TASKS = {
   'recipe-from-image': { who: 'parent', effort: 'medium', maxTokens: 16000, schema: PHOTO_RECIPE_SCHEMA, upload: true },
   'calendar-from-image': { who: 'parent', effort: 'low', maxTokens: 16000, schema: EVENTS_SCHEMA, upload: true, pdf: true },
   'garden-photo': { who: 'family', effort: 'medium', maxTokens: 8000, schema: GARDEN_SCHEMA, upload: true },
+  // What's around here (supabase/functions/_shared/around.js): written by itself when one of us is away or a trip is coming
+  'around-here': { who: 'family', effort: 'medium', maxTokens: 16000, says: 'the town you’re in, the area to about ten kilometres, and the family’s interests from Settings' },
 }
 
 // ---- The Kitchen chat's tools: proposals only, confirmed on screen ------------------

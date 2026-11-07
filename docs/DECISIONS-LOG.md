@@ -6,6 +6,40 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — What's around here: the open map at once, Claude's guide within a minute
+
+Phases 3 and 4 of issue #19. Decided:
+
+- **Two layers, both kept by area.** The `around` function reads OpenStreetMap (through
+  Overpass) and Wikipedia's articles near a tenth-of-a-degree cell, with Commons photos,
+  a week at a time; the guide is the `claude` function's new `around-here` task, with
+  web search, a month at a time. Both go in `area_guides`, a new row for every version,
+  saying which place and never who asked or was there.
+- **It writes itself** (Jason's decision): a phone that's away asks for the map and the
+  guide by itself, once per area per day, and looks again every few seconds while it's
+  written; a calendar trip's guide is asked for two days ahead. Settings says so once,
+  and the card's footer every time. Only one guide is written per area at a time, four
+  new guides a day at most, inside the family's Claude caps.
+- **The guide is information, not a change.** It's kept like the outside services'
+  answers, written by the function with the service role; nothing Claude writes
+  changes the family's own data.
+- **No invented places.** Claude finishes with one strict tool (`save_guide`, since a
+  forced tool choice isn't allowed on the newest models and structured output isn't
+  combined with web search here). Before it's kept, each place must name a source its
+  own searches returned, or it's dropped; each is matched to the open map for its point,
+  hours and link, and one the map doesn't have says "check before you go".
+- **Photos, high quality and free:** Commons' Featured and Quality pictures first, then
+  any openly licensed Commons photo (author and licence shown), then a place's own
+  preview picture from its own website (checked, loaded from the site); Laurie's
+  painting leads wherever a parent has said she painted the place. Openverse and the
+  Park Service's photos are left for later.
+- **Searches are counted at a cent each** for the app's caps (Anthropic bills each
+  search; the figure is an estimate to check against its pricing page).
+- **Reports counts guides and their cost, never the places**, so where we've been stays
+  off Reports.
+
+---
+
 ## 2026-11-07 — Birds where we are, and the ones that could be new to Laurie
 
 Phase 2 of issue #19. Decided:
