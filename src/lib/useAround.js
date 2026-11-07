@@ -94,22 +94,22 @@ export function useAround(place, { auto = false } = {}) {
   return state
 }
 
-/** The family's interests, what the guide is written for: { interests, loaded, save }. */
+/** The travel settings (one row): the family's interests and the travel app's name: { interests, appName, loaded, save, saveName }. */
 export function useTravelSettings() {
   const session = useSession()
-  const [state, setState] = useState({ interests: '', loaded: false })
+  const [state, setState] = useState({ interests: '', appName: 'Yonder', loaded: false })
   const [n, setN] = useState(0)
   useEffect(() => {
     let live = true
-    if (!supabase || !session) { setState({ interests: '', loaded: true }); return undefined }
-    supabase.from('travel_settings').select('interests').eq('id', 1).maybeSingle()
-      .then(({ data }) => { if (live) setState({ interests: data ? data.interests : '', loaded: true }) })
+    if (!supabase || !session) { setState({ interests: '', appName: 'Yonder', loaded: true }); return undefined }
+    supabase.from('travel_settings').select('*').eq('id', 1).maybeSingle()
+      .then(({ data }) => { if (live) setState({ interests: data ? data.interests || '' : '', appName: (data && data.app_name) || 'Yonder', loaded: true }) })
     return () => { live = false }
   }, [session, n])
-  const save = async (interests, memberId) => {
-    const { error } = await supabase.from('travel_settings').upsert({ id: 1, interests: String(interests).slice(0, 1500), updated_by: memberId || null, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+  const write = async (patch, memberId) => {
+    const { error } = await supabase.from('travel_settings').upsert({ id: 1, ...patch, updated_by: memberId || null, updated_at: new Date().toISOString() }, { onConflict: 'id' })
     if (!error) setN((x) => x + 1)
     return error ? error.message : null
   }
-  return { ...state, save }
+  return { ...state, save: (interests, memberId) => write({ interests: String(interests).slice(0, 1500) }, memberId), saveName: (name, memberId) => write({ app_name: name }, memberId) }
 }

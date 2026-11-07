@@ -1,3 +1,4 @@
+import { useCurrentTrip, tagToTrip } from './TripTag.jsx'
 import { useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { navigate } from '../lib/router.js'
@@ -35,6 +36,9 @@ export default function RecipeEditor({ slug, data, parent }) {
   const [draft, setDraft, clear] = useDraft(`recipe.edit.${slug || 'new'}`, { text: null })
   const [busy, setBusy] = useState(false), [err, setErr] = useState(null)
   const back = slug ? `/kitchen/recipe/${slug}` : '/kitchen'
+  // On a trip, a new recipe is tagged to it unless unticked (Jason's ask: the scrapbook keeps it)
+  const { trip } = useCurrentTrip()
+  const [fromTrip, setFromTrip] = useState(true)
   if (!parent) return <><header className="hero span-6"><KitchenMenu current="cookbook" parent={parent} /></header><Card tint="#C42D20" label="Recipes" glyph="pot" className="span-6"><p>Only a parent can write or change a recipe.</p></Card></>
   if (slug && (!data || !data.loaded)) return <p className="muted span-6">Opening the recipe…</p>
   if (slug && start == null) return <><header className="hero span-6"><KitchenMenu current="cookbook" parent={parent} /></header><Card tint="#C42D20" label="Not found" glyph="pot" className="span-6"><p>No recipe at this address.</p></Card></>
@@ -46,6 +50,7 @@ export default function RecipeEditor({ slug, data, parent }) {
     const [res] = await saveRecipes([slug ? { md: text, slug } : text])
     setBusy(false)
     if (!res || res.error) { setErr(res ? res.error : 'Nothing was saved.'); return }
+    if (!slug && trip && fromTrip && res.id) await tagToTrip(trip, res.id, null, 'found')
     clear(); navigate(`/kitchen/recipe/${res.slug}`, { replace: true })
   }
   return (
@@ -68,6 +73,7 @@ export default function RecipeEditor({ slug, data, parent }) {
         </dl>
         {r.warnings.length > 0 && <ul className="re-warn">{r.warnings.slice(0, 6).map((w, i) => <li key={i}>{w}</li>)}</ul>}
       </Card>
+      {!slug && trip && <label className="span-6 kt-tick"><input type="checkbox" checked={fromTrip} onChange={(e) => setFromTrip(e.target.checked)} /> From our trip to {trip.town}: it goes in the trip’s scrapbook</label>}
       <div className="span-6 form-actions">
         <button type="button" className="btn" disabled={busy || !text.trim()} onClick={save}>{busy ? 'Saving…' : 'Save the recipe'}</button>
         <button type="button" className="btn ghost" onClick={() => { clear(); navigate(back) }}>Cancel</button>

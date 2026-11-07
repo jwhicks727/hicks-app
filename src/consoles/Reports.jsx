@@ -146,7 +146,30 @@ function GuidesReport({ session }) {
     </div>
   )
 }
-const BUILT = { 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
+/** The travel app in numbers: trips kept, postcards, hikes and their miles. Counts only, never where. */
+function TripsReport({ session }) {
+  const [d, setD] = useState(null)
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session) return undefined
+    const year = `${new Date().getFullYear()}-01-01`
+    Promise.all([
+      supabase.from('outings').select('id', { count: 'exact', head: true }).gte('starts_on', year),
+      supabase.from('postcards').select('id', { count: 'exact', head: true }).gte('on_date', year),
+      supabase.from('trip_hikes').select('miles').gte('on_date', year).limit(1000),
+    ]).then(([o, p, h]) => { if (live) setD({ trips: o.count ?? 0, cards: p.count ?? 0, hikes: (h.data || []).length, miles: Math.round((h.data || []).reduce((a, r) => a + Number(r.miles || 0), 0) * 10) / 10 }) })
+    return () => { live = false }
+  }, [session])
+  if (!d) return <p className="muted">Counting…</p>
+  return (
+    <table className="table"><tbody>
+      <tr><td>Trips kept this year</td><td className="num">{d.trips}</td></tr>
+      <tr><td>Postcards sent</td><td className="num">{d.cards}</td></tr>
+      <tr><td>Hikes ticked off</td><td className="num">{d.hikes} ({d.miles} mi)</td></tr>
+    </tbody></table>
+  )
+}
+const BUILT = { 'yonder/trips': TripsReport, 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
 
 export default function Reports() {
   const session = useSession()

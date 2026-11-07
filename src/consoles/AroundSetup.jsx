@@ -5,6 +5,7 @@ import { useDraft } from '../lib/useDraft.js'
 import { useTravelSettings } from '../lib/useAround.js'
 import { DEFAULT_INTERESTS } from '../../supabase/functions/_shared/around.js'
 import { useState } from 'react'
+import { APP_NAMES } from '../lib/yonder.js'
 
 /**
  * Admin › What's around here: what the guide is written for. The parents keep it;
@@ -46,3 +47,27 @@ export default function AroundSetup() {
     </Card>
   )
 }
+
+/** Admin › The travel app's name: offered like the lists' names; the words follow everywhere it's shown. */
+export function YonderSetup() {
+  const session = useSession()
+  const family = useFamily(session)
+  const email = session && session.user.email ? session.user.email.toLowerCase() : null
+  const me = email ? family.members.find((m) => (m.email || '').toLowerCase() === email) : null
+  const parent = Boolean(me && me.role === 'parent')
+  const { appName, loaded, saveName } = useTravelSettings()
+  const [note, setNote] = useState('')
+  return (
+    <Card tint="#2F7D7A" label="The travel app’s name" glyph="star" className="span-6">
+      <p>What the travel app is called on the Apps sheet and its own screens. Its address stays /yonder.</p>
+      {loaded && (
+        <fieldset className="choice-row"><legend>Its name</legend>
+          {APP_NAMES.map((n) => <button key={n} type="button" aria-pressed={appName === n} disabled={!parent} onClick={async () => { const why = await saveName(n, me && me.id); setNote(why ? `Not saved: ${why}` : `Now: ${n}.`) }}>{n}</button>)}
+        </fieldset>
+      )}
+      {!parent && <p className="muted small">Jason or Laurie can change it.</p>}
+      {note && <p className="muted" role="status">{note}</p>}
+    </Card>
+  )
+}
+

@@ -1,3 +1,4 @@
+import { AltitudeNote, CookedOnTrip } from './TripTag.jsx'
 import { useEffect, useState } from 'react'
 import { goBack } from '../lib/router.js'
 import { iconFor } from '../lib/kitchen/food.js'
@@ -44,6 +45,7 @@ export default function CookMode({ data, slug, parent }) {
         <span className="cm-title">{r.title}</span>
         <button type="button" className="btn ghost cm-ing" onClick={() => setShowIngredients((v) => !v)} aria-expanded={showIngredients}>Ingredients</button>
       </header>
+      <AltitudeNote />
       <ol className="cm-dots" aria-label={`Step ${Math.min(i + 1, r.steps.length)} of ${r.steps.length}`}>
         {r.steps.map((x, k) => <li key={x.n} className={k < i ? 'past' : k === i ? 'now' : ''}><button type="button" onClick={() => setI(k)} aria-label={`Step ${x.n}`} /></li>)}
       </ol>
@@ -65,6 +67,7 @@ export default function CookMode({ data, slug, parent }) {
             {plating && <div className="cm-plating"><Prose text={plating.body} /></div>}
             <div className="cm-plates">{plates.map(([k, t, b]) => <div key={k} className="plate" style={{ '--p': PEOPLE[k].colour }}><h3>{t}</h3><Prose text={b} /></div>)}</div>
             <blockquote className="mindful-q cm-dishes">“{DISHES[0]}”<span>{DISHES[1]}, {DISHES[2]}</span></blockquote>
+            {data.recipe && <CookedOnTrip recipeId={data.recipe.id} parent={parent} />}
           </>
         )}
       </main>

@@ -6,6 +6,34 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — The travel app: Yonder, recipes from a trip, postcards and the passport
+
+Phases 6 and 7 of issue #19. Decided:
+
+- **Its own app on the Apps sheet, called Yonder** unless Admin chooses Postcards, Field
+  Trip, Wayfaring or Wanderings (decision 7 left to Jason; Yonder was the recommendation).
+  The address stays `/yonder` whatever its name.
+- **Only what someone chose is kept**: a postcard written, a hike ticked, a place
+  hearted, a packing item added, a recipe tagged. A postcard and a hike keep the town and
+  the day, never a point. The scrapbook gathers these by the trip's dates.
+- **Recipes from a trip (Jason's ask).** On a trip (a calendar one, a kept one, or today
+  away), a new recipe is tagged to it unless unticked, and ticking it keeps the trip if
+  nobody had. Cook mode can say "cooked on our trip"; any recipe's page can add it to a
+  kept trip. "Bring it home" opens the Kitchen chat with the dish asked for (a parent
+  sends it; Laurie's rules go as for any recipe) and offers the tag on the recipe's page.
+- **Where Laurie can eat well** is a parent's ask with her rules, answered to the screen
+  and never stored, so her health information stays out of the shared guide.
+- **Stamps are drawn in code on cream paper** (the app's #FFF8EE), so the ink reads the
+  same in light and dark; national parks are round.
+- **The prayer for the road** is Psalm 120 (121) in the Douay-Rheims (public domain), the
+  Angel of God, and an invocation of St Raphael, patron of travellers.
+- **Left for later, said so in the plan:** road-trip bingo and "along the way" (they need
+  the route; only the time-zone moment is built), the weather we had in a scrapbook,
+  Anna's drawings shown in it, Openverse and Park Service photos, Caltrans read live, and
+  shows near here (with the jam scout). "Two skies" is a card, not a split background.
+
+---
+
 ## 2026-11-07 — The family sees each other's towns; a trip is kept when someone says so
 
 Phase 5 of issue #19. Decided:

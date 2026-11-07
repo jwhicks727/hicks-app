@@ -14,6 +14,12 @@ import { placeWords, hourIn, clockIn } from '../../lib/here.js'
 import { sectionOrder, ordered, awayWords, hikeWords, startBy, alsoOnTheMap, MAP_KIND_WORDS, mapsSearch } from '../../lib/around.js'
 import { aroundPlace } from '../../parts/AroundCard.jsx'
 import { AroundHero, ItemTile, usePlacePainting, SECTION_COLOURS, SECTION_GLYPHS, WHAT_WAS_SENT } from '../../parts/AroundBits.jsx'
+import { useHikes, tickHike, untickHike, useSomeday, heart, unheart } from '../../lib/useYonder.js'
+import { longestYet } from '../../lib/yonder.js'
+import { todayAt } from '../../lib/cal/dates.js'
+import { HOME_TOWN } from '../../lib/sky.js'
+import { Toast } from '../../ui/Toast.jsx'
+import { Link } from '../../shell/Link.jsx'
 import './around.css'
 
 // /world/around: the guide to where the phone is (away, it writes itself; out and
@@ -64,6 +70,8 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
   const painting = usePlacePainting(place && place.town, !kept ? here.place : null)
   const [open, setOpen] = useState(null)
   const [fresh, setFresh] = useState('')
+  const hikes = useHikes(session), someday = useSomeday(session)
+  const hearts = (someday.rows || []).filter((r) => place && r.cell === place.cell)
   const zone = tz || 'America/Los_Angeles'
   const hour = hourIn(now, zone), weekday = new Date(now.toLocaleString('en-US', { timeZone: zone })).getDay()
   const rainy = Boolean(f && ['rain', 'drizzle', 'thunder', 'snow'].includes(f.now.pic))
@@ -88,6 +96,13 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
         {rainy && guide && <p className="muted small">Rain here now, so the indoor things come first.</p>}
       </Card>
 
+      {hearts.length > 0 && (
+        <Card tint="#C14D83" label="Your hearts here" glyph="star" className="span-6">
+          <ul className="ar-list">{hearts.map((r) => <li key={r.id}><a href={mapsSearch(r.name, r.town)} target="_blank" rel="noopener noreferrer"><b>{r.name}</b>{r.why && <small>{r.why}</small>}</a></li>)}</ul>
+          <p className="muted small">Hearted last time; they’re on Someday too (<Link to="/yonder">the travel app</Link>).</p>
+        </Card>
+      )}
+      {parent && guide && !kept && <EatWell place={place} />}
       {sections.map((s) => (
         <Card key={s.key} tint={SECTION_COLOURS[s.key]} label={s.title} glyph={SECTION_GLYPHS[s.key] || 'star'} className="span-6 ar-section">
           <div className="ar-rail">{s.items.map((it) => <ItemTile key={it.name} item={it} section={s.key} onOpen={(item) => setOpen({ item, section: s })} />)}</div>
@@ -112,14 +127,31 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
         {fresh && <p className="muted" role="status">{fresh}</p>}
       </Card>
 
-      {open && <ItemSheet item={open.item} section={open.section} point={point} sunset={sunset} now={now} zone={zone} town={place && place.town} onClose={() => setOpen(null)} />}
+      {open && <ItemSheet item={open.item} section={open.section} point={point} sunset={sunset} now={now} zone={zone} town={place && place.town} place={place} hikes={hikes} someday={someday} onClose={() => setOpen(null)} />}
     </>
   )
 }
 
-function ItemSheet({ item, section, point, sunset, now, zone, town, onClose }) {
+function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes, someday, onClose }) {
   const away = awayWords(item, point)
   const go = section.key === 'hikes' ? startBy(item.hike, sunset, now) : null
+  const [toast, setToast] = useState(null), [gleam, setGleam] = useState(false)
+  const today = todayAt(HOME_TOWN.tz, now)
+  const ticked = (hikes.rows || []).find((h) => h.name === item.name && h.on_date === today)
+  const hearted = (someday.rows || []).find((r) => place && r.cell === place.cell && r.name === item.name)
+  const tick = async () => {
+    const miles = item.hike && item.hike.miles ? item.hike.miles : null
+    const best = longestYet(hikes.rows, miles)
+    const { data, error } = await tickHike({ name: item.name.slice(0, 100), miles, climb_ft: item.hike && item.hike.climb ? Math.round(item.hike.climb) : null, on_date: today, town: (item.town || town || '').slice(0, 120) || null })
+    if (error) { setToast({ text: 'It couldn’t be ticked just now.', undo: () => setToast(null) }); return }
+    hikes.reload(); if (best) setGleam(true)
+    setToast({ text: best ? `Ticked off: ${miles} miles, the longest hike any of us has done.` : 'Ticked off, in the trip’s scrapbook.', undo: async () => { await untickHike(data.id); hikes.reload(); setGleam(false); setToast(null) } })
+  }
+  const toggleHeart = async () => {
+    if (hearted) { await unheart(hearted.id); someday.reload(); return }
+    const { error } = await heart({ cell: place.cell, town: (place.town || item.town || '').slice(0, 120) || null, section: section.key, name: item.name.slice(0, 100), why: item.why ? item.why.slice(0, 200) : null, website: item.website || null })
+    if (!error) someday.reload()
+  }
   return (
     <Sheet title={item.name} onClose={onClose} className="ar-sheet">
       {item.photo && (
@@ -142,8 +174,36 @@ function ItemSheet({ item, section, point, sunset, now, zone, town, onClose }) {
       <div className="place-go">
         <a className="btn" href={mapsSearch(item.name, item.town || town)} target="_blank" rel="noopener noreferrer">Directions</a>
         {item.website && <a className="btn ghost" href={item.website} target="_blank" rel="noopener noreferrer">Its website</a>}
+        {place && <button type="button" className="btn ghost" aria-pressed={Boolean(hearted)} onClick={toggleHeart}>{hearted ? '♥ On Someday' : '♡ Someday'}</button>}
+        {section.key === 'hikes' && !ticked && <button type="button" className={'btn ar-did' + (gleam ? ' ar-gleaming' : '')} onClick={tick}>We did it</button>}
+        {section.key === 'hikes' && ticked && <span className={'ar-done' + (gleam ? ' ar-gleaming' : '')}>{gleam && <i className="ar-gleam" aria-hidden="true" />}Done today ✓</span>}
       </div>
+      {toast && <Toast action="Undo" onAction={toast.undo} onClose={() => setToast(null)}>{toast.text}</Toast>}
       <p className="muted small">Sources: {item.sources.map((u, i) => <span key={u}>{i ? ' · ' : ''}<a href={u} target="_blank" rel="noopener noreferrer">{(() => { try { return new URL(u).hostname.replace(/^www\./, '') } catch { return 'link' } })()}</a></span>)}</p>
     </Sheet>
   )
 }
+
+/**
+ * For Jason and Laurie: where Laurie can eat well near here. Claude reads menus near
+ * the town against her food rules (a parent's ask, as for any recipe); the answer is
+ * shown here and never kept in the family's shared guide.
+ */
+function EatWell({ place }) {
+  const [state, setState] = useState({ busy: false, places: null, error: null })
+  const ask = async () => {
+    setState({ busy: true, places: null, error: null })
+    const r = await askClaude('eat-well', { cell: place.cell, town: place.town || '', region: place.region || '', cc: place.cc || '' })
+    setState({ busy: false, places: r && r.places ? r.places : null, error: r && r.error ? r.error : (!r || !r.places ? 'Nothing came back just now.' : null) })
+  }
+  return (
+    <Card tint="#D4553A" label="Where Laurie can eat well" glyph="pot" className="span-6">
+      {!state.places && <p>Claude looks at menus near {place.town || 'here'} against Laurie’s food rules. It sends her rules, the town and the area to about ten kilometres; the answer is for you two and isn’t kept.</p>}
+      {!state.places && <button type="button" className="btn ghost" disabled={state.busy} onClick={ask}>{state.busy ? 'Looking at menus…' : 'Look for us'}</button>}
+      {state.error && <p className="muted" role="status">{state.error}</p>}
+      {state.places && !state.places.length && <p className="muted">Nothing found that clearly fits; worth asking at the table.</p>}
+      {state.places && state.places.length > 0 && <ul className="ar-list">{state.places.map((p) => <li key={p.name}><span className="ar-eat"><b>{p.name}</b><small>{p.why}</small><small>{p.sources.map((u, i) => <span key={u}>{i ? ' · ' : ''}<a href={u} target="_blank" rel="noopener noreferrer">{(() => { try { return new URL(u).hostname.replace(/^www\./, '') } catch { return 'link' } })()}</a></span>)}</small></span></li>)}</ul>}
+    </Card>
+  )
+}
+

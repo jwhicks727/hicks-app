@@ -1,3 +1,4 @@
+import { TripTags } from './TripTag.jsx'
 import { useEffect, useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { Confirm } from '../ui/Confirm.jsx'
@@ -178,6 +179,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
         </Card>
       ))}
 
+      <div className="span-6"><TripTags recipeId={recipe.id} parent={parent} me={me} /></div>
       {parent && <div className="span-6 recipe-foot"><button type="button" className="btn ghost" onClick={() => setRemoving(true)}>Remove this recipe</button></div>}
       {removing && (
         <Confirm title={`Remove ${r.title}?`} yes="Remove it" danger onNo={() => setRemoving(false)}

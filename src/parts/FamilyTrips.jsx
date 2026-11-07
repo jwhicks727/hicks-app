@@ -6,6 +6,9 @@ import { Confirm } from '../ui/Confirm.jsx'
 import WeatherIcon from './WeatherIcon.jsx'
 import { usePlacesWeather } from '../lib/useWeather.js'
 import { useWhereabouts } from '../lib/useWhereabouts.js'
+import { usePostcards } from '../lib/useYonder.js'
+import { useSession } from '../lib/auth.js'
+import { todayAt } from '../lib/cal/dates.js'
 import { useAround } from '../lib/useAround.js'
 import { useEvents } from '../lib/useCalendar.js'
 import { useOutings, useParkMarks, saveOuting, deleteOuting, saveParkMark } from '../lib/useLife.js'
@@ -27,7 +30,11 @@ const range = (a, b) => { const f = (d) => new Date(d + 'T12:00:00Z').toLocaleDa
  */
 export function FamilyAway({ family, me }) {
   const rows = useWhereabouts()
+  const session = useSession()
+  const cards = usePostcards(session, todayAt(HOME_TOWN.tz))
   const away = othersAway(rows, family.members, me && me.name)
+  const nameOf = (id) => (family.members.find((m) => m.id === id) || {}).name
+  const cardFrom = (name) => (cards.rows || []).find((c) => nameOf(c.member_id) === name)
   const weather = usePlacesWeather(away.map((o) => ({ slug: 'fam-' + o.name, lat: o.lat, lng: o.lng })))
   if (!away.length) return null
   return (
@@ -38,7 +45,7 @@ export function FamilyAway({ family, me }) {
           return (
             <li key={o.name}>
               {w && <WeatherIcon pic={w.pic} size={28} label={w.words} />}
-              <span><b>{isInWords(o)}</b>{w && <>: <span className="fig">{w.temp}°</span>, {w.words.toLowerCase()}</>}<small>Since {clock(o.since)}, shared while {o.name} is away</small></span>
+              <span><b>{isInWords(o)}</b>{w && <>: <span className="fig">{w.temp}°</span>, {w.words.toLowerCase()}</>}{cardFrom(o.name) && <span className="tr-card">{o.name} sent a postcard: “{cardFrom(o.name).words || `Greetings from ${cardFrom(o.name).town}.`}”</span>}<small>Since {clock(o.since)}, shared while {o.name} is away · <Link to="/yonder">{cardFrom(o.name) ? 'Postcards' : 'Trips'} ›</Link></small></span>
             </li>
           )
         })}

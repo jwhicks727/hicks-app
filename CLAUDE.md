@@ -97,6 +97,10 @@ and write the code fresh. SOAR's code belongs to the school.
   transparency"): `member_whereabouts`, one row a person written only by its owner's
   phone, a tenth of a degree, lapsing in twelve hours, removed at home, when switched
   off and on sign-out (`tests/trips.test.mjs`). Never a log, never a closer point.
+- The travel app (`/yonder`) keeps only what someone chose: a postcard, a ticked hike, a
+  heart, a packing item, a tagged recipe. Postcards and hikes keep a town and a day,
+  never a point (`tests/yonder.test.mjs`). Where Laurie can eat well is a parent's ask,
+  answered to the screen and never stored.
 - An Edge Function is told no more than it needs: the birds function gets a
   tenth-of-a-degree cell (`nearCell`, `tests/birds-near.test.mjs`), never a closer point.
 - A guide to a place (`area_guides`) is kept by area, never by person: no member id,
