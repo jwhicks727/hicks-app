@@ -39,7 +39,7 @@ function Inside() {
   return (
     <PaintingsProvider>
       <>
-        <Sky />
+        <Sky follow />
         <SeasonShow />
         <div className="app">
           <TabBar current={place} />

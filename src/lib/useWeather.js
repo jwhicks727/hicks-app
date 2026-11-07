@@ -206,3 +206,28 @@ export function useAlertsAt(point = HOME_TOWN) {
   }, [point.lat, point.lng])
   return alerts
 }
+
+/**
+ * The forecast where the phone is (a point already rounded to about a
+ * kilometre, src/lib/here.js), in that place's own time zone, which Open-Meteo
+ * works out: { forecast, tz, error }, kept for a quarter hour.
+ */
+export function useHereForecast(point) {
+  const [state, setState] = useState({ forecast: null, tz: null, error: null })
+  const at = point ? `${point.lat.toFixed(2)},${point.lng.toFixed(2)}` : null
+  useEffect(() => {
+    if (!point) { setState({ forecast: null, tz: null, error: null }); return undefined }
+    let live = true
+    const run = () => getKept(`${KEY}.here.${at}`, forecastUrl({ lat: point.lat, lng: point.lng, tz: 'auto', past: 1, days: 7 }))
+      .then((json) => {
+        if (!live) return
+        const tz = typeof json.timezone === 'string' && /^[A-Za-z_]+(\/[A-Za-z0-9_+-]+)+$|^UTC$/.test(json.timezone) ? json.timezone : HOME_TOWN.tz
+        setState({ forecast: shapeForecast(json, wallIso(tz)), tz, error: null })
+      })
+      .catch(() => { if (live) setState((s) => ({ ...s, error: 'The weather here couldn’t be reached just now.' })) })
+    run()
+    const t = setInterval(run, KEEP_MS)
+    return () => { live = false; clearInterval(t) }
+  }, [at]) // eslint-disable-line react-hooks/exhaustive-deps
+  return state
+}

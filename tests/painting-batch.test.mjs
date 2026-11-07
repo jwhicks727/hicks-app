@@ -230,7 +230,7 @@ test('the batch screen says what goes to Claude, keeps the photos only until sav
   assert.match(screen, /go to Claude \(Anthropic\)/)
   assert.match(screen, /Jason or Laurie add her paintings/)
   assert.doesNotMatch(screen, /Size<input|size:/, 'no size box')
-  assert.match(readFileSync(new URL('../src/lib/auth.js', import.meta.url), 'utf8'), /clearDrafts\(\)\n\s*forgetPhotos\(\)/)
+  assert.match(readFileSync(new URL('../src/lib/auth.js', import.meta.url), 'utf8'), /export function signOut\(\) \{[^}]*\bforgetPhotos\(\)/)
   const hook = readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
   assert.match(hook, /from\('paintings'\)\.upload/); assert.doesNotMatch(hook, /from\('drawings'\)|public\//)
   assert.match(readFileSync(new URL('../src/places/LifeList.jsx', import.meta.url), 'utf8'), /rest\[1\] === 'add' \? <AddPaintings \/>/)

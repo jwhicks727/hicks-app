@@ -15,7 +15,7 @@ a computer, the side rail lists the apps under their own heading.
 
 | Tab | What it is |
 |---|---|
-| **Home** | Today at a glance, starting with each person's **Early Bird** and **Night Owl** lists (their morning and evening to-dos, with streaks, records and family challenges), then the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days, a question for the dinner table, cheers for Anna, the morning sit (which leads on to the journal), and cards for the garden and the journal. |
+| **Home** | Today at a glance, starting with each person's **Early Bird** and **Night Owl** lists (their morning and evening to-dos, with streaks, records and family challenges), then the sky, the weather at home and at each school (or, away from home with Settings › Notice where I am on, the weather where you are, and a trip on the calendar coming up), birds around us, the day's calendar, what's left in the fridge, family days, a question for the dinner table, cheers for Anna, the morning sit (which leads on to the journal), and cards for the garden and the journal. |
 | **Calendar** | A full calendar (day, week, month, year), synced with our Google calendars, with the Church year, Mass times, our ministries, family days, holidays, heritage days, seasons and nature woven in. |
 | **Kitchen** | Jason's cooking: the week's recipes, what's left in the fridge, a cook check before cooking. |
 | **World** | All our places on one map (around home, SoCal, the world), each with its own page, its skyline in its sky right now and a link into the phone's maps app; weather in depth; the sky, the sun and the moon; a page for each school. |
@@ -172,6 +172,7 @@ and added: `docs/ART-CAPTURE.md`.
   where Natural Earth numbers them wrongly here; the 210 through Fontana,
   which it lacks, is traced by hand through its interchanges.
 - **Wild right now:** a drawing for each season, made in code, and the preview picture its own site names (the eagle cam, the monarch count, BirdCast and the rest), read once a week by the `wild` function and credited on the card; the browser loads the picture from the site.
+- **Where we are:** the town's name away from home comes from OpenStreetMap's Nominatim (https://nominatim.openstreetmap.org, data © OpenStreetMap contributors, ODbL, credited on the card that shows it), asked by the phone with its position rounded to about a kilometre, at most once a month for each area. The weather there is Open-Meteo's and the alerts the National Weather Service's, as at home.
 - **Air quality and the weather's past and future:** Open-Meteo's air quality and archive services (https://open-meteo.com), through the browser, the town's coordinates only.
 - **Mass times:** read from Sacred Heart's own website
   (https://www.sacredheartrc.org/) by the `parish` function, once a day;

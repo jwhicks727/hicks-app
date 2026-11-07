@@ -13,6 +13,9 @@ import { todayAt } from '../lib/cal/dates.js'
 import { navigate } from '../lib/router.js'
 import { useFamily } from '../lib/useCalendar.js'
 import { reminderOn } from '../lib/sitReminder.js'
+import { useHere, readHere } from '../lib/useHere.js'
+import { placeWords } from '../lib/here.js'
+import '../parts/here.css'
 
 export default function Settings() {
   const session = useSession()
@@ -22,6 +25,7 @@ export default function Settings() {
   const [prefs, update] = usePrefs()
   const [tryKey, setTry] = useSeasonTry()
   const { list: paintings } = usePaintings()
+  const here = useHere()
 
   return (
     <>
@@ -106,6 +110,21 @@ export default function Settings() {
         <p className="muted">These stay on this device.</p>
       </Card>
 
+      <Card tint="#2F7D7A" label="Where I am" glyph="star" className="span-3">
+        <div className="switch-row">
+          <span><b>Notice where I am</b><span>Away from home, Home’s greeting, weather and sky follow you</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.here === true} aria-label="Notice where I am" onClick={() => update({ here: prefs.here !== true })}><i /></button>
+        </div>
+        <ul className="here-pack">
+          <li>Your phone is asked only while the app is open: when it opens, and when you come back to it, at most every ten minutes. Never in the background.</li>
+          <li>Where you are is rounded to about a kilometre at once and kept only on this phone. It’s forgotten after six hours, when you sign out, or when this is switched off. No history is kept.</li>
+          <li>The rounded position goes to Open-Meteo for the weather, the National Weather Service for alerts, and OpenStreetMap for the town’s name. Nothing goes to Claude.</li>
+          <li>Coming next: while you’re away, the rest of the family will see which town you’re in. This card will say so on the day it starts.</li>
+        </ul>
+        {prefs.here === true && <HereStatus here={here} />}
+        <p className="muted">A trip on the calendar with a place shows on Home a few days before, whether this is on or not.</p>
+      </Card>
+
       <Card tint="#3E7A4C" label="What the calendar shows" glyph="calendar" className="span-6">
         <p>The Church’s days are always there. Each of these can be switched off on this device.</p>
         <ul className="switches">
@@ -129,5 +148,22 @@ export default function Settings() {
         </nav>
       </Card>
     </>
+  )
+}
+
+/** What the phone said last, in a sentence. */
+function HereStatus({ here }) {
+  const where = placeWords(here.town)
+  const line = {
+    off: 'Switching on…', waiting: 'Waiting for the phone…', asking: 'Asking your phone where it is…',
+    denied: 'Your phone said no. To allow it on an iPhone: Settings › Privacy & Security › Location Services › Safari Websites › While Using the App (to check for the installed app).',
+    unavailable: 'This phone couldn’t say where it is just now.',
+  }[here.status]
+  const now = here.status === 'ready' && here.tier && (here.tier === 'home' ? 'Now: home ground, so nothing changes.' : here.tier === 'near' ? `Now: out and about${where ? ` in ${where}` : ''}.` : `Now: away${where ? `, in ${where}` : ''}.`)
+  return (
+    <div className="here-status-row">
+      <p className="here-status" role="status">{now || line}</p>
+      <button type="button" className="btn ghost" onClick={() => readHere()}>{here.status === 'denied' ? 'Try again' : 'Check now'}</button>
+    </div>
   )
 }
