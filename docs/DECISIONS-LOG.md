@@ -6,6 +6,34 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — The family sees each other's towns; a trip is kept when someone says so
+
+Phase 5 of issue #19. Decided:
+
+- **"Full transparency" means the town, for all three of us, while away.** Jason said
+  yes to the others seeing where you are; it's read as the town (never the place in
+  it), shared by your own phone once Notice where I am is on, and only while away. One
+  row a person, overwritten, never a log, with a tenth of a degree the database can't
+  hold more closely; it lapses twelve hours after the app was last opened there, and
+  goes back on home ground, when switched off, or on sign-out. Every screen that shows
+  or sends it says so. Anna's is shared like everyone's (the family reads it all); the
+  Settings card says so on her phone too. If Jason meant something closer than the
+  town, that's a new decision.
+- **Mass near here** uses the guide's own Mass section (times only from a parish's own
+  page) or the churches on the open map, on a Saturday evening or Sunday morning away,
+  and says the times aren't checked.
+- **A national park is recognised from the open map's park boundaries** (no list of
+  coordinates typed by hand), matched to the sixty-three by name. Checking it off is a
+  parent's, asked first; a new park gets the rainbow gleam.
+- **A trip is kept only when someone keeps it**: "Keep this trip?" for a calendar trip
+  in the ten days after it ends, or "Keep today in Temecula" while away with nothing
+  planned, at once with an Undo, as an outing tied to its event. Nothing is kept from
+  where a phone has been.
+- **The lists' Skip puts "Away" first while away**, and the garden hears about heat,
+  frost or wind at home in the next few days.
+
+---
+
 ## 2026-11-07 — What's around here: the open map at once, Claude's guide within a minute
 
 Phases 3 and 4 of issue #19. Decided:

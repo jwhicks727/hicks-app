@@ -19,7 +19,7 @@ import { placeWords, tripsAhead, whenWords, tripWindow, shapeTripDays, packWords
 /** The town's name, or our own place's while the name is still being looked up. */
 export const whereWords = (here) => placeWords(here.town) || (here.place ? here.place.town : '')
 
-const WHERE_NOTE = 'Where you are is rounded to about a kilometre and kept only on this phone (Settings › Notice where I am).'
+const WHERE_NOTE = 'Where you are is rounded to about a kilometre and kept only on this phone; while you’re away the family sees which town (Settings › Notice where I am).'
 
 /** The National Weather Service's alerts where we are: the United States only, so this is drawn only there. */
 function HereAlerts({ point }) {
