@@ -70,6 +70,20 @@ and write the code fresh. SOAR's code belongs to the school.
 - No invented data in the real app: no stand-in numbers. If the real source
   isn't connected yet, the part says what's coming instead.
 
+## The morning and evening lists
+
+- **A list's words are its keeper's** (Early Bird and Night Owl, `src/places/lists/`):
+  only the person, and Jason and Laurie for Anna's, read or change their items, a day's
+  changes and ticks (`lists_i_keep()`). The family, Reports and the challenges see only
+  `routine_days`, which never holds words (`tests/migrations.test.mjs`,
+  `tests/routines.test.mjs`). Never show anyone's item on someone else's screen.
+- What comes up on a day is each item's rule (`src/lib/routines.js`), never a list of
+  dates; a day off or an empty day never breaks a streak; perks once earned are kept.
+- The built-in challenges live in `src/lib/challenges.js` (tested); the database holds
+  only Admin's changes and the family's own. A new kind is added to `KINDS` and to the
+  migration's check together (`tests/challenges.test.mjs`).
+- A milestone or a new best gets the rainbow gleam; a job waiting never does.
+
 ## Art in the academy
 
 Every picture in Anna's academy is human-made, with its licence recorded:

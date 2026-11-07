@@ -6,7 +6,9 @@
 // keeps this list and the router in step.
 
 export const REGISTRY = [
-  { key: 'home', name: 'Home', colour: '#5F8A4A', setup: [], reports: [] },
+  { key: 'home', name: 'Home', colour: '#5F8A4A',
+    setup: [{ key: 'lists', title: 'Morning and evening lists: their names and the family challenges', ready: true }],
+    reports: [{ key: 'lists', title: 'Lists and streaks', blurb: 'Lists finished, Team Hicks days, challenges won, and each of us’s streaks', ready: true }] },
   { key: 'world', name: 'World', colour: '#3BA3A8',
     setup: [{ key: 'stations', title: 'Weather stations', ready: true }, { key: 'places', title: 'Places we love', ready: false }],
     reports: [] },

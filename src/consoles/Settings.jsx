@@ -92,6 +92,10 @@ export default function Settings() {
           <button type="button" className="switch" role="switch" aria-checked={reminderOn(prefs, meHere)} aria-label="Remind me to sit" onClick={() => update({ sitReminder: !reminderOn(prefs, meHere) })}><i /></button>
         </div>
         <div className="switch-row">
+          <span><b>Sounds on the lists</b><span>A soft note for each tick, climbing as the list goes, and a little tune when it’s done</span></span>
+          <button type="button" className="switch" role="switch" aria-checked={prefs.listSounds !== false} aria-label="Sounds on the lists" onClick={() => update({ listSounds: prefs.listSounds === false })}><i /></button>
+        </div>
+        <div className="switch-row">
           <span><b>The bowl</b><span>A struck bowl begins and ends a sit</span></span>
           <button type="button" className="switch" role="switch" aria-checked={prefs.bell !== false} aria-label="The bowl" onClick={() => update({ bell: prefs.bell === false })}><i /></button>
         </div>

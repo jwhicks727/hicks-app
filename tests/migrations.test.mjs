@@ -52,3 +52,18 @@ test('a journal is its writer’s alone: every policy on its tables names the wr
     assert.doesNotMatch(p, /is_parent|is_family|\bor\b/i, `${p.slice(0, 80)}: a journal has no parent or family override`)
   }
 })
+
+test('a list’s words are its keeper’s: items, changes and ticks name only lists_i_keep(); only the wordless days are family-readable', () => {
+  const [, s] = sql.find(([f]) => f.includes('_morning_evening_lists.sql'))
+  const policies = [...s.matchAll(/create\s+policy\s+\w+\s+on\s+public\.(routine_items|routine_changes|routine_ticks)\b[^;]+;/gi)]
+  assert.ok(policies.length >= 10)
+  for (const [p] of policies) {
+    assert.match(p, /member_id\s+in\s+\(select public\.lists_i_keep\(\)\)/i, p.slice(0, 80))
+    assert.doesNotMatch(p, /is_family|is_parent/i, `${p.slice(0, 80)}: a list's words never go to the whole family`)
+  }
+  // routine_days carries no words, so the family reads it for streaks and challenges
+  const days = s.match(/create table public\.routine_days \(([\s\S]+?)\n\);/)[1]
+  assert.doesNotMatch(days, /\btitle\b|\bnote\b|\btext not null check \(length/i)
+  // A parent keeps a child's lists, never another adult's
+  assert.match(s, /me\.role = 'parent' and m\.role = 'child'/)
+})

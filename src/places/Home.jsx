@@ -10,6 +10,8 @@ import RateNudge from '../kitchen/RateNudge.jsx'
 import MindfulCard from '../parts/MindfulCard.jsx'
 import Sit from '../parts/Sit.jsx'
 import SitReminder from '../parts/SitReminder.jsx'
+import ListsCard from '../parts/ListsCard.jsx'
+import Lists from './lists/Lists.jsx'
 import JournalCard from '../parts/JournalCard.jsx'
 import TableCard from '../parts/TableCard.jsx'
 import AcademyCard from '../parts/AcademyCard.jsx'
@@ -39,6 +41,7 @@ const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'num
 
 export default function Home({ rest = [] }) {
   if (rest[0] === 'sit' || rest[0] === 'breathe') return <Sit />
+  if (rest[0] === 'lists') return <Lists rest={rest.slice(1)} />
   return <HomeScreen />
 }
 
@@ -65,6 +68,7 @@ function HomeScreen() {
         {/* Each of us by name once signed in; the wall will greet Team Hicks. */}
         <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
       </header>
+      <ListsCard session={session} family={family} me={me} now={now} events={events} />
       <SitReminder me={me} today={today} hour={hour} />
       <RolloverShine />
       <RateNudge book={book} me={me} today={today} />
