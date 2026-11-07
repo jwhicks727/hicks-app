@@ -12,6 +12,7 @@ import {
 } from '../lib/routines.js'
 import { standing, keepsOf, sunriseAt, endWords } from '../lib/challenges.js'
 import { RoutineList } from '../places/lists/RoutineList.jsx'
+import { DayTools } from '../places/lists/DayTools.jsx'
 import { Hummingbird, Owl, Feather, Trophy } from '../places/lists/Birds.jsx'
 import { Flight, TeamFlight, Joy } from '../places/lists/Moments.jsx'
 import { SunIcon, MoonIcon, Flame } from '../places/lists/icons.jsx'
@@ -304,9 +305,12 @@ function ListsHome({ session, family, me, now, events = [] }) {
         </div>
       )}
 
-      {!list.rest && list.entries.length > 0 && (
-        <RoutineList key={part} part={part} list={list} ticks={ticks} golden={golden} birthday={birthday} onTick={onTick} onUntick={onUntick} label={`${names[part]}: what’s left`} />
-      )}
+      {!list.rest && (() => {
+        const tools = <DayTools key={'tools' + part} L={L} memberId={memberId} part={part} name={names[part]} today={today} canSkip={list.entries.length > 0 && !allDone(part)} onToast={setToast} />
+        return list.entries.length > 0
+          ? <RoutineList key={part} part={part} list={list} ticks={ticks} golden={golden} birthday={birthday} onTick={onTick} onUntick={onUntick} label={`${names[part]}: what’s left`} tools={tools} />
+          : <div className="dl-pile-row">{tools}</div>
+      })()}
       {note && <p className={'dl-note' + (note.gold ? ' gold' : '')} role="status">{note.text}</p>}
       {L.error && <p className="err" role="alert">Something didn’t save: {L.error} <button type="button" className="dl-link" onClick={() => { L.clearError(); L.reload() }}>Try again</button></p>}
 

@@ -131,6 +131,16 @@
 .dl-pile-n { display: inline-block; margin-right: 4px; padding: 1px 8px; border-radius: 4px; color: var(--ink); background: color-mix(in srgb, var(--pc) 20%, var(--card)); animation: dl-bump .45s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes dl-bump { 40% { transform: scale(1.35); } }
 .dl-done .dl-row { min-height: 46px; opacity: .78; }
+/* The done pile's line, shared with the quiet + and Skip (DayTools.jsx) */
+.dl-pile-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; min-height: 40px; }
+.dl-tools { display: flex; gap: 2px; margin-left: auto; }
+.dl-tool { min-height: 38px; min-width: 38px; padding: 0 10px; border: 0; border-radius: var(--r-control); background: none; color: var(--muted); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.dl-tool:first-child { font-size: 24px; font-weight: 600; line-height: 1; }
+.dl-tool:hover { color: var(--ink); background: color-mix(in srgb, var(--pc) 10%, var(--card)); }
+.dl-tool:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.dl-tools-add, .dl-tools-skip { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; animation: dl-bubble-in .3s ease both; }
+.dl-tools-add input { flex: 1 1 180px; min-width: 0; min-height: 44px; padding: 8px 10px; border-radius: var(--r-control); border: 1.5px solid color-mix(in srgb, var(--pc) 35%, var(--line)); background: var(--card); color: var(--ink); font: inherit; font-weight: 650; }
+.dl-tools-skip > span { font-size: 14px; font-weight: 800; color: var(--muted); }
 .dl-done .dl-words { color: var(--muted); }
 .dl-done .dl-words::after { transform: scaleX(1); }
 
@@ -230,7 +240,7 @@
 .dl-joy-art svg { width: 100%; height: 100%; overflow: visible; }
 @keyframes dl-joy-pop { from { opacity: 0; transform: scale(.6) translateY(20px); } }
 
-@media (pointer: coarse) { .dl-pile-b, .dl-link { min-height: 44px; } }
+@media (pointer: coarse) { .dl-pile-b, .dl-link { min-height: 44px; } .dl-tool { min-height: 44px; min-width: 44px; } }
 /* Beside the list: the family, the challenge, the way to more */
 .dl-side { display: grid; gap: 12px; align-content: start; }
 @media (min-width: 960px) {
@@ -246,7 +256,7 @@
   .dl-hum, .dl-wing, .dl-owl, .dl-owl .dl-lids, .dl-owl .dl-pupil, .dl-perk-stars, .dl-night i, .dl-golden .dl-row::before, .dl-gold-tag, .dl-mourn-f svg, .dl-joy-f { animation: none; }
   .dl-wing { transform: scaleY(.6); }
   .dl-gleam { display: none; }
-  .dl-owl.settle, .dl-buddy.zip .dl-hum, .dl-ribbon.unfurl, .dl-stamp, .dl-going .dl-box, .dl-pile-n, .dl-perk, .dl-bubble { animation: none; }
+  .dl-owl.settle, .dl-buddy.zip .dl-hum, .dl-ribbon.unfurl, .dl-stamp, .dl-going .dl-box, .dl-pile-n, .dl-perk, .dl-bubble, .dl-tools-add, .dl-tools-skip { animation: none; }
   .dl-list > li.dl-going { animation: dl-fade .3s .3s ease both reverse; }
 }
 html[data-motion="less"] .dl-hum, html[data-motion="less"] .dl-wing, html[data-motion="less"] .dl-owl, html[data-motion="less"] .dl-owl .dl-lids, html[data-motion="less"] .dl-owl .dl-pupil,
@@ -280,13 +290,6 @@ html[data-motion="less"] .dl-wing { transform: scaleY(.6); }
 .dl-quickadd { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .dl-quickadd input { flex: 1 1 180px; min-width: 0; min-height: 44px; padding: 8px 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-weight: 600; }
 .dl-quickadd .err { width: 100%; }
-.dl-diff-cols { display: grid; gap: 16px; }
-.dl-diff-cols h3 { font-family: var(--font-display); font-weight: 400; font-size: 20px; margin-bottom: 4px; }
-.dl-diff-cols h3 small { font-family: var(--font-ui); font-size: 13px; font-weight: 800; color: var(--muted); }
-.dl-diff-cols section { display: grid; gap: 8px; align-content: start; padding: 12px; border-radius: var(--r-control); background: color-mix(in srgb, var(--pc) 6%, var(--card)); border: 1px solid color-mix(in srgb, var(--pc) 20%, var(--line)); }
-.dl-reasons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; font-weight: 800; color: var(--muted); }
-.dl-rested { font-weight: 750; }
-.dl-date { min-height: 44px; padding: 0 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-weight: 700; }
 .dl-week { list-style: none; margin: 0; padding: 0; display: grid; }
 .dl-week li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 2px 12px; padding: 8px 0; border-top: 1px solid var(--line); }
 .dl-week li:first-child { border-top: 0; }
@@ -342,7 +345,6 @@ html[data-motion="less"] .dl-wing { transform: scaleY(.6); }
 .dl-people-p em { display: inline-flex; align-items: center; gap: 2px; font-style: normal; font-weight: 800; color: #C2410C; white-space: nowrap; }
 :root[data-theme="dark"] .dl-people-p em { color: #FFB085; }
 .dl-people-p em svg { width: 14px; height: 14px; }
-@media (min-width: 700px) { .dl-diff-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (pointer: coarse) { .dl-mini { min-height: 44px; min-width: 44px; } }
 
 /* ---- Admin (src/consoles/ListsSetup.jsx) ---- */

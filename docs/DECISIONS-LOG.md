@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — A day that's different is a quiet + and Skip under the list
+
+Jason found the lists page's "A day that's different" section (choose a day, skip any one
+thing, add something, give a list the day off) more than was needed. Decided:
+
+- **A quiet + and Skip under the list on Home**, on the same line as the "done" pile: + opens a
+  field to add something just for today; Skip offers the reasons (sick, away, a holiday, a busy
+  day) and gives that list today off, which holds the streak. Each goes at once with an Undo;
+  Escape or Cancel puts it away, and a half-typed item is kept on the device.
+- **The same two on the lists page's today cards**, so Jason and Laurie can still add to or
+  skip Anna's day from her page (her list isn't on their Home). A rested list there has "Back on".
+- **The section is gone**, and with it skipping a single thing and planning a different day
+  ahead. Skips already saved still count; the database is unchanged (`routine_changes` keeps
+  its `skip` kind).
+
+---
+
 ## 2026-11-07 — Early Bird and Night Owl: morning and evening lists, streaks and family challenges
 
 Jason asked for morning and evening to-do lists for each of us, right up front on Home,

@@ -4,11 +4,11 @@ import { useSession } from '../../lib/auth.js'
 import { useFamily, useEvents } from '../../lib/useCalendar.js'
 import { useNow } from '../../lib/useNow.js'
 import { useLists } from '../../lib/useLists.js'
-import { addDays, diffDays, dow, todayAt, WEEKDAYS } from '../../lib/cal/dates.js'
+import { addDays, diffDays, dow, todayAt } from '../../lib/cal/dates.js'
 import { SCHOOLS } from '../../lib/cal/schools.js'
 import {
   listDay, dayList, tickFor, dayMarks, streakFrom, runsFrom, recordsFrom, perfectWeeks, perksFor, PERKS, goldenKey,
-  namesFor, noun, clockWords, ruleWords, schoolDayFrom, entryKey,
+  namesFor, noun, clockWords, ruleWords, schoolDayFrom,
 } from '../../lib/routines.js'
 import { sunriseAt } from '../../lib/challenges.js'
 import { navigate } from '../../lib/router.js'
@@ -16,6 +16,7 @@ import { Card } from '../../ui/Card.jsx'
 import { Toast } from '../../ui/Toast.jsx'
 import { Crumb, Link } from '../../shell/Link.jsx'
 import { RoutineList } from './RoutineList.jsx'
+import { DayTools } from './DayTools.jsx'
 import { ItemSheet } from './ItemSheet.jsx'
 import { Hummingbird, Owl } from './Birds.jsx'
 import { ItemIcon, SunIcon, MoonIcon, Flame } from './icons.jsx'
@@ -24,10 +25,9 @@ import Family from './Family.jsx'
 import './lists.css'
 
 // /home/lists: the lists' own page. Your morning and evening lists for today
-// (tick from here too), a day that's different (skip something, add
-// something, rest), the lists themselves (add, change, reorder, take off with
-// an Undo), the week ahead as the rules work it out, and your streaks and
-// records. /home/lists/<id> is the same for Anna, for Jason and Laurie;
+// (tick from here too, with the quiet + and Skip of a day that's different),
+// the lists themselves (add, change, reorder, take off with an Undo), the
+// week ahead as the rules work it out, and your streaks and records. /home/lists/<id> is the same for Anna, for Jason and Laurie;
 // /home/lists/family is the family's page (src/places/lists/Family.jsx).
 
 const isAnna = (p) => /^anna$/i.test((p && p.name) || '')
@@ -75,8 +75,6 @@ function PersonLists({ session, family, me, person, self, now }) {
   const names = namesFor(L.settings && L.settings.names)
   const [sheet, setSheet] = useState(null) // { item } or { part }
   const [toast, setToast] = useState(null)
-  const [day, setDay] = useState(today)
-  const [extra, setExtra] = useState({ morning: '', evening: '' })
   const [showOff, setShowOff] = useState(false)
   const school = SCHOOLS.find((s) => s.person.toLowerCase() === person.name.toLowerCase())
   const parentOfAnna = me.role === 'parent' ? family.people.find((p) => p.id !== family.canon(me.id) && family.members.some((m) => m.id === p.id && m.role === 'child')) : null
@@ -122,17 +120,20 @@ function PersonLists({ session, family, me, person, self, now }) {
               <h2>{names[part]}</h2>
               <span className="dl-count">{list.rest ? 'resting' : total ? (done >= total ? 'done ✓' : `${done} of ${total}`) : 'nothing today'}</span>
             </div>
-            {list.rest ? <p className="muted">Resting today{list.restNote ? `: ${list.restNote.toLowerCase()}` : ''}. The streak waits.</p>
-              : total ? <RoutineList part={part} list={list} ticks={ticks} golden={goldenKey(person.id, today, part, list.entries)} label={`${names[part]} today`}
+            {(() => {
+              if (list.rest) {
+                const rest = L.changes.find((c) => c.on_date === today && c.part === part && c.kind === 'rest')
+                return <p className="muted">Resting today{list.restNote ? `: ${list.restNote.toLowerCase()}` : ''}. The streak waits. {rest && <button type="button" className="dl-link" onClick={() => L.removeChange(rest.id)}>Back on</button>}</p>
+              }
+              const tools = <DayTools key={'tools' + part} L={L} memberId={person.id} part={part} name={names[part]} today={today} canSkip={total > 0 && done < total} onToast={setToast} />
+              return total ? <RoutineList part={part} list={list} ticks={ticks} golden={goldenKey(person.id, today, part, list.entries)} label={`${names[part]} today`} tools={tools}
                 onTick={(e) => { tickSound(done); L.tick(e, part); if (done + 1 >= total) setTimeout(() => doneSound(part), 700) }}
                 onUntick={(e) => { untickSound(); L.untick(e, part) }} />
-                : <p className="muted">Nothing on it today. Add something below.</p>}
+                : <><p className="muted">Nothing on it today.</p><div className="dl-pile-row">{tools}</div></>
+            })()}
           </Card>
         )
       })}
-
-      {/* A day that's different */}
-      <DayChanges L={L} names={names} items={items} schoolDay={schoolDay} today={today} day={day} setDay={setDay} extra={extra} setExtra={setExtra} setToast={setToast} person={person} self={self} />
 
       {/* The lists themselves */}
       {['morning', 'evening'].map((part) => {
@@ -194,62 +195,6 @@ function QuickAdd({ part, names, onAdd, onMore }) {
       <button type="button" className="dl-link" onClick={onMore}>Which days, turns…</button>
       {err && <p className="err" role="alert">{err}</p>}
     </form>
-  )
-}
-
-const REASONS = ['Sick', 'Away', 'A holiday', 'A busy day']
-
-function DayChanges({ L, names, items, schoolDay, today, day, setDay, extra, setExtra, setToast, person, self }) {
-  const choices = [today, addDays(today, 1), addDays(today, 2)]
-  const label = (d) => (d === today ? 'Today' : d === addDays(today, 1) ? 'Tomorrow' : WEEKDAYS[dow(d)])
-  return (
-    <Card tint="#7FC6C2" label="A day that’s different" glyph="calendar" className="span-6 dl-page dl-diff">
-      <p className="muted">Skip something, add something just for the day, or give a list the day off: a day of rest holds {self ? 'your' : `${person.name}’s`} streak without breaking it.</p>
-      <fieldset className="choice-row"><legend>Which day</legend>
-        {choices.map((d) => <button key={d} type="button" aria-pressed={day === d} onClick={() => setDay(d)}>{label(d)}</button>)}
-        <input type="date" className="dl-date" value={day} min={today} aria-label="Another day" onChange={(e) => e.target.value && setDay(e.target.value)} />
-      </fieldset>
-      <div className="dl-diff-cols">
-        {['morning', 'evening'].map((part) => {
-          const list = dayList({ items, changes: L.changes, date: day, part, schoolDay })
-          const rest = L.changes.find((c) => c.on_date === day && c.part === part && c.kind === 'rest')
-          return (
-            <section key={part} className={'dl-' + part}>
-              <h3>{names[part]} <small>{SHORT_DAY(day)}</small></h3>
-              {rest ? (
-                <p className="dl-rested">A day off{rest.note ? ` (${rest.note.toLowerCase()})` : ''}. <button type="button" className="dl-link" onClick={() => L.removeChange(rest.id)}>Back on</button></p>
-              ) : (
-                <>
-                  <ul className="dl-edit compact">
-                    {list.entries.map((e) => (
-                      <li key={entryKey(e)}>
-                        <span className="dl-edit-t"><span><b>{e.title}</b>{e.kind === 'extra' && <small>just this day</small>}{e.maybe && <small>if it’s a school day</small>}</span></span>
-                        {e.kind === 'extra'
-                          ? <button type="button" className="dl-mini" onClick={() => L.removeChange(e.id)}>Remove</button>
-                          : <button type="button" className="dl-mini" onClick={async () => { const c = await L.addChange({ on_date: day, part, kind: 'skip', item_id: e.id }); if (c) setToast({ text: `${e.title}: not on ${label(day).toLowerCase() === 'today' ? 'today' : label(day)}.`, undo: () => L.removeChange(c.id) }) }}>Not this day</button>}
-                      </li>
-                    ))}
-                    {list.skippedEntries.map((e) => {
-                      const c = L.changes.find((x) => x.kind === 'skip' && x.item_id === e.id && x.on_date === day)
-                      return <li key={entryKey(e)} className="skipped"><span className="dl-edit-t"><span><b>{e.title}</b><small>skipped this day</small></span></span>{c && <button type="button" className="dl-mini" onClick={() => L.removeChange(c.id)}>Back on</button>}</li>
-                    })}
-                  </ul>
-                  {!list.entries.length && !list.skippedEntries.length && <p className="muted">Nothing on it that day.</p>}
-                  <form className="dl-quickadd" onSubmit={async (ev) => { ev.preventDefault(); const t = extra[part].trim(); if (!t) return; const c = await L.addChange({ on_date: day, part, kind: 'add', title: t.slice(0, 120) }); if (c) setExtra({ ...extra, [part]: '' }) }}>
-                    <input value={extra[part]} maxLength={120} onChange={(e) => setExtra({ ...extra, [part]: e.target.value })} placeholder="Just this day: …" aria-label={`Add to ${names[part]} just for ${label(day)}`} />
-                    <button type="submit" className="btn ghost" disabled={!extra[part].trim()}>Add</button>
-                  </form>
-                  <div className="dl-reasons" role="group" aria-label={`Give ${names[part]} the day off`}>
-                    <span>The day off:</span>
-                    {REASONS.map((r) => <button key={r} type="button" className="dl-mini" onClick={async () => { const c = await L.addChange({ on_date: day, part, kind: 'rest', note: r }); if (c) setToast({ text: `${names[part]} has ${label(day).toLowerCase() === 'today' ? 'today' : label(day)} off. The streak waits.`, undo: () => L.removeChange(c.id) }) }}>{r}</button>)}
-                  </div>
-                </>
-              )}
-            </section>
-          )
-        })}
-      </div>
-    </Card>
   )
 }
 
