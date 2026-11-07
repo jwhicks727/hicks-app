@@ -95,6 +95,9 @@ and write the code fresh. SOAR's code belongs to the school.
   ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep.
 - An Edge Function is told no more than it needs: the birds function gets a
   tenth-of-a-degree cell (`nearCell`, `tests/birds-near.test.mjs`), never a closer point.
+- A guide to a place (`area_guides`) is kept by area, never by person: no member id,
+  and Reports counts guides without naming the places (`tests/around.test.mjs`). A
+  place in a guide is kept only with a source Claude's own searches returned.
 - Where anyone is never reaches the wall or Reports, and the sign-in screen's sky
   never follows the phone (`<Sky />` in the gate, `<Sky follow />` inside).
 - A screen that shows or sends where someone is says so, and names the services it

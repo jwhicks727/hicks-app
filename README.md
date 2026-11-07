@@ -171,6 +171,7 @@ and added: `docs/ART-CAPTURE.md`.
   which it lacks, is traced by hand through its interchanges.
 - **Wild right now:** a drawing for each season, made in code, and the preview picture its own site names (the eagle cam, the monarch count, BirdCast and the rest), read once a week by the `wild` function and credited on the card; the browser loads the picture from the site.
 - **Where we are:** the town's name away from home comes from OpenStreetMap's Nominatim (https://nominatim.openstreetmap.org, data © OpenStreetMap contributors, ODbL, credited on the card that shows it), asked by the phone with its position rounded to about a kilometre, at most once a month for each area. The weather there is Open-Meteo's and the alerts the National Weather Service's, as at home.
+- **What's around here:** places from OpenStreetMap (© OpenStreetMap contributors, ODbL) through the Overpass API, and Wikipedia's articles nearby with photos from Wikimedia Commons, each shown with its author and licence (open licences only); a place's own picture from its own website, credited to it. The guide is written by Claude from its own web searches, with every place's sources on screen.
 - **Air quality and the weather's past and future:** Open-Meteo's air quality and archive services (https://open-meteo.com), through the browser, the town's coordinates only.
 - **Mass times:** read from Sacred Heart's own website
   (https://www.sacredheartrc.org/) by the `parish` function, once a day;

@@ -146,6 +146,16 @@ every function; nothing to set for that.
   20261107230000), and asks about at most ten new cells a day. Home's own cell
   gets `{ home: true }`. Deploy it again after the merge for this to work.
 
+- **`around`** reads what the open map knows around an area away from home: a
+  tenth-of-a-degree cell from the app, never a closer point. OpenStreetMap
+  through Overpass (roasters, breweries, book and record shops, trailheads,
+  viewpoints, Catholic churches, museums and galleries, within 15 km), and
+  Wikipedia's articles near the cell with their Wikimedia Commons photos (open
+  licences only, with the author and licence). It keeps the answer in
+  `area_guides` (kind `map`), reads again at most weekly per cell and about a
+  dozen new cells a day. No key. Deploy it after the merge:
+  `npx supabase functions deploy around --no-verify-jwt --project-ref <project-ref>`.
+
 - **`wild`** reads each wild season's own site (the eagle cam, the monarch
   count, BirdCast and the rest, listed in `_shared/wildpics.js`) at most once a
   week and keeps the address of its preview picture, its page and the site's
@@ -186,6 +196,15 @@ model, is in `supabase/functions/_shared/claude.js`.
   once answered yes or no, is no longer read; its rows are kept as history.
 - **A refused request** is retried server-side on Anthropic's recommended
   fallback model (`fallbacks: "default"`).
+- **What's around here (`around-here`)** writes a guide to an area in the
+  background (Supabase's `EdgeRuntime.waitUntil`), with Anthropic's web search
+  (at most 12 searches a guide, each counted against the caps at an estimated
+  cent), finishing with one strict tool, `save_guide`. Sent: the town, a
+  tenth-of-a-degree cell, and `travel_settings.interests`. Before it's kept,
+  every place must carry a source its own searches returned, and is matched to
+  the open map (`_shared/around.js`, `cleanGuide`). It keeps the guide in
+  `area_guides` with the service role (one being written per area at a time, at
+  most four new guides a day, each kept a month), by place, never by person.
 
 Set the key and deploy:
 
@@ -249,6 +268,8 @@ sign-in link won't come back to the app.
 | `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | A parent records a yes under their own id; either parent can remove it |
 | `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`, `birds-more`, and `birds-near:<cell>` for each place away from home), as the functions shaped it | The family | Only the `stations` and `birds` functions |
+| `area_guides` | What's around here, by area (a tenth-of-a-degree cell): what the open map knows there (`map`, a week at a time) and Claude's guide (`guide`, a month at a time; `building` while it's written). Every version a new row; it says which place, never who asked or who was there | The family | Only the `around` and `claude` functions |
+| `travel_settings` | One row: the family's interests, what the guide is written for (sent to Claude with each guide, as the screens say) | The family | Parents |
 | `routine_items` | The things on each person's morning and evening lists: words, a picture, which weekdays, every week or every other, any day or school days or days off, turns, until when, order; taken off (`archived_on`) rather than deleted | Its keeper, and the parents for Anna's | Its keeper, and the parents for Anna's (`lists_i_keep()`) |
 | `routine_changes` | A day that's different: something skipped, something added just for the day, a day off (with its reason) | Its keeper, and the parents for Anna's | The same |
 | `routine_ticks` | One per thing done, per day | Its keeper, and the parents for Anna's | The same; a tick is removed to untick |
@@ -276,5 +297,6 @@ Migration index:
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
 | `20261107230000_birds_near_cache` | `outside_cache` also takes `birds-near:<lat>,<lng>` keys: the birds where one of us is, a tenth-of-a-degree cell each, kept an hour |
+| `20261107231000_around_here` | What's around here: `area_guides` (the map layer and the guide, by area, every version kept, written only by the functions) and `travel_settings` (the family's interests; parents write) |
 | `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

@@ -36,6 +36,7 @@ import { todayAt } from '../lib/cal/dates.js'
 import { useHere } from '../lib/useHere.js'
 import { hourIn, clockIn } from '../lib/here.js'
 import { WeatherHere, HereNowLine, TripAhead, whereWords } from '../parts/HereCards.jsx'
+import AroundCard from '../parts/AroundCard.jsx'
 import '../calendar/calendar.css'
 
 const hourFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' })
@@ -85,8 +86,10 @@ function HomeScreen() {
       <AcademyCard session={session} me={me} today={today} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <TripAhead session={session} today={today} here={here} />
+      {here.tier === 'away' && <AroundCard here={here} />}
       {here.tier === 'away' && here.point ? <WeatherHere here={here} /> : <WeatherNow extra={here.tier === 'near' ? <HereNowLine here={here} /> : null} />}
       <BirdsCard here={here} />
+      {here.tier === 'near' && <AroundCard here={here} />}
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
       <DaysOffCard today={today} />

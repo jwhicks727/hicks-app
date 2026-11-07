@@ -12,6 +12,8 @@ import { dedupeEvents } from '../lib/cal/tidy.js'
 import { addDays } from '../lib/cal/dates.js'
 import { inchWords } from '../lib/weather.js'
 import { tripForecastUrl } from '../lib/outdoors.js'
+import { useAround } from '../lib/useAround.js'
+import { cellIdOf } from '../lib/around.js'
 import { placeWords, tripsAhead, whenWords, tripWindow, shapeTripDays, packWords, miles, cellOf, OSM_CREDIT, TRIP_AHEAD_DAYS } from '../lib/here.js'
 
 /** The town's name, or our own place's while the name is still being looked up. */
@@ -111,6 +113,20 @@ function useTripDays(trip, today) {
   return state
 }
 
+/**
+ * A trip's guide, written ahead: from two days before it starts, the first of us to open
+ * the app asks for it, so it's waiting when we arrive. Sent: the area to about ten
+ * kilometres, and the place's name and region as the calendar has them.
+ */
+function TripGuide({ trip }) {
+  const [town, region] = trip.place.split(',').map((x) => x.trim())
+  const place = { cell: cellIdOf(trip), town: town || trip.title, region: region || '', cc: '' }
+  const { guide, building } = useAround(trip.inDays <= 2 ? place : null, { auto: true })
+  if (guide) return <Link className="here-home" to={`/world/around/${guide.id}`}><span>The guide to {place.town} is ready: hikes, roasters, brewpubs and the rest ›</span></Link>
+  if (building) return <p className="here-line"><span>Writing the guide to {place.town}, ready before you go.</span></p>
+  return null
+}
+
 const short = (date) => new Date(date + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' })
 
 /**
@@ -150,6 +166,7 @@ export function TripAhead({ session, today, here, className = 'span-3' }) {
       )}
       {days && !days.length && <p className="muted">The forecast doesn’t reach those days yet.</p>}
       {pack.length > 0 && <ul className="here-pack">{pack.map((p) => <li key={p}>{p}</li>)}</ul>}
+      <TripGuide trip={trip} />
       <p className="wx-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>, for the place on the calendar, rounded to about a kilometre.</p>
     </Card>
   )

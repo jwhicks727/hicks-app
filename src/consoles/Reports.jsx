@@ -121,7 +121,32 @@ function ListsReport({ session }) {
     </div>
   )
 }
-const BUILT = { 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
+/** Guides written, and what Claude cost for them: counts only, never which places (where anyone has been stays off Reports). */
+function GuidesReport({ session }) {
+  const [d, setD] = useState(null)
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session) return undefined
+    const since = new Date(Date.now() - 30 * 864e5).toISOString()
+    const month = new Date(); month.setDate(1); month.setHours(0, 0, 0, 0)
+    Promise.all([
+      supabase.from('area_guides').select('id', { count: 'exact', head: true }).eq('kind', 'guide').eq('status', 'ready').gte('fetched_at', since),
+      supabase.from('ai_usage').select('cost_cents').eq('task', 'around-here').gte('created_at', month.toISOString()).limit(1000),
+    ]).then(([g, u]) => { if (live) setD({ guides: g.count ?? 0, cents: (u.data || []).reduce((a, r) => a + Number(r.cost_cents || 0), 0), calls: (u.data || []).length }) })
+    return () => { live = false }
+  }, [session])
+  if (!d) return <p className="muted">Counting…</p>
+  return (
+    <div>
+      <table className="table"><tbody>
+        <tr><td>Guides written in the last 30 days</td><td className="num">{d.guides}</td></tr>
+        <tr><td>Claude’s cost for them this month</td><td className="num">${(d.cents / 100).toFixed(2)}</td></tr>
+      </tbody></table>
+      <p className="muted small">Which places stays off Reports. The cost includes each web search, estimated at a cent a search.</p>
+    </div>
+  )
+}
+const BUILT = { 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
 
 export default function Reports() {
   const session = useSession()
