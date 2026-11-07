@@ -344,7 +344,19 @@ and the phases are in issue #19; what's built is ticked here.
       family's interests; Reports counts guides and their cost, never the places.
       Unverified live until migration 20261107231000 runs and the `around` and
       `claude` functions are deployed.
-- [ ] Which town each of us is in, on the others' Home (decided: full transparency).
+- [x] **Which town each of us is in** (2026-11-07, Jason: "full transparency"): while away,
+      the others' Home has "Meanwhile: Laurie is in Big Bear Lake: 41°, clear". The
+      phone shares the town and a tenth of a degree (`member_whereabouts`, one row a
+      person, never a log), lapsing twelve hours after the app was last opened there;
+      gone on home ground, when switched off, or on sign-out. Never on the wall or Reports.
+- [x] **The rest of the app joins in:** Mass near here on a Saturday evening or Sunday
+      morning away (the guide's own Mass section, else the Catholic churches the open
+      map knows, times unchecked); a national park near here from the open map's park
+      boundaries, checked off by a parent with the rainbow gleam for a new one; "Keep
+      this trip?" for a calendar trip just over or a day away nothing planned, kept as an
+      outing with an Undo (`outings.event_id`); the lists' Skip offers "Away" first; the
+      garden hears about heat, frost or wind at home (`src/lib/trips.js`). Shows near
+      here wait for the jam scout. Unverified live until migration 20261107232000 runs.
 - [ ] The travel app: countdown, packing, Anna's trip quest, the postcard, Our day,
       recipes from the trip (tagged to it), the scrapbook, the passport and the rest.
 

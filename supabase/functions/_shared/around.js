@@ -60,6 +60,7 @@ export const MAP_KINDS = {
   mass: ['["amenity"="place_of_worship"]["denomination"~"^(catholic|roman_catholic)$"]'],
   anna: ['["tourism"~"^(museum|zoo|aquarium|theme_park)$"]', '["leisure"="water_park"]'],
   art: ['["tourism"="gallery"]', '["shop"~"^(art|craft)$"]'],
+  parks: ['["boundary"="national_park"]'],
 }
 export const OVERPASS = 'https://overpass-api.de/api/interpreter'
 export function overpassQuery(cell, radius = RADIUS_M) {

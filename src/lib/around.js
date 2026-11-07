@@ -87,7 +87,7 @@ export function alsoOnTheMap(map, guide, n = 12) {
   return Object.entries(map).flatMap(([kind, list]) => (list || []).map((p) => ({ ...p, kind })))
     .filter((p) => !named.has(norm(p.name))).sort((a, b) => a.km - b.km).slice(0, n)
 }
-export const MAP_KIND_WORDS = { coffee: 'Coffee', brewpubs: 'Brewery', books: 'Books', records: 'Records', trails: 'Trailhead', views: 'Viewpoint', mass: 'Catholic church', anna: 'For Anna', art: 'Art' }
+export const MAP_KIND_WORDS = { coffee: 'Coffee', brewpubs: 'Brewery', books: 'Books', records: 'Records', trails: 'Trailhead', views: 'Viewpoint', mass: 'Catholic church', anna: 'For Anna', art: 'Art', parks: 'Park' }
 
 /** A maps link that searches for a place's name and town, never an address. */
 export const mapsSearch = (name, town) => `https://maps.google.com/?q=${encodeURIComponent([name, town].filter(Boolean).join(', '))}`

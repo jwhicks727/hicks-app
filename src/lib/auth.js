@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { clearDrafts } from './useDraft.js'
 import { forgetHere } from './useHere.js'
+import { unshareHere } from './useWhereabouts.js'
 
 /** The signed-in session, or null; `undefined` while it's still being read. */
 export function useSession() {
@@ -35,9 +36,10 @@ export function signInWithCode(email, token) {
   return supabase.auth.verifyOtp({ email, token, type: 'email' })
 }
 
-/** Signing out also forgets anything half-typed on this device, and where it's been. */
-export function signOut() {
+/** Signing out also forgets anything half-typed on this device and where it's been, and takes away the town it shared. */
+export async function signOut() {
   clearDrafts()
   forgetHere()
+  await unshareHere()
   return supabase.auth.signOut()
 }

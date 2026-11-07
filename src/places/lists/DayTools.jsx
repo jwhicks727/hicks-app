@@ -1,3 +1,4 @@
+import { useHere } from '../../lib/useHere.js'
 import { useEffect, useRef, useState } from 'react'
 import { useDraft, hasDraft } from '../../lib/useDraft.js'
 
@@ -12,6 +13,9 @@ const BLANK = { title: '' }
 
 /** `L` is useLists(); `memberId` whose list; `canSkip` when there's something left to skip. */
 export function DayTools({ L, memberId, part, name, today, canSkip, onToast }) {
+  // Away from home (Settings › Notice where I am), "Away" comes first: still a tap, never automatic
+  const away = useHere().tier === 'away'
+  const reasons = away ? ['Away', ...SKIP_REASONS.filter((r) => r !== 'Away')] : SKIP_REASONS
   const key = `list.extra.${memberId}.${part}`
   const [open, setOpen] = useState(() => (hasDraft(key) ? 'add' : null)) // 'add' | 'skip' | null
   const [draft, setDraft, clear] = useDraft(key, BLANK)
@@ -60,7 +64,7 @@ export function DayTools({ L, memberId, part, name, today, canSkip, onToast }) {
     return (
       <div className="dl-tools-skip" role="group" aria-label={`Skip ${name} today`}>
         <span>Skip today’s {name}:</span>
-        {SKIP_REASONS.map((r) => <button key={r} type="button" className="dl-mini" disabled={busy} onClick={() => skip(r)}>{r}</button>)}
+        {reasons.map((r) => <button key={r} type="button" className="dl-mini" disabled={busy} onClick={() => skip(r)}>{r}</button>)}
         <button type="button" className="dl-link" onClick={() => setOpen(null)}>Cancel</button>
       </div>
     )

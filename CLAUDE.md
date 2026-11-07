@@ -93,6 +93,10 @@ and write the code fresh. SOAR's code belongs to the school.
   (`roundPoint`) before it is kept or sent anywhere, kept only on the device, one at a
   time, forgotten after six hours and on sign-out. No history of where anyone has been,
   ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep.
+- The family sees which **town** each of us is in while away (Jason, "full
+  transparency"): `member_whereabouts`, one row a person written only by its owner's
+  phone, a tenth of a degree, lapsing in twelve hours, removed at home, when switched
+  off and on sign-out (`tests/trips.test.mjs`). Never a log, never a closer point.
 - An Edge Function is told no more than it needs: the birds function gets a
   tenth-of-a-degree cell (`nearCell`, `tests/birds-near.test.mjs`), never a closer point.
 - A guide to a place (`area_guides`) is kept by area, never by person: no member id,
