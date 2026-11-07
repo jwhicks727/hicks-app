@@ -6,6 +6,47 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — Away from home: the app follows us, and becomes our own travel app
+
+Jason asked for the app to change when one of us is on a trip or about to go on one:
+local weather, local birds, and a "What's around here?" guide with photos, then for
+surprises that make it our own travel app. The design is issue #19. Decided:
+
+- **It knows only while the app is open.** An installed web app gets the phone's
+  location only on screen: no background location, no geofences. So it notices the
+  moment any of us opens it away from home, and a trip on the calendar (an event with
+  a place more than 25 miles away) tells it beforehand. Tracking in the background
+  would take an App Store app; for a family app this is also the kinder way.
+- **Home ground, out and about, away:** under 10 miles nothing changes (the schools
+  and the parish are within 8), 10 to 25 is out and about (a line for where you are
+  in home's weather), beyond 25 or in another time zone is away (the greeting, the
+  date, the sun, the sky and the weather card follow). Big Bear (32 miles) and
+  Temecula (44) are away.
+- **Where we are is ours.** The reading is rounded to about a kilometre before it is
+  kept or sent, kept only on the phone, one at a time, forgotten after six hours, on
+  sign-out or when switched off. No history. Never on the wall, never in Reports.
+  Settings › Notice where I am says what is asked and what goes where before iOS asks.
+- **The family sees which town each of us is in (Jason: "full transparency").** On for
+  all three of us, the town only, while away, and every screen that uses it says so.
+  Not built yet; Settings already says it is coming.
+- **The guide appears by itself.** Anyone's phone may start it, with no button, when the
+  app sees we're away (Temecula for the day) or a trip is coming up; Settings and the
+  card's footer say what it sends (the town, rounded coordinates, the family's interests).
+- **Photos are high quality and free:** Wikimedia Commons' featured and quality
+  pictures, Wikipedia, Openverse, iNaturalist, the Park Service's public-domain photos
+  and places' own preview pictures, each credited; no paid photo service.
+- **Recipes from a trip are part of it.** A recipe added while away or during a trip is
+  tagged to the trip (unticked to leave it out), and the scrapbook and "a year ago
+  today" hold them; a day away nobody planned becomes a trip only when someone keeps it.
+- **The town's name comes from OpenStreetMap's Nominatim, asked by the phone** with the
+  rounded position at the town's zoom and kept a month for each area, rather than
+  through an Edge Function as the issue first said: nothing to deploy, and well within
+  Nominatim's usage policy at a family's volume. Its credit is on the card.
+- **Built first (phase 1):** the setting, the weather and sky where we are, and Coming up.
+  Birds, the guide, the family's towns and the travel app follow, one branch each.
+
+---
+
 ## 2026-11-07 — A day that's different is a quiet + and Skip under the list
 
 Jason found the lists page's "A day that's different" section (choose a day, skip any one

@@ -84,6 +84,20 @@ and write the code fresh. SOAR's code belongs to the school.
   migration's check together (`tests/challenges.test.mjs`).
 - A milestone or a new best gets the rainbow gleam; a job waiting never does.
 
+## Where we are
+
+- **Where someone is stays theirs** (`src/lib/here.js`, `src/lib/useHere.js`,
+  `tests/here.test.mjs`): the phone is asked only while the app is open and only once
+  its owner has switched on Settings › Notice where I am; never `watchPosition`, low
+  accuracy, at most every ten minutes. The reading is rounded to about a kilometre
+  (`roundPoint`) before it is kept or sent anywhere, kept only on the device, one at a
+  time, forgotten after six hours and on sign-out. No history of where anyone has been,
+  ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep.
+- Where anyone is never reaches the wall or Reports, and the sign-in screen's sky
+  never follows the phone (`<Sky />` in the gate, `<Sky follow />` inside).
+- A screen that shows or sends where someone is says so, and names the services it
+  goes to.
+
 ## Art in the academy
 
 Every picture in Anna's academy is human-made, with its licence recorded:
