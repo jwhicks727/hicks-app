@@ -279,6 +279,9 @@ sign-in link won't come back to the app.
 | `postcards` | A postcard to the family: the town and the day, a line of words, who sent it (never a point) | The family | Each of us our own; the sender or a parent removes |
 | `packing_items` | A calendar trip's packing list: our own items and the suggestions someone added, ticked off | The family | The family |
 | `trip_hikes` | A guide's hike ticked off: its name, miles and climb, the day and the town, who ticked it | The family | Each of us our own; the ticker or a parent removes |
+| `been_towns` | Our list for each town: the towns we keep a list for (town, state, country), one row each, so a town's page has an id | The family | The family adds |
+| `been_places` | A place on a town's list: its name, what kind (eat, drink, hike, do, shop, stay, Mass), loved / good / not again, a note, its link | The family | The family adds and changes; whoever added it, or a parent, removes |
+| `been_visits` | A day we went to a place on a town's list (one a day) | The family | The family adds; whoever added it, or a parent, removes |
 | `someday` | A place from a guide hearted for next time we're near: the area, the town, its name and line | The family | The family adds; whoever hearted it, or a parent, removes |
 | `routine_items` | The things on each person's morning and evening lists: words, a picture, which weekdays, every week or every other, any day or school days or days off, turns, until when, order; taken off (`archived_on`) rather than deleted | Its keeper, and the parents for Anna's | Its keeper, and the parents for Anna's (`lists_i_keep()`) |
 | `routine_changes` | A day that's different: something skipped, something added just for the day, a day off (with its reason) | Its keeper, and the parents for Anna's | The same |
@@ -310,5 +313,6 @@ Migration index:
 | `20261107231000_around_here` | What's around here: `area_guides` (the map layer and the guide, by area, every version kept, written only by the functions) and `travel_settings` (the family's interests; parents write) |
 | `20261107232000_family_towns_trips` | `member_whereabouts` (which town each of us is in while away; one row a person, only its owner writes it) and `outings.event_id` (a kept trip's calendar event, one outing per event) |
 | `20261107233000_travel_app` | The travel app: its name on `travel_settings`; `trip_recipes`, `postcards`, `packing_items`, `trip_hikes` and `someday`. Postcards and hikes keep a town and a day, never a point |
+| `20261107234000_our_list_each_town` | Our list for each town: `been_towns`, `been_places`, `been_visits`. The town only, never a point |
 | `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

@@ -20,6 +20,9 @@ import { todayAt } from '../../lib/cal/dates.js'
 import { HOME_TOWN } from '../../lib/sky.js'
 import { Toast } from '../../ui/Toast.jsx'
 import { Link } from '../../shell/Link.jsx'
+import { BeenBadge, BeenButton, useTownList } from '../yonder/Been.jsx'
+import { addBeen } from '../../lib/useBeen.js'
+import { matchBeen } from '../../lib/been.js'
 import './around.css'
 
 // /world/around: the guide to where the phone is (away, it writes itself; out and
@@ -71,6 +74,9 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
   const [open, setOpen] = useState(null)
   const [fresh, setFresh] = useState('')
   const hikes = useHikes(session), someday = useSomeday(session)
+  // Our list for this town: places we've been are marked, and each place can join it
+  const beenTown = place && place.town ? { town: place.town, region: place.region || (here.town && here.town.region) || null, cc: place.cc || null } : null
+  const { list: beenList } = useTownList(beenTown)
   const hearts = (someday.rows || []).filter((r) => place && r.cell === place.cell)
   const zone = tz || 'America/Los_Angeles'
   const hour = hourIn(now, zone), weekday = new Date(now.toLocaleString('en-US', { timeZone: zone })).getDay()
@@ -105,7 +111,7 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
       {parent && guide && !kept && <EatWell place={place} />}
       {sections.map((s) => (
         <Card key={s.key} tint={SECTION_COLOURS[s.key]} label={s.title} glyph={SECTION_GLYPHS[s.key] || 'star'} className="span-6 ar-section">
-          <div className="ar-rail">{s.items.map((it) => <ItemTile key={it.name} item={it} section={s.key} onOpen={(item) => setOpen({ item, section: s })} />)}</div>
+          <div className="ar-rail">{s.items.map((it) => <ItemTile key={it.name} item={it} section={s.key} badge={matchBeen(it.name, beenList) ? <BeenBadge p={matchBeen(it.name, beenList)} /> : null} onOpen={(item) => setOpen({ item, section: s })} />)}</div>
         </Card>
       ))}
 
@@ -127,12 +133,12 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
         {fresh && <p className="muted" role="status">{fresh}</p>}
       </Card>
 
-      {open && <ItemSheet item={open.item} section={open.section} point={point} sunset={sunset} now={now} zone={zone} town={place && place.town} place={place} hikes={hikes} someday={someday} onClose={() => setOpen(null)} />}
+      {open && <ItemSheet item={open.item} section={open.section} point={point} sunset={sunset} now={now} zone={zone} town={place && place.town} place={place} hikes={hikes} someday={someday} beenTown={beenTown} beenList={beenList} onClose={() => setOpen(null)} />}
     </>
   )
 }
 
-function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes, someday, onClose }) {
+function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes, someday, beenTown, beenList, onClose }) {
   const away = awayWords(item, point)
   const go = section.key === 'hikes' ? startBy(item.hike, sunset, now) : null
   const [toast, setToast] = useState(null), [gleam, setGleam] = useState(false)
@@ -145,6 +151,7 @@ function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes
     const { data, error } = await tickHike({ name: item.name.slice(0, 100), miles, climb_ft: item.hike && item.hike.climb ? Math.round(item.hike.climb) : null, on_date: today, town: (item.town || town || '').slice(0, 120) || null })
     if (error) { setToast({ text: 'It couldn’t be ticked just now.', undo: () => setToast(null) }); return }
     hikes.reload(); if (best) setGleam(true)
+    if (beenTown && !matchBeen(item.name, beenList)) addBeen(beenTown, { name: item.name, kind: 'hike', website: item.website || '' }, today) // a hike done joins the town's list
     setToast({ text: best ? `Ticked off: ${miles} miles, the longest hike any of us has done.` : 'Ticked off, in the trip’s scrapbook.', undo: async () => { await untickHike(data.id); hikes.reload(); setGleam(false); setToast(null) } })
   }
   const toggleHeart = async () => {
@@ -178,6 +185,7 @@ function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes
         {section.key === 'hikes' && !ticked && <button type="button" className={'btn ar-did' + (gleam ? ' ar-gleaming' : '')} onClick={tick}>We did it</button>}
         {section.key === 'hikes' && ticked && <span className={'ar-done' + (gleam ? ' ar-gleaming' : '')}>{gleam && <i className="ar-gleam" aria-hidden="true" />}Done today ✓</span>}
       </div>
+      <BeenButton item={item} section={section.key} t={beenTown} list={beenList} />
       {toast && <Toast action="Undo" onAction={toast.undo} onClose={() => setToast(null)}>{toast.text}</Toast>}
       <p className="muted small">Sources: {item.sources.map((u, i) => <span key={u}>{i ? ' · ' : ''}<a href={u} target="_blank" rel="noopener noreferrer">{(() => { try { return new URL(u).hostname.replace(/^www\./, '') } catch { return 'link' } })()}</a></span>)}</p>
     </Sheet>

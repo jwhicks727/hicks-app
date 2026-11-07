@@ -8,6 +8,8 @@ import { cellIdOf, sectionOrder, ordered } from '../lib/around.js'
 import { placeWords, clockIn, hourIn } from '../lib/here.js'
 import { useNow } from '../lib/useNow.js'
 import { AroundHero, ItemTile, usePlacePainting, WHAT_WAS_SENT } from './AroundBits.jsx'
+import { BeenBadge, useTownList } from '../places/yonder/Been.jsx'
+import { matchBeen } from '../lib/been.js'
 import '../places/world/around.css'
 
 /** The area the phone is in, as the guide functions are told it. */
@@ -31,6 +33,7 @@ export default function AroundCard({ here }) {
   const { forecast: f, tz, elevation } = useHereForecast(away ? here.point : null)
   const where = placeWords(here && here.town) || (place && place.town) || 'here'
   const painting = usePlacePainting(place && place.town, here && here.place)
+  const { list: beenList } = useTownList(place && place.town ? { town: place.town, region: place.region || null } : null)
   if (!place) return null
   if (near) {
     return (
@@ -61,7 +64,7 @@ export default function AroundCard({ here }) {
       {sections.map((s) => (
         <section key={s.key} className="ar-rail-wrap" aria-label={s.title}>
           <h3>{s.title}</h3>
-          <div className="ar-rail">{s.items.slice(0, 5).map((it) => <ItemTile key={it.name} item={it} section={s.key} onOpen={() => navigate('/world/around')} />)}</div>
+          <div className="ar-rail">{s.items.slice(0, 5).map((it) => <ItemTile key={it.name} item={it} section={s.key} badge={matchBeen(it.name, beenList) ? <BeenBadge p={matchBeen(it.name, beenList)} /> : null} onOpen={() => navigate('/world/around')} />)}</div>
         </section>
       ))}
       {!guide && map && (map.sights || []).length > 0 && (

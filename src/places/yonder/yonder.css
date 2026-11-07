@@ -83,3 +83,33 @@
 .yo-snow i { position: absolute; top: -12px; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 70%); transform: scale(var(--s, 1)); animation: yo-snowfall linear infinite; }
 @keyframes yo-snowfall { to { translate: 24px 105vh; } }
 html[data-motion="less"] .yo-snow { display: none; }
+
+/* Our list for each town (src/places/yonder/Been.jsx) */
+.yo-been { gap: 12px; }
+.yo-been-group h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin: 0 0 4px; }
+.yo-been-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.yo-been-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yo-been-row:first-child { border-top: 0; }
+.yo-been-row.not-again .yo-been-main b { color: var(--muted); }
+.yo-been-main { display: grid; gap: 2px; min-width: 0; }
+.yo-been-main b { overflow-wrap: anywhere; }
+.yo-been-main small { color: var(--muted); font-size: 13px; }
+.yo-been-note { justify-self: start; text-align: left; background: none; border: 0; padding: 2px 0; font: inherit; font-size: 14px; color: var(--ink); cursor: pointer; overflow-wrap: anywhere; }
+.yo-been-edit { display: flex; flex-wrap: wrap; gap: 6px; }
+.yo-been-edit input { flex: 1 1 180px; min-width: 0; min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; }
+.yo-been-rate { display: flex; gap: 4px; align-self: start; }
+.yo-rate { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--muted); font: inherit; font-weight: 800; cursor: pointer; }
+.yo-rate[aria-pressed="true"].loved { background: color-mix(in srgb, #C14D83 22%, var(--card)); color: color-mix(in srgb, #C14D83 85%, var(--ink)); border-color: #C14D83; }
+.yo-rate[aria-pressed="true"].good { background: color-mix(in srgb, #4E6C3D 20%, var(--card)); color: color-mix(in srgb, #4E6C3D 85%, var(--ink)); border-color: #4E6C3D; }
+.yo-rate[aria-pressed="true"].not-again { background: color-mix(in srgb, #8A5A33 20%, var(--card)); color: color-mix(in srgb, #8A5A33 85%, var(--ink)); border-color: #8A5A33; }
+@media (pointer: coarse) { .yo-rate { width: 44px; height: 44px; } }
+.yo-been-go { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.yo-been-add { display: grid; gap: 10px; }
+.yo-field { display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+.yo-field input { min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; }
+.yo-kinds { flex-wrap: wrap; }
+.yo-been-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 800; white-space: nowrap; background: color-mix(in srgb, #4E6C3D 18%, var(--card)); color: color-mix(in srgb, #4E6C3D 85%, var(--ink)); }
+.yo-been-badge.loved { background: color-mix(in srgb, #C14D83 18%, var(--card)); color: color-mix(in srgb, #C14D83 85%, var(--ink)); }
+.yo-been-badge.not-again { background: color-mix(in srgb, #8A5A33 18%, var(--card)); color: color-mix(in srgb, #8A5A33 85%, var(--ink)); }
+.yo-been-here { margin-top: 6px; }
+.ar-tile-badge { padding: 0 10px; margin-top: -2px; }

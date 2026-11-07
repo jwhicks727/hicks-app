@@ -34,7 +34,7 @@ export function AroundHero({ painting, photo, title }) {
 }
 
 /** One place in a rail: its photo (or a tile drawn in its section's colour), name, and a line. */
-export function ItemTile({ item, section, onOpen, as = 'button', to }) {
+export function ItemTile({ item, section, onOpen, as = 'button', to, badge = null }) {
   const colour = SECTION_COLOURS[section] || '#5F8A4A'
   const line = item.hike ? hikeWords(item.hike) : item.why
   const inner = (
@@ -42,6 +42,7 @@ export function ItemTile({ item, section, onOpen, as = 'button', to }) {
       {item.photo
         ? <img className="ar-tile-pic" src={item.photo.url} alt="" loading="lazy" referrerPolicy="no-referrer" />
         : <span className="ar-tile-pic ar-tile-drawn" style={{ '--c': colour }} aria-hidden="true"><b>{item.name.charAt(0)}</b></span>}
+      {badge && <span className="ar-tile-badge">{badge}</span>}
       <b className="ar-tile-name">{item.name}</b>
       {line && <small>{line}</small>}
     </>
