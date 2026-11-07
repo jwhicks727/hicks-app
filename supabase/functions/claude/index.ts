@@ -14,6 +14,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 import {
   FALLBACK_SONNET, pickLatest, costCents, overCap, CAPS, checkUpload, uploadBlock, checkHistory,
   TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk,
+  checkUploads, paintingAsk, paintingContent,
 } from '../_shared/claude.js'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
@@ -76,6 +77,7 @@ Deno.serve(async (req) => {
   if (!task) return reply(400, { error: 'Unknown task' })
   if (task.who === 'parent' && parent !== true) return reply(403, { error: 'Jason or Laurie can do this one' })
   if (task.upload) { const why = checkUpload(body.file, { pdf: Boolean(task.pdf) }); if (why) return reply(400, { error: why }) }
+  if (task.uploads) { const why = checkUploads(body.files, task.uploads); if (why) return reply(400, { error: why }) }
 
   // Within the family's budget?
   const { data: spend } = await db.rpc('ai_spend')
@@ -164,6 +166,13 @@ Deno.serve(async (req) => {
       const msg = await ask({ ...base, messages: [{ role: 'user', content: [uploadBlock(body.file), { type: 'text', text: gardenAsk({ spot: String(body.spot ?? '').slice(0, 200), plants: Array.isArray(body.plants) ? body.plants.map(String) : [], indoor: Boolean(body.indoor), question: body.question, month }) }] }] })
       await record(msg)
       return refused(msg) ? reply(200, { analysis: null }) : reply(200, { analysis: jsonOf(msg), model: id })
+    }
+    // ---- Laurie's painting: the year by her signature, and a working title -------------------
+    if (body.task === 'read-painting') {
+      const titles = Array.isArray(body.titles) ? body.titles.map(String) : []
+      const msg = await ask({ ...base, messages: [{ role: 'user', content: paintingContent(body.files, paintingAsk({ titles, year: Number(today().slice(0, 4)) })) }] })
+      await record(msg)
+      return refused(msg) ? reply(200, { reading: null }) : reply(200, { reading: jsonOf(msg), model: id })
     }
     return reply(400, { error: 'Unknown task' })
   } catch (e) {

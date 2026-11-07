@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { clearDrafts } from './useDraft.js'
+import { forgetPhotos } from './photoStore.js'
 
 /** The signed-in session, or null; `undefined` while it's still being read. */
 export function useSession() {
@@ -34,8 +35,9 @@ export function signInWithCode(email, token) {
   return supabase.auth.verifyOtp({ email, token, type: 'email' })
 }
 
-/** Signing out also forgets anything half-typed on this device. */
+/** Signing out also forgets anything half-typed on this device, and photos waiting to be saved. */
 export function signOut() {
   clearDrafts()
+  forgetPhotos()
   return supabase.auth.signOut()
 }

@@ -17,7 +17,7 @@ export const PAINTINGS = [
     slug: 'witch-and-crow',
     title: 'The witch and the crow', // a working title until Laurie names it
     named: false,
-    year: null, medium: null, size: null, // hers to tell; never guessed
+    year: null, medium: null, size: null, // hers to tell, or read from her signature and confirmed; never guessed
     src: '/paintings/witch-and-crow.jpg', small: '/paintings/witch-and-crow-720.jpg', w: 1440, h: 1920,
     seasons: ['halloween'],
     added: '2026-10-31',
@@ -36,7 +36,7 @@ export const PAINTINGS = [
     slug: 'autumn-stream',
     title: 'Autumn stream', // a working title until Laurie names it
     named: false,
-    year: null, medium: null, size: null, // hers to tell; never guessed
+    year: null, medium: null, size: null, // hers to tell, or read from her signature and confirmed; never guessed
     src: '/paintings/autumn-stream.jpg', small: '/paintings/autumn-stream-720.jpg', w: 1600, h: 1600,
     seasons: ['fall', 'thanksgiving'],
     added: '2026-11-01',
@@ -49,7 +49,7 @@ export const PAINTINGS = [
     slug: 'autumn-pond',
     title: 'Autumn pond', // a working title until Laurie names it
     named: false,
-    year: null, medium: null, size: null, // hers to tell; never guessed
+    year: null, medium: null, size: null, // hers to tell, or read from her signature and confirmed; never guessed
     src: '/paintings/autumn-pond.jpg', small: '/paintings/autumn-pond-720.jpg', w: 1600, h: 1600,
     seasons: ['fall', 'thanksgiving'],
     added: '2026-11-01',

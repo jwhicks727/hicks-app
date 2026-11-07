@@ -6,6 +6,51 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — Her paintings come in many at once, cropped on the phone and read by Claude
+
+Jason is photographing Laurie's paintings and asked for a way to add them all at once: a
+crop and rotate tool that walks him through every photo, with the app's own go at each
+crop so he only fixes the odd ones; the year read from her signature, which she often
+dates; working titles as before; the medium found too; seasons assigned; and no size,
+since he doesn't want to measure them all. Decided:
+
+- **One screen for one painting or many** (`/lifelist/paintings/add`, Jason or Laurie),
+  in place of "Add a painting". Choose all the photos; go through them one at a time;
+  "Looks right: add it" saves each in the background while the next comes up.
+- **The crop is worked out on the phone** (`src/lib/autocrop.js`): the wall is learned
+  from the photo's edges, the painting is whatever differs from it or is busy with
+  brushwork, its straight edges say how far it leans (up to 12°), and the rows and
+  columns it fills say where its edges are. When it isn't sure (the painting runs off
+  the photo, isn't a rectangle, or is tiny) the photo says so and has an amber dot in
+  the strip. So far it is tested on made-up photos only; the first real batch will
+  show how it does with frames, shadows and glare.
+- **The crop tool**: the box stays level and the photo leans under it; drag an edge or
+  a corner, or tap where a corner of the painting is (every drag has a tap); quarter
+  turns; a straighten slider; "Its own crop" and "The whole photo". The painting is
+  only cropped, turned and shrunk. No perspective correction: ART-CAPTURE.md has the
+  camera square-on.
+- **Claude reads each photo, if left on** (`read-painting`, parents only): the cropped
+  photo and its four corners enlarged. It returns what her signature says, the year
+  written with it, a working title, the medium, the seasons it suits, and whether it
+  lies sideways. This refines "her title, year and medium come from her, never
+  guessed" (2026-11-01, kept below): the year is read from what she wrote, never
+  estimated from the style; the title is a working title (`named: false`) as the first
+  ones were; the medium and seasons are suggestions; and each says where it came from,
+  for Jason or Laurie to confirm or change before it's saved. Claude only reads the
+  photo; it is not an image generator and nothing is made from her painting. The
+  screen says what goes to Claude first and has a switch. Jason asked for it, under
+  Laurie's blanket yes to her paintings being used in the app.
+- **No size** when adding; the column stays, for any she gives.
+- **The photos wait on the phone** (IndexedDB, `src/lib/photoStore.js`) until each is
+  saved, so iOS closing the app loses nothing but a photo still being got ready.
+  Signing out forgets them. The gallery's shine counts the ones waiting.
+- **Home keeps a season show's painting.** Seasons now come in by the dozen, and Home
+  hung the newest painting of the season; that would have taken the frame from the
+  painting the season's show plays from. Home now hangs the show's own painting
+  (`homePainting`), and the newest of the season only where there's no show.
+
+---
+
 ## 2026-11-07 — A day that's different is a quiet + and Skip under the list
 
 Jason found the lists page's "A day that's different" section (choose a day, skip any one

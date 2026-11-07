@@ -43,11 +43,19 @@ may be reachable by someone who has only its address.
   Life List › Laurie's gallery › "Move them now". The files and their
   details go into the bucket and the table, and from then on every copy
   of the app reads them from there.
-- **A new painting:** Laurie's gallery › "Add a painting". Add the photo or
-  scan (docs/ART-CAPTURE.md), its title, and its season. Her blanket yes
-  covers every painting, so nothing is ticked (the `said_yes_by` column stays
-  as history for rows saved before). Making one move (a bird, her leaves) is a step for a
-  computer, with `scripts/lift-art.py`.
+- **New paintings, one or many:** Laurie's gallery › "Add her paintings"
+  (`/lifelist/paintings/add`, Jason or Laurie). Choose the photos or scans
+  (docs/ART-CAPTURE.md); each is straightened and cropped to the painting on
+  the phone, and Claude, unless that's switched off, reads the year by her
+  signature and suggests a working title, the medium and the seasons. Go
+  through them one at a time, fix what's off, and "Looks right: add it" saves
+  each one's `full.jpg` and `small.jpg` and its row while the next comes up.
+  The photos wait on the phone (IndexedDB) until they're saved, so the app
+  closing loses nothing; signing out forgets them. Size isn't asked for (the
+  column stays, for any she gives). Her blanket yes covers every painting, so
+  nothing is ticked (the `said_yes_by` column stays as history for rows saved
+  before). Making one move (a bird, her leaves) is a step for a computer, with
+  `scripts/lift-art.py`.
 
 ## Autumn leaves from her paintings
 

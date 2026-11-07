@@ -179,6 +179,13 @@ model, is in `supabase/functions/_shared/claude.js`.
   once answered yes or no, is no longer read; its rows are kept as history.
 - **A refused request** is retried server-side on Anthropic's recommended
   fallback model (`fallbacks: "default"`).
+- **Laurie's paintings, as they're added** (`read-painting`, Jason or Laurie
+  only): the cropped photo and its four corners enlarged (five pictures at
+  most, `checkUploads`). Claude reads the year by her signature and suggests a
+  working title, the medium and the seasons; nothing is written until a parent
+  says it looks right on screen. About two cents a painting (an estimate, not
+  yet measured), within the caps; at the day's cap the screen stops asking and
+  the rest can be typed in or read the next day.
 
 Set the key and deploy:
 
