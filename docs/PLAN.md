@@ -87,7 +87,10 @@ Built in this order, each part in daily use before the next.
 
 - [x] Each of us keeps a morning list and an evening list, first on Home above
       everything but the greeting (`src/parts/ListsCard.jsx`): the list the hour
-      asks for, a tap from the other. Names chosen in Admin (Early Bird and Night
+      asks for, a tap from the other. The card starts folded to one row (which
+      list, how many done or "Done by…", the streak, the bird) and opens when
+      tapped; a chevron folds it away again, and it stays as left until the app
+      is closed. Names chosen in Admin (Early Bird and Night
       Owl unless changed: Sunup & Sundown, Rise & Shine and Wind Down, First Light
       and Last Light, Dawn Chorus and Evensong).
 - [x] Different days, worked out from each thing's own rule

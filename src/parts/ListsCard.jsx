@@ -22,6 +22,8 @@ import '../places/lists/lists.css'
 
 // Home's first card: the signed-in person's morning list (Early Bird) or
 // evening list (Night Owl), whichever the hour asks for, a tap from the other.
+// It starts folded to one row (the list, how many left, the streak, the bird)
+// and opens when it's asked for; it stays as left until the app is closed.
 // Everything about ticking is in RoutineList; around it: the companion (a
 // hummingbird, an owl), streaks on the tabs, a gentle word when a streak
 // ends, the family's progress as rings (counts, never their words), the
@@ -30,6 +32,7 @@ import '../places/lists/lists.css'
 // 2026-11-07.
 
 export const PART_COLOURS = { morning: '#E38B2C', evening: '#4B5BA6' }
+const OPEN_KEY = 'teamhicks.lists.open'
 const hourAt = (now) => +new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(now)
 const isAnna = (p) => /^anna$/i.test((p && p.name) || '')
 
@@ -66,6 +69,14 @@ function ListsHome({ session, family, me, now, events = [] }) {
   const names = namesFor(L.settings && L.settings.names)
 
   const [choice, setChoice] = useState(null)
+  // Folded until it's asked for; stays as left for the rest of this visit (a new visit starts folded)
+  const [open, setOpen] = useState(() => { try { return sessionStorage.getItem(OPEN_KEY) === '1' } catch { return false } })
+  const [opening, setOpening] = useState(false)
+  const keepOpen = (v) => {
+    try { if (v) sessionStorage.setItem(OPEN_KEY, '1'); else sessionStorage.removeItem(OPEN_KEY) } catch { /* fine */ }
+    setOpen(v)
+    if (v && !reducedMotion()) { setOpening(true); setTimeout(() => setOpening(false), 500) }
+  }
   const [finishing, setFinishing] = useState(null)
   const [flight, setFlight] = useState(null)
   const [settle, setSettle] = useState(false)
@@ -108,7 +119,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
 
   // A first hello from the companion, once per device and list
   useEffect(() => {
-    if (!L.loaded || !has(part) || bubble) return
+    if (!open || !L.loaded || !has(part) || bubble) return
     const k = `hello:${memberId}:${part}`
     if (seen(k)) return
     const t = setTimeout(() => setBubble({ key: k, text: part === 'evening'
@@ -116,7 +127,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
       : isAnna(person) ? `Hi Anna! I’m an Anna’s hummingbird: the bird that shares your name. We live round here all year. Tick things off and watch me go!`
         : `Hi! I’m a hummingbird, and I’m always up early. Tick things off your ${names.morning} list and watch me go.` }), 900)
     return () => clearTimeout(t)
-  }, [L.loaded, part, memberId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, L.loaded, part, memberId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // The challenge: under way, coming, or just decided
   const active = L.runs.filter((r) => r.status === 'planned' && r.ends_on >= today).sort((a, b) => (a.starts_on < b.starts_on ? -1 : 1))[0] || null
@@ -239,8 +250,40 @@ function ListsHome({ session, family, me, now, events = [] }) {
     ? <Owl perks={perks.map((p) => p.key)} asleep={showDone && !settle} className={(turn ? 'turn ' : '') + (settle ? 'settle ' : '')} />
     : <Hummingbird throat={person.colour || '#C42D20'} annas={isAnna(person)} perks={perks.map((p) => p.key)} still={showDone} />
 
+  const overlays = (
+    <>
+      {team && <TeamFlight people={ring} onDone={() => setTeam(false)} />}
+      {joy && <Joy moment={joy} onDone={() => setJoy(null)} />}
+      {toast && <Toast action="Undo" onAction={() => { toast.undo(); setToast(null) }} onClose={() => setToast(null)}>{toast.text}</Toast>}
+    </>
+  )
+
+  if (!open) {
+    const otherLeft = lists[other].entries.length - lists[other].entries.filter((e) => tickFor(e, ticks)).length
+    const line = list.rest ? `Resting today${list.restNote ? ` (${list.restNote.toLowerCase()})` : ''}. The streak waits.`
+      : !list.entries.length ? 'Nothing on it today'
+        : showDone ? `${dw.head}${has(other) && !allDone(other) && !lists[other].rest ? ` · ${names[other]}: ${otherLeft} ${other === 'evening' ? 'for tonight' : 'still to do'}` : ''}`
+          : `${doneCount} of ${list.entries.length} done`
+    return (
+      <Card tint={PART_COLOURS[part]} className={`span-6 dl-card dl-folded dl-${part}${showDone ? ' is-done' : ''}`}>
+        <button type="button" className="dl-fold" aria-expanded="false" onClick={() => keepOpen(true)} aria-label={`${names[part]}: ${line}. Show the list`}>
+          <span className="dl-fold-i" aria-hidden="true">{part === 'evening' ? <MoonIcon /> : <SunIcon />}</span>
+          <span className="dl-fold-t">
+            <b>{names[part]}{showDone ? ' ✓' : ''}</b>
+            <small>{line}</small>
+            {!list.rest && list.entries.length > 0 && !showDone && <span className="dl-bar" aria-hidden="true"><i style={{ '--p': doneCount / list.entries.length }} /></span>}
+          </span>
+          {streak.current >= 2 && <span className="dl-fold-streak" aria-hidden="true"><Flame />{streak.current}</span>}
+          <span className="dl-fold-bird" aria-hidden="true">{bird}</span>
+          <svg className="dl-fold-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        {overlays}
+      </Card>
+    )
+  }
+
   return (
-    <Card tint={PART_COLOURS[part]} className={`span-6 dl-card dl-${part}${showDone ? ' is-done' : ''}${gleam ? ' dl-gleaming' : ''}${birthday ? ' dl-bday' : ''}`} aria-label={`${names[part]} list`}>
+    <Card tint={PART_COLOURS[part]} className={`span-6 dl-card dl-${part}${showDone ? ' is-done' : ''}${gleam ? ' dl-gleaming' : ''}${birthday ? ' dl-bday' : ''}${opening ? ' dl-opening' : ''}`} aria-label={`${names[part]} list`}>
       {gleam && <i className="dl-gleam" aria-hidden="true" />}
       {part === 'evening' && <div className="dl-night" aria-hidden="true">{Array.from({ length: 11 }, (_, i) => <i key={i} style={{ left: `${(i * 37) % 92 + 4}%`, top: `${(i * 23) % 70 + 8}px`, animationDelay: `${(i * 0.43) % 3}s` }} />)}</div>}
       <div className="dl-head">
@@ -285,6 +328,9 @@ function ListsHome({ session, family, me, now, events = [] }) {
           </div>
           <button type="button" ref={birdRef} className={'dl-buddy' + (flight ? ' away' : '') + (zip ? ' zip' : '')} onClick={tapBird} aria-label={part === 'evening' ? 'The owl' : isAnna(person) ? 'Your Anna’s hummingbird' : 'The hummingbird'}>
             {bird}
+          </button>
+          <button type="button" className="dl-foldup" aria-expanded="true" onClick={() => { setBubble(null); keepOpen(false) }} aria-label="Fold the list away" title="Fold it away">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" /></svg>
           </button>
         </div>
         {bubble && <button type="button" className="dl-bubble" onClick={() => { markSeen(bubble.key); setBubble(null) }}>{bubble.text}<small>Tap to close</small></button>}
@@ -358,9 +404,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
       </div>
 
       {flight && <Flight from={flight} bird={<Hummingbird throat={person.colour || '#C42D20'} annas={isAnna(person)} perks={perks.map((p) => p.key)} />} onDone={() => setFlight(null)} />}
-      {team && <TeamFlight people={ring} onDone={() => setTeam(false)} />}
-      {joy && <Joy moment={joy} onDone={() => setJoy(null)} />}
-      {toast && <Toast action="Undo" onAction={() => { toast.undo(); setToast(null) }} onClose={() => setToast(null)}>{toast.text}</Toast>}
+      {overlays}
     </Card>
   )
 }

@@ -185,3 +185,13 @@ test('the lists are first on Home, above the weather, and the family sees only t
   }
   assert.doesNotMatch(readFileSync(new URL('../src/lib/useLists.js', import.meta.url), 'utf8').match(/const SELECT_DAY = '([^']+)'/)[1], /title|note/)
 })
+
+test('Home’s lists card starts folded each visit, and opens only when asked', async () => {
+  const { readFileSync } = await import('node:fs')
+  const card = readFileSync(new URL('../src/parts/ListsCard.jsx', import.meta.url), 'utf8')
+  // Kept for the visit only (sessionStorage), never the device's storage: a new visit starts folded
+  assert.match(card, /useState\(\(\) => \{ try \{ return sessionStorage\.getItem\(OPEN_KEY\) === '1' \} catch \{ return false \} \}\)/)
+  assert.doesNotMatch(card, /localStorage\.(get|set)Item\(OPEN_KEY/)
+  assert.match(card, /if \(!open\) \{/)
+  assert.match(card, /className="dl-fold" aria-expanded="false"/)
+})

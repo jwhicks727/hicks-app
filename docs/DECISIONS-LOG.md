@@ -6,6 +6,22 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — The lists stay first on Home, but start folded
+
+Jason wanted the lists to keep their place at the top of Home without the whole list
+taking the screen until it's wanted. Decided:
+
+- **Folded to one row** when Home opens: the list the hour asks for, "3 of 5 done" (or "Done
+  by 7:12" and what's left on the other list, or resting), a thin progress bar, the streak and
+  the little hummingbird or owl. A tap anywhere on it opens the full card; a chevron beside the
+  bird folds it away again.
+- **Kept for the visit, not the device** (`sessionStorage`): it stays open or folded as left
+  while moving round the app, and every new visit starts folded.
+- While folded, the hello bubble, a streak's goodbye and a challenge that got away wait until
+  it's opened; a Team Hicks day and a challenge won still play over the page.
+
+---
+
 ## 2026-11-07 — A day that's different is a quiet + and Skip under the list
 
 Jason found the lists page's "A day that's different" section (choose a day, skip any one
