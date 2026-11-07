@@ -20,22 +20,26 @@ import { withLauriePlate, tidyProposed } from '../lib/kitchen/recipe.js'
 
 const SUGGEST = ['What can I make with what’s in the fridge?', 'Swap for the sore-hands week?', 'Add to my preferences: no more cauliflower rice']
 
+// "Bring it home" (a trip's scrapbook) leaves its ask here: the chat opens with it typed, for a parent to send
+const takeAsk = () => { try { const v = sessionStorage.getItem('teamhicks.kitchen.ask'); if (v) sessionStorage.removeItem('teamhicks.kitchen.ask'); return v || '' } catch { return '' } }
+
 export default function KitchenChat({ me, parent, members, slug, today }) {
-  const [open, setOpen] = useState(false)
+  const [ask] = useState(() => (parent ? takeAsk() : ''))
+  const [open, setOpen] = useState(Boolean(ask))
   return (
     <>
       <button type="button" className="kchat-fab" onClick={() => setOpen(true)} aria-label="Ask Claude about cooking">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10H9l-4 3.5v-3.5H4z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
         <span>Ask</span>
       </button>
-      {open && <Sheet title="Ask about cooking" side onClose={() => setOpen(false)}><Chat me={me} parent={parent} members={members} slug={slug} today={today} /></Sheet>}
+      {open && <Sheet title="Ask about cooking" side onClose={() => setOpen(false)}><Chat me={me} parent={parent} members={members} slug={slug} today={today} start={ask} /></Sheet>}
     </>
   )
 }
 
-function Chat({ me, parent, members, slug, today }) {
+function Chat({ me, parent, members, slug, today, start = '' }) {
   const [c, setC, clear] = useDraft('kitchen.chat', { messages: [], done: {} })
-  const [text, setText] = useState(''), [busy, setBusy] = useState(false), [err, setErr] = useState(null)
+  const [text, setText] = useState(start), [busy, setBusy] = useState(false), [err, setErr] = useState(null)
   const end = useRef(null)
   useEffect(() => { end.current?.scrollIntoView({ block: 'end' }) }, [c.messages.length, busy])
 

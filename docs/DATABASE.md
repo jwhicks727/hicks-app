@@ -205,6 +205,10 @@ model, is in `supabase/functions/_shared/claude.js`.
   the open map (`_shared/around.js`, `cleanGuide`). It keeps the guide in
   `area_guides` with the service role (one being written per area at a time, at
   most four new guides a day, each kept a month), by place, never by person.
+- **Where Laurie can eat well (`eat-well`)** is a parent's task: her food rules
+  (read as the caller), the town and the cell, web search (at most 8), one strict
+  tool (`save_places`), each place kept only with a source its own searches
+  returned. The answer goes to the screen and is never stored.
 
 Set the key and deploy:
 
@@ -270,7 +274,12 @@ sign-in link won't come back to the app.
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`, `birds-more`, and `birds-near:<cell>` for each place away from home), as the functions shaped it | The family | Only the `stations` and `birds` functions |
 | `area_guides` | What's around here, by area (a tenth-of-a-degree cell): what the open map knows there (`map`, a week at a time) and Claude's guide (`guide`, a month at a time; `building` while it's written). Every version a new row; it says which place, never who asked or who was there | The family | Only the `around` and `claude` functions |
 | `member_whereabouts` | Which town each of us is in while away: one row a person (overwritten, never a log), the town, region and country, a tenth-of-a-degree point (`numeric(4,1)`), when it lapses (twelve hours on) | The family | Each of us our own row only (`my_member_id()`) |
-| `travel_settings` | One row: the family's interests, what the guide is written for (sent to Claude with each guide, as the screens say) | The family | Parents |
+| `travel_settings` | One row: the family's interests, what the guide is written for (sent to Claude with each guide, as the screens say), and the travel app's name (`app_name`) | The family | Parents |
+| `trip_recipes` | A recipe found, cooked or brought home from a kept trip (one recipe can belong to several) | The family | Parents |
+| `postcards` | A postcard to the family: the town and the day, a line of words, who sent it (never a point) | The family | Each of us our own; the sender or a parent removes |
+| `packing_items` | A calendar trip's packing list: our own items and the suggestions someone added, ticked off | The family | The family |
+| `trip_hikes` | A guide's hike ticked off: its name, miles and climb, the day and the town, who ticked it | The family | Each of us our own; the ticker or a parent removes |
+| `someday` | A place from a guide hearted for next time we're near: the area, the town, its name and line | The family | The family adds; whoever hearted it, or a parent, removes |
 | `routine_items` | The things on each person's morning and evening lists: words, a picture, which weekdays, every week or every other, any day or school days or days off, turns, until when, order; taken off (`archived_on`) rather than deleted | Its keeper, and the parents for Anna's | Its keeper, and the parents for Anna's (`lists_i_keep()`) |
 | `routine_changes` | A day that's different: something skipped, something added just for the day, a day off (with its reason) | Its keeper, and the parents for Anna's | The same |
 | `routine_ticks` | One per thing done, per day | Its keeper, and the parents for Anna's | The same; a tick is removed to untick |
@@ -300,5 +309,6 @@ Migration index:
 | `20261107230000_birds_near_cache` | `outside_cache` also takes `birds-near:<lat>,<lng>` keys: the birds where one of us is, a tenth-of-a-degree cell each, kept an hour |
 | `20261107231000_around_here` | What's around here: `area_guides` (the map layer and the guide, by area, every version kept, written only by the functions) and `travel_settings` (the family's interests; parents write) |
 | `20261107232000_family_towns_trips` | `member_whereabouts` (which town each of us is in while away; one row a person, only its owner writes it) and `outings.event_id` (a kept trip's calendar event, one outing per event) |
+| `20261107233000_travel_app` | The travel app: its name on `travel_settings`; `trip_recipes`, `postcards`, `packing_items`, `trip_hikes` and `someday`. Postcards and hikes keep a town and a day, never a point |
 | `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

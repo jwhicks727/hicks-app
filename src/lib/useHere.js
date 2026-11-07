@@ -78,8 +78,11 @@ export function readHere() {
     const p = { lat: pos.coords.latitude, lng: pos.coords.longitude }
     if (!validPoint(p)) return
     const r = { ...roundPoint(p), tz: deviceZone(), at: Date.now() }
+    const before = state.tz || (read(KEY) || {}).tz || null
     write(KEY, r)
     set(fromReading(r))
+    // Crossing a time zone gets a word on Home ("You just gained an hour")
+    if (before && r.tz && before !== r.tz) set({ shift: { from: before, to: r.tz, at: Date.now() } })
     if (state.tier && state.tier !== 'home') lookUpTown(r)
   }, (err) => {
     if (err && err.code === 1) { try { localStorage.removeItem(KEY) } catch { /* fine */ } set({ ...blank, status: 'denied' }) }

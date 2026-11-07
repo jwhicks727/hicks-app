@@ -286,3 +286,11 @@ html[data-motion="less"] .ki-tab { transition: none; }
 .scaled-note { color: var(--muted); font-weight: 700; font-size: 13px; }
 
 .cb-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; color: var(--muted); font-weight: 750; }
+/* Recipes and trips (src/kitchen/TripTag.jsx) */
+.kt-trips { display: grid; gap: 8px; }
+.kt-add { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.kt-add label { display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+.kt-add select { min-height: 44px; max-width: 100%; }
+.kt-tick { display: flex; gap: 10px; align-items: center; min-height: 44px; font-weight: 700; }
+.kt-tick input { width: 22px; height: 22px; }
+.cm-altitude { margin: 0 16px; padding: 8px 12px; border-radius: var(--r-control); background: color-mix(in srgb, #5A4E8A 12%, var(--card)); font-size: 14px; }

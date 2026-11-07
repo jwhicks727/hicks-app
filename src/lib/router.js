@@ -10,10 +10,10 @@
 import { useEffect, useState } from 'react'
 import { reducedMotion } from './motion.js'
 
-export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'journal', 'garden', 'lifelist', 'jams', 'academy', 'drawings', 'pets']
+export const PLACES = ['home', 'world', 'calendar', 'kitchen', 'journal', 'garden', 'lifelist', 'jams', 'academy', 'drawings', 'pets', 'yonder']
 // The tab bar: Home, Calendar, Kitchen, World, and Apps, which opens a sheet of
 // these (src/ui/apps.jsx) and stays lit while one of them is open.
-export const APP_PLACES = ['journal', 'garden', 'lifelist', 'jams', 'academy', 'drawings', 'pets']
+export const APP_PLACES = ['journal', 'garden', 'lifelist', 'jams', 'academy', 'drawings', 'pets', 'yonder']
 // Reached from the foot of the Apps sheet (and the desktop rail), not the tab bar.
 export const CONSOLES = ['settings', 'admin', 'reports']
 // Old addresses that still open the screen they became (Setup became Admin).

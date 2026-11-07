@@ -37,4 +37,7 @@ export const REGISTRY = [
   { key: 'pets', name: 'Pets', colour: '#8A5A33',
     setup: [{ key: 'pets', title: 'Our pets: their pages, vet visits and reminders', ready: false }],
     reports: [] },
+  { key: 'yonder', name: 'Yonder', colour: '#2F7D7A',
+    setup: [{ key: 'name', title: 'The travel app’s name', ready: true }],
+    reports: [{ key: 'trips', title: 'Trips', blurb: 'Trips kept, postcards, hikes and stamps: counts, never where', ready: true }] },
 ]

@@ -15,7 +15,7 @@ import {
   FALLBACK_SONNET, pickLatest, costCents, overCap, CAPS, checkUpload, uploadBlock, checkHistory,
   TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk,
 } from '../_shared/claude.js'
-import { cellOf, validCellId, clean as cleanText, GUIDE_TOOL, GUIDE_BRIEF, guideAsk, cleanGuide, searchedUrls, searchesIn, SEARCH_CENTS, matchPlace, publicSite, GUIDE_KEEP_MS, BUILDING_STALE_MS, GUIDES_A_DAY, UA } from '../_shared/around.js'
+import { cellOf, validCellId, clean as cleanText, GUIDE_TOOL, GUIDE_BRIEF, guideAsk, cleanGuide, searchedUrls, searchesIn, SEARCH_CENTS, matchPlace, publicSite, EAT_TOOL, eatAsk, cleanPlaces, GUIDE_KEEP_MS, BUILDING_STALE_MS, GUIDES_A_DAY, UA } from '../_shared/around.js'
 import { previewImage, isPicture } from '../_shared/wildpics.js'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
   try {
     // ---- What's around here: a guide to the place, written in the background ----------
     if (body.task === 'around-here') return await aroundHere(db, body, base, parent === true)
+    if (body.task === 'eat-well') return await eatWell(db, body, base)
 
     // ---- The Kitchen's conversation, with tools that only propose -------------------
     if (body.task === 'kitchen-chat') {
@@ -344,3 +345,39 @@ async function addPhotos(guide: any, sights: any[]) {
   }
   for (let i = 0; i < todo.length; i += 4) await Promise.all(todo.slice(i, i + 4).map((f) => f()))
 }
+
+// Where Laurie can eat well: a parent's ask (TASKS says so; checked above), her rules read as
+// the caller (row-level security keeps them the parents'), web search near the area, and only
+// places with a source its own searches returned. Answered to the screen; never kept.
+// deno-lint-ignore no-explicit-any
+async function eatWell(db: any, body: any, base: any) {
+  if (!validCellId(body.cell)) return reply(400, { error: 'Not an area' })
+  const [la, ln] = String(body.cell).split(',').map(Number)
+  const cell = cellOf(la, ln)
+  if (!cell) return reply(400, { error: 'Not an area' })
+  const { data: latest } = await db.from('food_rules').select('body').order('created_at', { ascending: false }).limit(1)
+  const rules = latest && latest[0] ? latest[0].body : ''
+  if (!rules) return reply(200, { error: 'Laurie’s food rules aren’t written yet (Kitchen › Rules)' })
+  const { data: guides } = await db.from('area_guides').select('data').eq('cell', cell.id).eq('kind', 'guide').eq('status', 'ready').order('fetched_at', { ascending: false }).limit(1)
+  // deno-lint-ignore no-explicit-any
+  const known = guides && guides[0] ? ((guides[0].data.sections || []) as any[]).filter((s) => ['local-food', 'brewpubs', 'coffee', 'village'].includes(s.key)).flatMap((s) => s.items.map((i: { name: string }) => i.name)) : []
+  const town = cleanText(body.town, 80), region = cleanText(body.region, 60), cc = /^[A-Z]{2}$/.test(String(body.cc || '')) ? String(body.cc) : ''
+  const web = { type: 'web_search_20260209', name: 'web_search', max_uses: 8, ...(town && cc ? { user_location: { type: 'approximate', city: town, region: region || undefined, country: cc } } : {}) }
+  const messages: unknown[] = [{ role: 'user', content: eatAsk({ town, region, cell, rules, known }) }]
+  const searched: string[] = []
+  for (let round = 0; round < 6; round++) {
+    const msg = await ask({ ...base, max_tokens: 8000, system: GUIDE_BRIEF, tools: [web, EAT_TOOL], messages }, true)
+    // deno-lint-ignore no-explicit-any
+    const u = (msg.usage ?? {}) as any
+    await db.rpc('ai_record', { p_task: 'eat-well', p_model: msg.model ?? base.model, p_in: (u.input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), p_out: u.output_tokens ?? 0, p_cents: costCents(u) + searchesIn(u) * SEARCH_CENTS })
+    if (msg.stop_reason === 'refusal') return reply(200, { places: [] })
+    const content = msg.content.filter((b: { type: string }) => b.type !== 'fallback')
+    searched.push(...searchedUrls(content))
+    const use = content.find((b: { type: string, name?: string }) => b.type === 'tool_use' && b.name === 'save_places')
+    if (use) return reply(200, { places: cleanPlaces((use as { input: unknown }).input, searched) })
+    messages.push({ role: 'assistant', content })
+    if (msg.stop_reason !== 'pause_turn') messages.push({ role: 'user', content: 'Please call save_places now.' })
+  }
+  return reply(200, { places: [] })
+}
+

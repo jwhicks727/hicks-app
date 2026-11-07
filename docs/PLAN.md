@@ -357,8 +357,36 @@ and the phases are in issue #19; what's built is ticked here.
       outing with an Undo (`outings.event_id`); the lists' Skip offers "Away" first; the
       garden hears about heat, frost or wind at home (`src/lib/trips.js`). Shows near
       here wait for the jam scout. Unverified live until migration 20261107232000 runs.
-- [ ] The travel app: countdown, packing, Anna's trip quest, the postcard, Our day,
-      recipes from the trip (tagged to it), the scrapbook, the passport and the rest.
+- [x] **The travel app** (2026-11-07; Yonder unless Admin names it Postcards, Field Trip,
+      Wayfaring or Wanderings; `/yonder`, `src/places/yonder/`, `src/lib/yonder.js`):
+      the next trip counting its sleeps over the sky there now, with "your fourth time
+      in Big Bear" from kept trips; a shared packing list (our own items first,
+      suggestions from the forecast and the trip a tap away); while away, a postcard to
+      the family (Laurie's painting or the place's photo on the front, a stamp drawn in
+      code; it shows in Meanwhile), Our day (`/yonder/day`: coffee, a hike that fits
+      before sunset, lunch, the afternoon, golden hour, Mass, dinner, the Milky Way in
+      its season, worked out on the phone, moved with arrows), a trip quest for Anna in
+      her academy, and the town in jam history (the Live Music Archive). Each kept trip
+      has a scrapbook (`/yonder/trip/<id>`: the hikes and their totals, the recipes,
+      postcards, Laurie's birds and lifers with the gleam, hearts, the guide we had) and
+      a stamp in the passport (`/yonder/passport`). Someday keeps hearted places.
+- [x] **Recipes from the trip** (Jason's ask): a recipe written while away or on a
+      calendar trip is tagged to it unless unticked; cook mode can say "cooked on our
+      trip"; any recipe's page adds it to a kept trip; "Bring it home" in a scrapbook
+      opens the Kitchen chat with the dish asked for and tags the recipe after
+      (`trip_recipes`, `src/kitchen/TripTag.jsx`).
+- [x] **And on Home:** a prayer for the road on the morning a trip begins, two skies in
+      another time zone, a card abroad (words, money, plugs, the emergency number), snow
+      drifting when it's really snowing where we are, "You just gained an hour", a year
+      ago today; at height, cook mode's word on boiling; the journal asks a travel
+      question while away (picked on the phone); "We did it" on a guide's hike (the
+      longest yet gets the gleam) and a heart for Someday; for the parents, where Laurie
+      can eat well (the `eat-well` task, her rules sent, the answer not kept).
+- [ ] Still to come: road-trip bingo and "along the way" (they need the route), the
+      weather we had in a scrapbook, Anna's drawings shown in it (a link for now),
+      Openverse and Park Service photos, Caltrans chain controls read live, and shows near
+      here this week (with the jam scout). Unverified live until migration
+      20261107233000 runs and the `claude` function is deployed again.
 
 ## 2. World
 

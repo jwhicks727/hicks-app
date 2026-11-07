@@ -87,7 +87,7 @@ export function HereNowLine({ here }) {
 
 const KEEP_MS = 15 * 60e3
 /** The forecast for a trip's days there: { days, error }, kept for a quarter hour. */
-function useTripDays(trip, today) {
+export function useTripDays(trip, today) {
   const win = trip ? tripWindow(trip, today) : null
   const key = trip && win ? `teamhicks.weather.trip.${trip.lat.toFixed(2)},${trip.lng.toFixed(2)}.${win.from}.${win.to}` : null
   const [state, setState] = useState({ days: null, error: null })

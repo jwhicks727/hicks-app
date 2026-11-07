@@ -1,3 +1,5 @@
+import { useHere } from '../../lib/useHere.js'
+import { travelQuestion } from '../../lib/yonder.js'
 import { useMemo, useState } from 'react'
 import { Card } from '../../ui/Card.jsx'
 import { Crumb, Link } from '../../shell/Link.jsx'
@@ -137,7 +139,10 @@ function Entry({ j, me, date, entry }) {
 }
 
 function Editor({ j, me, date, entry, onDone }) {
-  const q = entry ? (entry.prompt ? { title: entry.prompt_title, prompt: entry.prompt } : null) : questionFor(j, date, me)
+  // Away from home, a travel question, picked on this phone: the journal never learns where (and never reaches Claude)
+  const away = useHere().tier === 'away'
+  const base = questionFor(j, date, me)
+  const q = entry ? (entry.prompt ? { title: entry.prompt_title, prompt: entry.prompt } : null) : (away && base ? travelQuestion(date) : base)
   const start = entry ? { ...entry, answer: entry.answer || '', reflection: entry.reflection || '', gratitudes: [...(entry.gratitudes || []), '', '', ''].slice(0, Math.max(3, (entry.gratitudes || []).length)) } : blankEntry(date, q)
   const [f, setF, clear] = useDraft(`journal.${date}`, start)
   const [busy, setBusy] = useState(null)

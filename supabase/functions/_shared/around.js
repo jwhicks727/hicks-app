@@ -293,3 +293,33 @@ export function publicSite(u) {
   if (/(^|\.)(localhost|local|internal|intranet|lan|home|corp|arpa)$/.test(h)) return false
   return true
 }
+
+// ---- Where Laurie can eat well (a parent's ask; her rules go with it, as for any recipe) ----
+const place = obj({ name: S, why: S, sources: { type: 'array', items: S } })
+export const EAT_TOOL = {
+  name: 'save_places', strict: true,
+  description: 'Save the places where she can eat well, once, after your searches. Each lists the https pages from your own searches (its menu, ideally) that show it fits.',
+  input_schema: obj({ places: { type: 'array', items: place } }),
+}
+/** The ask: the town, the places the guide already knows to eat, and her rules (sent only on a parent's request). */
+export function eatAsk({ town, region = '', cell, rules, known = [] }) {
+  const where = [clean(town, 80), clean(region, 60)].filter(Boolean).join(', ') || `the area around ${cell.lat}, ${cell.lng}`
+  return [
+    `Find up to six places to eat in or near ${where} (within about 20 km) where Laurie can eat well under her food rules below. Look at each place's own menu where you can.`,
+    `Her rules:\n${String(rules || '').slice(0, 6000)}`,
+    known.length ? `Places the family's guide already mentions (check these first): ${known.slice(0, 20).join('; ')}.` : '',
+    'For each: its name as it writes it, one or two lines on what on its menu fits her rules (or what to ask for), and the https pages from your searches that show it. Leave out anywhere you cannot check. Finish by calling save_places once.',
+  ].filter(Boolean).join('\n')
+}
+/** Her places, checked: a source her own searches returned, six at most, words capped. */
+export function cleanPlaces(input, searched) {
+  const ok = new Set((searched || []).map(sourceKey).filter(Boolean))
+  const out = []
+  for (const p of (input && Array.isArray(input.places) ? input.places : [])) {
+    if (out.length >= 6) break
+    const name = clean(p && p.name, 100)
+    const sources = [...new Set((Array.isArray(p && p.sources) ? p.sources : []).map((u) => httpsUrl(u)).filter((u) => u && ok.has(sourceKey(u))))].slice(0, 3)
+    if (name && sources.length) out.push({ name, why: clean(p.why, 300), sources })
+  }
+  return out
+}
