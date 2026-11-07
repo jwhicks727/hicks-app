@@ -242,6 +242,13 @@ sign-in link won't come back to the app.
 | `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | A parent records a yes under their own id; either parent can remove it |
 | `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
 | `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
+| `routine_items` | The things on each person's morning and evening lists: words, a picture, which weekdays, every week or every other, any day or school days or days off, turns, until when, order; taken off (`archived_on`) rather than deleted | Its keeper, and the parents for Anna's | Its keeper, and the parents for Anna's (`lists_i_keep()`) |
+| `routine_changes` | A day that's different: something skipped, something added just for the day, a day off (with its reason) | Its keeper, and the parents for Anna's | The same |
+| `routine_ticks` | One per thing done, per day | Its keeper, and the parents for Anna's | The same; a tick is removed to untick |
+| `routine_days` | How each person's list went each day, with no words: done, open or resting; how many on it and done; first and last tick; a golden feather; the streak through that day and the longest ever (worked out by the keeper's device) | The family (streaks, the rings on Home, the challenges) | Its keeper, and the parents for Anna's |
+| `routine_settings` | The lists' names, and whether the family challenges run and how often (one row) | The family | Parents |
+| `family_challenges` | Admin's changes to the built-in challenges (`src/lib/challenges.js`) by key, and the family's own | The family | Parents |
+| `challenge_runs` | Each challenge the family takes on: what it asked as planned, its days, and whether it was won, got away or was cancelled | The family | Anyone's device plans the next or says how one ended (only while planned); parents start, change, cancel and remove |
 | `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
 
 Migration index:
@@ -261,4 +268,5 @@ Migration index:
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
+| `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

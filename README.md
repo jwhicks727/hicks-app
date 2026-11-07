@@ -15,7 +15,7 @@ a computer, the side rail lists the apps under their own heading.
 
 | Tab | What it is |
 |---|---|
-| **Home** | Today at a glance: the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days, a question for the dinner table, cheers for Anna, the morning sit (which leads on to the journal), and cards for the garden and the journal. |
+| **Home** | Today at a glance, starting with each person's **Early Bird** and **Night Owl** lists (their morning and evening to-dos, with streaks, records and family challenges), then the sky, the weather at home and at each school, birds around us, the day's calendar, what's left in the fridge, family days, a question for the dinner table, cheers for Anna, the morning sit (which leads on to the journal), and cards for the garden and the journal. |
 | **Calendar** | A full calendar (day, week, month, year), synced with our Google calendars, with the Church year, Mass times, our ministries, family days, holidays, heritage days, seasons and nature woven in. |
 | **Kitchen** | Jason's cooking: the week's recipes, what's left in the fridge, a cook check before cooking. |
 | **World** | All our places on one map (around home, SoCal, the world), each with its own page, its skyline in its sky right now and a link into the phone's maps app; weather in depth; the sky, the sun and the moon; a page for each school. |
@@ -77,6 +77,11 @@ Setting it all up, in order: `docs/MORNING.md`.
 - `src/places/` — one file per place, and the screens under each.
 - `src/parts/` — pieces shared between places (the sky today, ...).
 - `src/shell/` — the sky behind everything, the tab bar, links and Back.
+- `src/parts/ListsCard.jsx` and `src/places/lists/` — the morning and evening
+  lists (Early Bird and Night Owl): Home's card, `/home/lists` for your own
+  (and Anna's, for a parent), `/home/lists/family`; the rules are
+  `src/lib/routines.js` (what comes up on a day, streaks, records) and
+  `src/lib/challenges.js` (the family challenges), the data `src/lib/useLists.js`.
 - `src/consoles/` — Settings, Admin and Reports, built from `src/registry.js` (reached from the foot of the Apps sheet, or the computer's rail).
 - `src/calendar/` — the calendar's day, week, month and year views.
 - `src/places/world/` — the map of our places and each place's page;
@@ -210,5 +215,11 @@ and added: `docs/ART-CAPTURE.md`.
   in `public/academy/`. The rooms and campus are drawn in code. Pictures
   the family adds carry their own licence (`docs/ACADEMY-ART.md`).
 - **Indoor plants** are drawn in code (`src/places/garden/PlantArt.jsx`).
+- **The lists' hummingbird and owl** (an Anna's hummingbird on Anna's list, a
+  western screech-owl in the evenings), their scarves, flowers and crowns, the
+  feathers, trophies and the lists' small line icons are drawn in code
+  (`src/places/lists/Birds.jsx`, `src/places/lists/icons.jsx`), and their
+  sounds are made by the phone itself (`src/places/lists/sounds.js`): nothing
+  recorded, nothing generated.
 - **The apps** each have a line icon drawn on the tab icons' 24-unit grid,
   on a tile in their own colour (`src/ui/apps.jsx`, `src/ui/IconTile.jsx`).

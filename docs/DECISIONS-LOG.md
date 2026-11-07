@@ -6,6 +6,67 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — Early Bird and Night Owl: morning and evening lists, streaks and family challenges
+
+Jason asked for morning and evening to-do lists for each of us, right up front on Home,
+satisfying to tick, with streaks and records, family challenges that start by themselves and
+can be changed in Admin, and a surprise or two. Decided:
+
+- **The names.** "To do" was too plain. Brainstormed, keeping to the app's simple, outdoor
+  words: *Early Bird & Night Owl* (Laurie's birds; the default), *Sunup & Sundown* (the sky of
+  the hour), *Rise & Shine / Wind Down*, *First Light & Last Light*, *Dawn Chorus & Evensong*.
+  All five are offered in Admin, so the family can pick; the words follow everywhere. Other
+  ideas not built: "Ta-das", "The Rounds", "Bright Start / Soft Landing".
+- **First on Home, above the weather and the sit.** The lists come straight under the
+  greeting; the day's sit reminder (2026-11-05) now comes right after them. Both are things
+  waiting on you in the morning; the lists are the ones the whole family keeps.
+- **A list's words are its keeper's.** Only the person, and Jason and Laurie for Anna's, can
+  read or change their items, a day's changes and ticks (`lists_i_keep()`). What the family
+  sees is how each day went, with no words (`routine_days`): the rings on Home, the family
+  page, Reports, and what the challenges read. A parent's list can hold things that are
+  nobody else's business.
+- **Different days are rules, not lists of dates.** Each thing says which weekdays, every
+  week or every other, any day or only school days or days off (from the school calendars in
+  Admin; with none, weekdays), and can take turns through a rotation. A day that's different
+  has its own changes: skip one thing, add one just for the day, or a day off. The day turns
+  over at 3 AM so a late evening list still counts for the evening.
+- **Streaks are fair.** A day off, or a day with nothing on the list, neither counts nor
+  breaks a streak. A day nobody wrote down is a miss only if something certainly came up (a
+  school-days item on a day the calendar can't say doesn't count against anyone). Each
+  device writes the streak through each day onto `routine_days`, so others see it without
+  seeing the list (a snapshot the family's read path prefers).
+- **Satisfying, not loud.** A tick springs, draws its check, bursts feathers (stars at night,
+  gold for the day's golden feather, every colour on a birthday), strikes through and slips
+  into the "done" pile while the rest glide up; a soft note climbs a scale with each tick
+  (made by the phone, no recording; Settings can mute it). A finished morning sends the
+  hummingbird looping round the screen; a finished evening sends the owl to sleep under
+  stars. Milestones and new bests get the rainbow gleam (something wonderful happened) and a
+  celebration; perks the bird wears for good are never taken back. A streak that ends is
+  mourned once, gently ("It was your longest ever, and it still counts"), with a word of
+  encouragement and "Day one. Let's go". Transforms and opacity only; still under less motion.
+- **Family challenges start themselves** once two of us have finished a list on three days
+  each, then every few days (Admin: relaxed, regular, lively), in a pattern of easy, a
+  stretch and hard that starts with a win, never repeating the last few. Each is timed to
+  suit it: weekends from Saturday, week-long ones from Monday, Moonlit on the full moon's
+  nights (named, from the app's own moon), Beat the Sun only while sunrise comes after 6:40.
+  A day off counts as done; someone with no evening list is only asked for the morning. The
+  next is worked out the same on every device from the same rows, and the database keeps
+  only the first plan of a day. A win plays a fanfare and goes on the family shelf; one that
+  gets away says so kindly. Admin switches any off, changes its words and numbers, puts it
+  back, adds the family's own, starts one now or cancels one. The built-in set lives in
+  code (`src/lib/challenges.js`, tested); the database holds only the family's changes.
+- **The surprises:** Anna's bird is an Anna's hummingbird, the bird that shares her name
+  (rose crown and throat), and it says so the first time; everyone else's wears their own
+  colour at the throat. A golden feather turns up on a list about one day in nine. Mornings
+  finished before sunrise are counted ("you beat the sun by 14 minutes"). On a birthday every
+  tick is a party, with "Take the day off". A Team Hicks day (everyone, every list) sends all
+  our hummingbirds across the screen together. Tap the owl three times and it turns its head
+  round.
+- **Not built yet:** phone reminders when a list isn't done by a chosen time (the app has no
+  push notifications yet).
+
+---
+
 ## 2026-11-05 — The day's sit is first on Home until it's done or skipped
 
 Jason asked for his ten-minute sit to be front and centre when he opens the

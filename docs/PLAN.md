@@ -83,6 +83,48 @@ Built in this order, each part in daily use before the next.
       greeting by name (built: Home greets whoever is signed in).
 - [ ] Hosting (Firebase, as SOAR uses), and the app installable on our phones.
 
+## 0b. Early Bird and Night Owl: the morning and evening lists — 2026-11-07
+
+- [x] Each of us keeps a morning list and an evening list, first on Home above
+      everything but the greeting (`src/parts/ListsCard.jsx`): the list the hour
+      asks for, a tap from the other. Names chosen in Admin (Early Bird and Night
+      Owl unless changed: Sunup & Sundown, Rise & Shine and Wind Down, First Light
+      and Last Light, Dawn Chorus and Evensong).
+- [x] Different days, worked out from each thing's own rule
+      (`src/lib/routines.js`): which weekdays, every week or every other, any day
+      or only school days or days off (from the school calendars in Admin),
+      taking turns through a rotation, for a while or for good. A day that's
+      different: skip something, add something just for the day, or a day off
+      that holds a streak. The day turns over at 3 AM.
+- [x] Ticking: the box springs and the check draws itself, feathers burst (stars
+      at night), the words strike through, the row slips into the "done" pile and
+      the rest glide up; a note for each tick climbing a scale (Settings can mute
+      them). A finished morning sends the hummingbird looping round the screen; a
+      finished evening sends the owl to sleep under the stars.
+- [x] Streaks and records (`/home/lists`): in a row now, longest ever, finished,
+      earliest, quickest, golden feathers, mornings done before sunrise, perfect
+      weeks, eight weeks of squares. Milestones (3, 7, 14, 21, 30, 50, 100…) get a
+      rainbow gleam and a celebration; perks the bird keeps for good (a scarf at 7
+      in a row, a flower, a crown, a ring of stars, a rainbow tail at 100). A
+      streak that ends is mourned gently once, with a word of encouragement.
+- [x] Jason and Laurie keep Anna's lists with her (`/home/lists/<id>`); a list's
+      words are its keeper's (the family sees only how each day went: rings on
+      Home, the family page, Reports).
+- [x] Family challenges (`src/lib/challenges.js`, `/home/lists/family`): begin
+      by themselves once two of us have finished a list on three days each; easy,
+      a stretch and hard in a pattern that starts with a win; timed to suit
+      (weekends from Saturday, weeks from Monday, Moonlit on the full moon's
+      nights, Beat the Sun only while sunrise is late); won ones go on the family
+      shelf. Admin switches them off, sets the pace, changes any, adds the
+      family's own, starts one now or cancels one.
+- [x] Surprises: a golden feather on a list now and then; beating the sun; a
+      birthday's party ticks and a day off; a Team Hicks day (everyone, every
+      list) when all our hummingbirds fly by together; Anna's hummingbird says
+      hello by name; tap the owl three times.
+- [ ] Run `20261107180000_morning_evening_lists.sql` (docs/DATABASE.md), then
+      each of us makes our lists. Unverified against the live database until then.
+- [ ] Push reminders on the phone for a list not done by a chosen time.
+
 ## 1. Calendar
 
 - [x] Day, week, month and year views, each with its own address

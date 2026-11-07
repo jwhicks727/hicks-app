@@ -7,6 +7,12 @@ import { upcoming } from '../lib/cal/family.js'
 import { useCookbook } from '../lib/useKitchen.js'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
+import { supabase } from '../lib/supabase.js'
+import { fetchAll } from '../lib/useCalendar.js'
+import { useEffect, useState } from 'react'
+import { addDays } from '../lib/cal/dates.js'
+import { listDay, streakShown, namesFor, noun } from '../lib/routines.js'
+import { teamDayToday } from '../parts/ListsCard.jsx'
 
 function SourcesReport({ session }) {
   const { rows, error } = useSources(session)
@@ -74,7 +80,48 @@ function CookbookReport({ session }) {
     </div>
   )
 }
-const BUILT = { 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
+function ListsReport({ session }) {
+  const family = useFamily(session)
+  const [d, setD] = useState(null)
+  const today = listDay()
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session) return undefined
+    Promise.all([
+      fetchAll(() => supabase.from('routine_days').select('member_id, on_date, part, status, total, done, streak, best').gte('on_date', addDays(today, -62)).order('on_date').order('member_id').order('part')),
+      supabase.from('challenge_runs').select('status'),
+      supabase.from('routine_settings').select('names').eq('id', true).maybeSingle(),
+    ]).then(([a, b, c]) => { if (live) setD({ rows: a.data || [], runs: b.data || [], names: (c.data || {}).names, error: (a.error || b.error || {}).message || null }) })
+    return () => { live = false }
+  }, [session, today])
+  if (!session) return <p><Link to="/settings">Sign in</Link> to see it.</p>
+  if (!d || !family.loaded) return <p className="muted">Loading…</p>
+  if (d.error) return <p className="err">{/does not exist|schema cache|Could not find/i.test(d.error) ? 'The lists’ tables aren’t in the database yet.' : d.error}</p>
+  const names = namesFor(d.names)
+  const month = today.slice(0, 7)
+  const finished = d.rows.filter((r) => r.status === 'done' && r.on_date.startsWith(month)).length
+  let team = 0
+  for (let x = month + '-01'; x <= today; x = addDays(x, 1)) if (teamDayToday(d.rows, x)) team++
+  const people = family.people.filter((p) => d.rows.some((r) => r.member_id === p.id))
+  const best = (p, part) => Math.max(0, ...d.rows.filter((r) => r.member_id === p.id && r.part === part).map((r) => r.best || 0))
+  return (
+    <div className="report">
+      <div className="figures">
+        <div><b>{finished}</b><span>lists finished this month</span></div>
+        <div><b>{team}</b><span>Team Hicks days</span></div>
+        <div><b>{d.runs.filter((r) => r.status === 'won').length}</b><span>challenges won</span></div>
+      </div>
+      {people.length > 0 && (
+        <table className="table">
+          <thead><tr><th>In a row now</th><th className="num">{names.morning}</th><th className="num">{names.evening}</th></tr></thead>
+          <tbody>{people.map((p) => <tr key={p.id}><td>{p.name}</td>{['morning', 'evening'].map((part) => { const n = streakShown(d.rows.filter((r) => r.member_id === p.id), part, today); const b = best(p, part); return <td key={part} className="num">{n} {noun(part, n)}{b > n ? ` (best ${b})` : ''}</td> })}</tr>)}</tbody>
+        </table>
+      )}
+      <p className="muted"><Link to="/home/lists/family">The family’s page ›</Link></p>
+    </div>
+  )
+}
+const BUILT = { 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
 
 export default function Reports() {
   const session = useSession()

@@ -65,11 +65,12 @@ test('the heading follows the hour and the sit’s length', () => {
   assert.equal(sitHeading(20, 7), '7 minutes before bed')
 })
 
-test('the reminder is the first thing under Home’s greeting, a finished sit answers it, and Settings can switch it', () => {
+test('the reminder is up front under Home’s greeting (after the day’s lists), a finished sit answers it, and Settings can switch it', () => {
   const home = read('src/places/Home.jsx')
   const at = home.indexOf('</header>')
-  const next = home.slice(at, at + 200)
-  assert.match(next, /<\/header>\s*<SitReminder /, 'right after the greeting')
+  const next = home.slice(at, at + 300)
+  // The morning and evening lists come first (decisions log, 2026-11-07), the sit straight after
+  assert.match(next, /<\/header>\s*<ListsCard [^>]*\/>\s*<SitReminder /, 'right after the greeting and the lists')
   assert.match(read('src/parts/Sit.jsx'), /markSitDay\(localStorage, today, 'sat', m\)/)
   const settings = read('src/consoles/Settings.jsx')
   assert.match(settings, /Remind me to sit/)
