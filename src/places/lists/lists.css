@@ -241,6 +241,33 @@
 @keyframes dl-joy-pop { from { opacity: 0; transform: scale(.6) translateY(20px); } }
 
 @media (pointer: coarse) { .dl-pile-b, .dl-link { min-height: 44px; } .dl-tool { min-height: 44px; min-width: 44px; } }
+/* Folded: one row until it's asked for (the list, how many left, the streak, the bird) */
+.dl-card.dl-folded { display: block; padding: 0; }
+.dl-card.dl-folded::before { height: 100%; }
+.dl-fold { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 76px; padding: 10px 12px 10px 14px; border: 0; border-radius: inherit; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.dl-fold:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+.dl-fold:active .dl-fold-i { transform: scale(.94); }
+.dl-fold-i { flex: none; width: 38px; height: 38px; display: grid; place-items: center; border-radius: var(--r-control); color: var(--pc); background: color-mix(in srgb, var(--pc) 16%, var(--card)); transition: transform .12s ease; }
+.dl-fold-i svg { width: 23px; height: 23px; }
+.dl-fold-t { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.dl-fold-t b { font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.1; }
+.dl-fold-t small { font-size: 13px; font-weight: 750; color: var(--muted); }
+.dl-fold-t .dl-bar { height: 6px; max-width: 240px; }
+.dl-fold-streak { flex: none; display: inline-flex; align-items: center; gap: 1px; font-family: var(--font-display); font-size: 17px; color: #C2410C; white-space: nowrap; }
+:root[data-theme="dark"] .dl-fold-streak { color: #FFB085; }
+.dl-fold-streak svg { width: 15px; height: 15px; }
+.dl-fold-bird { flex: none; width: 56px; height: 46px; }
+.dl-fold-bird svg { width: 100%; height: 100%; overflow: visible; }
+.dl-fold-chev, .dl-foldup svg { flex: none; width: 22px; height: 22px; fill: none; stroke: var(--muted); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.dl-foldup { flex: none; align-self: flex-start; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 0; border-radius: var(--r-control); background: none; cursor: pointer; }
+.dl-foldup:hover { background: color-mix(in srgb, var(--pc) 10%, var(--card)); }
+.dl-foldup:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+@media (pointer: coarse) { .dl-foldup { width: 44px; height: 44px; } }
+/* Opening: what was folded comes in from just above */
+.dl-card.dl-opening > *:not(.dl-gleam):not(.dl-night) { animation: dl-unfold .38s cubic-bezier(.2, .8, .2, 1) both; }
+.dl-card.dl-opening > :nth-child(3) { animation-delay: 40ms; } .dl-card.dl-opening > :nth-child(4) { animation-delay: 80ms; } .dl-card.dl-opening > :nth-child(5) { animation-delay: 120ms; }
+@keyframes dl-unfold { from { opacity: 0; transform: translateY(-8px); } }
+
 /* Beside the list: the family, the challenge, the way to more */
 .dl-side { display: grid; gap: 12px; align-content: start; }
 @media (min-width: 960px) {
@@ -256,7 +283,7 @@
   .dl-hum, .dl-wing, .dl-owl, .dl-owl .dl-lids, .dl-owl .dl-pupil, .dl-perk-stars, .dl-night i, .dl-golden .dl-row::before, .dl-gold-tag, .dl-mourn-f svg, .dl-joy-f { animation: none; }
   .dl-wing { transform: scaleY(.6); }
   .dl-gleam { display: none; }
-  .dl-owl.settle, .dl-buddy.zip .dl-hum, .dl-ribbon.unfurl, .dl-stamp, .dl-going .dl-box, .dl-pile-n, .dl-perk, .dl-bubble, .dl-tools-add, .dl-tools-skip { animation: none; }
+  .dl-owl.settle, .dl-buddy.zip .dl-hum, .dl-ribbon.unfurl, .dl-stamp, .dl-going .dl-box, .dl-pile-n, .dl-perk, .dl-bubble, .dl-tools-add, .dl-tools-skip, .dl-card.dl-opening > * { animation: none; }
   .dl-list > li.dl-going { animation: dl-fade .3s .3s ease both reverse; }
 }
 html[data-motion="less"] .dl-hum, html[data-motion="less"] .dl-wing, html[data-motion="less"] .dl-owl, html[data-motion="less"] .dl-owl .dl-lids, html[data-motion="less"] .dl-owl .dl-pupil,
