@@ -382,6 +382,16 @@ and the phases are in issue #19; what's built is ticked here.
       question while away (picked on the phone); "We did it" on a guide's hike (the
       longest yet gets the gleam) and a heart for Someday; for the parents, where Laurie
       can eat well (the `eat-well` task, her rules sent, the answer not kept).
+- [x] **Our list for each town** (2026-11-07, Jason's ask on a day in Temecula): for the
+      towns we keep going back to, the places to eat, coffee, wine and beer, hikes,
+      things to do, shops, where we stayed and Mass, each with what we thought (loved,
+      good, not again), a note for next time, and the days we went. Added from a guide's
+      place ("We went here"), a hike ticked off, or by hand; on Home whenever we're in
+      that town (away or out and about), loved first, "We went today" a tap away; a
+      page for each town (`/yonder/town/<id>`); "Where we went" in a trip's scrapbook;
+      the guide marks places we've been ("♥ Loved · 3×", "Not again")
+      (`been_towns`, `been_places`, `been_visits`; `src/lib/been.js`). Unverified live
+      until migration 20261107234000 runs.
 - [ ] Still to come: road-trip bingo and "along the way" (they need the route), the
       weather we had in a scrapbook, Anna's drawings shown in it (a link for now),
       Openverse and Park Service photos, Caltrans chain controls read live, and shows near

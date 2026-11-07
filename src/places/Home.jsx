@@ -37,6 +37,7 @@ import { useHere } from '../lib/useHere.js'
 import { hourIn, clockIn } from '../lib/here.js'
 import { WeatherHere, HereNowLine, TripAhead, whereWords } from '../parts/HereCards.jsx'
 import AroundCard from '../parts/AroundCard.jsx'
+import { BeenHereCard } from './yonder/Been.jsx'
 import { FamilyAway, MassNearHere, ParkNear, KeepTrip } from '../parts/FamilyTrips.jsx'
 import { ShareHere } from '../lib/useWhereabouts.js'
 import { PostcardForm, PrayerForTheRoad, TwoSkies, AbroadCard, SnowHere, ZoneShift, YearAgoTrips } from '../parts/TravelBits.jsx'
@@ -96,6 +97,7 @@ function HomeScreen() {
       <PrayerForTheRoad trip={tripsAhead(events, today, 0).find((t) => t.inDays === 0)} hour={hour} />
       <TripAhead session={session} today={today} here={here} />
       {here.tier === 'away' && <AroundCard here={here} />}
+      {(here.tier === 'away' || here.tier === 'near') && <BeenHereCard here={here} />}
       {here.tier === 'away' && me && <Card tint="#B5658F" label="A postcard" glyph="star" className="span-3"><PostcardForm here={here} me={me} today={today} /></Card>}
       <FamilyAway family={family} me={me} />
       <TwoSkies here={here} now={now} />

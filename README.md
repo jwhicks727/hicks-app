@@ -33,7 +33,7 @@ The apps (each at its own address):
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 | **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
 | **Pets** (`/pets`) | Coming soon: Appa and the cats, launched with a scene around Anna's drawing of them. |
-| **Yonder** (`/yonder`, renamed in Admin if wanted) | Our own travel app: the next trip counting down, packing, postcards to the family, Our day, a scrapbook for every trip kept (hikes, recipes, birds, postcards) and a passport of stamps. |
+| **Yonder** (`/yonder`, renamed in Admin if wanted) | Our own travel app: the next trip counting down, packing, postcards to the family, Our day, our list for each town we keep going back to (where we ate, the wineries, the hikes, what we thought), a scrapbook for every trip kept (hikes, recipes, birds, postcards) and a passport of stamps. |
 
 What's built so far, and what's next: [`docs/PLAN.md`](docs/PLAN.md).
 

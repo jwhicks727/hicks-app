@@ -98,7 +98,8 @@ and write the code fresh. SOAR's code belongs to the school.
   phone, a tenth of a degree, lapsing in twelve hours, removed at home, when switched
   off and on sign-out (`tests/trips.test.mjs`). Never a log, never a closer point.
 - The travel app (`/yonder`) keeps only what someone chose: a postcard, a ticked hike, a
-  heart, a packing item, a tagged recipe. Postcards and hikes keep a town and a day,
+  heart, a packing item, a tagged recipe, a place on a town's list (`been_*`,
+  `tests/been.test.mjs`). Postcards and hikes keep a town and a day,
   never a point (`tests/yonder.test.mjs`). Where Laurie can eat well is a parent's ask,
   answered to the screen and never stored.
 - An Edge Function is told no more than it needs: the birds function gets a

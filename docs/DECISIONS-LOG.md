@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — Our list for each town we keep going back to
+
+Jason, on a day trip in Temecula: for places we go to many times, keep a list of the
+restaurants, hikes and other things we've done there, as a reference. Decided:
+
+- **A list for each town**, in the travel app and on Home whenever we're in that town
+  (away or out and about), with its own page by id (`/yonder/town/<id>`).
+- **Each place has a kind** (places to eat; coffee, wine and beer; hikes; things to do;
+  shops; where we stayed; Mass), **what we thought** (loved, good, not again), **a note
+  for next time**, and **the days we went**. Loved come first, "not again" last, so the
+  list answers "where should we go?" and "where shouldn't we?".
+- **Added by one of us, never by the phone:** "We went here" on a guide's place, a hike
+  ticked off with "We did it", or by hand (a winery found on a whim). Each goes at once
+  with an Undo; a half-typed place is kept on the device. The town only, never a point.
+- **The guide marks what's on the list** ("♥ Loved · 3×", "✓ Been", "Not again"), and a
+  trip's scrapbook shows where we went those days. The list isn't sent to Claude.
+
+---
+
 ## 2026-11-07 — The travel app: Yonder, recipes from a trip, postcards and the passport
 
 Phases 6 and 7 of issue #19. Decided:

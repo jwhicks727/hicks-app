@@ -24,6 +24,9 @@ import { usePlacePainting, SECTION_COLOURS } from '../../parts/AroundBits.jsx'
 import { useTripDays } from '../../parts/HereCards.jsx'
 import { PostcardForm, PostcardFront, TripQuest } from '../../parts/TravelBits.jsx'
 import Stamp from './Stamp.jsx'
+import { BeenTownPage, BeenTownsCard } from './Been.jsx'
+import { useBeen } from '../../lib/useBeen.js'
+import { withVisits, visitedBetween, norm as beenNorm, KINDS as BEEN_KINDS } from '../../lib/been.js'
 import './yonder.css'
 
 // /yonder: the travel app (its name chosen in Admin: Yonder unless changed).
@@ -34,6 +37,7 @@ export default function Yonder({ rest = [] }) {
   if (rest[0] === 'day') return <OurDay />
   if (rest[0] === 'trip') return <Scrapbook id={rest[1]} />
   if (rest[0] === 'passport') return <Passport />
+  if (rest[0] === 'town') return <BeenTownPage id={rest[1]} />
   return <YonderHome />
 }
 
@@ -76,6 +80,7 @@ function YonderHome() {
         {kept.length ? <div className="yo-stamp-row">{kept.slice(0, 4).map((o, i) => <Stamp key={o.id} kind={stampKind(o)} name={o.title} date={o.starts_on} size={70} tilt={[-6, 4, -2, 7][i]} />)}</div> : <p className="muted">A stamp for every trip we keep, drawn for its kind of place.</p>}
         <Link className="btn ghost" to="/yonder/passport">Open the passport ›</Link>
       </Card>
+      <BeenTownsCard />
       <SomedayCard c={c} />
     </>
   )
@@ -251,6 +256,7 @@ function Scrapbook({ id }) {
   const painting = usePlacePainting(town, null)
   const { guide } = useAround(ev && ev.lat != null ? { cell: cellIdOf(ev), town } : null)
   const [lifersOpen, setLifersOpen] = useState(false)
+  const been = useBeen(c.session)
   if (!c.outings.loaded) return <><header className="hero span-6"><Crumb to="/yonder">Yonder</Crumb><h1 className="greet">The scrapbook</h1></header><p className="muted span-6">Opening it…</p></>
   if (!o) return <><header className="hero span-6"><Crumb to="/yonder">Yonder</Crumb><h1 className="greet">The scrapbook</h1></header><Card tint="#C9863F" label="Not found" className="span-6"><p>No kept trip at this address.</p></Card></>
   const within = (d) => d >= o.starts_on && d <= o.ends_on
@@ -263,6 +269,9 @@ function Scrapbook({ id }) {
   const hearts = (someday.rows || []).filter((r) => r.town && town && r.town.toLowerCase().includes(town.toLowerCase()))
   const dishes = guide && (guide.sections || []).find((s) => s.key === 'local-food')
   const nameOf = (mid) => (c.family.members.find((m) => m.id === mid) || {}).name || 'One of us'
+  // Where we went: the places on our list for this town with a visit during the trip
+  const beenTowns = been.towns.filter((x) => town && beenNorm(x.town) === beenNorm(town))
+  const went = visitedBetween(withVisits(been.places.filter((p) => beenTowns.some((x) => x.id === p.town_id)), been.visits), been.visits, o.starts_on, o.ends_on)
   const bring = (dish) => {
     try {
       sessionStorage.setItem('teamhicks.kitchen.ask', `Write a recipe for ${dish.name} (from our trip to ${town}, ${range(o.starts_on, o.ends_on)}) in Jason’s format, with Laurie’s plate, so we can cook it at home.`)
@@ -285,6 +294,12 @@ function Scrapbook({ id }) {
         {painting && <p className="muted small">Laurie painted {town}: <Link to="/lifelist/paintings">{painting.title}</Link>.</p>}
       </Card>
       {cards.length > 0 && <Card tint="#B5658F" label="Postcards" glyph="star" className="span-6"><div className="yo-cards">{cards.map((p) => <PostcardFront key={p.id} card={p} from={nameOf(p.member_id)} />)}</div></Card>}
+      {went.length > 0 && (
+        <Card tint="#C9863F" label="Where we went" glyph="star" className="span-3">
+          <ul className="ar-list">{went.map((p) => <li key={p.id}><span className="yo-li"><b>{p.name}</b><small>{[BEEN_KINDS[p.kind], p.rating === 'loved' ? 'loved it' : p.rating === 'not-again' ? 'not again' : null, p.note ? `“${p.note}”` : null].filter(Boolean).join(' · ')}</small></span></li>)}</ul>
+          {beenTowns[0] && <Link className="btn ghost" to={`/yonder/town/${beenTowns[0].id}`}>Our {town} list ›</Link>}
+        </Card>
+      )}
       {h.length > 0 && <Card tint="#4E6C3D" label="The hikes" glyph="sunmoon" className="span-3"><ul className="ar-list">{h.map((x) => <li key={x.id}><span className="yo-li"><b>{x.name}</b><small className="fig">{[x.miles ? `${x.miles} mi` : null, x.climb_ft ? `${x.climb_ft.toLocaleString('en-US')} ft up` : null, nameOf(x.member_id)].filter(Boolean).join(' · ')}</small></span></li>)}</ul></Card>}
       <Card tint="#D4553A" label="Recipes from the trip" glyph="pot" className="span-3">
         {!recs.length && <p className="muted">A recipe written while we’re away is tagged to the trip; any recipe’s page can add it to one.</p>}
