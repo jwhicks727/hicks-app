@@ -25,3 +25,9 @@ a.bp-row { cursor: pointer; }
 .bh-item { width: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 76px; padding: 8px; text-align: left; font: inherit; color: var(--ink); cursor: pointer; border: 1px solid color-mix(in srgb, #5F8A4A 45%, var(--line)); border-radius: 6px; background: color-mix(in srgb, #5F8A4A 14%, var(--card)); }
 .bh-item img, .bh-nophoto { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; background: color-mix(in srgb, #5F8A4A 20%, var(--card)); display: block; }
 .bh-words { display: grid; gap: 2px; min-width: 0; } .bh-words b { font-weight: 850; overflow-wrap: anywhere; } .bh-words small { color: var(--muted); font-weight: 700; }
+.bd-lifers { display: grid; gap: 8px; }
+.bd-lifers .bp-chips button { border-color: color-mix(in srgb, #5F8A4A 45%, var(--line)); }
+.bp-seen { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.bp-seen a { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 2px 10px; align-items: center; color: inherit; text-decoration: none; padding: 4px 0; min-height: 44px; }
+.bp-seen img, .bp-seen .bp-none { grid-row: span 2; width: 48px; height: 48px; object-fit: cover; border-radius: var(--r-control); }
+.bp-seen small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }

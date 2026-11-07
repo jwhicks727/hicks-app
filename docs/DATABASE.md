@@ -138,6 +138,13 @@ every function; nothing to set for that.
   within twenty), and looks up a photo on iNaturalist for the first dozen
   species, kept only with a Creative Commons licence and its credit. A
   sighting at a private location keeps its bird and day, not its place.
+  Away from home (`kind: near`), the app sends a tenth-of-a-degree cell
+  (about ten kilometres), never a closer point; the function asks eBird about
+  the cell's centre (the week's sightings, the notable ones, the hotspots, and
+  a sample of twenty checklists from the county its hotspots are filed under),
+  keeps each cell's answer an hour under `birds-near:<lat>,<lng>` (migration
+  20261107230000), and asks about at most ten new cells a day. Home's own cell
+  gets `{ home: true }`. Deploy it again after the merge for this to work.
 
 - **`wild`** reads each wild season's own site (the eagle cam, the monarch
   count, BirdCast and the rest, listed in `_shared/wildpics.js`) at most once a
@@ -241,7 +248,7 @@ sign-in link won't come back to the app.
 | `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
 | `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | A parent records a yes under their own id; either parent can remove it |
 | `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
-| `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
+| `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`, `birds-more`, and `birds-near:<cell>` for each place away from home), as the functions shaped it | The family | Only the `stations` and `birds` functions |
 | `routine_items` | The things on each person's morning and evening lists: words, a picture, which weekdays, every week or every other, any day or school days or days off, turns, until when, order; taken off (`archived_on`) rather than deleted | Its keeper, and the parents for Anna's | Its keeper, and the parents for Anna's (`lists_i_keep()`) |
 | `routine_changes` | A day that's different: something skipped, something added just for the day, a day off (with its reason) | Its keeper, and the parents for Anna's | The same |
 | `routine_ticks` | One per thing done, per day | Its keeper, and the parents for Anna's | The same; a tick is removed to untick |
@@ -268,5 +275,6 @@ Migration index:
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
+| `20261107230000_birds_near_cache` | `outside_cache` also takes `birds-near:<lat>,<lng>` keys: the birds where one of us is, a tenth-of-a-degree cell each, kept an hour |
 | `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

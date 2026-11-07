@@ -86,7 +86,7 @@ function HomeScreen() {
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <TripAhead session={session} today={today} here={here} />
       {here.tier === 'away' && here.point ? <WeatherHere here={here} /> : <WeatherNow extra={here.tier === 'near' ? <HereNowLine here={here} /> : null} />}
-      <BirdsCard />
+      <BirdsCard here={here} />
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
       <DaysOffCard today={today} />
