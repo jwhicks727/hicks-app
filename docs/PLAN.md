@@ -94,8 +94,11 @@ Built in this order, each part in daily use before the next.
       (`src/lib/routines.js`): which weekdays, every week or every other, any day
       or only school days or days off (from the school calendars in Admin),
       taking turns through a rotation, for a while or for good. A day that's
-      different: skip something, add something just for the day, or a day off
-      that holds a streak. The day turns over at 3 AM.
+      different, from a quiet + and Skip under the list (on Home, and on each
+      list's today card at `/home/lists`): + adds something just for today;
+      Skip gives the list today off, with a reason (sick, away, a holiday, a
+      busy day), which holds the streak. Each has an Undo. The day turns over
+      at 3 AM.
 - [x] Ticking: the box springs and the check draws itself, feathers burst (stars
       at night), the words strike through, the row slips into the "done" pile and
       the rest glide up; a note for each tick climbing a scale (Settings can mute

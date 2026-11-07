@@ -8,8 +8,9 @@ import { ItemIcon } from './icons.jsx'
 // feathers burst from it in the morning (stars at night; gold for the day's
 // golden feather; every colour on a birthday), a line strikes through the
 // words, and the row slips away into the pile while the rest glide up to
-// close the gap. Tapping a thing in the pile puts it back. Transforms and
-// opacity only; under less motion, a plain fade.
+// close the gap. Tapping a thing in the pile puts it back. `tools` (the
+// quiet + and Skip, DayTools) share the pile's line. Transforms and opacity
+// only; under less motion, a plain fade.
 
 const GOING_MS = 720
 const rand = (i, n) => ((Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1 + 1) % 1
@@ -38,7 +39,7 @@ function sub(e) {
  * `list` is dayList()'s; `ticks` the day's. `onTick(entry)` and `onUntick(entry)`
  * do the work (and the sounds); `golden` is the key of the day's golden thing.
  */
-export function RoutineList({ part, list, ticks, golden, birthday = false, onTick, onUntick, label }) {
+export function RoutineList({ part, list, ticks, golden, birthday = false, onTick, onUntick, label, tools = null }) {
   const [going, setGoing] = useState({}) // key -> 'gold' | 'party' | part: rows still animating out
   const [pileOpen, setPileOpen] = useState(false)
   const ul = useRef(null), tops = useRef(new Map())
@@ -94,12 +95,17 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
           })}
         </ul>
       )}
-      {done.length > 0 && (
+      {(done.length > 0 || tools) && (
         <div className="dl-pile">
-          <button type="button" className="dl-pile-b" aria-expanded={pileOpen} onClick={() => setPileOpen((x) => !x)}>
-            <span className="dl-pile-n" key={done.length}>✓ {done.length}</span> done{pileOpen ? '' : ': tap to see'}
-          </button>
-          {pileOpen && (
+          <div className="dl-pile-row">
+            {done.length > 0 && (
+              <button type="button" className="dl-pile-b" aria-expanded={pileOpen} onClick={() => setPileOpen((x) => !x)}>
+                <span className="dl-pile-n" key={done.length}>✓ {done.length}</span> done{pileOpen ? '' : ': tap to see'}
+              </button>
+            )}
+            {tools}
+          </div>
+          {pileOpen && done.length > 0 && (
             <ul className="dl-list dl-done">
               {done.map((e) => (
                 <li key={entryKey(e)}>
