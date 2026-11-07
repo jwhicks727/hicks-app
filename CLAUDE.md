@@ -93,6 +93,8 @@ and write the code fresh. SOAR's code belongs to the school.
   (`roundPoint`) before it is kept or sent anywhere, kept only on the device, one at a
   time, forgotten after six hours and on sign-out. No history of where anyone has been,
   ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep.
+- An Edge Function is told no more than it needs: the birds function gets a
+  tenth-of-a-degree cell (`nearCell`, `tests/birds-near.test.mjs`), never a closer point.
 - Where anyone is never reaches the wall or Reports, and the sign-in screen's sky
   never follows the phone (`<Sky />` in the gate, `<Sky follow />` inside).
 - A screen that shows or sends where someone is says so, and names the services it

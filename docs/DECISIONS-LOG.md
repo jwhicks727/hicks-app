@@ -6,6 +6,26 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-07 — Birds where we are, and the ones that could be new to Laurie
+
+Phase 2 of issue #19. Decided:
+
+- **eBird hears only the area.** Away from home the app sends the birds function a
+  tenth-of-a-degree cell (about ten kilometres), and the function asks eBird about
+  the cell's centre. Each cell is kept an hour, like home's birds, and at most ten new
+  cells are looked up a day, so a long drive can't run up the key.
+- **"Most reported" there is a smaller sample:** twenty recent checklists from the
+  county the cell's hotspots are filed under (home's uses forty), to keep each new
+  place to about two dozen eBird calls.
+- **"Could be a lifer" is worked out on the phone.** For Jason and Laurie only, the
+  birds reported there this week that aren't on her life list, matched by scientific
+  name (a subspecies group still matches) or common name. Her sightings never leave
+  the phone for this, and with no list of hers it claims nothing.
+- **The rest of the birds page stays about home**, below the cards for where we are,
+  and the bird sheet for a bird seen away leaves out "nearest to home".
+
+---
+
 ## 2026-11-07 — Away from home: the app follows us, and becomes our own travel app
 
 Jason asked for the app to change when one of us is on a trip or about to go on one:

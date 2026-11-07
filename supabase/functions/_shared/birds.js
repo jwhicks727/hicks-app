@@ -184,3 +184,25 @@ export function shapeNearest(obs, town) {
 }
 
 // The words and links for the screen are in src/lib/birdWords.js.
+
+// ---- Birds where we are, away from home (src/lib/here.js) ---------------------
+// The app sends only a tenth of a degree (about ten kilometres): the cell's
+// centre is what eBird is asked about, and the cell is what's kept, an hour
+// at a time, under its own key in outside_cache. At most NEAR_CELLS_A_DAY new
+// places a day, so a long drive can't run the key up.
+export const NEAR_CELLS_A_DAY = 10
+export const NEAR_SAMPLE_N = 20
+export const NEAR_KEY = /^birds-near:-?\d{1,2}\.\d,-?\d{1,3}\.\d$/
+/** The cell a point falls in: { lat, lng, key }, or null for nonsense. */
+export function nearCell(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null
+  const la = Math.round(lat * 10) / 10, ln = Math.round(lng * 10) / 10
+  return { lat: la, lng: ln, key: `birds-near:${la.toFixed(1)},${ln.toFixed(1)}` }
+}
+/** The county (or state) eBird files the cell's hotspots under, for its checklist feed. */
+export function regionOf(hotspots) {
+  for (const h of hotspots || []) {
+    for (const c of [h && h.subnational2Code, h && h.subnational1Code]) if (/^[A-Z]{2}(-[A-Z0-9]{1,4}){1,2}$/.test(String(c || ''))) return c
+  }
+  return null
+}

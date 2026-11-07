@@ -322,7 +322,13 @@ and the phases are in issue #19; what's built is ticked here.
       whether or not Notice where I am is on.
 - [ ] Unverified on a real iPhone: whether the installed app asks for location again
       each time it opens, and how to undo a "Don't Allow".
-- [ ] Birds around here, and "Could be a lifer" for the parents.
+- [x] **Birds around here** (2026-11-07): away, Home's Birds card and `/world/birds`
+      are the birds around where we are (most reported, rare, birding places), with
+      what iNaturalist's observers see there this month; for Jason and Laurie, "Could
+      be a lifer for Laurie" (birds reported there that aren't on her list, worked out
+      on the phone from her own sightings, `src/lib/life/lifers.js`). eBird is asked
+      about a tenth-of-a-degree cell, ten new places a day at most. Unverified live
+      until migration 20261107230000 runs and the `birds` function is deployed again.
 - [ ] What's around here?: the map layer, then the guide (written by itself when we're
       away or a trip is coming up), with high-quality free photos.
 - [ ] Which town each of us is in, on the others' Home (decided: full transparency).
