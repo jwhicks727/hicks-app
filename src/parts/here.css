@@ -1,0 +1,27 @@
+/* Where we are: the weather where the phone is, and a trip coming up (src/parts/HereCards.jsx). */
+
+.here-home, .here-line { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--r-control);
+  background: color-mix(in srgb, var(--tint) 7%, var(--card)); border: 1px solid var(--line); color: inherit; text-decoration: none; font-size: 15px; }
+.here-home span, .here-line span { min-width: 0; }
+.here-home:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.here-note { font-size: 12px; color: var(--muted); margin: 0; }
+
+.here-trip-head { display: grid; gap: 2px; color: inherit; text-decoration: none; border-radius: var(--r-control); }
+.here-trip-head:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.here-when { font-weight: 800; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: color-mix(in srgb, var(--tint) 80%, var(--ink)); }
+.here-title { font-family: var(--font-voice); font-weight: 400; font-size: 26px; line-height: 1.15; overflow-wrap: anywhere; }
+
+.here-days { list-style: none; margin: 0 -4px; padding: 2px 4px 6px; display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.here-days li { flex: none; min-width: 58px; scroll-snap-align: start; display: grid; justify-items: center; gap: 2px; padding: 8px 4px;
+  border-radius: var(--r-control); background: color-mix(in srgb, var(--tint) 9%, var(--card)); }
+.here-days span { font-weight: 800; font-size: 13px; }
+.here-days small { color: var(--muted); }
+.here-days .here-rain { color: color-mix(in srgb, #3B7DD8 75%, var(--ink)); font-weight: 700; }
+
+.here-pack { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+
+/* Settings: Notice where I am */
+.here-status { margin: 0; font-size: 14px; }
+.here-status b { white-space: nowrap; }
+.here-status-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.here-status-row .here-status { flex: 1 1 220px; }

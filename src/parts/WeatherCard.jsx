@@ -70,8 +70,8 @@ export function WeekList({ days, linkDays = false }) {
   )
 }
 
-/** The weather at home now, the schools beside it, and the next twelve hours. */
-export function WeatherNow({ className = 'span-3', more = true, schools = true }) {
+/** The weather at home now, the schools beside it, and the next twelve hours. `extra` is a line for where we are when out and about. */
+export function WeatherNow({ className = 'span-3', more = true, schools = true, extra = null }) {
   const { forecast: f, alerts, error } = useWeather()
   const now = useNow()
   const air = useAir()
@@ -93,6 +93,7 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true }
               <p className="muted">Feels like {f.now.feels}° · humidity {f.now.humidity}%</p>
             </div>
           </Link>
+          {extra}
           <p className="wx-windline"><WindArrow dir={f.now.dir} size={14} /> {f.now.wind.line}{f.now.speed != null ? ` (${Math.round(f.now.speed)} mph)` : ''}.{f.today && f.today.rain != null && <> {f.today.rain}% chance of rain today{f.today.inches ? `, ${inchWords(f.today.inches)} expected` : ''}.</>}{f.now.wind.santaAna && <b> Santa Ana winds: dry and gusty. Hold on to the patio umbrella.</b>}</p>
           <Alerts alerts={alerts} />
           {treats.length > 0 && (

@@ -33,11 +33,13 @@ import { occasionFor } from '../lib/occasions.js'
 import { dedupeEvents } from '../lib/cal/tidy.js'
 import { OccasionCard, GlowWrap } from '../ui/Glow.jsx'
 import { todayAt } from '../lib/cal/dates.js'
+import { useHere } from '../lib/useHere.js'
+import { hourIn, clockIn } from '../lib/here.js'
+import { WeatherHere, HereNowLine, TripAhead, whereWords } from '../parts/HereCards.jsx'
 import '../calendar/calendar.css'
 
-const dateFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, weekday: 'long', month: 'long', day: 'numeric' })
 const hourFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' })
-const hm = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', minute: '2-digit' })
+const dateIn = (now, tz) => new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long', month: 'long', day: 'numeric' }).format(now)
 
 export default function Home({ rest = [] }) {
   if (rest[0] === 'sit' || rest[0] === 'breathe') return <Sit />
@@ -58,15 +60,22 @@ function HomeScreen() {
   const events = dedupeEvents(rawEvents)
   const book = useCookbook(session)
   const occasion = occasionFor(dayView(today, { familyDays: family.days, events }))
-  const t = SunCalc.getTimes(now, HOME_TOWN.lat, HOME_TOWN.lng)
-  const sun = now < t.sunset ? `sunset ${hm.format(t.sunset)}` : `sunrise ${hm.format(SunCalc.getTimes(new Date(now.getTime() + 864e5), HOME_TOWN.lat, HOME_TOWN.lng).sunrise)}`
+  // Away from home ground (Settings › Notice where I am), the greeting, the
+  // date, the sun and the clock are where we are; the lists keep home's day.
+  const here = useHere()
+  const out = here.point && (here.tier === 'near' || here.tier === 'away')
+  const at = out ? here.point : HOME_TOWN, tz = (out && here.tz) || HOME_TOWN.tz
+  const where = out ? whereWords(here) : ''
+  const t = SunCalc.getTimes(now, at.lat, at.lng)
+  const sun = now < t.sunset ? `sunset ${clockIn(t.sunset, tz)}` : `sunrise ${clockIn(SunCalc.getTimes(new Date(now.getTime() + 864e5), at.lat, at.lng).sunrise, tz)}`
+  const homeClock = tz !== HOME_TOWN.tz ? `${clockIn(now, HOME_TOWN.tz)} at home` : null
   return (
     <>
       <header className="hero span-6">
-        <div className="hero-top"><span className="kicker">{dateFmt.format(now)}</span><ThemeToggle /></div>
-        <span className="eyebrow">{sun}</span>
-        {/* Each of us by name once signed in; the wall will greet Team Hicks. */}
-        <h1 className="greet">{greeting(hour)}{me ? `, ${me.name}` : ''}</h1>
+        <div className="hero-top"><span className="kicker">{dateIn(now, tz)}</span><ThemeToggle /></div>
+        <span className="eyebrow">{[homeClock ? `${clockIn(now, tz)} here` : null, sun, homeClock].filter(Boolean).join(' · ')}</span>
+        {/* Each of us by name once signed in; the wall will greet Team Hicks, and never says where anyone is. */}
+        <h1 className="greet">{greeting(hourIn(now, tz))}{where ? ` from ${where}` : ''}{me ? `, ${me.name}` : ''}</h1>
       </header>
       <ListsCard session={session} family={family} me={me} now={now} events={events} />
       <SitReminder me={me} today={today} hour={hour} />
@@ -75,7 +84,8 @@ function HomeScreen() {
       <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />
       <AcademyCard session={session} me={me} today={today} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
-      <WeatherNow />
+      <TripAhead session={session} today={today} here={here} />
+      {here.tier === 'away' && here.point ? <WeatherHere here={here} /> : <WeatherNow extra={here.tier === 'near' ? <HereNowLine here={here} /> : null} />}
       <BirdsCard />
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>

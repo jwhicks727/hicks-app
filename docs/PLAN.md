@@ -295,6 +295,40 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [ ] Vet visits, shots and medicines, with reminders on the calendar.
 - [ ] Feeding and walks: who did what today.
 
+## 1g. Away from home: our own travel app (issue #19) — started 2026-11-07
+
+The app follows us on a trip: the weather, the sky and the birds where we are, a guide
+to the place that appears by itself, and around it our own travel app, from the
+countdown to a scrapbook with the trip's recipes in it. The full design, the decisions
+and the phases are in issue #19; what's built is ticked here.
+
+- [x] Settings › **Notice where I am**, each person on each device, off until switched
+      on, with what it does and what it sends said first. The phone is asked only while
+      the app is open (on opening and on coming back, at most every ten minutes, low
+      accuracy, never watched); the reading is rounded to about a kilometre at once,
+      kept only on the device, forgotten after six hours, on sign-out or when switched
+      off; no history (`src/lib/here.js`, `src/lib/useHere.js`, `tests/here.test.mjs`).
+- [x] Home ground (under 10 miles), out and about (to 25) and away (beyond, or another
+      time zone). Away, Home's greeting says where ("Good afternoon from Big Bear
+      Lake"), the date, sun times and clock are local (home's clock beside them in
+      another time zone), the sky behind everything is the sky there, and the weather
+      card is the weather there (now, twelve hours, the week, the Weather Service's
+      alerts in the US) with home's in a line beneath (`src/parts/HereCards.jsx`). Out
+      and about, home's weather card adds a line for where you are. The lists keep
+      home's day.
+- [x] **Coming up** on Home: a trip on the calendar (an event with a place more than
+      25 miles away) from three days before it starts until we're there: when, how far,
+      its forecast for those days and what to pack, from the forecast alone. It works
+      whether or not Notice where I am is on.
+- [ ] Unverified on a real iPhone: whether the installed app asks for location again
+      each time it opens, and how to undo a "Don't Allow".
+- [ ] Birds around here, and "Could be a lifer" for the parents.
+- [ ] What's around here?: the map layer, then the guide (written by itself when we're
+      away or a trip is coming up), with high-quality free photos.
+- [ ] Which town each of us is in, on the others' Home (decided: full transparency).
+- [ ] The travel app: countdown, packing, Anna's trip quest, the postcard, Our day,
+      recipes from the trip (tagged to it), the scrapbook, the passport and the rest.
+
 ## 2. World
 
 - [x] The forecast at home (Open-Meteo: now, the next twelve hours, the
