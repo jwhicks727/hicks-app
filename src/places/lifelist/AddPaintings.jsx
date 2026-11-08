@@ -75,7 +75,7 @@ function Batch() {
         </Card>
       )}
 
-      {it && !t.finished && <Review key={it.id} b={b} it={it} loaded={loaded} onSkip={(x) => setToast(x)} />}
+      {it && <Review key={it.id} b={b} it={it} loaded={loaded} onSkip={(x) => setToast(x)} />}
 
       {t.total > 0 && <Strip b={b} />}
 
@@ -120,9 +120,12 @@ function ReadSwitch({ read, setRead }) {
 
 /** One photo: its crop, and what it'll be called. */
 function Review({ b, it, loaded, onSkip }) {
-  const locked = it.status === 'saving' || it.status === 'added'
+  const saved = it.status === 'added'
+  const locked = it.status === 'saving' || saved
   // Once saved, only its thumbnail is still on the phone
   const url = usePhotoUrl(it.status === 'new' || it.status === 'failed' ? null : it.id + (locked ? ':thumb' : ':view'))
+  // Details of a photo that's already saved can be fixed here; its crop can't (the files are in her gallery)
+  const editing = it.status === 'ready' || (saved && Boolean(it.editing))
   const [err, setErr] = useState(null)
   const n = b.items.indexOf(it) + 1, total = b.items.length
   // The next photo comes up where this one's crop was: back up to it if the page was left further down
@@ -138,6 +141,7 @@ function Review({ b, it, loaded, onSkip }) {
     if (!cleanTitle(it.title)) { setErr('Give it a title: a working one is fine.'); return }
     const y = cleanYear(it.year, b.thisYear)
     if (y.error) { setErr(y.error); return }
+    if (saved) { setErr(null); b.saveDetails(it.id); return }
     b.approve(it.id)
   }
   const step = (d) => b.go(b.items[(b.items.indexOf(it) + d + total) % total].id)
@@ -157,15 +161,15 @@ function Review({ b, it, loaded, onSkip }) {
         </div>
       )}
 
-      {it.crop && !locked && (
+      {it.crop && it.status === 'ready' && (
         <>
           <CropNote it={it} />
           <Cropper src={url} W={it.W} H={it.H} crop={it.crop} auto={it.auto} onChange={(crop) => set({ crop })} />
         </>
       )}
-      {it.crop && locked && <Finished it={it} url={url} />}
+      {it.crop && saved && !editing && <Finished it={it} url={url} onChange={() => b.editSaved(it.id, true)} />}
 
-      {it.crop && !locked && (
+      {it.crop && editing && (
         <form className="form ll-up-form" onSubmit={add}>
           <label>Its title
             <input maxLength={200} value={it.title} placeholder={it.read === 'reading' || it.read === 'waiting' ? 'Claude is suggesting one…' : 'A working title'} onChange={(e) => set({ title: e.target.value })} />
@@ -187,8 +191,10 @@ function Review({ b, it, loaded, onSkip }) {
           {it.saveError && <p className="err" role="alert">It couldn’t be saved: {it.saveError}</p>}
           {err && <p className="err" role="alert">{err}</p>}
           <div className="form-actions">
-            <button type="submit" className="btn" disabled={!loaded || !url}>{it.saveError ? 'Try saving again' : 'Looks right: add it'}</button>
-            <button type="button" className="btn ghost" onClick={() => { b.skip(it.id); onSkip({ id: it.id, title: cleanTitle(it.title) }) }}>Leave this one out</button>
+            {saved
+              ? <><button type="submit" className="btn" disabled={!loaded}>Save changes</button><button type="button" className="btn ghost" onClick={() => { setErr(null); b.editSaved(it.id, false) }}>Done</button></>
+              : <><button type="submit" className="btn" disabled={!loaded || !url}>{it.saveError ? 'Try saving again' : 'Looks right: add it'}</button>
+                <button type="button" className="btn ghost" onClick={() => { b.skip(it.id); onSkip({ id: it.id, title: cleanTitle(it.title) }) }}>Leave this one out</button></>}
           </div>
         </form>
       )}
@@ -233,12 +239,13 @@ function From({ it, field }) {
 }
 
 /** A photo already saved or saving: shown as it will hang. */
-function Finished({ it, url }) {
+function Finished({ it, url, onChange }) {
   return (
     <div className="ll-up-done">
       {url && <span className="ll-up-mini"><img src={url} alt="" /></span>}
       <p><b>{it.title}</b>{it.year ? `, ${it.year}` : ''}{it.status === 'added' ? ' is in her gallery.' : ' is being saved.'}</p>
       {it.status === 'added' && it.slug && <Link to={'/lifelist/paintings/' + it.slug}>See it</Link>}
+      {it.status === 'added' && <button type="button" className="ll-up-link" onClick={onChange}>Change its details</button>}
     </div>
   )
 }

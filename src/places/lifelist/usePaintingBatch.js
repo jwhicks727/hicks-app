@@ -154,6 +154,20 @@ export function usePaintingBatch({ gallery, onSaved }) {
         return { ...b, items: next, at: nextToCheck(next, id) || id }
       })
     },
+    /** A saved photo's details can be changed again (its crop stays as saved: the files are already in her gallery). */
+    editSaved(id, on) { update(id, (x) => ({ ...x, editing: on, saveError: null })) },
+    /** Saves a saved photo's details to its row; nothing else of it is touched. */
+    async saveDetails(id) {
+      const it = latest.current.find((x) => x.id === id)
+      if (!it || !it.slug) return
+      const { error } = await supabase.from('paintings').update({
+        title: cleanTitle(it.title), named: Boolean(it.named), year: cleanYear(it.year, thisYear).year ?? null,
+        medium: cleanMedium(it.medium) || null, seasons: cleanSeasons(it.seasons),
+      }).eq('slug', it.slug)
+      if (error) { update(id, (x) => ({ ...x, saveError: error.message })); return }
+      update(id, (x) => ({ ...x, editing: false, saveError: null, title: cleanTitle(x.title) }))
+      onSaved()
+    },
     skip(id) {
       setBatch((b) => {
         const next = (b.items || []).map((x) => (x.id === id ? { ...x, status: 'skipped' } : x))
