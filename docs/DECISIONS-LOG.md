@@ -6,6 +6,35 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — A photo reel for each trip, tagged by Claude
+
+Jason: a small photo reel for each trip, uploaded by hand, in the style of the paintings
+uploader (PR 21); a photo of a plant should be findable elsewhere in the app, a photo of a
+dish he cooked taggable to that dish, and the same for places and birds, with as much AI as
+possible so nobody has to fuss. Decided:
+
+- **Photos belong to a town and a day**, so a stay's recap and a kept trip's scrapbook both
+  gather them by their dates. They are the family's, in a private `trips` bucket read through
+  signed links, never in the app's files.
+- **Claude suggests; someone confirms.** Each photo is read (if left on, the default) and its
+  tags arrive as suggestions; one tap, "Looks right", confirms all of a reel's. This keeps
+  the rule that whatever Claude suggests is a proposal confirmed on screen, while asking for
+  almost no fuss. Only confirmed tags show the photo anywhere else.
+- **Where a photo turns up:** a dish linked to a recipe, on that recipe's page; a place linked to
+  a place on the town's list, on its row; a bird by name, on its page in the Life List (parents,
+  like all of her birds); a plant by name, in the Garden's "Plants we've seen on trips". Claude
+  matches a dish or place only to titles the phone sent it, and the function drops any other.
+- **Never a person.** Claude is told not to identify, name or describe anyone, and the
+  function drops a subject or caption that mentions one; there is no kind for a person.
+- **What goes to Claude is said on the screen:** a shrunk copy of the photo, the town, and the
+  titles of the cookbook and of the places on that town's list (titles only; never Laurie's food
+  rules).
+- **Built beside the paintings uploader, not on it**, since PR 21 is still open: the same
+  choose-many, "Have Claude read each" note, working bar and thumbnails, but photos go straight
+  to storage rather than through a batch inbox. The two can share code once PR 21 is merged.
+
+---
+
 ## 2026-11-08 — A stay's recap on Home, and what we record never vanishes
 
 Jason, tired after a day in Temecula and then home: two places he'd added didn't save

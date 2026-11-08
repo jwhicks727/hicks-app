@@ -24,6 +24,7 @@ import { usePlacePainting, SECTION_COLOURS } from '../../parts/AroundBits.jsx'
 import { useTripDays } from '../../parts/HereCards.jsx'
 import { PostcardForm, PostcardFront, TripQuest } from '../../parts/TravelBits.jsx'
 import Stamp from './Stamp.jsx'
+import PhotoReel from '../../parts/PhotoReel.jsx'
 import { BeenTownPage, BeenTownsCard } from './Been.jsx'
 import { StartRecap } from './Recap.jsx'
 import { useBeen } from '../../lib/useBeen.js'
@@ -295,6 +296,7 @@ function Scrapbook({ id }) {
         </div>
         {painting && <p className="muted small">Laurie painted {town}: <Link to="/lifelist/paintings">{painting.title}</Link>.</p>}
       </Card>
+      <Card tint="#2F7D7A" label="The photo reel" glyph="star" className="span-6"><PhotoReel town={town || o.title} region={String(o.place || '').split(',')[1] ? String(o.place).split(',')[1].trim() : null} from={o.starts_on} last={o.ends_on} /></Card>
       {cards.length > 0 && <Card tint="#B5658F" label="Postcards" glyph="star" className="span-6"><div className="yo-cards">{cards.map((p) => <PostcardFront key={p.id} card={p} from={nameOf(p.member_id)} />)}</div></Card>}
       {went.length > 0 && (
         <Card tint="#C9863F" label="Where we went" glyph="star" className="span-3">
