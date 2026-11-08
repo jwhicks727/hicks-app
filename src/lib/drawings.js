@@ -10,8 +10,12 @@
 /** What a drawing can be about, where that matters to another screen: the Pets launch hangs the newest "pets" one. */
 export const TOPICS = { pets: 'Our pets' }
 
-/** Where a drawing's files go in the bucket: the picture, and a small one for the wall. */
-export const drawingFiles = (id) => ({ path: `${id}.jpg`, thumb: `${id}.thumb.jpg` })
+/**
+ * Where a drawing's files go in the bucket: the picture, a small one for the wall, and its original (the photo it was
+ * cropped from, kept so it can be cropped again). A crop made again has a `tag` of its own in its names, so a link already
+ * handed out never shows the old crop (and no one needs the right to write over a file).
+ */
+export const drawingFiles = (id, tag = '') => ({ path: tag ? `${id}.${tag}.jpg` : `${id}.jpg`, thumb: tag ? `${id}.${tag}.thumb.jpg` : `${id}.thumb.jpg`, original: `${id}.original.jpg` })
 
 /** Newest first: by the day she drew it where that's known, else the day it was added; then the order added. */
 export function sortDrawings(rows) {

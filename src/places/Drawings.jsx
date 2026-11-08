@@ -1,22 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, Crumb } from '../shell/Link.jsx'
 import { Card } from '../ui/Card.jsx'
-import Dropzone from '../ui/Dropzone.jsx'
 import { Toast } from '../ui/Toast.jsx'
 import { useSession } from '../lib/auth.js'
 import { useFamily } from '../lib/useCalendar.js'
-import { useDraft } from '../lib/useDraft.js'
 import { useNow } from '../lib/useNow.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { navigate } from '../lib/router.js'
 import { TOPICS, cleanDrawing, drawnWords, tilt, tapeOf } from '../lib/drawings.js'
-import { useDrawings, useDrawingUrls, addDrawing, saveDrawing, removeDrawing } from '../lib/useDrawings.js'
+import { useDrawings, useDrawingUrls, saveDrawing, removeDrawing } from '../lib/useDrawings.js'
+import { drawingsInbox } from '../lib/drawingInbox.js'
+import { tally } from '../lib/paintingBatch.js'
+import AddDrawings from './AddDrawings.jsx'
+import RecropDrawing from './RecropDrawing.jsx'
 import './drawings.css'
 
 const TINT = '#D9739B'
 
 // /drawings          Anna's Gallery: her drawings, taped to the wall, newest first
 // /drawings/<id>     one drawing, hung large; its next and previous replace the address
+// /drawings/add      adding drawings, one or many at once (src/places/AddDrawings.jsx)
 // Behind sign-in, like Laurie's paintings: the pictures are in a private bucket, read through
 // signed links, never in the app's own files (CLAUDE.md, "Anna's drawings"). Anyone in the
 // family can add one; whoever added it, or a parent, can change it or take it down.
@@ -58,7 +61,9 @@ export default function Drawings({ rest }) {
   const [id] = rest || []
   return (
     <>
-      {id ? <DrawingPage id={id} g={g} list={list} me={me} parent={parent} today={today} onTakeDown={takeDown} /> : <Wall g={g} list={list} me={me} today={today} />}
+      {id === 'add'
+        ? (family.loaded && me ? <AddDrawings me={me} members={family.members} g={g} today={today} /> : <header className="hero span-6"><Crumb to="/drawings">Anna’s Gallery</Crumb><h1 className="greet">…</h1></header>)
+        : id ? <DrawingPage id={id} g={g} list={list} me={me} parent={parent} today={today} onTakeDown={takeDown} /> : <Wall g={g} list={list} />}
       {undo && <Toast key={undo.id} action="Undo" onAction={undoIt} onClose={() => { setUndo(null); commit() }}>{undo.text}</Toast>}
     </>
   )
@@ -72,10 +77,20 @@ function SetupCard() {
   )
 }
 
-function Wall({ g, list, me, today }) {
-  const [adding, setAdding] = useState(false), [said, setSaid] = useState(null)
-  const [f, setF, clear] = useDraft('drawings.new', { title: '', madeOn: '', words: '', topic: '' })
-  const started = Boolean(f.title || f.madeOn || f.words || f.topic) // typing survives the phone closing the app
+/** To the adding screen: a plain button, or the shine while photos are waiting there to be checked (anyone's, for a parent). */
+function AddDrawingsLink() {
+  const [waiting, setWaiting] = useState(null)
+  useEffect(() => {
+    let live = true
+    drawingsInbox.loadInbox().then((items) => { if (live) setWaiting(tally(items)) }, () => {})
+    return () => { live = false }
+  }, [])
+  const n = waiting ? waiting.ready + waiting.saving : 0
+  if (n) return <Link to="/drawings/add" className="shine span-6">Drawings waiting to be checked<span className="n">{n}</span></Link>
+  return <div className="span-6 ag-add"><Link to="/drawings/add" className="btn">Add her drawings</Link></div>
+}
+
+function Wall({ g, list }) {
   const urls = useDrawingUrls(list.map((d) => d.thumb_path || d.path))
   return (
     <>
@@ -85,14 +100,10 @@ function Wall({ g, list, me, today }) {
       </header>
       {g.missing && <SetupCard />}
       {!g.missing && g.error && <Card tint={TINT} label="Couldn’t open it" glyph="star" className="span-6"><p>{g.error}</p></Card>}
-      {!g.missing && !g.error && (adding || started
-        ? <AddDrawing f={f} setF={setF} me={me} today={today}
-            onDone={() => { clear(); setAdding(false); setSaid('Added. It’s on the wall now.'); g.reload() }}
-            onCancel={() => { clear(); setAdding(false) }} />
-        : <div className="span-6 ag-add"><button type="button" className="btn" onClick={() => { setSaid(null); setAdding(true) }}>Add a drawing</button>{said && <span className="ag-said" role="status">{said}</span>}</div>)}
+      {!g.missing && !g.error && <AddDrawingsLink />}
       {g.loaded && !g.missing && !g.error && !list.length && (
         <Card tint={TINT} label="Nothing hung yet" glyph="star" className="span-6">
-          <p>Anna’s drawings go here, taped up the way they would be on the fridge. Photograph one, crop it close to the paper, and tap <b>Add a drawing</b>.</p>
+          <p>Anna’s drawings go here, taped up the way they would be on the fridge. Photograph one, crop it close to the paper, and tap <b>Add her drawings</b>.</p>
         </Card>
       )}
       <section className="ag-wall span-6" aria-label="Anna’s drawings">
@@ -117,7 +128,7 @@ function Wall({ g, list, me, today }) {
 function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
   const i = list.findIndex((x) => x.id === id), d = list[i]
   const urls = useDrawingUrls(d ? [d.path] : [])
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(false), [recrop, setRecrop] = useState(false)
   if (!d) {
     return (
       <header className="hero span-6">
@@ -128,7 +139,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
   }
   const canChange = parent || Boolean(me && d.added_by === me.id)
   const near = (k) => list[(i + k + list.length) % list.length]
-  const step = (q) => (e) => { e.preventDefault(); setEditing(false); navigate('/drawings/' + q.id, { replace: true }) }
+  const step = (q) => (e) => { e.preventDefault(); setEditing(false); setRecrop(false); navigate('/drawings/' + q.id, { replace: true }) }
   const src = urls[d.path]
   return (
     <>
@@ -147,7 +158,9 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
       </div>
       {editing
         ? <EditDrawing d={d} today={today} onDone={() => { setEditing(false); g.reload() }} onCancel={() => setEditing(false)} />
-        : (
+        : recrop
+          ? <Card className="span-6" tint={TINT} label="Crop it again" glyph="star"><RecropDrawing drawing={d} onDone={() => { setRecrop(false); g.reload() }} onCancel={() => setRecrop(false)} /></Card>
+          : (
           <Card className="span-6" tint={TINT} label="About it" glyph="star">
             <dl className="ag-facts">
               {d.made_on && <div><dt>Drawn</dt><dd>{drawnWords(d.made_on).replace(/^Drawn /, '')}</dd></div>}
@@ -158,6 +171,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
             {canChange && (
               <div className="ag-actions">
                 <button type="button" className="btn ghost" onClick={() => setEditing(true)}>Change the details</button>
+                {d.original ? <button type="button" className="btn ghost" onClick={() => setRecrop(true)}>Crop it again</button> : <p className="muted small">Its original photo wasn’t kept when it was added, so its crop can’t be changed here.</p>}
                 <button type="button" className="btn ghost danger-t" onClick={() => { onTakeDown(d); navigate('/drawings', { replace: true }) }}>Take it down</button>
               </div>
             )}
@@ -187,39 +201,6 @@ function Fields({ f, setF, today }) {
       </div>
       <label>In her words (only if she said some)<textarea rows={3} maxLength={1000} value={f.words} onChange={(e) => setF({ ...f, words: e.target.value })} placeholder="Exactly what she said, or leave it blank" /></label>
     </div>
-  )
-}
-
-function AddDrawing({ f, setF, me, today, onDone, onCancel }) {
-  const [pic, setPic] = useState(null), [preview, setPreview] = useState(null), [busy, setBusy] = useState(false), [msg, setMsg] = useState(null)
-  useEffect(() => {
-    if (!pic) { setPreview(null); return undefined }
-    const url = URL.createObjectURL(pic)
-    setPreview(url)
-    return () => URL.revokeObjectURL(url)
-  }, [pic])
-  async function save() {
-    const fields = cleanDrawing(f, today)
-    if (fields.error) { setMsg(fields.error); return }
-    setBusy(true); setMsg(null)
-    let res
-    try { res = await addDrawing({ file: pic, fields, me }) } catch { res = { error: { message: 'That photo couldn’t be read. Try another, or save it as a JPEG first.' } } }
-    setBusy(false)
-    if (res.error) { setMsg(res.error.message || 'That didn’t save. Try again.'); return }
-    onDone()
-  }
-  return (
-    <Card tint={TINT} label="A drawing of Anna’s" glyph="star" className="span-6">
-      <Dropzone accept="image/*" label="Her drawing" hint="Take a photo of the paper, choose one, paste it, or drop it here. Crop it close to the paper first, so the wall shows just her drawing." onFiles={(files) => setPic(files[0])} disabled={busy} />
-      {preview && <img className="ag-preview" src={preview} alt="The drawing you chose" />}
-      <Fields f={f} setF={setF} today={today} />
-      <div className="form-actions">
-        <button type="button" className="btn" disabled={!pic || !f.title.trim() || busy} onClick={save}>{busy ? 'Hanging it up…' : 'Hang it up'}</button>
-        <button type="button" className="btn ghost" disabled={busy} onClick={onCancel}>Cancel</button>
-      </div>
-      {msg && <p className="muted" role="status">{msg}</p>}
-      <p className="muted small">Drawings stay in the family’s own private storage, behind sign-in, and nowhere else.</p>
-    </Card>
   )
 }
 

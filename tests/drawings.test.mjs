@@ -32,7 +32,8 @@ test('the Pets launch hangs the newest drawing marked as being about the pets, a
 })
 
 test('a drawing’s files go under its own id', () => {
-  assert.deepEqual(drawingFiles('abc'), { path: 'abc.jpg', thumb: 'abc.thumb.jpg' })
+  assert.deepEqual(drawingFiles('abc'), { path: 'abc.jpg', thumb: 'abc.thumb.jpg', original: 'abc.original.jpg' })
+  assert.deepEqual(drawingFiles('abc', 'k2'), { path: 'abc.k2.jpg', thumb: 'abc.k2.thumb.jpg', original: 'abc.original.jpg' }, 'a crop made again has names of its own')
 })
 
 test('the day is built from its parts, not parsed as UTC (the evening before, at home)', () => {

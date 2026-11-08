@@ -63,16 +63,16 @@ const toBase64 = (blob) => new Promise((ok, no) => { const r = new FileReader();
  * A photo made ready: the copy kept on the phone (3600 px, enough for the 2400 px painting once
  * cropped), a view for the crop screen, a thumbnail, and the little copy the auto-crop measures.
  */
-export async function preparePhoto(file) {
+export async function preparePhoto(file, { kept: keptMax = SIZES.kept, keptQuality = 0.92 } = {}) {
   const pic = await openPicture(file)
   const made = []
   try {
-    const kept = shrink(pic.img, pic.width, pic.height, SIZES.kept); made.push(kept)
+    const kept = shrink(pic.img, pic.width, pic.height, keptMax); made.push(kept)
     const view = shrink(kept, kept.width, kept.height, SIZES.view); made.push(view)
     const thumb = shrink(view, view.width, view.height, SIZES.thumb); made.push(thumb)
     const look = shrink(view, view.width, view.height, SIZES.look); made.push(look)
     const pixels = look.getContext('2d').getImageData(0, 0, look.width, look.height)
-    return { kept: await toBlob(kept, 0.92), view: await toBlob(view, 0.86), thumb: await toBlob(thumb, 0.8), W: kept.width, H: kept.height, look: pixels }
+    return { kept: await toBlob(kept, keptQuality), view: await toBlob(view, 0.86), thumb: await toBlob(thumb, 0.8), W: kept.width, H: kept.height, look: pixels }
   } finally {
     made.forEach(free)
     pic.close()
@@ -90,24 +90,24 @@ function drawPainting(pic, crop, opts) {
 }
 
 /** Her gallery's two files: full.jpg (2400 px) and small.jpg (720 px), with the full one's size. */
-export async function paintingFiles(kept, crop) {
+export async function paintingFiles(kept, crop, { full: fullMax = SIZES.full, small: smallMax = SIZES.small, fullQuality = 0.88, smallQuality = 0.84 } = {}) {
   const pic = await openPicture(kept)
   let full, small
   try {
-    full = drawPainting(pic, crop, { max: SIZES.full })
-    small = shrink(full, full.width, full.height, SIZES.small)
-    return { full: await toBlob(full, 0.88), small: await toBlob(small, 0.84), w: full.width, h: full.height }
+    full = drawPainting(pic, crop, { max: fullMax })
+    small = shrink(full, full.width, full.height, smallMax)
+    return { full: await toBlob(full, fullQuality), small: await toBlob(small, smallQuality), w: full.width, h: full.height }
   } finally {
     free(full); free(small); pic.close()
   }
 }
 
 /** What goes to Claude to read: the cropped painting, then each corner enlarged, as JPEG. */
-export async function readingFiles(kept, crop) {
+export async function readingFiles(kept, crop, { corners = true } = {}) {
   const pic = await openPicture(kept)
   const out = []
   try {
-    for (const opts of [{ max: SIZES.read }, ...signatureCorners(crop.w, crop.h).map((region) => ({ max: SIZES.corner, region }))]) {
+    for (const opts of [{ max: SIZES.read }, ...(corners ? signatureCorners(crop.w, crop.h).map((region) => ({ max: SIZES.corner, region })) : [])]) {
       const c = drawPainting(pic, crop, opts)
       try { out.push({ data: await toBase64(await toBlob(c, 0.86)), media_type: 'image/jpeg' }) } finally { free(c) }
     }

@@ -29,7 +29,7 @@ The apps (each at its own address):
 | **The Academy** (`/academy`) | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 | **Life List** (`/lifelist`) | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off. |
 | **Laurie's Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in; Jason or Laurie add many at once at `/lifelist/paintings/add`, cropped on the phone and read by Claude for the year by her signature, a working title, the medium and seasons. |
-| **Anna's Gallery** (`/drawings`) | Anna's drawings, taped to a wall, behind sign-in; anyone in the family can add one. |
+| **Anna's Gallery** (`/drawings`) | Anna's drawings, taped to a wall, behind sign-in; anyone in the family can add many at once at `/drawings/add` (cropped on the device, Claude suggesting a title, the topic and any written day, the batch waiting in the family's storage to finish on another device). |
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 | **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
 | **Pets** (`/pets`) | Coming soon: Appa and the cats, launched with a scene around Anna's drawing of them. |

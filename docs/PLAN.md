@@ -285,8 +285,13 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       whoever added it, or a parent, changes it or takes it down, with an Undo
       (`src/places/Drawings.jsx`, `annas_drawings`, the private `drawings`
       bucket; never in the app's own files).
-- [ ] Cropping and straightening a photo of the paper inside the app (for now,
-      crop it close in the phone's own photo editor first).
+- [x] Adding drawings many at once (`/drawings/add`, anyone in the family): each
+      photo straightened and cropped to the paper as it's sent up, a guided walk
+      through them with the crop and turn tool, and Claude suggesting a working
+      title, whether it's about the pets and any day written on it (all changeable;
+      her words never guessed). The batch waits in the family's storage, so Anna can
+      send from her tablet and a parent finish at a computer. A drawing keeps its
+      original, so it can be cropped again from its page.
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)
