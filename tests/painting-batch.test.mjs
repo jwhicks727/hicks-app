@@ -279,7 +279,19 @@ test('a painting keeps its original, and its crop, so it can be cropped again fr
   const re = readFileSync(new URL('../src/places/lifelist/RecropPainting.jsx', import.meta.url), 'utf8')
   const ed = readFileSync(new URL('../src/places/lifelist/PaintingEdit.jsx', import.meta.url), 'utf8')
   assert.match(re, /\.eq\('slug', p\.slug\)/); assert.match(ed, /\.eq\('slug', p\.slug\)/)
-  assert.doesNotMatch(re + ed, /\.delete\(|\.upsert\(/, 'no deletes, no upserts of other rows')
+  assert.doesNotMatch(re, /\.delete\(|\.upsert\(/, 'the re-crop never deletes or upserts')
+  assert.doesNotMatch(ed, /\.upsert\(/, 'the details form never upserts')
+  assert.match(ed, /\.delete\(\)\.eq\('slug', p\.slug\)/, 'its one delete is its own row')
   // The batch saves the original with the new painting
   assert.match(readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8'), /\[FILES\.original, kept\]/)
+})
+
+test('a parent can take a painting out of her gallery: the files, then the row, after a yes', () => {
+  const ed = readFileSync(new URL('../src/places/lifelist/PaintingEdit.jsx', import.meta.url), 'utf8')
+  assert.match(ed, /Take it out of her gallery/)
+  assert.match(ed, /<Confirm /, 'asked first')
+  // Files first: if they can't go, the row stays
+  const files = ed.indexOf(".storage.from('paintings').remove(paths)"), row = ed.indexOf(".from('paintings').delete().eq('slug', p.slug)")
+  assert.ok(files > 0 && row > files && ed.includes('if (fe) { setBusy(false); setGone(false); setErr(fe.message); return }'))
+  assert.match(ed, /navigate\('\/lifelist\/paintings', \{ replace: true \}\)/)
 })

@@ -4,6 +4,9 @@ import { cleanTitle, cleanYear, cleanMedium, cleanSeasons } from '../../lib/pain
 import { SEASONS, SEASON_ORDER } from '../../lib/seasons.js'
 import { todayAtHome } from '../../lib/useSources.js'
 import RecropPainting from './RecropPainting.jsx'
+import { Confirm } from '../../ui/Confirm.jsx'
+import { navigate } from '../../lib/router.js'
+import { storedPaths } from '../../lib/paintings.js'
 import './addpaintings.css'
 
 // On a painting's own page, a parent can change its details and crop it again
@@ -14,7 +17,7 @@ export default function PaintingEdit({ painting: p, onSaved }) {
   const thisYear = Number(todayAtHome().slice(0, 4))
   const start = { title: p.title || '', named: Boolean(p.named), year: p.year ? String(p.year) : '', medium: p.medium || '', seasons: p.seasons || [] }
   const [f, setF] = useState(start)
-  const [err, setErr] = useState(null), [busy, setBusy] = useState(false), [recrop, setRecrop] = useState(false)
+  const [err, setErr] = useState(null), [busy, setBusy] = useState(false), [recrop, setRecrop] = useState(false), [gone, setGone] = useState(false)
   const set = (patch) => { setErr(null); setF((x) => ({ ...x, ...patch })) }
   const changed = JSON.stringify(f) !== JSON.stringify(start)
 
@@ -30,6 +33,19 @@ export default function PaintingEdit({ painting: p, onSaved }) {
     }).eq('slug', p.slug)
     setBusy(false)
     if (error) setErr(error.message); else onSaved()
+  }
+
+  // Taken out of her gallery: its files in the bucket first, then its row. If the files can't go, the row stays.
+  async function remove() {
+    setBusy(true); setErr(null)
+    const paths = Object.values(storedPaths(p.slug, p))
+    const { error: fe } = await supabase.storage.from('paintings').remove(paths)
+    if (fe) { setBusy(false); setGone(false); setErr(fe.message); return }
+    const { error } = await supabase.from('paintings').delete().eq('slug', p.slug)
+    setBusy(false)
+    if (error) { setErr(error.message); return }
+    navigate('/lifelist/paintings', { replace: true })
+    onSaved()
   }
 
   return (
@@ -57,6 +73,15 @@ export default function PaintingEdit({ painting: p, onSaved }) {
         {p.original && !recrop && <button type="button" className="btn ghost" onClick={() => setRecrop(true)}>Crop it again</button>}
         {p.original && recrop && <RecropPainting painting={p} onDone={() => { setRecrop(false); onSaved() }} onCancel={() => setRecrop(false)} />}
       </div>
+
+      <div className="ll-edit-crop">
+        <button type="button" className="btn danger" disabled={busy} onClick={() => setGone(true)}>Take it out of her gallery</button>
+      </div>
+      {gone && (
+        <Confirm title={`Take “${p.title}” out?`} yes="Take it out" danger onNo={() => setGone(false)} onYes={remove}>
+          <p>Its photos are removed from the family’s storage, and it leaves her gallery and Home. This can’t be undone; a photo would have to be added again.</p>
+        </Confirm>
+      )}
     </section>
   )
 }
