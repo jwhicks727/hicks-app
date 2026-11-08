@@ -9,7 +9,7 @@ import { paintedWords } from '../../lib/paintingBatch.js'
 import { isShaped, shapeName } from '../../lib/shapes.js'
 import { MOODS, STYLES, WEATHERS } from '../../lib/gallery.js'
 import { familiesOf, FAMILIES } from '../../lib/artColour.js'
-import { ORDER } from './Gallery.jsx'
+import { wallOrder } from '../../parts/ArtFinder.jsx'
 import { paintingBySlug } from '../../lib/paintings.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { SEASONS, windowsOf } from '../../lib/seasons.js'
@@ -38,7 +38,8 @@ export default function PaintingPage({ slug }) {
   }
   // The order the gallery showed, while this painting is in it; else every painting, newest in first
   let seq = PAINTINGS
-  try { const o = JSON.parse(sessionStorage.getItem(ORDER) || '[]'); const ps = o.map((sl) => paintingBySlug(sl, PAINTINGS)).filter(Boolean); if (ps.length > 1 && ps.includes(p)) seq = ps } catch { /* the gallery's own order */ }
+  const o = wallOrder('paintings', p.slug)
+  if (o) { const ps = o.map((sl) => paintingBySlug(sl, PAINTINGS)).filter(Boolean); if (ps.length > 1) seq = ps }
   const i = seq.indexOf(p), others = seq.length > 1
   const prev = seq[(i + seq.length - 1) % seq.length], next = seq[(i + 1) % seq.length]
   const looks = p.looks || {}

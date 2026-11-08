@@ -111,6 +111,13 @@ export function kitchenNow({ today, preferences, rules, recipes = [], fridge = [
 // ---- Schemas for answers that come back as data ----------------------------------
 const obj = (properties, required = Object.keys(properties)) => ({ type: 'object', additionalProperties: false, required, properties })
 const str = { type: 'string' }, int = { type: 'integer' }, bool = { type: 'boolean' }
+/** What a piece is like, asked with every reading of one: its shape, what it shows, its moods, style and weather. */
+function LOOKS_OF() {
+  return {
+    shape: { type: 'string', enum: LOOK_SHAPES }, subjects: { type: 'array', items: str },
+    moods: { type: 'array', items: { type: 'string', enum: LOOK_MOODS } }, style: { type: 'string', enum: [...LOOK_STYLES, 'none'] }, weather: { type: 'string', enum: LOOK_WEATHERS },
+  }
+}
 const MEALS = ['dinner', 'breakfast', 'lunch', 'snack', 'dessert', 'other']
 
 export const IDEAS_SCHEMA = obj({ ideas: { type: 'array', items: obj({ title: str, line: str, meal: { type: 'string', enum: MEALS }, again: bool }) } })
@@ -129,10 +136,7 @@ export const LOOK_MOODS = ['cozy', 'calm', 'joyful', 'whimsical', 'spooky', 'dre
 export const LOOK_STYLES = ['realistic', 'impressionistic', 'abstract', 'folk', 'illustrative', 'psychedelic', 'minimal']
 export const LOOK_WEATHERS = ['sunny', 'rainy', 'snowy', 'stormy', 'misty', 'night', 'sunset', 'none']
 export const LOOK_SHAPES = ['rectangle', 'round', 'hexagon', 'octagon', 'triangle', 'diamond', 'arch', 'other']
-const LOOKS = {
-  shape: { type: 'string', enum: LOOK_SHAPES }, subjects: { type: 'array', items: str },
-  moods: { type: 'array', items: { type: 'string', enum: LOOK_MOODS } }, style: { type: 'string', enum: [...LOOK_STYLES, 'none'] }, weather: { type: 'string', enum: LOOK_WEATHERS },
-}
+const LOOKS = LOOKS_OF()
 export const PAINTING_SCHEMA = obj({
   signature: str, written: str, year: int, month: int, legible: { type: 'string', enum: ['clear', 'unsure', 'none'] }, title: str, medium: str,
   seasons: { type: 'array', items: { type: 'string', enum: Object.keys(PAINTING_SEASONS) } }, turn: int, ...LOOKS,
@@ -141,8 +145,11 @@ export const PAINTING_SCHEMA = obj({
 export const LOOK_SCHEMA = obj({ signature: str, written: str, year: int, month: int, legible: { type: 'string', enum: ['clear', 'unsure', 'none'] }, ...LOOKS })
 // The featured wall: a few of her paintings that hang together, for a few days
 export const FEATURE_SCHEMA = obj({ title: str, line: str, why: str, slugs: { type: 'array', items: str }, days: int })
-// Anna's drawing: a working title, whether it's about the pets, any day written on it, and whether it lies sideways
-export const DRAWING_SCHEMA = obj({ title: str, topic: { type: 'string', enum: ['pets', 'none'] }, written_date: str, turn: int })
+// Anna's drawing (or painting): a working title, whether it's about the pets, any day written on it, whether it lies
+// sideways, what it's made with, and what it's like (the same words as Laurie's: LOOKS, defined below)
+export const DRAWING_SCHEMA = obj({ title: str, topic: { type: 'string', enum: ['pets', 'none'] }, written_date: str, turn: int, medium: str, ...LOOKS_OF() })
+// One of hers already on the wall, looked at again: no title, no topic
+export const LOOK_DRAWING_SCHEMA = obj({ written_date: str, medium: str, ...LOOKS_OF() })
 export const GARDEN_SCHEMA = obj({
   plants: { type: 'array', items: obj({ name: str, confidence: { type: 'string', enum: ['low', 'medium', 'high'] } }) },
   health: { type: 'string', enum: ['thriving', 'fine', 'watch', 'trouble', 'unsure'] },
@@ -166,7 +173,11 @@ export const TASKS = {
   'photo-tags': { who: 'family', effort: 'low', maxTokens: 2000, schema: PHOTO_TAGS_SCHEMA, upload: true, says: 'the photo, the town it was taken in, and the titles of your cookbook and of the places on that town’s list' },
   // Reads only: the year by her signature and a working title, for a parent to check on screen (src/places/lifelist/AddPaintings.jsx)
   // Reads only: a working title, the topic and any day written on one of Anna's drawings, for whoever is adding it to check on screen (src/places/AddDrawings.jsx)
-  'read-drawing': { who: 'family', effort: 'low', maxTokens: 1500, schema: DRAWING_SCHEMA, upload: true, says: 'the cropped photo of her drawing; back come a working title, whether it is about the pets, and any day written on it' },
+  'read-drawing': { who: 'family', effort: 'low', maxTokens: 2000, schema: DRAWING_SCHEMA, upload: true, says: 'the cropped photo of her drawing; back come a working title, whether it is about the pets, any day written on it, what it’s made with, its shape, and what it shows and how it feels' },
+  // One of Anna's pieces already on her wall looked at again, for a parent to check on screen (Anna's Art, "Look over her art again")
+  'look-drawing': { who: 'parent', effort: 'low', maxTokens: 1500, schema: LOOK_DRAWING_SCHEMA, upload: true, says: 'one of her pieces; back come any day written on it, what it’s made with, its shape, and what it shows and how it feels' },
+  // Anna's Art's featured wall, chosen by itself every few days (src/places/Drawings.jsx): kept in gallery_features by the function
+  'feature-drawings': { who: 'family', effort: 'low', maxTokens: 3000, schema: FEATURE_SCHEMA, says: 'her pieces’ titles, the days she made them, mediums, colours, what they’re about and the words kept about each (never the pictures or her own words), today’s weather at home, the season, and the coming week’s concerts' },
   'read-painting': { who: 'parent', effort: 'medium', maxTokens: 4000, schema: PAINTING_SCHEMA, uploads: 5, says: 'the cropped photo of her painting, and its four corners enlarged; back come a working title, the year and any month by her signature, its medium and seasons, its canvas’s shape, and what it shows and how it feels' },
   // A painting already in her gallery looked at again, for a parent to check on screen (Admin, "Look over her gallery again")
   'look-painting': { who: 'parent', effort: 'low', maxTokens: 2500, schema: LOOK_SCHEMA, uploads: 5, says: 'her painting, and its four corners enlarged; back come any month (and year) by her signature, its canvas’s shape, and what it shows and how it feels' },
@@ -331,25 +342,31 @@ export function cleanFeatureContext(c = {}) {
   const list = (a, n, len) => (Array.isArray(a) ? a : []).map((x) => line1(x, len)).filter(Boolean).slice(0, n)
   return { today: /^\d{4}-\d{2}-\d{2}$/.test(String(c.today || '')) ? c.today : '', seasons: list(c.seasons, 4, 30), weather: line1(c.weather, 140), coming: list(c.coming, 8, 90), recent: list(c.recent, 12, 90) }
 }
-/** One painting as a line for Claude: its slug first, then only the facts the gallery keeps. */
+/** One painting (or piece of Anna's) as a line for Claude: its slug first, then only the facts the gallery keeps. */
 export function catalogLine(p) {
-  const bits = [line1(p.title, 80), p.year ? (p.month ? `${p.month}/${p.year}` : String(p.year)) : '', line1(p.medium, 40),
-    ...(['seasons', 'colours', 'feel', 'shows', 'moods'].map((k) => (Array.isArray(p[k]) && p[k].length ? `${k}: ${p[k].slice(0, 6).map((x) => line1(x, 30)).join(', ')}` : ''))),
+  const bits = [line1(p.title, 80), p.year ? (p.month ? `${p.month}/${p.year}` : String(p.year)) : '', line1(p.medium, 40), p.kind ? line1(p.kind, 12) : '',
+    ...(['seasons', 'about', 'colours', 'feel', 'shows', 'moods'].map((k) => (Array.isArray(p[k]) && p[k].length ? `${k}: ${p[k].slice(0, 6).map((x) => line1(x, 30)).join(', ')}` : ''))),
     p.style ? `style: ${line1(p.style, 20)}` : '', p.weather ? `weather: ${line1(p.weather, 20)}` : '', p.shape ? `shape: ${line1(p.shape, 20)}` : '']
   return `${line1(p.slug, 80)} | ${bits.filter(Boolean).join(' | ')}`
 }
-export function featureAsk({ catalog = [], context = {} }) {
+export function featureAsk({ catalog = [], context = {}, collection = 'paintings' }) {
   const c = cleanFeatureContext(context)
-  return `You choose the featured wall in Laurie's gallery, in her family's app: four to eight of her paintings that hang together for the next few days, so the family isn't always looking at the same ones. Make each wall feel chosen by a friend who knows her work: unique and a little charming.
+  const anna = collection === 'drawings'
+  const intro = anna
+    ? `You choose the featured wall in Anna's Art, in her family's app: four to eight pieces by Anna, their daughter (drawings and paintings both), that hang together for the next few days, the way a proud family rearranges the fridge, so they aren't always looking at the same ones. Make each wall feel chosen with love: playful, specific and a little charming.
 
-Ideas (surprise them; don't repeat a recent wall): paintings all from one year; one subject (cats, the sea, birds); a colour (blue-ish ones, warm golds); a mood (cozy ones, quiet ones, spooky ones); the weather at home right now (paintings for a rainy day when it's raining, sunny ones on a bright one, cool ones in a heat wave); the season or a feast day that's coming; a concert coming up on the family's calendar (colourful, psychedelic ones before a jam-band show); the time of year she painted them; one shape of canvas; a conversation between two paintings and the ones around them. Small, specific themes beat broad ones.
+Ideas (surprise them; don't repeat a recent wall): pieces all made in one year or one month; the pets; one subject (rainbows, houses, cats); a colour; drawings alone, or paintings alone; a mood (happy ones, silly ones, spooky ones); the weather at home right now (sunny ones on a bright day, cozy ones when it rains); the season or a holiday that's coming; a concert coming up on the family's calendar (the boldest, most colourful ones); one shape of paper. Small, specific themes beat broad ones. Never judge or rank her work, and never compare her with anyone.`
+    : `You choose the featured wall in Laurie's gallery, in her family's app: four to eight of her paintings that hang together for the next few days, so the family isn't always looking at the same ones. Make each wall feel chosen by a friend who knows her work: unique and a little charming.
+
+Ideas (surprise them; don't repeat a recent wall): paintings all from one year; one subject (cats, the sea, birds); a colour (blue-ish ones, warm golds); a mood (cozy ones, quiet ones, spooky ones); the weather at home right now (paintings for a rainy day when it's raining, sunny ones on a bright one, cool ones in a heat wave); the season or a feast day that's coming; a concert coming up on the family's calendar (colourful, psychedelic ones before a jam-band show); the time of year she painted them; one shape of canvas; a conversation between two paintings and the ones around them. Small, specific themes beat broad ones.`
+  return `${intro}
 
 Today is ${c.today || 'unknown'}.${c.seasons.length ? ` The season: ${c.seasons.join(', ')}.` : ''}${c.weather ? ` Weather at home now: ${c.weather}.` : ''}${c.coming.length ? `\nComing this week: ${c.coming.join('; ')}.` : ''}${c.recent.length ? `\nRecent walls (choose something different): ${c.recent.join('; ')}.` : ''}
 
-Her paintings, one a line (slug | title | year | medium | facts the family keeps):
+${anna ? 'Her pieces' : 'Her paintings'}, one a line (slug | title | ${anna ? 'month/year made' : 'year'} | medium | facts the family keeps):
 ${catalog.slice(0, 400).map(catalogLine).join('\n')}
 
-Choose only from those slugs, copied exactly, four to eight of them, in the order they should hang. Use only the facts given: never claim a painting shows something its line doesn't say. In title, a short, warm name for the wall (two to six words, no quotation marks), like "Paintings for a rainy day" or "Five from 2022". In line, one friendly sentence about them. In why, a few words on why today (the weather, the concert, the season), or empty. In days, how long it should hang: 2 to 4.`
+Choose only from those slugs, copied exactly, four to eight of them, in the order they should hang. Use only the facts given: never claim a ${anna ? 'piece' : 'painting'} shows something its line doesn't say. In title, a short, warm name for the wall (two to six words, no quotation marks), like ${anna ? '"Rainbow days" or "All about the cats"' : '"Paintings for a rainy day" or "Five from 2022"'}. In line, one friendly sentence about them. In why, a few words on why today (the weather, the concert, the season), or empty. In days, how long it should hang: 2 to 4.`
 }
 /** Claude's wall, checked before it's kept: known slugs only, each once, three to eight of them; words capped; two to four days. Null when it isn't a wall. */
 export function cleanFeature(result, slugs = []) {
@@ -374,6 +391,21 @@ export function drawingAsk({ titles = [], today }) {
 1. In title, give a working title: two to five words in sentence case, plain and warm, describing what the drawing shows, like "Three cats on the couch" or "A rainbow over the house". Describe what is drawn; do not take the names of people or pets from any writing on it. No quotation marks.${used.length ? ` Make it different from the titles so far: ${used.join('; ')}.` : ''}
 2. In topic, "pets" if the main subject is a pet animal (a cat, a dog, a rabbit and the like), otherwise "none".
 3. In written_date, if a date is written on the drawing, give it as YYYY-MM-DD (today is ${today}; a date is never in the future; if only a day and month are written, use this year, or last year if that would be in the future). Empty if no date is written. Read only what is written: never estimate a date from the style or anything else.
-4. In turn, if the drawing is shown sideways or upside down, the degrees clockwise to turn it upright: 90, 180 or 270. Otherwise 0.`
+4. In turn, if the drawing is shown sideways or upside down, the degrees clockwise to turn it upright: 90, 180 or 270. Otherwise 0.
+${ART_STEPS(5)}`
+}
+
+/** What one of Anna's pieces is made with and what it's like, asked with every reading of one, numbered from `n`. */
+const ART_STEPS = (n) => `${n}. In medium, what it's made with and on, plainly ("Crayon on paper", "Marker on paper", "Colored pencil on paper", "Watercolor on paper", "Acrylic on canvas"). Empty if you truly can't tell.
+${n + 1}. In shape, the shape of the paper or canvas itself, not of anything drawn on it: rectangle (a square counts), round (a circle or an oval), hexagon, octagon, triangle, diamond, arch (a rounded top), or other.
+${n + 2}. In subjects, up to six plain things it shows, lower case, singular where it makes sense ("cat", "rainbow", "house", "flower"). Never a person's or a pet's name, even one written on it, and only what you can see.
+${n + 3}. In moods, one to three of: ${LOOK_MOODS.join(', ')}. In style, one of: ${LOOK_STYLES.join(', ')}, or none. In weather, what weather or time of day it shows: ${LOOK_WEATHERS.join(', ')} (none when it shows no weather).`
+
+/** What Claude is asked about one of Anna's pieces already on her wall: only a written day, the medium, the shape and how it looks. */
+export function lookDrawingAsk({ today }) {
+  return `This is a photo of a drawing or painting by a child in the family, Anna.
+
+1. In written_date, if a date is written on it, give it as YYYY-MM-DD (today is ${today}; a date is never in the future; if only a day and month are written, use this year, or last year if that would be in the future). Empty if no date is written. Never estimate a date from the style or anything else.
+${ART_STEPS(2)}`
 }
 

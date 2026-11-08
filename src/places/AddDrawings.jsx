@@ -10,6 +10,8 @@ import { cleanDrawing, TOPICS } from '../lib/drawings.js'
 import { drawingsInbox } from '../lib/drawingInbox.js'
 import { useDrawingBatch } from './useDrawingBatch.js'
 import Cropper from './lifelist/Cropper.jsx'
+import LookWords from '../parts/LookWords.jsx'
+import { shapeName } from '../lib/shapes.js'
 import './lifelist/addpaintings.css'
 
 const TINT = '#D9739B'
@@ -44,6 +46,7 @@ export default function AddDrawings({ me, members = [], g, today }) {
       {b.syncError && <p className="ll-up-note span-6" role="alert">The family’s storage couldn’t be reached just now, so changes may not be saved: {b.syncError} <button type="button" className="ll-up-link" onClick={b.refresh}>Try again</button></p>}
       {!b.loaded && <p className="ll-up-note span-6" role="status">Looking for photos already waiting…</p>}
       {b.pause && <p className="ll-up-note span-6" role="status">Suggestions stopped: {b.pause} <button type="button" className="ll-up-link" onClick={b.resume}>Try again</button></p>}
+      {b.oldDb && <p className="ll-up-note span-6" role="status">Her art is being saved without its medium, shape, colours or fingerprint, because the database steps for them haven’t been run yet (20261108200000 and 20261108210000). Run them, and pieces added after that keep them.</p>}
 
       {b.loaded && !t.total && <Start read={b.read} setRead={b.setRead} add={b.add} />}
 
@@ -98,7 +101,7 @@ function ReadSwitch({ read, setRead }) {
   return (
     <label className="ll-up-check">
       <input type="checkbox" checked={read} onChange={(e) => setRead(e.target.checked)} />
-      <span><b>Have Claude suggest a title.</b> The cropped photo of each drawing goes to Claude (Anthropic), which suggests a working title, whether it’s about the pets, and any day written on it. It only looks at the photo; nothing is made from her drawing, and you check everything before it’s saved. Her own words are never guessed: they’re only what someone types in.</span>
+      <span><b>Have Claude suggest a title.</b> The cropped photo of each piece goes to Claude (Anthropic), which suggests a working title, whether it’s about the pets, any day written on it, what it’s made with, the shape of its paper, and a few words for what it shows and how it feels, for finding it on her wall. It only looks at the photo; nothing is made from her art, and you check everything before it’s saved. Her own words are never guessed: they’re only what someone types in.</span>
     </label>
   )
 }
@@ -125,6 +128,7 @@ function Review({ b, it, me, names, today, onSkip }) {
 
   const add = (e) => {
     e.preventDefault()
+    if (it.replace && !saved) { b.approve(it.id); return }
     const fields = cleanDrawing({ title: it.title, madeOn: it.madeOn, words: it.words, topic: it.topic }, today)
     if (fields.error) { setErr(fields.error); return }
     if (saved) { setErr(null); b.saveDetails(it.id); return }
@@ -154,21 +158,32 @@ function Review({ b, it, me, names, today, onSkip }) {
           <CropNote it={it} />
           {it.sending && <p className="ll-up-from">Sending it to the family’s storage, so another device can pick it up. You can carry on here.</p>}
           {it.sendError && <p className="err" role="alert">It couldn’t be sent to the family’s storage: {it.sendError} <button type="button" className="ll-up-link" onClick={() => b.resend(it.id)}>Try again</button></p>}
-          <Cropper src={url} W={it.W} H={it.H} crop={it.crop} auto={it.auto} what="drawing" onChange={(crop) => set({ crop })} />
+          <Cropper src={url} W={it.W} H={it.H} crop={it.crop} auto={it.auto} what="drawing" onChange={(crop) => set({ crop })} shape={it.shape} onShape={(shape) => set({ shape })} />
+          {from('shapeFrom', `Claude thinks its paper is ${it.shape ? shapeName(it.shape).toLowerCase() : 'a rectangle'}: check its outline fits.`)}
           <LookAlike b={b} it={it} onSkip={onSkip} />
         </>
+      )}
+      {it.crop && it.status === 'ready' && it.replace && (
+        <form className="form ll-up-form" onSubmit={add}>
+          <p>This photo goes in place of <b>{(b.alike[it.id] || []).find((x) => x.id === it.replace)?.title || 'that one'}</b>: its title, its day, her words and everything kept about it stay, and only the photo changes.</p>
+          {it.saveError && <p className="err" role="alert">It couldn’t be saved: {it.saveError}</p>}
+          <div className="form-actions">
+            <button type="submit" className="btn" disabled={!url}>{it.saveError ? 'Try again' : 'Looks right: put it in'}</button>
+            <button type="button" className="btn ghost" onClick={() => b.replaceWith(it.id, null)}>Don’t replace it</button>
+          </div>
+        </form>
       )}
       {it.crop && saved && !editing && (
         <div className="ll-up-done">
           {url && <span className="ll-up-mini"><img src={url} alt="" /></span>}
-          <p><b>{it.title}</b> is on her wall.</p>
-          <Link to={'/drawings/' + it.id}>See it</Link>
-          <button type="button" className="ll-up-link" onClick={() => b.editSaved(it.id, true)}>Change its details</button>
+          <p><b>{it.replace ? 'The new photo' : it.title}</b> is on her wall{it.replace ? ', in place of the old one' : ''}.</p>
+          <Link to={'/drawings/' + (it.replace || it.id)}>See it</Link>
+          {!it.replace && <button type="button" className="ll-up-link" onClick={() => b.editSaved(it.id, true)}>Change its details</button>}
         </div>
       )}
       {it.crop && it.status === 'saving' && <div className="ll-up-done">{url && <span className="ll-up-mini"><img src={url} alt="" /></span>}<p><b>{it.title}</b> is being hung up.</p></div>}
 
-      {it.crop && editing && (
+      {it.crop && editing && !(it.status === 'ready' && it.replace) && (
         <form className="form ll-up-form" onSubmit={add}>
           <label>Its title
             <input maxLength={120} value={it.title} placeholder={waiting ? 'Claude is suggesting one…' : 'What Anna calls it'} onChange={(e) => set({ title: e.target.value, titleFrom: null })} />
@@ -184,7 +199,10 @@ function Review({ b, it, me, names, today, onSkip }) {
           {waiting && !(it.touched && (it.touched.madeOn || it.touched.topic)) && <p className="ll-up-from">Claude is looking for a day written on it and what it’s about…</p>}
           {from('madeOnFrom', `The day written on it (“${(it.reading && it.reading.written) || ''}”): check it.`)}
           {from('topicFrom', 'Claude thinks it’s about the pets.')}
+          <label>Made with<input maxLength={80} value={it.medium || ''} placeholder={waiting ? 'Looking…' : 'Crayon on paper'} onChange={(e) => set({ medium: e.target.value, mediumFrom: null })} /></label>
+          {from('mediumFrom', 'Claude’s guess from the photo: check it.')}
           <label>In her words (only if she said some)<textarea rows={3} maxLength={1000} value={it.words || ''} onChange={(e) => set({ words: e.target.value })} placeholder="Exactly what she said, or leave it blank" /></label>
+          <LookWords looks={it.looks} onChange={(looks) => set({ looks })} what="her wall" />
           {it.read === 'failed' && <p className="ll-up-from">Claude couldn’t manage it: {it.readError} <button type="button" className="ll-up-link" onClick={() => b.readAgain(it.id)}>Try again</button></p>}
           {it.saveError && <p className="err" role="alert">It couldn’t be saved: {it.saveError}</p>}
           {err && <p className="err" role="alert">{err}</p>}
@@ -207,10 +225,10 @@ function Review({ b, it, me, names, today, onSkip }) {
   )
 }
 
-/** It looks like art already on her wall, or another photo here: leave it out, or add it anyway. */
+/** It looks like art already on her wall, or another photo here: leave it out, add it anyway, or put it in that one's place. */
 function LookAlike({ b, it, onSkip }) {
   const hits = b.alike[it.id]
-  if (!hits || !hits.length) return null
+  if (!hits || !hits.length || it.replace) return null
   if (it.dupOk) return <p className="ll-up-from">Adding it even though it looks like {hits[0].title || 'another'}. <button type="button" className="ll-up-link" onClick={() => b.dupOk(it.id, false)}>Undo</button></p>
   const top = hits[0]
   return (
@@ -219,6 +237,7 @@ function LookAlike({ b, it, onSkip }) {
         <p className="ll-up-flag">{top.where === 'gallery' ? <>This looks like <b>{top.title}</b>, already on her wall.</> : <>This looks like photo {top.n} in this batch.</>}</p>
         <div className="ll-dup-acts">
           <button type="button" className="ll-up-link" onClick={() => { b.skip(it.id); onSkip({ id: it.id, title: it.title }) }}>Leave this one out</button>
+          {top.where === 'gallery' && top.canReplace && <button type="button" className="ll-up-link" onClick={() => b.replaceWith(it.id, top.id)}>Put this photo in its place</button>}
           <button type="button" className="ll-up-link" onClick={() => b.dupOk(it.id)}>It’s a different one: add it</button>
         </div>
       </div>

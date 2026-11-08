@@ -46,3 +46,7 @@
 @media (pointer: coarse) { .ag-actions .btn, .ag-add .btn { min-height: 44px; } }
 html[data-motion="less"] .ag-paper { transition: none; }
 html[data-motion="less"] .ag-piece:hover .ag-paper { transform: rotate(var(--tilt, 0deg)); }
+
+/* A round, many-sided or pointed piece: no paper round it, its own shape (a clip of the picture), the tape still on top */
+.ag-paper.ag-shaped { padding: 0; background: transparent; box-shadow: none; }
+.ag-paper.ag-shaped img { box-shadow: none; }

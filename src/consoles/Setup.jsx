@@ -189,6 +189,11 @@ export default function Setup() {
         <Link to="/lifelist/paintings/look-again" className="btn ghost">Look over her gallery again</Link>
       </Card>
 
+      <Card tint="#D9739B" label="Anna’s Art: look it over again" glyph="star" className="span-6">
+        <p>The same for Anna’s pieces added before they kept what they’re made with, their shapes, colours and fingerprints: measured on this device, and Claude can suggest what each is made with, the shape of its paper, any day written on it, and a few words for what it shows and how it feels. Never her title or her own words; nothing changes until you tick it and save.</p>
+        <Link to="/drawings/look-again" className="btn ghost">Look over her art again</Link>
+      </Card>
+
       <Card tint="#8A5BC4" label="Still to come here" glyph="star" className="span-6">
         <ul className="coming">
           {REGISTRY.flatMap((p) => p.setup.filter((x) => !x.ready).map((x) => <li key={p.key + x.key}><b>{p.name}:</b> {x.title}</li>))}

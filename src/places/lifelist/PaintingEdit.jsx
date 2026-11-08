@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import { cleanTitle, cleanYear, cleanMedium, cleanSeasons, cleanMonth, MONTHS } from '../../lib/paintingBatch.js'
 import { SHAPES, cleanShape } from '../../lib/shapes.js'
-import { cleanLooks, MOODS, STYLES, WEATHERS } from '../../lib/gallery.js'
+import { cleanLooks } from '../../lib/gallery.js'
+import LookWords from '../../parts/LookWords.jsx'
 import { showFor } from '../../lib/seasonShows.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { writePainting } from './usePaintingBatch.js'
@@ -18,20 +19,6 @@ import './addpaintings.css'
 // canvas, and the words Claude saw in it included) and crop it again (where its original was kept). Each change is saved to its row (`.eq('slug')`):
 // nothing else of it is touched. A painting added before originals were kept can
 // have its details changed, but not its crop.
-/** Claude's words about it, kept for finding it in her gallery: each can be taken off with a tap. */
-function LookWords({ looks, onChange }) {
-  if (!looks) return null
-  const words = [...(looks.subjects || []).map((w) => ['subjects', w, w]), ...(looks.moods || []).map((w) => ['moods', w, (MOODS[w] || w).toLowerCase()]),
-    ...(looks.style ? [['style', looks.style, (STYLES[looks.style] || '').toLowerCase()]] : []), ...(looks.weather ? [['weather', looks.weather, (WEATHERS[looks.weather] || '').toLowerCase()]] : [])]
-  const drop = (k, w) => { const next = { ...looks, [k]: Array.isArray(looks[k]) ? looks[k].filter((x) => x !== w) : '' }; onChange(cleanLooks(next)) }
-  return (
-    <div className="ll-looks">
-      <span className="ll-looks-head">What Claude sees in it, for finding it in her gallery (tap one that’s wrong):</span>
-      <span className="ll-looks-row">{words.map(([k, w, label]) => <button key={k + w} type="button" className="ll-look" onClick={() => drop(k, w)} aria-label={`Take “${label}” off`}>{label} <span aria-hidden="true">×</span></button>)}</span>
-    </div>
-  )
-}
-
 export default function PaintingEdit({ painting: p, onSaved }) {
   const thisYear = Number(todayAtHome().slice(0, 4))
   const { list } = usePaintings()

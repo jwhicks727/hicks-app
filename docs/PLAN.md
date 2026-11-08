@@ -320,7 +320,14 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       send from her tablet and a parent finish at a computer. A drawing keeps its
       original, so it can be cropped again from its page.
 - [x] Called **Anna's Art** (2026-11-08), since she paints too; its address stays
-      `/drawings`. A photo that looks like one already on her wall is flagged as it's added.
+      `/drawings`. A photo that looks like one already on her wall is flagged as it's added:
+      leave it out, add it anyway, or put the new photo in its place.
+- [x] **The same wall as Laurie's** (2026-11-08): a featured wall of a few of her pieces
+      for a few days (Claude's, from their facts and never her words, or the app's own),
+      finding them by colour, mood, what they show, year, medium, drawn or painted, what
+      they're about and shape, and sorting them as a rainbow (`src/parts/ArtFinder.jsx`,
+      `src/lib/annasArt.js`). What each is made with, its shape and Claude's words are
+      suggested as it's added, and `/drawings/look-again` does it for the pieces already up.
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)

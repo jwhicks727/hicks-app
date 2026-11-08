@@ -5,7 +5,8 @@ import { drawingFiles } from '../lib/drawings.js'
 import { DRAWING_KEPT, DRAWING_SAVED } from '../lib/drawingBatch.js'
 import { fitInside, wholeCrop } from '../lib/paintingBatch.js'
 import { preparePhoto, paintingFiles } from './lifelist/paintingPhotos.js'
-import { missingColumn } from './lifelist/usePaintingBatch.js'
+import { writeDrawing } from './useDrawingBatch.js'
+import { cleanShape } from '../lib/shapes.js'
 
 // Cropping a drawing already on her wall again: its original photo (kept when it was added) comes up with the crop it
 // was saved with. Saving makes two new files with names of their own, points the drawing at them, and takes the old two
@@ -27,7 +28,7 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
         made = URL.createObjectURL(pic.view)
         const c = d.crop
         const crop = c ? fitInside({ turn: c.turn, angle: c.angle, cx: c.cx, cy: c.cy, w: c.w, h: c.h }, pic.W, pic.H) : wholeCrop(pic.W, pic.H)
-        if (live) setSt({ phase: 'ready', src: made, W: pic.W, H: pic.H, crop, blob })
+        if (live) setSt({ phase: 'ready', src: made, W: pic.W, H: pic.H, crop, blob, shape: cleanShape(d.shape) })
       } catch (e) {
         if (live) setSt({ phase: 'error', msg: (e && e.message) || 'Its photo couldn’t be opened.' })
       }
@@ -47,9 +48,9 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
         if (error) throw error
         added.push(path)
       }
-      const row = { path: names.path, thumb_path: names.thumb, width: f.w, height: f.h, crop: { ...st.crop, W: st.W, H: st.H }, print: f.print }
-      let { error } = await supabase.from('annas_drawings').update(row).eq('id', d.id)
-      if (error && missingColumn(error)) { const { print: _p, ...plain } = row; ({ error } = await supabase.from('annas_drawings').update(plain).eq('id', d.id)) }
+      const { error } = await writeDrawing((row) => supabase.from('annas_drawings').update(row).eq('id', d.id), {
+        path: names.path, thumb_path: names.thumb, width: f.w, height: f.h, crop: { ...st.crop, W: st.W, H: st.H }, print: f.print, palette: f.palette, shape: cleanShape(st.shape),
+      })
       if (error) throw error
       // The old two go (if this person may remove them; if not they're only left behind, never shown)
       await supabase.storage.from('drawings').remove(old.filter((p) => !added.includes(p))).catch(() => {})
@@ -70,7 +71,7 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
   )
   return (
     <div className="ll-recrop">
-      <Cropper src={st.src} W={st.W} H={st.H} crop={st.crop} auto={null} what="drawing" onChange={(crop) => setSt((s) => ({ ...s, crop }))} />
+      <Cropper src={st.src} W={st.W} H={st.H} crop={st.crop} auto={null} what="drawing" onChange={(crop) => setSt((s) => ({ ...s, crop }))} shape={st.shape} onShape={(shape) => setSt((s) => ({ ...s, shape }))} />
       {busy && <p className={busy === 'Saving…' ? 'muted' : 'err'} role="status">{busy}</p>}
       <div className="form-actions">
         <button type="button" className="btn" disabled={busy === 'Saving…'} onClick={save}>Save the new crop</button>
