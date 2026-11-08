@@ -1,0 +1,82 @@
+/* ============================================
+   Adding Laurie's paintings, many at once (AddPaintings.jsx, Cropper.jsx)
+   ============================================ */
+
+/* The crop: a dark lightbox (its own colours in both themes), the photo leaning under a level box */
+.ll-crop-wrap { display: grid; gap: 8px; min-width: 0; }
+.ll-crop { position: relative; overflow: hidden; height: clamp(220px, 58vh, 560px); min-height: 220px; background: #2A1E16; border-radius: var(--r-control); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: crosshair; }
+.ll-crop-photo { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+.ll-crop-box { position: absolute; pointer-events: none; box-shadow: 0 0 0 1.5px #FFF8EE, 0 0 0 2.5px rgba(20, 14, 10, .5), 0 0 0 9999px rgba(20, 14, 10, .58); }
+.ll-crop.dragging .ll-crop-box {
+  background:
+    linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255, 248, 238, .45) 0 calc(33.33% + .5px), transparent 0 calc(66.67% - .5px), rgba(255, 248, 238, .45) 0 calc(66.67% + .5px), transparent 0),
+    linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255, 248, 238, .45) 0 calc(33.33% + .5px), transparent 0 calc(66.67% - .5px), rgba(255, 248, 238, .45) 0 calc(66.67% + .5px), transparent 0);
+}
+/* Handles: a full 44 px to touch, a small cream mark to see */
+.ll-crop-h { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; pointer-events: auto; touch-action: none; border-radius: 50%; }
+.ll-crop-h::after { content: ""; position: absolute; border: 0 solid #FFF8EE; filter: drop-shadow(0 0 1px rgba(20, 14, 10, .8)); }
+.ll-crop-h:focus-visible { outline: 3px solid #FFF8EE; outline-offset: -8px; }
+.ll-crop-nw { left: 0; top: 0; cursor: nwse-resize; } .ll-crop-se { left: 100%; top: 100%; cursor: nwse-resize; }
+.ll-crop-ne { left: 100%; top: 0; cursor: nesw-resize; } .ll-crop-sw { left: 0; top: 100%; cursor: nesw-resize; }
+.ll-crop-n { left: 50%; top: 0; cursor: ns-resize; } .ll-crop-s { left: 50%; top: 100%; cursor: ns-resize; }
+.ll-crop-e { left: 100%; top: 50%; cursor: ew-resize; } .ll-crop-w { left: 0; top: 50%; cursor: ew-resize; }
+.ll-crop-nw::after, .ll-crop-ne::after, .ll-crop-se::after, .ll-crop-sw::after { width: 16px; height: 16px; }
+.ll-crop-nw::after { left: 20px; top: 20px; border-left-width: 4px; border-top-width: 4px; }
+.ll-crop-ne::after { right: 20px; top: 20px; border-right-width: 4px; border-top-width: 4px; }
+.ll-crop-se::after { right: 20px; bottom: 20px; border-right-width: 4px; border-bottom-width: 4px; }
+.ll-crop-sw::after { left: 20px; bottom: 20px; border-left-width: 4px; border-bottom-width: 4px; }
+.ll-crop-n::after, .ll-crop-s::after { left: 11px; width: 22px; top: 20px; border-top-width: 4px; }
+.ll-crop-e::after, .ll-crop-w::after { top: 11px; height: 22px; left: 20px; border-left-width: 4px; }
+.ll-crop-how { margin: 0; color: var(--muted); font-size: 13px; font-weight: 700; }
+.ll-crop-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ll-crop-b { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+.ll-crop-b svg { width: 22px; height: 22px; }
+.ll-crop-b:hover, .ll-crop-b:focus-visible { background: color-mix(in srgb, #C0824F 14%, var(--card)); }
+.ll-crop-lean { flex: 1 1 200px; min-width: 0; display: flex; align-items: center; gap: 8px; font-weight: 750; font-size: 14px; min-height: 44px; }
+.ll-crop-lean input { flex: 1; min-width: 0; accent-color: var(--steady); height: 44px; }
+.ll-crop-lean output { white-space: nowrap; min-width: 5ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* One photo to check */
+.ll-up-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.ll-up-head b { font-family: var(--font-display); font-weight: 400; font-size: 20px; white-space: nowrap; }
+.ll-up-state { color: var(--muted); font-weight: 800; font-size: 13px; white-space: nowrap; }
+.ll-up-from { margin: -6px 0 0; color: var(--muted); font-size: 13px; font-weight: 700; }
+.ll-up-head + .ll-up-from, .ll-up-head + .ll-up-flag { margin-top: 0; }
+.ll-up-flag { color: color-mix(in srgb, #B86B12 82%, var(--ink)); font-weight: 800; }
+.ll-up-form { gap: 12px; }
+.ll-up { scroll-margin-top: 64px; }
+.ll-up-ym { grid-template-columns: minmax(5.5em, .6fr) minmax(0, 2fr); }
+.ll-up-check { display: flex; align-items: flex-start; gap: 10px; font-weight: 600; line-height: 1.4; cursor: pointer; }
+.ll-up-check input { flex: none; width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--steady); }
+.form .ll-up-check { display: flex; font-size: 14px; font-weight: 700; }
+.form .ll-up-check input { width: 22px; min-height: 0; height: 22px; padding: 0; }
+.ll-up-check.small { margin-top: -4px; min-height: 32px; align-items: center; }
+.ll-up-seasons button { min-height: 40px; padding: 0 12px; }
+@media (pointer: coarse) { .ll-up-seasons button { min-height: 44px; } }
+.ll-up-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--ink); font: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.ll-up-from .ll-up-link, .ll-up-note .ll-up-link { min-height: 32px; }
+@media (pointer: coarse) { .ll-up-from .ll-up-link, .ll-up-note .ll-up-link { min-height: 44px; } }
+.ll-up-step { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 4px; }
+.ll-up-wait { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 200px; border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 6%, var(--card)); font-weight: 750; }
+.ll-up-failed { display: grid; gap: 8px; }
+.ll-up-done { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ll-up-done p { margin: 0; flex: 1 1 180px; }
+.ll-up-done a { font-weight: 800; min-height: 44px; display: inline-flex; align-items: center; }
+.ll-up-mini { flex: none; display: block; width: 72px; height: 72px; padding: 4px; background: linear-gradient(145deg, #5A4030, #2B1D14 60%, #3E2C20); border-radius: 2px; }
+.ll-up-mini img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ll-up-note { margin: 0; padding: 10px 14px; border-radius: var(--r-card); background: var(--card); color: var(--ink); font-weight: 700; box-shadow: 0 6px 16px -10px rgba(40, 20, 10, .5); }
+
+/* The batch, small, to jump about in: it scrolls on its own, never the page */
+.ll-up-strip { display: flex; gap: 8px; overflow-x: auto; overscroll-behavior-x: contain; padding: 8px; border-radius: var(--r-card); background: color-mix(in srgb, var(--card) 88%, transparent); scrollbar-width: thin; }
+.ll-up-thumb { position: relative; flex: none; width: 64px; height: 64px; padding: 0; border: 2px solid var(--line); border-radius: var(--r-control); background: color-mix(in srgb, var(--ink) 8%, var(--card)); overflow: hidden; cursor: pointer; }
+.ll-up-thumb img, .ll-up-blank { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ll-up-thumb.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--ink); }
+.ll-up-thumb.unsure { border-color: #D08A1E; }
+.ll-up-thumb.skipped img { opacity: .4; }
+.ll-up-thumb.saving img { opacity: .7; }
+.ll-up-thumb:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.ll-up-badge:empty { display: none; }
+.ll-up-badge { position: absolute; right: 2px; bottom: 2px; min-width: 20px; height: 20px; padding: 0 4px; display: grid; place-items: center; border-radius: 3px; font-size: 13px; font-weight: 900; color: var(--on-colour); background: #1C1B1A; }
+.ll-up-thumb.added .ll-up-badge { background: #4E6C3D; }
+.ll-up-thumb.failed .ll-up-badge { background: #B3401A; }
+.ll-up-thumb.unsure::after { content: ""; position: absolute; right: 4px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #D08A1E; box-shadow: 0 0 0 2px var(--card); }

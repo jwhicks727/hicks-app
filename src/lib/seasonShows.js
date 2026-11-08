@@ -10,7 +10,7 @@
 // A season with none of her paintings yet has no show; it waits for one.
 // Pure, so tests run it in Node.
 
-import { paintingBySlug, PAINTINGS } from './paintings.js'
+import { paintingBySlug, paintingFor, PAINTINGS } from './paintings.js'
 import { seeded } from './scenes.js'
 
 export const SHOWS = {
@@ -39,6 +39,16 @@ export function showFor(key, list = PAINTINGS) {
   const use = mine.length ? mine : [s.fallback && has(s.fallback)].filter(Boolean)
   if (!use.length) return null
   return { key, ...s, painting: use[0], sheets: use.map(sheetOf) }
+}
+
+/**
+ * The painting Home hangs in a season: the one its show plays from, when it has one (every season's show
+ * starts in the art on Home, so a newer painting of the same season never takes its frame), else her
+ * newest of that season, else her newest.
+ */
+export function homePainting(key, list = PAINTINGS) {
+  const show = showFor(key, list)
+  return (show && show.painting) || paintingFor(key, list)
 }
 
 /** How many leaves rest along the top edge. */

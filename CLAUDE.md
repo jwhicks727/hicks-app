@@ -150,7 +150,9 @@ licence nobody wrote down.
   measured by `scripts/leaf-origins.py`), then lets them settle on the cards. A new
   season's show finds its own motion rather than reusing another's, uses only real
   data (no stand-in wind), and never alters her painting: what moves is a copy of
-  her pixels, over a painting that stays whole (`tests/wind.test.mjs`).
+  her pixels, over a painting that stays whole (`tests/wind.test.mjs`). Home
+  hangs the painting the season's show plays from (`homePainting`), so a newer
+  painting of the same season never takes its frame.
 - **The swirling light** (`GlowWrap` in `src/ui/Glow.jsx`) is for
   occasions, and only ever round the occasion's own card, never the whole
   screen: a concert's event card, the family day's celebration card, the
@@ -200,8 +202,18 @@ licence nobody wrote down.
   them, never alter them. A bird that flies out of one is a cut-out over
   her own sky (`scripts/lift-art.py`), and at rest the painting itself is
   shown. Never put one through an image generator. Her title, year and
-  medium come from her, never guessed (`src/lib/paintings.js`,
-  `tests/paintings.test.mjs`).
+  medium are hers, or a parent's word on them, never guessed from the style:
+  when paintings are added (`src/places/lifelist/AddPaintings.jsx`), Claude reads
+  the year she wrote by her signature and suggests a working title (always
+  `named: false`), the medium and the seasons, each shown with where it came
+  from for Jason or Laurie to confirm or change before it's saved; Claude only
+  reads the photo, and makes nothing from it (decisions log, 2026-11-07;
+  `src/lib/paintings.js`, `tests/paintings.test.mjs`,
+  `tests/painting-batch.test.mjs`). The crop and the straightening are worked
+  out on the phone (`src/lib/autocrop.js`, `src/lib/paintingBatch.js`): only
+  cropped, turned and shrunk, never altered. A painting's original photo is kept
+  behind sign-in at `<slug>/original.jpg`, with its crop (`paintings.original`, `crop`),
+  so a parent can crop it again from its page (`src/places/lifelist/RecropPainting.jsx`).
 - **Anna's drawings are hers, and private** (`src/places/Drawings.jsx`): they live
   in the private `drawings` bucket and are read through signed links, never in
   `public/` or `src/` (anything in the built app can be opened by anyone with the
@@ -268,7 +280,12 @@ licence nobody wrote down.
   background, so anything someone types into, or that takes more than one
   tap (a cook check, a new source), keeps its draft on the device until it's
   finished or cancelled (`useDraft`, `src/lib/useDraft.js`; drafts are
-  cleared on sign-out).
+  cleared on sign-out). A batch of Laurie's paintings waiting to be added is not
+  kept on a device at all: it waits in the family's storage (`painting_inbox` and
+  `inbox/<id>/` in the private `paintings` bucket, `src/lib/inboxStore.js`), parents
+  only, so it survives the app closing and can be picked up on another device (send
+  from a phone, crop on a computer). A device keeps only a small draft of which
+  photo it was on.
 
 ## The database (Supabase)
 
