@@ -92,7 +92,14 @@ and write the code fresh. SOAR's code belongs to the school.
   accuracy, at most every ten minutes. The reading is rounded to about a kilometre
   (`roundPoint`) before it is kept or sent anywhere, kept only on the device, one at a
   time, forgotten after six hours and on sign-out. No history of where anyone has been,
-  ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep.
+  ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep. The one
+  exception is the **recap** (`src/lib/stay.js`, `tests/stay.test.mjs`, decisions log
+  2026-11-08): this phone remembers the town and the first and last day of a stay away, for
+  a week, on the device only, so Home can offer to add what was missed; never a point or a
+  path, and gone on sign-out and when location is switched off.
+- Whatever someone records must not vanish: a save that fails waits on the phone and is
+  sent again (`addBeenOrQueue`), and a real problem is shown on the form in words, never
+  only in a toast.
 - The family sees which **town** each of us is in while away (Jason, "full
   transparency"): `member_whereabouts`, one row a person written only by its owner's
   phone, a tenth of a degree, lapsing in twelve hours, removed at home, when switched

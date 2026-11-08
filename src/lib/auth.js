@@ -3,6 +3,7 @@ import { supabase } from './supabase.js'
 import { clearDrafts } from './useDraft.js'
 import { forgetHere } from './useHere.js'
 import { unshareHere } from './useWhereabouts.js'
+import { clearStays, clearOutbox } from './stayStore.js'
 
 /** The signed-in session, or null; `undefined` while it's still being read. */
 export function useSession() {
@@ -40,6 +41,8 @@ export function signInWithCode(email, token) {
 export async function signOut() {
   clearDrafts()
   forgetHere()
+  clearStays()
+  clearOutbox()
   await unshareHere()
   return supabase.auth.signOut()
 }

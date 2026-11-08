@@ -1,5 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import { readPrefs } from './prefs.js'
+import { clearStays } from './stayStore.js'
 import { READ_EVERY_MS, KEEP_MS, roundPoint, cellOf, validPoint, tierFor, ourPlaceAt, townUrl, shapeTown, deviceZone } from './here.js'
 
 // ============================================
@@ -92,7 +93,7 @@ export function readHere() {
 
 let users = 0
 let stopAll = null
-const switchedOff = () => { try { localStorage.removeItem(KEY); localStorage.removeItem(TOWNS) } catch { /* fine */ } state = blank; emit() }
+const switchedOff = () => { try { localStorage.removeItem(KEY); localStorage.removeItem(TOWNS) } catch { /* fine */ } clearStays(); state = blank; emit() }
 function sync() {
   if (!isOn()) { if (state.status !== 'off' || read(KEY)) switchedOff(); return }
   if (state.status === 'denied') return // the phone said no: asked again only from Settings, or after switching off and on

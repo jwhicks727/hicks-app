@@ -392,6 +392,15 @@ and the phases are in issue #19; what's built is ticked here.
       the guide marks places we've been ("♥ Loved · 3×", "Not again")
       (`been_towns`, `been_places`, `been_visits`; `src/lib/been.js`). Unverified live
       until migration 20261107234000 runs.
+- [x] **A stay's recap, and saves that wait** (2026-11-08, Jason's ask after a day in
+      Temecula, where two places didn't save because their tables weren't there yet):
+      after a stay away, Home shows a card named for the town ("Temecula", Nov 7) for a
+      week or until put away, with the places added so far to rate and note, "Add places
+      we went" (one a line, many at once, for any day of the stay), "Keep it as a trip"
+      for a parent, and "Not for the scrapbook: put it away" with an Undo. A place that
+      can't be saved (no signal, a hiccup) waits on the phone, shows as "waiting to be
+      sent" with Send now, and is sent again by itself; a real problem stays on the
+      form in words with what was typed kept (`src/lib/stay.js`, `Recap.jsx`).
 - [ ] Still to come: road-trip bingo and "along the way" (they need the route), the
       weather we had in a scrapbook, Anna's drawings shown in it (a link for now),
       Openverse and Park Service photos, Caltrans chain controls read live, and shows near

@@ -38,6 +38,8 @@ import { hourIn, clockIn } from '../lib/here.js'
 import { WeatherHere, HereNowLine, TripAhead, whereWords } from '../parts/HereCards.jsx'
 import AroundCard from '../parts/AroundCard.jsx'
 import { BeenHereCard } from './yonder/Been.jsx'
+import RecapCards from './yonder/Recap.jsx'
+import { useRememberStay, useOutboxFlush } from '../lib/useStay.js'
 import { FamilyAway, MassNearHere, ParkNear, KeepTrip } from '../parts/FamilyTrips.jsx'
 import { ShareHere } from '../lib/useWhereabouts.js'
 import { PostcardForm, PrayerForTheRoad, TwoSkies, AbroadCard, SnowHere, ZoneShift, YearAgoTrips } from '../parts/TravelBits.jsx'
@@ -70,6 +72,8 @@ function HomeScreen() {
   // Away from home ground (Settings › Notice where I am), the greeting, the
   // date, the sun and the clock are where we are; the lists keep home's day.
   const here = useHere()
+  useRememberStay(here, today) // the town and the days of a stay away, for the recap (this phone only)
+  useOutboxFlush(session) // places that couldn't be saved yet are sent again
   const out = here.point && (here.tier === 'near' || here.tier === 'away')
   const at = out ? here.point : HOME_TOWN, tz = (out && here.tz) || HOME_TOWN.tz
   const where = out ? whereWords(here) : ''
@@ -92,6 +96,7 @@ function HomeScreen() {
       <AcademyCard session={session} me={me} today={today} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
       <ShareHere here={here} me={me} />
+      <RecapCards here={here} me={me} today={today} />
       <SnowHere here={here} />
       <ZoneShift here={here} />
       <PrayerForTheRoad trip={tripsAhead(events, today, 0).find((t) => t.inDays === 0)} hour={hour} />

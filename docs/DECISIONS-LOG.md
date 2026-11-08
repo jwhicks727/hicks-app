@@ -6,6 +6,29 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — A stay's recap on Home, and what we record never vanishes
+
+Jason, tired after a day in Temecula and then home: two places he'd added didn't save
+(the lists' tables hadn't been created yet, and the only sign was a toast that vanishes),
+and he wants to go back at leisure rather than do it all on the trip. Decided:
+
+- **A recap card, named for the town**, appears on Home after a stay away, for a week
+  or until put away ("Not for the scrapbook"), with the places so far, a box to add many
+  at once (one a line, any day of the stay), and "Keep it as a trip" for a parent.
+- **A save that fails is never lost.** A place that can't be sent waits on the phone,
+  says so ("saved on this phone, waiting to be sent"), and is sent again when the app
+  opens, when the phone is back online and every few minutes. A real problem (no name)
+  stays on the form, in words, with what was typed kept; it is no longer a toast.
+- **This changes one privacy rule, on purpose.** The position is still forgotten after six
+  hours, but the phone now also remembers, for the recap, the **town and the first and
+  last day of a stay away**: never a point, never a path, on this device only, for a week
+  after the last day, gone on sign-out and when Notice where I am is switched off. It
+  isn't a trip and reaches the database only when someone adds something. Settings says
+  so, and the card says so. (This refines "no history of where anyone has been": it is
+  one town and its days, remembered for a week, because Jason asked for the card.)
+
+---
+
 ## 2026-11-07 — Our list for each town we keep going back to
 
 Jason, on a day trip in Temecula: for places we go to many times, keep a list of the

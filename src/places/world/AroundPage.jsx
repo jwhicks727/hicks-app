@@ -21,7 +21,7 @@ import { HOME_TOWN } from '../../lib/sky.js'
 import { Toast } from '../../ui/Toast.jsx'
 import { Link } from '../../shell/Link.jsx'
 import { BeenBadge, BeenButton, useTownList } from '../yonder/Been.jsx'
-import { addBeen } from '../../lib/useBeen.js'
+import { addBeenOrQueue } from '../../lib/useStay.js'
 import { matchBeen } from '../../lib/been.js'
 import './around.css'
 
@@ -151,7 +151,7 @@ function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes
     const { data, error } = await tickHike({ name: item.name.slice(0, 100), miles, climb_ft: item.hike && item.hike.climb ? Math.round(item.hike.climb) : null, on_date: today, town: (item.town || town || '').slice(0, 120) || null })
     if (error) { setToast({ text: 'It couldn’t be ticked just now.', undo: () => setToast(null) }); return }
     hikes.reload(); if (best) setGleam(true)
-    if (beenTown && !matchBeen(item.name, beenList)) addBeen(beenTown, { name: item.name, kind: 'hike', website: item.website || '' }, today) // a hike done joins the town's list
+    if (beenTown && !matchBeen(item.name, beenList)) addBeenOrQueue(beenTown, { name: item.name, kind: 'hike', website: item.website || '' }, today) // a hike done joins the town's list
     setToast({ text: best ? `Ticked off: ${miles} miles, the longest hike any of us has done.` : 'Ticked off, in the trip’s scrapbook.', undo: async () => { await untickHike(data.id); hikes.reload(); setGleam(false); setToast(null) } })
   }
   const toggleHeart = async () => {

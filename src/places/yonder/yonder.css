@@ -113,3 +113,10 @@ html[data-motion="less"] .yo-snow { display: none; }
 .yo-been-badge.not-again { background: color-mix(in srgb, #8A5A33 18%, var(--card)); color: color-mix(in srgb, #8A5A33 85%, var(--ink)); }
 .yo-been-here { margin-top: 6px; }
 .ar-tile-badge { padding: 0 10px; margin-top: -2px; }
+
+/* A stay's recap on Home (src/places/yonder/Recap.jsx) */
+.yo-recap { gap: 12px; }
+.yo-recap-wait { margin: 0; padding: 10px 12px; border-radius: var(--r-control); background: color-mix(in srgb, #C9863F 14%, var(--card)); border: 1px solid var(--line); font-weight: 700; overflow-wrap: anywhere; }
+.yo-linklike { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; color: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; }
+.yo-field textarea { width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; resize: vertical; }
+.yo-field select { min-height: 44px; max-width: 100%; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; }
