@@ -127,6 +127,8 @@ export const PAINTING_SCHEMA = obj({
   signature: str, written: str, year: int, legible: { type: 'string', enum: ['clear', 'unsure', 'none'] }, title: str, medium: str,
   seasons: { type: 'array', items: { type: 'string', enum: Object.keys(PAINTING_SEASONS) } }, turn: int,
 })
+// Anna's drawing: a working title, whether it's about the pets, any day written on it, and whether it lies sideways
+export const DRAWING_SCHEMA = obj({ title: str, topic: { type: 'string', enum: ['pets', 'none'] }, written_date: str, turn: int })
 export const GARDEN_SCHEMA = obj({
   plants: { type: 'array', items: obj({ name: str, confidence: { type: 'string', enum: ['low', 'medium', 'high'] } }) },
   health: { type: 'string', enum: ['thriving', 'fine', 'watch', 'trouble', 'unsure'] },
@@ -149,6 +151,8 @@ export const TASKS = {
   // A trip photo's tags: the photo, the town, and the titles of the cookbook and of the places on that town's list; never a person
   'photo-tags': { who: 'family', effort: 'low', maxTokens: 2000, schema: PHOTO_TAGS_SCHEMA, upload: true, says: 'the photo, the town it was taken in, and the titles of your cookbook and of the places on that town’s list' },
   // Reads only: the year by her signature and a working title, for a parent to check on screen (src/places/lifelist/AddPaintings.jsx)
+  // Reads only: a working title, the topic and any day written on one of Anna's drawings, for whoever is adding it to check on screen (src/places/AddDrawings.jsx)
+  'read-drawing': { who: 'family', effort: 'low', maxTokens: 1500, schema: DRAWING_SCHEMA, upload: true, says: 'the cropped photo of her drawing; back come a working title, whether it is about the pets, and any day written on it' },
   'read-painting': { who: 'parent', effort: 'medium', maxTokens: 4000, schema: PAINTING_SCHEMA, uploads: 5, says: 'the cropped photo of her painting, and its four corners enlarged; back come a working title, the year by her signature, its medium and seasons' },
   // What's around here (supabase/functions/_shared/around.js): written by itself when one of us is away or a trip is coming
   'around-here': { who: 'family', effort: 'medium', maxTokens: 16000, says: 'the town you’re in, the area to about ten kilometres, and the family’s interests from Settings' },
@@ -289,3 +293,16 @@ export function paintingAsk({ titles = [], year }) {
 export function paintingContent(files, ask) {
   return [...files.slice(0, PAINTING_PARTS.length).flatMap((f, i) => [{ type: 'text', text: PAINTING_PARTS[i] }, uploadBlock(f)]), { type: 'text', text: ask }]
 }
+
+// ---- Anna's drawings: a working title, the topic, and any day written on it ---------------
+/** What Claude is asked about a drawing. Her words are never asked for: they're what she said, not what a picture shows. */
+export function drawingAsk({ titles = [], today }) {
+  const used = (Array.isArray(titles) ? titles : []).map((t) => String(t).replace(/\s+/g, ' ').trim().slice(0, 80)).filter(Boolean).slice(0, 200)
+  return `This is a photo of a drawing by a child in the family, Anna.
+
+1. In title, give a working title: two to five words in sentence case, plain and warm, describing what the drawing shows, like "Three cats on the couch" or "A rainbow over the house". Describe what is drawn; do not take the names of people or pets from any writing on it. No quotation marks.${used.length ? ` Make it different from the titles so far: ${used.join('; ')}.` : ''}
+2. In topic, "pets" if the main subject is a pet animal (a cat, a dog, a rabbit and the like), otherwise "none".
+3. In written_date, if a date is written on the drawing, give it as YYYY-MM-DD (today is ${today}; a date is never in the future; if only a day and month are written, use this year, or last year if that would be in the future). Empty if no date is written. Read only what is written: never estimate a date from the style or anything else.
+4. In turn, if the drawing is shown sideways or upside down, the degrees clockwise to turn it upright: 90, 180 or 270. Otherwise 0.`
+}
+

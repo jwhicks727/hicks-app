@@ -293,7 +293,7 @@ export function takenSlugs(gallery = [], bundled = [], items = [], except) {
 export const SYNCED = ['id', 'seq', 'name', 'status', 'read', 'readAt', 'readError', 'title', 'named', 'year', 'yearFrom', 'medium', 'mediumFrom', 'seasons', 'seasonsFrom', 'touched', 'reading', 'W', 'H', 'crop', 'auto', 'sure', 'kind', 'slug', 'saveError', 'savingAt', 'error']
 const DEVICE_ONLY = ['editing']
 /** A photo as its row keeps it: only the synced parts, always in the same order, so two copies compare as text. */
-export const inboxData = (item) => Object.fromEntries(SYNCED.filter((k) => item[k] !== undefined).map((k) => [k, item[k]]))
+export const inboxData = (item, keys = SYNCED) => Object.fromEntries(keys.filter((k) => item[k] !== undefined).map((k) => [k, item[k]]))
 /** Where one of a waiting photo's pictures is in the private `paintings` bucket. */
 export const inboxPath = (id, name) => `inbox/${id}/${name}.jpg`
 /** A fresh id for a photo (a uuid: it is the row's key and its folder in the bucket). */
