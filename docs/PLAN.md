@@ -400,7 +400,9 @@ and the phases are in issue #19; what's built is ticked here.
       for a parent, and "Not for the scrapbook: put it away" with an Undo. A place that
       can't be saved (no signal, a hiccup) waits on the phone, shows as "waiting to be
       sent" with Send now, and is sent again by itself; a real problem stays on the
-      form in words with what was typed kept (`src/lib/stay.js`, `Recap.jsx`).
+      form in words with what was typed kept (`src/lib/stay.js`, `Recap.jsx`). For a trip
+      the phone didn't see, "Start a recap for a recent trip" in the travel app takes a
+      town and days from the last week and puts the same card on Home.
 - [ ] Still to come: road-trip bingo and "along the way" (they need the route), the
       weather we had in a scrapbook, Anna's drawings shown in it (a link for now),
       Openverse and Park Service photos, Caltrans chain controls read live, and shows near

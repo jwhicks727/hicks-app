@@ -6,7 +6,10 @@ import { useSession } from '../../lib/auth.js'
 import { useDraft } from '../../lib/useDraft.js'
 import { useOutings, saveOuting } from '../../lib/useLife.js'
 import { useStay, addBeenOrQueue, flushOutbox } from '../../lib/useStay.js'
-import { recaps, stayId, stayWords, queuedFor, parseLines } from '../../lib/stay.js'
+import { recaps, stayId, stayWords, queuedFor, parseLines, manualStay, withStay } from '../../lib/stay.js'
+import { readStays, writeStays } from '../../lib/stayStore.js'
+import { todayAt } from '../../lib/cal/dates.js'
+import { HOME_TOWN } from '../../lib/sky.js'
 import { KINDS, KIND_ORDER, KIND_ONE, townOf, visitedBetween, norm } from '../../lib/been.js'
 import { addDays } from '../../lib/cal/dates.js'
 import { placeWords } from '../../lib/here.js'
@@ -117,3 +120,43 @@ function Recap({ stay, me, session }) {
     </Card>
   )
 }
+
+/**
+ * "Start a recap": for a trip the phone didn't see (it wasn't watching, or location was off), so
+ * what happened can still be added within the week. The town and the days are typed; it puts the
+ * same recap card on Home. Kept as a draft until started.
+ */
+export function StartRecap({ onStarted }) {
+  const today = todayAt(HOME_TOWN.tz)
+  const [d, setD, clear] = useDraft('recap.start', { town: '', region: '', from: today, last: today })
+  const [open, setOpen] = useState(false), [err, setErr] = useState(null), [toast, setToast] = useState(null)
+  const start = (e) => {
+    e.preventDefault()
+    const r = manualStay(d, today)
+    if (r.error) { setErr(r.error); return }
+    writeStays(withStay(readStays(), r.stay))
+    clear(); setErr(null); setOpen(false)
+    setToast({ text: `${r.stay.town}’s recap is on Home.`, undo: () => { writeStays(readStays().filter((s) => stayId(s) !== stayId(r.stay))); setToast(null) } })
+    if (onStarted) onStarted(r.stay)
+  }
+  return (
+    <div className="yo-start">
+      {open ? (
+        <form className="yo-been-add" onSubmit={start}>
+          <p className="muted small">For a trip you took without the app watching, in the last week. It puts the trip’s recap on Home, where you can add places and photos.</p>
+          <label className="yo-field">Town<input value={d.town} onChange={(e) => setD({ ...d, town: e.target.value })} placeholder="Temecula" maxLength={120} /></label>
+          <label className="yo-field">State or country (if it helps)<input value={d.region} onChange={(e) => setD({ ...d, region: e.target.value })} placeholder="California" maxLength={60} /></label>
+          <label className="yo-field">First day<input type="date" value={d.from} max={today} onChange={(e) => setD({ ...d, from: e.target.value, last: d.last < e.target.value ? e.target.value : d.last })} /></label>
+          <label className="yo-field">Last day<input type="date" value={d.last} min={d.from} max={today} onChange={(e) => setD({ ...d, last: e.target.value })} /></label>
+          <div className="form-actions">
+            <button type="submit" className="btn" disabled={!d.town.trim()}>Start the recap</button>
+            <button type="button" className="btn ghost" onClick={() => setOpen(false)}>Close</button>
+          </div>
+          {err && <p className="err" role="alert">{err}</p>}
+        </form>
+      ) : <button type="button" className="btn ghost" onClick={() => setOpen(true)}>+ Start a recap for a recent trip</button>}
+      {toast && <Toast action="Undo" onAction={toast.undo} onClose={() => setToast(null)}>{toast.text}</Toast>}
+    </div>
+  )
+}
+

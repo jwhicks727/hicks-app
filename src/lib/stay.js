@@ -47,6 +47,27 @@ export function updateStays(stays, here, today) {
 export function recaps(stays, today, hereTown = null) {
   return (stays || []).filter((s) => s && !s.dismissed && s.last >= addDays(today, -RECAP_DAYS) && !(hereTown && norm(hereTown.town) === norm(s.town)))
 }
+/**
+ * A recap started by hand, for a trip the phone didn't see (it wasn't watching, or location was off):
+ * the town, an optional state, and the first and last day, which must be within the recap's week and
+ * no longer than a week. Returns { stay } or { error } in words.
+ */
+export function manualStay({ town, region = '', from, last }, today) {
+  const t = String(town || '').replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120)
+  if (!t) return { error: 'Which town?' }
+  const day = /^\d{4}-\d{2}-\d{2}$/
+  if (!day.test(from || '')) return { error: 'Which day did it start?' }
+  const end = day.test(last || '') ? last : from
+  if (end < from) return { error: 'The last day can’t be before the first.' }
+  if (end > today) return { error: 'That’s in the future.' }
+  if (end < addDays(today, -RECAP_DAYS)) return { error: `A recap lasts a week after a trip, so it has to be from the last ${RECAP_DAYS} days.` }
+  if (end > addDays(from, 7)) return { error: 'A recap can cover a week at most.' }
+  const r = String(region || '').replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60)
+  return { stay: { town: t, region: r || null, cc: null, from, last: end, dismissed: false } }
+}
+/** Put a stay on the list (replacing the same town and first day), newest first. */
+export const withStay = (stays, stay) => [stay, ...(stays || []).filter((s) => stayId(s) !== stayId(stay))].slice(0, KEEP_STAYS)
+
 /** Dismiss a stay, or bring it back (the Undo). */
 export const setDismissed = (stays, id, dismissed) => (stays || []).map((s) => (stayId(s) === id ? { ...s, dismissed } : s))
 
