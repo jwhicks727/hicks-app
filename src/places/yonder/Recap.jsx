@@ -11,6 +11,7 @@ import { KINDS, KIND_ORDER, KIND_ONE, townOf, visitedBetween, norm } from '../..
 import { addDays } from '../../lib/cal/dates.js'
 import { placeWords } from '../../lib/here.js'
 import { TownList, useTownList } from './Been.jsx'
+import PhotoReel from '../../parts/PhotoReel.jsx'
 import './yonder.css'
 
 // A stay away leaves a recap on Home, named for the town, for a week or until it's
@@ -81,6 +82,7 @@ function Recap({ stay, me, session }) {
       )}
       {went.length > 0 && <TownList t={t} list={went} visits={been.visits} />}
       {!went.length && !waiting.length && <p className="muted">Nothing recorded yet for {where}.</p>}
+      <PhotoReel town={stay.town} region={stay.region} from={stay.from} last={stay.last} />
 
       {open ? (
         <form className="yo-been-add" onSubmit={addAll}>

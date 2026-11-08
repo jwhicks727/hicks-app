@@ -75,7 +75,7 @@ test('several places typed at once: bullets and numbers stripped, blanks and rep
 })
 
 test('the phone forgets a stay on sign-out and when location is switched off; saves are checked loudly, not by toast', () => {
-  assert.match(src('src/lib/auth.js'), /clearStays\(\)\n\s+clearOutbox\(\)/)
+  assert.match(src('src/lib/auth.js'), /clearStays\(\)\n\s+clearOutbox\(\)\n\s+resetPhotos\(\)/)
   assert.match(src('src/lib/useHere.js'), /clearStays\(\); state = blank; emit\(\)/)
   const store = src('src/lib/stayStore.js')
   assert.ok(!/lat|lng|point|latitude/i.test(store.replace(/never a point[^\n]*/gi, '')), 'the store has no place for a position')

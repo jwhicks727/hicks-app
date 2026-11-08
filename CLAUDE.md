@@ -97,6 +97,11 @@ and write the code fresh. SOAR's code belongs to the school.
   2026-11-08): this phone remembers the town and the first and last day of a stay away, for
   a week, on the device only, so Home can offer to add what was missed; never a point or a
   path, and gone on sign-out and when location is switched off.
+- **Trip photos are the family's and private** (`trips` bucket, signed links; never in
+  `public/` or `src/`). Claude may suggest what's in one (a plant, bird, animal, dish or place
+  named by a sign), never identify or describe a person, and its tags are suggestions until
+  someone confirms them; a match is kept only if it is a title the phone sent
+  (`tests/photos.test.mjs`).
 - Whatever someone records must not vanish: a save that fails waits on the phone and is
   sent again (`addBeenOrQueue`), and a real problem is shown on the form in words, never
   only in a toast.

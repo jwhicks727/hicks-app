@@ -7,6 +7,7 @@ import { useFamily } from '../../lib/useCalendar.js'
 import { useNow } from '../../lib/useNow.js'
 import { useDraft } from '../../lib/useDraft.js'
 import { useOutings } from '../../lib/useLife.js'
+import { TaggedPhotos } from '../../parts/PhotoBits.jsx'
 import { addBeenOrQueue } from '../../lib/useStay.js'
 import { useBeen, dropBeen, wentAgain, undoVisit, updateBeen, removeBeen, restoreBeen } from '../../lib/useBeen.js'
 import { KINDS, KIND_ORDER, KIND_ONE, RATINGS, townOf, findTown, withVisits, byKind, summaryWords, timesWords, matchBeen, kindFromSection, norm } from '../../lib/been.js'
@@ -95,6 +96,7 @@ function BeenRow({ p, t, me, parent, visits, today }) {
       <div className="yo-been-main">
         <b>{p.name}</b>
         <small className="fig">{timesWords(p)}</small>
+        <TaggedPhotos spec={{ refKind: 'been_place', refId: p.id }} title="Photos" max={4} />
         {!editing && p.note && <button type="button" className="yo-been-note" onClick={() => setEditing(true)}>“{p.note}”</button>}
         {editing && (
           <form className="yo-been-edit" onSubmit={async (e) => { e.preventDefault(); await updateBeen(p.id, { note }); setEditing(false) }}>

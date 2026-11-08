@@ -117,6 +117,11 @@ export const GARDEN_SCHEMA = obj({
   health: { type: 'string', enum: ['thriving', 'fine', 'watch', 'trouble', 'unsure'] },
   summary: str, findings: { type: 'array', items: str }, care: { type: 'array', items: str }, water: str, harvest: str, next_look: str,
 })
+export const PHOTO_KINDS = ['plant', 'bird', 'animal', 'dish', 'place', 'other']
+export const PHOTO_TAGS_SCHEMA = obj({
+  caption: str,
+  subjects: { type: 'array', items: obj({ kind: { type: 'string', enum: PHOTO_KINDS }, name: str, scientific: str, confidence: { type: 'string', enum: ['low', 'medium', 'high'] }, match: str }) },
+})
 
 // ---- Tasks: who may ask, how hard to think, what comes back ------------------------
 export const TASKS = {
@@ -126,6 +131,8 @@ export const TASKS = {
   'recipe-from-image': { who: 'parent', effort: 'medium', maxTokens: 16000, schema: PHOTO_RECIPE_SCHEMA, upload: true },
   'calendar-from-image': { who: 'parent', effort: 'low', maxTokens: 16000, schema: EVENTS_SCHEMA, upload: true, pdf: true },
   'garden-photo': { who: 'family', effort: 'medium', maxTokens: 8000, schema: GARDEN_SCHEMA, upload: true },
+  // A trip photo's tags: the photo, the town, and the titles of the cookbook and of the places on that town's list; never a person
+  'photo-tags': { who: 'family', effort: 'low', maxTokens: 2000, schema: PHOTO_TAGS_SCHEMA, upload: true, says: 'the photo, the town it was taken in, and the titles of your cookbook and of the places on that town’s list' },
   // What's around here (supabase/functions/_shared/around.js): written by itself when one of us is away or a trip is coming
   'around-here': { who: 'family', effort: 'medium', maxTokens: 16000, says: 'the town you’re in, the area to about ten kilometres, and the family’s interests from Settings' },
   // Where Laurie can eat well near here: a parent's ask, with her food rules (as for any recipe); the answer isn't kept
@@ -206,3 +213,44 @@ export function gardenAsk({ spot = '', plants = [], indoor = false, question = '
     ' Name the plants you see, judge their health honestly, and give care that fits this climate and season: plain, specific, a few lines each. Say plainly when you can’t tell from the photo.' +
     (question ? `\nTheir question: ${String(question).slice(0, 800)}` : '')
 }
+
+// ---- A trip photo's tags --------------------------------------------------------------
+const titles = (list, n) => (Array.isArray(list) ? list : []).map((t) => String(t).replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120)).filter(Boolean).slice(0, n)
+/** What Claude is asked about one photo: what's in it, matched to what the family already has. Never a person. */
+export function photoTagsAsk({ town = '', date = '', recipes = [], places = [] }) {
+  const r = titles(recipes, 150), pl = titles(places, 80)
+  return [
+    `This is a photo from the family's trip${town ? ` to ${String(town).slice(0, 80)}` : ''}${date ? ` on ${String(date).slice(0, 10)}` : ''}. List what's in it that's worth tagging, so they can find it later:`,
+    '- plants and trees (kind plant), birds (bird), other animals (animal), a dish of food (dish: what dish it looks like), and a place (place: a restaurant, trail, winery, shop or landmark, ONLY when a sign or writing in the photo names it).',
+    'Give the common name, and the scientific name for a plant, bird or animal when you are sure (else leave it empty). Say how confident you are. Never guess: if you cannot tell, leave it out.',
+    'Do not identify, name or describe any person, and leave people out entirely, including faces and anyone in the background.',
+    r.length ? `If a dish is clearly one of these recipes the family already has, copy its title exactly into match (else leave match empty): ${r.join('; ')}.` : '',
+    pl.length ? `If a place is clearly one of these the family has been to in this town, copy its name exactly into match (else leave it empty): ${pl.join('; ')}.` : '',
+    'Also give a plain caption of the scene in under twelve words (no people).',
+  ].filter(Boolean).join('\n')
+}
+const BAD_WORDS = /\b(man|woman|men|women|boy|girl|child|children|kid|kids|baby|person|people|family|couple|guy|lady|face|faces|selfie|portrait)\b/i
+/**
+ * Claude's answer, checked before it goes back to the phone: known kinds only, eight subjects at most,
+ * words capped, a `match` only if it is exactly one of the titles sent, and nothing about a person.
+ */
+export function cleanPhotoTags(result, known = {}) {
+  const clean = (v, n) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n) : '')
+  const recipes = new Set(titles(known.recipes, 150)), places = new Set(titles(known.places, 80))
+  const subjects = [], seen = new Set()
+  for (const x of (result && Array.isArray(result.subjects) ? result.subjects : [])) {
+    if (subjects.length >= 8) break
+    const kind = PHOTO_KINDS.includes(x && x.kind) ? x.kind : null
+    const name = clean(x && x.name, 100)
+    if (!kind || !name || BAD_WORDS.test(name) || seen.has(kind + ':' + name.toLowerCase())) continue
+    seen.add(kind + ':' + name.toLowerCase())
+    const m = clean(x.match, 120)
+    subjects.push({
+      kind, name, scientific: clean(x.scientific, 100), confidence: ['low', 'medium', 'high'].includes(x.confidence) ? x.confidence : 'low',
+      match: (kind === 'dish' && recipes.has(m)) || (kind === 'place' && places.has(m)) ? m : '',
+    })
+  }
+  const caption = clean(result && result.caption, 120)
+  return { caption: BAD_WORDS.test(caption) ? '' : caption, subjects }
+}
+

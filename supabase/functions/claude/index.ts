@@ -13,7 +13,7 @@ import Anthropic from 'npm:@anthropic-ai/sdk@1.3.0'
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 import {
   FALLBACK_SONNET, pickLatest, costCents, overCap, CAPS, checkUpload, uploadBlock, checkHistory,
-  TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk,
+  TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk, photoTagsAsk, cleanPhotoTags,
 } from '../_shared/claude.js'
 import { cellOf, validCellId, clean as cleanText, GUIDE_TOOL, GUIDE_BRIEF, guideAsk, cleanGuide, searchedUrls, searchesIn, SEARCH_CENTS, matchPlace, publicSite, EAT_TOOL, eatAsk, cleanPlaces, GUIDE_KEEP_MS, BUILDING_STALE_MS, GUIDES_A_DAY, UA } from '../_shared/around.js'
 import { previewImage, isPicture } from '../_shared/wildpics.js'
@@ -171,6 +171,15 @@ Deno.serve(async (req) => {
       const msg = await ask({ ...base, messages: [{ role: 'user', content: [uploadBlock(body.file), { type: 'text', text: gardenAsk({ spot: String(body.spot ?? '').slice(0, 200), plants: Array.isArray(body.plants) ? body.plants.map(String) : [], indoor: Boolean(body.indoor), question: body.question, month }) }] }] })
       await record(msg)
       return refused(msg) ? reply(200, { analysis: null }) : reply(200, { analysis: jsonOf(msg), model: id })
+    }
+
+    // ---- What's in a trip photo, as suggestions (never a person) -------------------------
+    if (body.task === 'photo-tags') {
+      const list = (v: unknown) => (Array.isArray(v) ? v.map(String) : [])
+      const known = { recipes: list(body.recipes), places: list(body.places) }
+      const msg = await ask({ ...base, messages: [{ role: 'user', content: [uploadBlock(body.file), { type: 'text', text: photoTagsAsk({ town: String(body.town ?? ''), date: String(body.date ?? ''), ...known }) }] }] })
+      await record(msg)
+      return refused(msg) ? reply(200, { caption: '', subjects: [] }) : reply(200, { ...cleanPhotoTags(jsonOf(msg), known), model: id })
     }
     return reply(400, { error: 'Unknown task' })
   } catch (e) {
