@@ -52,7 +52,9 @@ may be reachable by someone who has only its address.
   each one's `full.jpg` and `small.jpg` and its row while the next comes up.
   The photos wait on the phone (IndexedDB) until they're saved, so the app
   closing loses nothing; signing out forgets them. Size isn't asked for (the
-  column stays, for any she gives). Her blanket yes covers every painting, so
+  column stays, for any she gives). Each added painting also keeps its original
+  photo at `<slug>/original.jpg` and its crop (`original`, `crop`), so its crop and
+  details can be changed later from its page (migration 20261108090000). Her blanket yes covers every painting, so
   nothing is ticked (the `said_yes_by` column stays as history for rows saved
   before). Making one move (a bird, her leaves) is a step for a computer, with
   `scripts/lift-art.py`.

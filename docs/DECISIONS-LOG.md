@@ -6,6 +6,27 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — A painting in her gallery can be cropped again and its details changed
+
+Jason asked that a mistake found later in the gallery can always be fixed: the crop, the
+straightening, the title, year, medium or seasons. Decided:
+
+- **Her painting's page has a "Change it" card for parents**: title (and whether it's a
+  working title), year, medium and seasons, saved to its own row and nothing else. Size
+  stays unasked.
+- **The original photo is kept in her private bucket** (`<slug>/original.jpg`, the kept copy
+  at up to 3600 px, not the camera's full file), with the crop it was saved with. A
+  re-crop starts from that crop; saving rewrites the two gallery files and the crop. Its
+  cost is roughly the size of one photo per painting, unmeasured; the free storage limit
+  is 1 GB.
+- **Paintings added before this** keep their details fixable but not their crop: their
+  originals were never kept. The two that came in with the code are the same.
+- **It needs a migration**, `20261108090000_paintings_recrop`, two columns, additive.
+- **Her painting is still only cropped and turned, never altered.** The original stays in
+  her private storage behind sign-in, as the painting itself does.
+
+---
+
 ## 2026-11-07 — Her paintings come in many at once, cropped on the phone and read by Claude
 
 Jason is photographing Laurie's paintings and asked for a way to add them all at once: a

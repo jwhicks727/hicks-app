@@ -260,3 +260,26 @@ test('zoomed in, the box fills the stage (with room for its handles) and sits in
     assert.ok(z.k > whole.k, 'more pixels per screen pixel than the whole photo')
   }
 })
+
+test('a painting keeps its original, and its crop, so it can be cropped again from her gallery', async () => {
+  const { storedPaths, fromRow } = await import('../src/lib/paintings.js')
+  const { readFileSync } = await import('node:fs')
+  const row = { slug: 'barn', flyer: null, leaves: null, original: true, crop: { turn: 0, angle: 1.5, cx: 900, cy: 700, w: 1200, h: 800, W: 1600, H: 1200 } }
+  assert.ok(Object.values(storedPaths('barn', row)).includes('barn/original.jpg'), 'original is among its files')
+  assert.ok(!Object.values(storedPaths('barn', { ...row, original: false })).includes('barn/original.jpg'), 'and only when kept')
+  const back = fromRow(row, { 'barn/original.jpg': 'https://signed/orig', 'barn/full.jpg': 'https://signed/full' })
+  assert.equal(back.originalUrl, 'https://signed/orig'); assert.equal(back.original, true); assert.deepEqual(back.crop, row.crop)
+  assert.equal(fromRow({ slug: 'old', original: false }, {}).originalUrl, '')
+  // The migration adds the two columns, and nothing else
+  const m = readFileSync(new URL('../supabase/migrations/20261108090000_paintings_recrop.sql', import.meta.url), 'utf8')
+  assert.match(m, /alter table public\.paintings add column if not exists original boolean not null default false/)
+  assert.match(m, /alter table public\.paintings add column if not exists crop jsonb/)
+  assert.doesNotMatch(m, /drop|grant|policy/i)
+  // Re-cropping and the details form only ever change their own painting's row
+  const re = readFileSync(new URL('../src/places/lifelist/RecropPainting.jsx', import.meta.url), 'utf8')
+  const ed = readFileSync(new URL('../src/places/lifelist/PaintingEdit.jsx', import.meta.url), 'utf8')
+  assert.match(re, /\.eq\('slug', p\.slug\)/); assert.match(ed, /\.eq\('slug', p\.slug\)/)
+  assert.doesNotMatch(re + ed, /\.delete\(|\.upsert\(/, 'no deletes, no upserts of other rows')
+  // The batch saves the original with the new painting
+  assert.match(readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8'), /\[FILES\.original, kept\]/)
+})

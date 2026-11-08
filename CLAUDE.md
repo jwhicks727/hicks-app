@@ -190,7 +190,9 @@ licence nobody wrote down.
   `src/lib/paintings.js`, `tests/paintings.test.mjs`,
   `tests/painting-batch.test.mjs`). The crop and the straightening are worked
   out on the phone (`src/lib/autocrop.js`, `src/lib/paintingBatch.js`): only
-  cropped, turned and shrunk, never altered.
+  cropped, turned and shrunk, never altered. A painting's original photo is kept
+  behind sign-in at `<slug>/original.jpg`, with its crop (`paintings.original`, `crop`),
+  so a parent can crop it again from its page (`src/places/lifelist/RecropPainting.jsx`).
 - **Anna's drawings are hers, and private** (`src/places/Drawings.jsx`): they live
   in the private `drawings` bucket and are read through signed links, never in
   `public/` or `src/` (anything in the built app can be opened by anyone with the

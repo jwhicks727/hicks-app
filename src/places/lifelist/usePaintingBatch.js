@@ -98,7 +98,8 @@ export function usePaintingBatch({ gallery, onSaved }) {
       const kept = await getPhoto(it.id + ':kept')
       if (!kept) throw new Error('The photo isn’t on this phone any more.')
       const f = await oneAtATime(() => paintingFiles(kept, it.crop))
-      for (const [name, blob] of [[FILES.src, f.full], [FILES.small, f.small]]) {
+      // The original (the kept copy, 3600 px at most) goes up too, so the painting can be re-cropped from her gallery later
+      for (const [name, blob] of [[FILES.src, f.full], [FILES.small, f.small], [FILES.original, kept]]) {
         const { error } = await supabase.storage.from('paintings').upload(`${it.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
         if (error) throw error
       }
@@ -107,6 +108,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
         slug: it.slug, title: it.title, named: Boolean(it.named), year: cleanYear(it.year, thisYear).year ?? null,
         medium: cleanMedium(it.medium) || null, w: f.w, h: f.h,
         seasons: cleanSeasons(it.seasons), added: todayAtHome(), focus: [0, 0, 1, 1],
+        original: true, crop: { ...it.crop, W: it.W, H: it.H },
       }, { onConflict: 'slug' })
       if (error) throw error
     })().then(() => {
