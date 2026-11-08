@@ -5,7 +5,23 @@ import { cropFor, boxIn, flightPoints, birdAt, leadTo, followAt } from '../lib/p
 import { reducedMotion } from '../lib/motion.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { HOME_TOWN } from '../lib/sky.js'
+import { cleanShape, clipPathOf } from '../lib/shapes.js'
 import './paintings.css'
+
+/**
+ * A painting's wooden frame, following its canvas's shape: a plain frame for a rectangle; for a round, many-sided or
+ * pointed canvas, the frame takes that shape (a clip of the wood and of her painting inside it, with a shadow of the same
+ * shape behind). Her painting itself is never altered: the shape only hides the wall in the corners of its photo.
+ */
+export function Framed({ shape, className = '', style, children }) {
+  const c = cleanShape(shape)
+  if (!c) return <span className={'gallery-frame ' + className} style={style}>{children}</span>
+  return (
+    <span className={'gallery-shaped ' + className} style={{ ...style, '--clip': clipPathOf(c) }} data-shape={c.kind}>
+      <span className="gallery-frame">{children}</span>
+    </span>
+  )
+}
 
 // One of Laurie's paintings, cropped to `focus` and filling its frame. If the
 // painting has a flyer (its crow), the bird can leave the painting, fly round
@@ -83,7 +99,7 @@ export default function PaintingFrame({ painting: p, focus, auto = false, linkTo
 
   return (
     <div className={'pf ' + className} ref={frame} style={style} data-art-slug={p.slug}>
-      {crop && <img className="pf-img" src={p.src} alt={label || `${p.title}, a painting by Laurie`} draggable="false" style={{ width: crop.width, height: crop.height, left: crop.left, top: crop.top }} />}
+      {crop && <img className="pf-img" src={p.src} alt={label || `${p.title}, a painting by Laurie`} draggable="false" style={{ width: crop.width, height: crop.height, left: crop.left, top: crop.top, clipPath: clipPathOf(p.shape) || undefined }} />}
       {crop && flyer && <img className={'pf-sky' + (away ? ' on' : '')} src={flyer.sky} alt="" draggable="false" style={boxIn(crop, flyer.skyAt)} />}
       {linkTo && <Link className="pf-link" to={linkTo} aria-label={`${p.title}: open Laurie’s Gallery`} />}
       {flyer && (

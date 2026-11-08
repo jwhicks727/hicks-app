@@ -1,4 +1,4 @@
-/* Anna's Gallery (src/places/Drawings.jsx): her drawings taped to the wall, as they'd be on the fridge.
+/* Anna's Art (src/places/Drawings.jsx): her drawings taped to the wall, as they'd be on the fridge.
    Every class starts ag-: every stylesheet is global. Nothing here animates but a gentle lift. */
 
 .ag-add { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }

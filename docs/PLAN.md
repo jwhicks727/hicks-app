@@ -6,7 +6,7 @@ Built in this order, each part in daily use before the next.
 
 - [x] Five tabs, the same for everyone: Home, Calendar, Kitchen, World and
       Apps, a sheet of the journal, the academy, Life List, Laurie's Gallery, Jams
-      and the Garden (2026-11-01), with Anna's Gallery and Pets after
+      and the Garden (2026-11-01), with Anna's Art and Pets after
       (2026-11-05).
 - [x] Light and dark, chosen in Settings or following the device; a sun
       or moon on Home switches between them in one tap
@@ -63,6 +63,33 @@ Built in this order, each part in daily use before the next.
       the medium and the seasons (all changeable). The batch waits in the family's
       storage, so it can be sent from a phone, cropped on a computer, or left half
       done and picked up on another device. Home keeps a season show's own painting.
+- [x] **The gallery finds and rotates** (2026-11-08): adding her paintings (or the
+      photos waiting) is at the top; a **featured wall** of four to eight that hang
+      together for a few days (`gallery_features`, chosen by Claude from their facts,
+      the weather at home, the season and a concert coming, or by the app from their
+      own facts until it can); finding them by colour (measured from her pixels),
+      feel, mood and what they show (Claude's words, kept once a parent says so), year,
+      season, medium and canvas shape, with words typed in; sorting newest in, by when
+      painted, as a rainbow, A to Z or shuffled. Next and previous on a painting follow
+      the order shown (`src/lib/gallery.js`, `src/places/lifelist/Gallery.jsx`).
+- [x] **The month by her signature** is read with the year when she wrote one, and
+      `/lifelist/paintings/look-again` (Admin links to it) looks over the paintings
+      already in: months and years by her signature, canvas shapes and Claude's words
+      come back as suggestions to tick; colours and fingerprints are measured and kept.
+- [x] **Any shape of canvas**: round, hexagon, octagon, triangle, diamond, arch, or
+      traced corner by corner in the crop tool; the frame follows it everywhere
+      (`src/lib/shapes.js`, `Framed`), and her painting is still only cropped.
+- [x] **The crop tool holds still**: the first tap only picks it up, the zoomed view
+      no longer follows the box mid-drag, nothing zooms by itself, every change can be
+      undone (Undo and Redo, Ctrl or ⌘ Z), and a 3 x 3 grid sits in the box.
+- [x] **A second photo of the same painting or drawing is noticed** as it's added
+      (a fingerprint, `src/lib/artColour.js`): leave it out, add it anyway, or (for
+      hers) put the new photo in the old one's place, keeping its title and details.
+- [x] **Autumn's wind from any autumn painting**: a parent cuts leaves from a painting
+      on its page (`AutumnLeaves.jsx`, `src/lib/leafCut.js`), so a new photo of one
+      gets the show back with a tap; the first two keep the script's leaves.
+- [ ] A better auto-crop (see the decisions log, 2026-11-08: Segment Anything in the
+      browser is the candidate; not started).
 - [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), all
       covered by her blanket yes; a painting she'd rather not have public waits for private
       storage behind sign-in, since anything in `public/` can be fetched by
@@ -277,7 +304,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [ ] A photo timeline for each plant, side by side; a reminder pushed to a
       phone once the app is hosted.
 
-## 1e. Anna's Gallery (an app)
+## 1e. Anna's Art (an app)
 
 - [x] Her drawings taped to a wall, newest first, each one tap from large; anyone
       in the family adds one (a photo, with a title, the day she drew it if
@@ -292,6 +319,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       her words never guessed). The batch waits in the family's storage, so Anna can
       send from her tablet and a parent finish at a computer. A drawing keeps its
       original, so it can be cropped again from its page.
+- [x] Called **Anna's Art** (2026-11-08), since she paints too; its address stays
+      `/drawings`. A photo that looks like one already on her wall is flagged as it's added.
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)
@@ -300,8 +329,9 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       "My Cats" drawing pegged to a clothesline, her three cats peeking over the
       wall (Kona, Portia and Goldie), hearts and stars rising as on her page, and
       Appa howling at the moon. Plays by itself the first time on a device,
-      "Watch it again" after, never under Reduce Motion. The drawing is whichever
-      one in Anna's Gallery is marked "Our pets" (`src/places/pets/`).
+      "Watch it again" after, never under Reduce Motion. The drawing is always the
+      first one in Anna's Art marked "Our pets", the one the scene was made round; a
+      tall one hangs narrower so it never covers the cats (`src/places/pets/`).
 - [ ] A page for each of them: photo or Anna's drawing, birthday or gotcha day,
       weight over time.
 - [ ] Vet visits, shots and medicines, with reminders on the calendar.

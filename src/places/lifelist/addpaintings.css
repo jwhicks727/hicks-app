@@ -7,11 +7,35 @@
 .ll-crop { position: relative; overflow: hidden; height: clamp(220px, 58vh, 560px); min-height: 220px; background: #2A1E16; border-radius: var(--r-control); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: crosshair; }
 .ll-crop-photo { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; pointer-events: none; user-select: none; -webkit-user-drag: none; }
 .ll-crop-box { position: absolute; pointer-events: none; box-shadow: 0 0 0 1.5px #FFF8EE, 0 0 0 2.5px rgba(20, 14, 10, .5), 0 0 0 9999px rgba(20, 14, 10, .58); }
-.ll-crop.dragging .ll-crop-box {
+/* Picked: a ring says taps move corners now (the first tap only picks it) */
+.ll-crop.on { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--steady); }
+/* Thirds, to line the painting's edges up against: always there, stronger while dragging or straightening */
+.ll-crop-grid { position: absolute; inset: 0; pointer-events: none; opacity: .5; transition: opacity .15s ease;
   background:
-    linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255, 248, 238, .45) 0 calc(33.33% + .5px), transparent 0 calc(66.67% - .5px), rgba(255, 248, 238, .45) 0 calc(66.67% + .5px), transparent 0),
-    linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255, 248, 238, .45) 0 calc(33.33% + .5px), transparent 0 calc(66.67% - .5px), rgba(255, 248, 238, .45) 0 calc(66.67% + .5px), transparent 0);
-}
+    linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255, 248, 238, .55) 0 calc(33.33% + .5px), transparent 0 calc(66.67% - .5px), rgba(255, 248, 238, .55) 0 calc(66.67% + .5px), transparent 0),
+    linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255, 248, 238, .55) 0 calc(33.33% + .5px), transparent 0 calc(66.67% - .5px), rgba(255, 248, 238, .55) 0 calc(66.67% + .5px), transparent 0); }
+.ll-crop.dragging .ll-crop-grid, .ll-crop.leaning .ll-crop-grid { opacity: 1; }
+html[data-motion="less"] .ll-crop-grid { transition: none; }
+/* The canvas's shape inside the box: the corners outside it dimmed, its outline drawn */
+.ll-crop-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.ll-crop-shape-out { fill: rgba(20, 14, 10, .42); }
+.ll-crop-shape-line { fill: none; stroke: #FFF8EE; stroke-width: 2; stroke-dasharray: 6 4; }
+.ll-crop-pt { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; pointer-events: auto; touch-action: none; cursor: move; }
+.ll-crop-pt::after { content: ""; position: absolute; left: 15px; top: 15px; width: 14px; height: 14px; border-radius: 50%; background: #FFF8EE; box-shadow: 0 0 0 2px rgba(20, 14, 10, .7); }
+.ll-crop-pt:focus-visible { outline: 3px solid #FFF8EE; outline-offset: -8px; }
+.ll-crop-t { flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.ll-crop-t svg { width: 18px; height: 18px; }
+.ll-crop-t:hover, .ll-crop-t:focus-visible { background: color-mix(in srgb, #C0824F 14%, var(--card)); }
+.ll-crop-t:disabled { opacity: .4; cursor: default; }
+.ll-crop-t:disabled:hover { background: var(--card); }
+/* Choosing the canvas's shape */
+.ll-crop-shapes { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 6px; }
+.ll-crop-shapes legend { padding: 0; margin-bottom: 6px; font-weight: 800; font-size: 14px; }
+.ll-crop-shape-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ll-crop-sb { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px 0 8px; border: 1.5px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+.ll-crop-sb svg { width: 22px; height: 22px; flex: none; }
+.ll-crop-sb[aria-pressed="true"] { border-color: var(--ink); background: color-mix(in srgb, #C0824F 18%, var(--card)); }
+@media (pointer: coarse) { .ll-crop-sb { min-height: 44px; } }
 /* Handles: a full 44 px to touch, a small cream mark to see */
 .ll-crop-h { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; pointer-events: auto; touch-action: none; border-radius: 50%; }
 .ll-crop-h::after { content: ""; position: absolute; border: 0 solid #FFF8EE; filter: drop-shadow(0 0 1px rgba(20, 14, 10, .8)); }
@@ -80,3 +104,26 @@
 .ll-up-thumb.added .ll-up-badge { background: #4E6C3D; }
 .ll-up-thumb.failed .ll-up-badge { background: #B3401A; }
 .ll-up-thumb.unsure::after { content: ""; position: absolute; right: 4px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #D08A1E; box-shadow: 0 0 0 2px var(--card); }
+
+/* What Claude sees in it: words to take off with a tap */
+.ll-looks { display: grid; gap: 6px; }
+.ll-looks-head { color: var(--muted); font-size: 13px; font-weight: 700; }
+.ll-looks-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ll-look { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 1px solid color-mix(in srgb, #C0824F 40%, var(--line)); border-radius: var(--r-control); background: color-mix(in srgb, #C0824F 10%, var(--card)); color: var(--ink); font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+.ll-look span { color: var(--muted); font-weight: 900; }
+@media (pointer: coarse) { .ll-look { min-height: 44px; } }
+/* Looks like one already in */
+.ll-dup { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: var(--r-control); background: color-mix(in srgb, #D08A1E 12%, var(--card)); border: 1px solid color-mix(in srgb, #D08A1E 40%, var(--line)); }
+.ll-dup > div { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.ll-dup p { margin: 0; }
+.ll-dup-acts { display: flex; flex-wrap: wrap; gap: 0 12px; }
+
+/* Her gallery looked over again: what it found, to tick */
+.ll-again { display: grid; gap: 14px; }
+.ll-again-group { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 6px; }
+.ll-again-group legend { padding: 0; margin-bottom: 6px; font-weight: 800; font-size: 15px; }
+.ll-again-row { display: flex; align-items: center; gap: 10px; min-height: 52px; cursor: pointer; }
+.ll-again-row input { flex: none; width: 22px; height: 22px; accent-color: var(--steady); }
+.ll-again-row .ll-up-mini { width: 48px; height: 48px; padding: 3px; }
+.ll-again-row > span:last-child { display: grid; min-width: 0; }
+.ll-again-row small { color: var(--muted); font-weight: 700; }

@@ -1,5 +1,5 @@
 // ============================================
-// drawings.js -- Anna's Gallery, the parts that need no React or database
+// drawings.js -- Anna's Art, the parts that need no React or database
 // ============================================
 // Her drawings live in the `annas_drawings` table and the private `drawings`
 // bucket (supabase/migrations/20261105040000_annas_gallery.sql), never in the
@@ -7,7 +7,7 @@
 // address. Everything about a drawing (title, date, words, what it's about)
 // is what the person adding it typed; nothing is guessed from the picture.
 
-/** What a drawing can be about, where that matters to another screen: the Pets launch hangs the newest "pets" one. */
+/** What a drawing can be about, where that matters to another screen: the Pets launch hangs the first "pets" one. */
 export const TOPICS = { pets: 'Our pets' }
 
 /**
@@ -23,9 +23,25 @@ export function sortDrawings(rows) {
   return [...rows].sort((a, b) => (day(b) < day(a) ? -1 : day(b) > day(a) ? 1 : String(b.created_at) < String(a.created_at) ? -1 : String(b.created_at) > String(a.created_at) ? 1 : 0))
 }
 
-/** The drawing the Pets launch hangs: the newest one marked as being about the pets, or null. */
+/**
+ * The drawing the Pets launch hangs: the first one added that's marked as being about the pets, or null. The scene was
+ * drawn round that drawing (its hearts and stars are hers, and the cats peek up beneath it), so a newer drawing of the
+ * pets never takes its place: it goes on her wall like any other (decisions log, 2026-11-08).
+ */
 export function petsDrawing(rows) {
-  return sortDrawings(rows).find((r) => r.topic === 'pets') || null
+  const pets = rows.filter((r) => r.topic === 'pets')
+  pets.sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || '')) || String(a.id).localeCompare(String(b.id)))
+  return pets[0] || null
+}
+
+/**
+ * How wide the Pets launch hangs a drawing, as a share of the scene's width, so it never comes down over the cats: a
+ * wide drawing at its usual width (62%), a tall one narrower, so its height stays above the wall they peek over.
+ */
+export function petsPaperWidth(width, height, { usual = 62, pad = 3.4, tallest = 47 } = {}) {
+  if (!width || !height) return usual
+  const imgW = Math.min(usual - pad, tallest * (width / height))
+  return Math.round((imgW + pad) * 10) / 10
 }
 
 const longDay = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
