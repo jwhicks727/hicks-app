@@ -1,6 +1,8 @@
 import { Card } from '../../ui/Card.jsx'
 import { Crumb } from '../../shell/Link.jsx'
 import { navigate } from '../../lib/router.js'
+import { useLifeContext } from './useLifeContext.js'
+import PaintingEdit from './PaintingEdit.jsx'
 import PaintingFrame from '../../parts/PaintingFrame.jsx'
 import { paintingBySlug } from '../../lib/paintings.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
@@ -16,6 +18,7 @@ const said = (d) => dayFmt.format(new Date(Date.UTC(+d.slice(0, 4), +d.slice(5, 
 
 export default function PaintingPage({ slug }) {
   const { list: PAINTINGS, loaded } = usePaintings()
+  const c = useLifeContext()
   const p = paintingBySlug(slug, PAINTINGS)
   if (!p) {
     if (!loaded) return <header className="hero span-6"><Crumb to="/lifelist/paintings">Laurie’s Gallery</Crumb><h1 className="greet">…</h1></header>
@@ -43,6 +46,7 @@ export default function PaintingPage({ slug }) {
         </div>
       </div>
       <PaintingSubjects painting={p} />
+      {c.parent && c.paintingsStored && <PaintingEdit painting={p} onSaved={c.reloadPaintings} />}
       <Card className="span-6" tint="#C0824F" label="About it" glyph="star">
         <dl className="painting-facts">
           {p.year && <div><dt>Painted</dt><dd>{p.year}</dd></div>}

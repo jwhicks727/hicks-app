@@ -3,7 +3,7 @@ import { Card } from '../ui/Card.jsx'
 import { Sheet } from '../ui/Sheet.jsx'
 import { Link } from '../shell/Link.jsx'
 import { useSession } from '../lib/auth.js'
-import { usePhotoStore, useTripUrls } from '../lib/photoStore.js'
+import { usePhotoStore, useTripUrls } from '../lib/reelStore.js'
 import { photosAt, seenPlants } from '../lib/photos.js'
 import './photos.css'
 

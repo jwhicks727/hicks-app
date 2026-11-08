@@ -17,7 +17,7 @@ export const PAINTINGS = [
     slug: 'witch-and-crow',
     title: 'The witch and the crow', // a working title until Laurie names it
     named: false,
-    year: null, medium: null, size: null, // hers to tell; never guessed
+    year: null, medium: null, size: null, // hers to tell, or read from her signature and confirmed; never guessed
     src: '/paintings/witch-and-crow.jpg', small: '/paintings/witch-and-crow-720.jpg', w: 1440, h: 1920,
     seasons: ['halloween'],
     added: '2026-10-31',
@@ -36,7 +36,7 @@ export const PAINTINGS = [
     slug: 'autumn-stream',
     title: 'Autumn stream', // a working title until Laurie names it
     named: false,
-    year: null, medium: null, size: null, // hers to tell; never guessed
+    year: null, medium: null, size: null, // hers to tell, or read from her signature and confirmed; never guessed
     src: '/paintings/autumn-stream.jpg', small: '/paintings/autumn-stream-720.jpg', w: 1600, h: 1600,
     seasons: ['fall', 'thanksgiving'],
     added: '2026-11-01',
@@ -49,7 +49,7 @@ export const PAINTINGS = [
     slug: 'autumn-pond',
     title: 'Autumn pond', // a working title until Laurie names it
     named: false,
-    year: null, medium: null, size: null, // hers to tell; never guessed
+    year: null, medium: null, size: null, // hers to tell, or read from her signature and confirmed; never guessed
     src: '/paintings/autumn-pond.jpg', small: '/paintings/autumn-pond-720.jpg', w: 1600, h: 1600,
     seasons: ['fall', 'thanksgiving'],
     added: '2026-11-01',
@@ -139,8 +139,13 @@ export function birdAt(pts, t, { ms = 5600, land, faces = 'right' }) {
 
 // ---- The paintings as stored: a row and its files in the bucket -------------------
 /** The files a painting keeps in the bucket, by name: `<slug>/<name>`. */
-export const FILES = { src: 'full.jpg', small: 'small.jpg', sprite: 'flyer.png', sky: 'sky.png', sheet: 'leaves.png' }
-export const storedPaths = (slug, row) => Object.fromEntries(Object.entries(FILES).filter(([k]) => k === 'src' || k === 'small' || (k === 'sprite' || k === 'sky' ? row.flyer : k === 'sheet' ? row.leaves : true)).map(([k, f]) => [k, `${slug}/${f}`]))
+export const FILES = { src: 'full.jpg', small: 'small.jpg', sprite: 'flyer.png', sky: 'sky.png', sheet: 'leaves.png', original: 'original.jpg' }
+export const storedPaths = (slug, row) => Object.fromEntries(Object.entries(FILES).filter(([k]) => {
+  if (k === 'sprite' || k === 'sky') return Boolean(row.flyer)
+  if (k === 'sheet') return Boolean(row.leaves)
+  if (k === 'original') return Boolean(row.original)
+  return true
+}).map(([k, f]) => [k, `${slug}/${f}`]))
 /** A stored row, with signed links for its files, in the shape the app draws from. */
 export function fromRow(row, urls) {
   const u = (k) => urls[`${row.slug}/${FILES[k]}`] || ''
@@ -150,6 +155,8 @@ export function fromRow(row, urls) {
     focus: row.focus || [0, 0, 1, 1], subjects: row.subjects || [],
     flyer: row.flyer ? { ...row.flyer, sprite: u('sprite'), sky: u('sky') } : undefined,
     leaves: row.leaves ? { ...row.leaves, sheet: u('sheet') } : undefined,
+    // The original photo, kept for re-cropping, and the crop it was saved with (W and H are the original's own)
+    original: Boolean(row.original), originalUrl: row.original ? u('original') : '', crop: row.crop || null,
   }
 }
 /** A bundled painting as a row to store (its files go in alongside, by storedPaths). */

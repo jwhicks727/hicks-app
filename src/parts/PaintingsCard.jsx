@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import PaintingFrame from './PaintingFrame.jsx'
-import { paintingFor } from '../lib/paintings.js'
 import { usePaintings } from './PaintingsProvider.jsx'
-import { showFor } from '../lib/seasonShows.js'
+import { showFor, homePainting } from '../lib/seasonShows.js'
 import { usePrefs } from '../lib/prefs.js'
 import { reducedMotion } from '../lib/motion.js'
 import { tilt } from '../lib/drawings.js'
@@ -33,7 +32,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
     window.addEventListener('hicks:gust', on)
     return () => window.removeEventListener('hicks:gust', on)
   }, [])
-  const p = paintingFor(season, list)
+  const p = homePainting(season, list)
   const annaLink = <Link to="/drawings">Anna’s Gallery{drawings.list.length > 1 ? ` · ${drawings.list.length}` : ''} ›</Link>
   // Never silently gone: with nothing to show, the card says why (the hosted app carries none of her paintings until a parent has moved them into private storage)
   if (!p || !p.src) {

@@ -62,6 +62,104 @@ and he wants to go back at leisure rather than do it all on the trip. Decided:
 
 ---
 
+## 2026-11-08 — A batch of her paintings waits in the family's storage, so any device can pick it up
+
+Jason wants to send the photos from his phone, go to a computer to do the cropping, and be
+able to leave a set half done and carry on from another device. That reverses part of
+2026-11-07 ("the photos wait on the phone", kept below), which tied a batch to one device.
+Decided:
+
+- **A batch is rows and files in the family's storage**, not on a device: a row a photo in
+  `painting_inbox` (its crop, title, year, medium, seasons and where it stands) and its
+  three pictures (the kept photo, the crop screen's view and a thumbnail) under `inbox/<id>/`
+  in the private `paintings` bucket. Parents only, and a batch is shared: Jason or Laurie can
+  carry on what the other started. Migration `20261108120000_painting_inbox`.
+- **A device keeps only its own small draft** (whether to have Claude read, which photo it
+  was on). Nothing of Laurie's paintings is kept in the browser any more
+  (`src/lib/photoStore.js` is gone); the older on-device batch isn't carried over.
+- **Changes are sent a moment after they're made and the screen looks again** when it opens,
+  when it comes back into view, and every half a minute. A change not yet sent is never
+  overwritten by a look. Two devices editing the same photo at once: the last one wins.
+- **A reading or a save is claimed** with the time it began, so a second device doesn't do it
+  too; a claim over three minutes old (that device was closed) is taken over.
+- **Claude reads the photo on screen first**, then the ones after it, three at a time, with a
+  ninety-second limit on each. Reading went in the order photos were added, two at a time,
+  so a photo in the middle of a batch waited behind all the earlier ones. Whichever device
+  sends the photos starts the reading at once, so a computer opened later finds many done.
+- **Privacy is unchanged but worth saying:** the pictures waiting are in the same private
+  bucket as the paintings, so a signed-in family member could open one by its link, but only
+  parents see the list of what's waiting. A saved painting's kept and view copies are removed
+  from the bucket (its thumbnail stays for the strip until the batch is put away, which removes
+  everything of the batch's). While waiting, a photo is stored three times, a few megabytes
+  in all, unmeasured.
+
+---
+
+## 2026-11-08 — A painting in her gallery can be cropped again and its details changed
+
+Jason asked that a mistake found later in the gallery can always be fixed: the crop, the
+straightening, the title, year, medium or seasons. Decided:
+
+- **Her painting's page has a "Change it" card for parents**: title (and whether it's a
+  working title), year, medium and seasons, saved to its own row and nothing else. Size
+  stays unasked.
+- **The original photo is kept in her private bucket** (`<slug>/original.jpg`, the kept copy
+  at up to 3600 px, not the camera's full file), with the crop it was saved with. A
+  re-crop starts from that crop; saving rewrites the two gallery files and the crop. Its
+  cost is roughly the size of one photo per painting, unmeasured; the free storage limit
+  is 1 GB.
+- **Paintings added before this** keep their details fixable but not their crop: their
+  originals were never kept. The two that came in with the code are the same.
+- **It needs a migration**, `20261108090000_paintings_recrop`, two columns, additive.
+- **Her painting is still only cropped and turned, never altered.** The original stays in
+  her private storage behind sign-in, as the painting itself does.
+
+---
+
+## 2026-11-07 — Her paintings come in many at once, cropped on the phone and read by Claude
+
+Jason is photographing Laurie's paintings and asked for a way to add them all at once: a
+crop and rotate tool that walks him through every photo, with the app's own go at each
+crop so he only fixes the odd ones; the year read from her signature, which she often
+dates; working titles as before; the medium found too; seasons assigned; and no size,
+since he doesn't want to measure them all. Decided:
+
+- **One screen for one painting or many** (`/lifelist/paintings/add`, Jason or Laurie),
+  in place of "Add a painting". Choose all the photos; go through them one at a time;
+  "Looks right: add it" saves each in the background while the next comes up.
+- **The crop is worked out on the phone** (`src/lib/autocrop.js`): the wall is learned
+  from the photo's edges, the painting is whatever differs from it or is busy with
+  brushwork, its straight edges say how far it leans (up to 12°), and the rows and
+  columns it fills say where its edges are. When it isn't sure (the painting runs off
+  the photo, isn't a rectangle, or is tiny) the photo says so and has an amber dot in
+  the strip. So far it is tested on made-up photos only; the first real batch will
+  show how it does with frames, shadows and glare.
+- **The crop tool**: the box stays level and the photo leans under it; drag an edge or
+  a corner, or tap where a corner of the painting is (every drag has a tap); quarter
+  turns; a straighten slider; "Its own crop" and "The whole photo". The painting is
+  only cropped, turned and shrunk. No perspective correction: ART-CAPTURE.md has the
+  camera square-on.
+- **Claude reads each photo, if left on** (`read-painting`, parents only): the cropped
+  photo and its four corners enlarged. It returns what her signature says, the year
+  written with it, a working title, the medium, the seasons it suits, and whether it
+  lies sideways. This refines "her title, year and medium come from her, never
+  guessed" (2026-11-01, kept below): the year is read from what she wrote, never
+  estimated from the style; the title is a working title (`named: false`) as the first
+  ones were; the medium and seasons are suggestions; and each says where it came from,
+  for Jason or Laurie to confirm or change before it's saved. Claude only reads the
+  photo; it is not an image generator and nothing is made from her painting. The
+  screen says what goes to Claude first and has a switch. Jason asked for it, under
+  Laurie's blanket yes to her paintings being used in the app.
+- **No size** when adding; the column stays, for any she gives.
+- **The photos wait on the phone** (IndexedDB, `src/lib/photoStore.js`) until each is
+  saved, so iOS closing the app loses nothing but a photo still being got ready.
+  Signing out forgets them. The gallery's shine counts the ones waiting.
+- **Home keeps a season show's painting.** Seasons now come in by the dozen, and Home
+  hung the newest painting of the season; that would have taken the frame from the
+  painting the season's show plays from. Home now hangs the show's own painting
+  (`homePainting`), and the newest of the season only where there's no show.
+---
+
 ## 2026-11-07 — Our list for each town we keep going back to
 
 Jason, on a day trip in Temecula: for places we go to many times, keep a list of the

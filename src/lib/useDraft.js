@@ -33,6 +33,11 @@ export function hasDraft(key) {
   try { return Boolean(localStorage.getItem(PREFIX + key)) } catch { return false }
 }
 
+/** A draft kept under this key, read without a form open (a page counting what's waiting), or null. */
+export function readDraft(key) {
+  try { const v = localStorage.getItem(PREFIX + key); return v ? JSON.parse(v) : null } catch { return null }
+}
+
 /** Every draft goes when someone signs out. */
 export function clearDrafts() {
   try { Object.keys(localStorage).filter((k) => k.startsWith(PREFIX)).forEach((k) => localStorage.removeItem(k)) } catch { /* nothing kept */ }

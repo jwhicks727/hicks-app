@@ -1,0 +1,358 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { findPainting } from '../src/lib/autocrop.js'
+import {
+  turnedSize, wholeCrop, fromFound, turnCrop, cropCorners, insideImage, fitInside, leanCrop, drawTransform, viewOf, edgesOf, fromEdges,
+  dragCrop, nearestCorner, signatureCorners, yearFromReading, cleanYear, cleanTitle, cleanMedium, cleanSeasons, slugFor, readTurn,
+  applyReading, tally, nextToCheck, takenSlugs, LEAN,
+} from '../src/lib/paintingBatch.js'
+import { SEASON_ORDER } from '../src/lib/seasons.js'
+import { TASKS, PAINTING_SCHEMA, PAINTING_SEASONS, PAINTING_PARTS, checkUploads, paintingAsk, paintingContent } from '../supabase/functions/_shared/claude.js'
+import { photo } from './helpers-photo.mjs'
+
+// Every picture here is made up (tests/helpers-photo.mjs): no painting of hers is ever in a test.
+const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} is not within ${tol} of ${b}`)
+
+test('the auto-crop finds a painting on the wall: how far it leans and where its edges are', () => {
+  for (const [o, what] of [
+    [{}, 'level and centred'],
+    [{ angle: 3 }, 'leaning 3° clockwise'],
+    [{ angle: -1.5, cx: 220, cy: 190 }, 'leaning back, off centre'],
+    [{ W: 360, H: 480, cx: 180, cy: 240, pw: 220, ph: 330, angle: -2.2 }, 'a tall one'],
+    [{ angle: 2, sky: true }, 'a pale sky the colour of the wall'],
+    [{ angle: 0.7, wire: true }, 'its hanging wire showing'],
+  ]) {
+    const want = { cx: 240, cy: 180, pw: 300, ph: 200, angle: 0, ...o }
+    const f = findPainting(photo(o))
+    assert.equal(f.kind, 'found', what); assert.equal(f.sure, true, what)
+    near(f.angle, want.angle, 0.2, `${what}: lean`)
+    near(f.cx, want.cx, 1.5, `${what}: across`); near(f.cy, want.cy, 1.5, `${what}: down`)
+    // A hair inside its edges, so no wall shows
+    assert.ok(f.w <= want.pw + 1 && f.w >= want.pw - 6, `${what}: width ${f.w}`)
+    assert.ok(f.h <= want.ph + 1 && f.h >= want.ph - 6, `${what}: height ${f.h}`)
+  }
+})
+
+test('the auto-crop says when it isn’t sure, and takes a photo that is all painting as it is', () => {
+  const whole = findPainting(photo({ pw: 600, ph: 500 }))
+  assert.equal(whole.kind, 'whole'); assert.equal(whole.sure, true)
+  assert.deepEqual([whole.cx, whole.cy, whole.w, whole.h, whole.angle], [240, 180, 480, 360, 0])
+  const nothing = findPainting(photo({ none: true }))
+  assert.equal(nothing.kind, 'none'); assert.equal(nothing.sure, false)
+  // Running off the photo: not sure, but the box still hugs what's there, with none of the wall beside it
+  for (const [o, [x0, x1, y0, y1]] of [[{ cx: 400 }, [250, 480, 80, 280]], [{ cx: 100, cy: 100 }, [0, 250, 0, 200]], [{ W: 300, H: 400, cx: 250, cy: 200, pw: 190, ph: 275, seed: 9 }, [155, 300, 62.5, 337.5]]]) {
+    const f = findPainting(photo(o))
+    assert.equal(f.sure, false, JSON.stringify(o))
+    near(f.cx - f.w / 2, x0, 4, `${JSON.stringify(o)}: left`); near(f.cx + f.w / 2, x1, 4, `${JSON.stringify(o)}: right`)
+    near(f.cy - f.h / 2, y0, 4, `${JSON.stringify(o)}: top`); near(f.cy + f.h / 2, y1, 4, `${JSON.stringify(o)}: bottom`)
+  }
+  assert.equal(findPainting(photo({ pw: 90, ph: 70 })).sure, false, 'too small to be the photo’s subject')
+  assert.equal(findPainting({ data: new Uint8ClampedArray(8 * 8 * 4), width: 8, height: 8 }).kind, 'none')
+})
+
+test('a crop turns with the photo, a quarter at a time, and comes back the same', () => {
+  const W = 4000, H = 3000, c = { turn: 0, angle: 2.5, cx: 1800, cy: 1400, w: 2600, h: 1900 }
+  assert.deepEqual(turnedSize(W, H, 90), [3000, 4000]); assert.deepEqual(turnedSize(W, H, 180), [4000, 3000]); assert.deepEqual(turnedSize(W, H, -90), [3000, 4000])
+  let t = c
+  for (let k = 0; k < 4; k++) t = turnCrop(t, W, H, 90)
+  for (const key of Object.keys(c)) near(t[key], c[key], 1e-9, key)
+  const right = turnCrop(c, W, H, 90)
+  assert.deepEqual([right.turn, right.w, right.h, right.cx, right.cy], [90, 1900, 2600, 3000 - 1400, 1800])
+  const back = turnCrop(right, W, H, -90)
+  for (const key of Object.keys(c)) near(back[key], c[key], 1e-9, key)
+  assert.equal(readTurn(-90), 270); assert.equal(readTurn('180'), 180); assert.equal(readTurn('sideways'), 0); assert.equal(readTurn(45), 90)
+})
+
+test('the painting drawn out of the photo: the box’s corners land on the picture’s corners, whatever the turn and lean', () => {
+  const W = 3600, H = 2700
+  for (const turn of [0, 90, 180, 270]) {
+    for (const angle of [0, 3.2, -7]) {
+      const [tw, th] = turnedSize(W, H, turn)
+      const crop = fitInside({ turn, angle, cx: tw * 0.47, cy: th * 0.52, w: tw * 0.6, h: th * 0.55 }, W, H)
+      const t = drawTransform(crop, W, H, { max: 2400 })
+      assert.ok(Math.max(t.width, t.height) <= 2400)
+      // A corner of the box in the turned photo, back to the photo's own pixels
+      const toPhoto = ([x, y]) => turn === 0 ? [x, y] : turn === 90 ? [y, H - x] : turn === 180 ? [W - x, H - y] : [W - y, x]
+      const out = cropCorners(crop).map(toPhoto).map(([x, y]) => [t.a * x + t.c * y + t.e, t.b * x + t.d * y + t.f])
+      const want = [[0, 0], [t.width, 0], [t.width, t.height], [0, t.height]]
+      out.forEach(([x, y], i) => { near(x, want[i][0], 1, `turn ${turn}, lean ${angle}: corner ${i} x`); near(y, want[i][1], 1, `turn ${turn}, lean ${angle}: corner ${i} y`) })
+    }
+  }
+  // A corner region for reading her signature: the region's own corner is the picture's
+  const crop = { turn: 0, angle: 0, cx: 1800, cy: 1350, w: 3000, h: 2000 }
+  const [, , , br] = signatureCorners(crop.w, crop.h)
+  assert.deepEqual(br.map((v) => Math.round(v)), [1980, 1480, 1020, 520])
+  const t = drawTransform(crop, W, H, { max: 800, region: br })
+  near(t.a * (300 + br[0]) + t.e, 0, 1e-6, 'region left'); assert.equal(t.width, 800)
+})
+
+test('the crop screen’s box sits where the crop is, level, and its edges go back and forth unchanged', () => {
+  const W = 3600, H = 2700, crop = fitInside({ turn: 90, angle: -4, cx: 1300, cy: 1900, w: 2000, h: 2600 }, W, H)
+  const v = viewOf(crop, W, H, 360, 420)
+  const e = edgesOf(crop, W, H)
+  near(v.box.width, (e.right - e.left) * v.k, 1e-9, 'box width'); near(v.box.left, 180 + e.left * v.k, 1e-9, 'box left')
+  // The photo fits the stage, leaning
+  assert.ok(v.k > 0 && v.k * Math.max(...turnedSize(W, H, 90)) <= 420 + 1e-6)
+  const back = fromEdges(e, crop, W, H)
+  for (const key of ['cx', 'cy', 'w', 'h']) near(back[key], crop[key], 1e-9, key)
+  // The CSS matrix puts the box's centre on screen where the box is drawn
+  const [a, b, c, d, ex, fy] = v.matrix, [px, py] = [crop.cy, H - crop.cx] // the turned centre back in the photo (turn 90)
+  near(a * px + c * py + ex, v.box.left + v.box.width / 2, 1e-6, 'centre across'); near(b * px + d * py + fy, v.box.top + v.box.height / 2, 1e-6, 'centre down')
+})
+
+test('a crop stays on the photo: fitted, leaned and dragged', () => {
+  const W = 4000, H = 3000
+  const off = fitInside({ turn: 0, angle: 8, cx: 3900, cy: 200, w: 3000, h: 2000 }, W, H)
+  assert.ok(insideImage(off, W, H))
+  const whole = wholeCrop(W, H)
+  assert.ok(insideImage(whole, W, H))
+  const leaned = leanCrop(whole, 5, W, H)
+  assert.ok(insideImage(leaned, W, H) && leaned.w < W && leaned.angle === 5)
+  assert.equal(leanCrop(whole, 40, W, H).angle, LEAN)
+  // Dragging a corner far out stops at the photo's edge; a box can't be dragged inside out
+  const c = { turn: 0, angle: 0, cx: 2000, cy: 1500, w: 2000, h: 1500 }
+  const out = dragCrop(c, 'se', 5000, 5000, W, H)
+  assert.ok(insideImage(out, W, H)); near(out.cx + out.w / 2, W, 1, 'right edge at the photo’s'); near(out.cy + out.h / 2, H, 1, 'bottom at the photo’s')
+  const tiny = dragCrop(c, 'nw', 9000, 9000, W, H)
+  assert.ok(tiny.w >= 3000 * 0.04 - 1e-9 && tiny.h >= 3000 * 0.04 - 1e-9, 'never smaller than a twenty-fifth')
+  // Moving against one edge still slides along it
+  const slid = dragCrop(c, 'move', 5000, 300, W, H)
+  near(slid.cx + slid.w / 2, W, 1, 'against the right edge'); near(slid.cy, 1800, 1, 'and down as far as asked')
+  assert.ok(insideImage(dragCrop(fitInside({ ...c, angle: 6 }, W, H), 'move', -5000, -5000, W, H), W, H), 'leaning too')
+  assert.equal(nearestCorner({ left: -10, top: -10, right: 10, bottom: 10 }, 7, -3), 'ne')
+  assert.equal(nearestCorner({ left: -10, top: -10, right: 10, bottom: 10 }, -9, 9), 'sw')
+  // The auto-crop's answer, from the little copy to the photo
+  const big = fromFound({ cx: 200, cy: 150, w: 300, h: 200, angle: 1.5 }, 4000, 3000, 400, 300)
+  assert.deepEqual([big.cx, big.cy, big.w, big.h, big.angle, big.turn], [2000, 1500, 3000, 2000, 1.5, 0])
+})
+
+test('the year by her signature: what she wrote, trusted over the sum, never before 1950 or in the future', () => {
+  const y = (written, year = 0, legible = 'clear') => yearFromReading({ written, year, legible }, 2026)
+  assert.deepEqual(y('2019', 2019), { year: 2019, from: 'signature' })
+  assert.deepEqual(y('’19', 2019), { year: 2019, from: 'signature' })
+  assert.deepEqual(y("'98", 1998), { year: 1998, from: 'signature' })
+  assert.deepEqual(y('6/21', 2021), { year: 2021, from: 'signature' })
+  assert.deepEqual(y('L.H. 2003'), { year: 2003, from: 'signature' }, 'four digits are enough on their own')
+  assert.deepEqual(y('2019', 2018), { year: 2019, from: 'unsure' }, 'when Claude’s sum disagrees, what’s written wins and it says check')
+  assert.deepEqual(y('2019', 2019, 'unsure'), { year: 2019, from: 'unsure' })
+  assert.deepEqual(y('', 0, 'none'), { year: null, from: null })
+  assert.deepEqual(y('2031', 2031), { year: null, from: null }, 'not in the future')
+  assert.deepEqual(y("'40", 1940), { year: null, from: null }, 'nothing before the gallery’s earliest')
+  assert.deepEqual(y('LH', 2015, 'unsure'), { year: 2015, from: 'unsure' }, 'Claude’s year when nothing written parses')
+  assert.deepEqual(yearFromReading(null, 2026), { year: null, from: null })
+  assert.deepEqual(cleanYear('', 2026), { year: null })
+  assert.deepEqual(cleanYear(' 2019 ', 2026), { year: 2019 })
+  assert.match(cleanYear('19', 2026).error, /four digits/)
+  assert.match(cleanYear('2027', 2026).error, /1950 to 2026/)
+})
+
+test('titles, media, seasons and slugs come out tidy, and a slug is never taken twice (nor by /add)', () => {
+  assert.equal(cleanTitle('  “Autumn   pond.”  '), 'Autumn pond')
+  assert.equal(cleanTitle('x'.repeat(300)).length, 200)
+  assert.equal(cleanMedium(' watercolor on paper. '), 'Watercolor on paper')
+  assert.equal(cleanMedium('y'.repeat(100)).length, 80)
+  assert.equal(cleanMedium(''), '')
+  assert.deepEqual(cleanSeasons(['thanksgiving', 'fall', 'fall', 'monsoon']), ['thanksgiving', 'fall'], 'known ones, once each, in the app’s order')
+  assert.deepEqual(cleanSeasons('fall'), [])
+  assert.equal(slugFor('Autumn pond'), 'autumn-pond')
+  assert.equal(slugFor('Autumn pond', ['autumn-pond', 'autumn-pond-2']), 'autumn-pond-3')
+  assert.equal(slugFor('Add'), 'add-2')
+  assert.equal(slugFor('Día de los Muertos'), 'dia-de-los-muertos')
+  assert.equal(slugFor('!!!'), 'painting')
+  assert.match(slugFor('a'.repeat(100)), /^[a-z0-9-]{1,80}$/)
+  const items = [{ id: 'a', slug: 'barn' }, { id: 'b', slug: 'pond' }, { id: 'c' }]
+  assert.deepEqual(takenSlugs([{ slug: 'witch' }], [{ slug: 'autumn-stream' }], items, 'b'), ['witch', 'autumn-stream', 'barn'])
+})
+
+test('Claude’s reading fills in only what nobody has set, and turns a sideways photo upright', () => {
+  const item = { id: 'p1', status: 'ready', W: 4000, H: 3000, crop: { turn: 0, angle: 1, cx: 2000, cy: 1500, w: 3000, h: 2000 }, title: '', named: false, year: '', medium: '', seasons: [], touched: {} }
+  const reading = { signature: 'L. Hicks ’19', written: '’19', year: 2019, legible: 'clear', title: '“Barn in snow”', medium: 'watercolor on paper', seasons: ['winter', 'christmas', 'nope'], turn: 90 }
+  const r = applyReading(item, reading, 2026)
+  assert.equal(r.read, 'done'); assert.equal(r.title, 'Barn in snow'); assert.equal(r.named, false, 'still a working title')
+  assert.equal(r.year, '2019'); assert.equal(r.yearFrom, 'signature'); assert.equal(r.reading.written, '’19')
+  assert.equal(r.medium, 'Watercolor on paper'); assert.equal(r.mediumFrom, 'claude')
+  assert.deepEqual(r.seasons, ['christmas', 'winter'])
+  assert.equal(r.crop.turn, 90); assert.ok(insideImage(r.crop, 4000, 3000))
+  // What a person typed or changed stays theirs
+  const mine = applyReading({ ...item, title: 'The red barn', year: '2018', medium: 'Oil', seasons: ['fall'], touched: { title: true, year: true, medium: true, seasons: true, crop: true } }, reading, 2026)
+  assert.deepEqual([mine.title, mine.year, mine.medium, mine.seasons, mine.crop.turn], ['The red barn', '2018', 'Oil', ['fall'], 0])
+  // No year by her signature: the box is left empty, and says so
+  const none = applyReading(item, { ...reading, written: '', year: 0, legible: 'none', turn: 0 }, 2026)
+  assert.equal(none.year, ''); assert.equal(none.yearFrom, null); assert.equal(none.crop.turn, 0)
+})
+
+test('the batch knows where each photo stands, and the next to check goes round', () => {
+  const items = [
+    { id: 'a', status: 'added' }, { id: 'b', status: 'ready', sure: false, read: 'reading' }, { id: 'c', status: 'saving' },
+    { id: 'd', status: 'ready', sure: true, read: 'done' }, { id: 'e', status: 'new', read: 'waiting' }, { id: 'f', status: 'skipped' },
+  ]
+  const t = tally(items)
+  assert.deepEqual([t.total, t.ready, t.unsure, t.saving, t.new, t.reading, t.toCheck, t.finished], [6, 2, 1, 1, 1, 2, 3, false])
+  assert.equal(nextToCheck(items, 'b'), 'd')
+  assert.equal(nextToCheck(items, 'd'), 'b', 'round to the start')
+  assert.equal(nextToCheck([{ id: 'x', status: 'added' }, { id: 'y', status: 'new' }], 'x'), 'y', 'one still getting ready, when none is ready')
+  assert.equal(nextToCheck([{ id: 'x', status: 'added' }], 'x'), null)
+  assert.equal(tally([{ status: 'added' }, { status: 'skipped' }]).finished, true)
+  assert.equal(tally([]).finished, false)
+})
+
+test('Claude reads a painting for a parent only: five pictures at most, labelled, the seasons the app’s own', () => {
+  assert.equal(TASKS['read-painting'].who, 'parent'); assert.equal(TASKS['read-painting'].uploads, 5)
+  assert.match(TASKS['read-painting'].says, /corners/)
+  assert.deepEqual(Object.keys(PAINTING_SEASONS).sort(), [...SEASON_ORDER].sort(), 'the function’s seasons are src/lib/seasons.js’s')
+  assert.deepEqual(PAINTING_SCHEMA.properties.seasons.items.enum.sort(), [...SEASON_ORDER].sort())
+  const walk = (s) => {
+    if (s.type === 'object') { assert.equal(s.additionalProperties, false); assert.deepEqual([...s.required].sort(), Object.keys(s.properties).sort()); Object.values(s.properties).forEach(walk) }
+    if (s.type === 'array') walk(s.items)
+  }
+  walk(PAINTING_SCHEMA)
+  assert.ok(!('size' in PAINTING_SCHEMA.properties), 'no size: nobody measures them all')
+  const pic = { data: 'QUJD', media_type: 'image/jpeg' }
+  assert.equal(checkUploads([pic, pic]), null)
+  assert.match(checkUploads([]), /One to 5/); assert.match(checkUploads(Array(6).fill(pic)), /One to 5/)
+  assert.match(checkUploads('nope'), /One to 5/)
+  assert.match(checkUploads([pic, { data: 'x!', media_type: 'image/png' }]), /whole/)
+  assert.match(checkUploads([pic, { data: 'QUJD', media_type: 'application/pdf' }]), /picture/)
+  assert.match(checkUploads(Array(5).fill({ data: 'A'.repeat(3.5 * 1024 * 1024), media_type: 'image/jpeg' })), /too big together/)
+  const content = paintingContent(Array(7).fill(pic), 'Ask')
+  assert.equal(content.length, PAINTING_PARTS.length * 2 + 1, 'at most five pictures, each after its label')
+  assert.equal(content[0].text, 'The whole painting:'); assert.equal(content[1].type, 'image'); assert.equal(content[9].type, 'image'); assert.equal(content.at(-1).text, 'Ask')
+  const ask = paintingAsk({ titles: ['Autumn  pond', '', 'x'.repeat(200)], year: 2026 })
+  assert.match(ask, /never estimate a date from the style/); assert.match(ask, /it is 2026 now/)
+  assert.match(ask, /so far: Autumn pond; x{80}\./)
+  assert.match(ask, /halloween \(Halloween\)/)
+  assert.doesNotMatch(paintingAsk({ year: 2026 }), /so far/)
+})
+
+test('the batch screen says what goes to Claude and where the photos wait', () => {
+  const screen = readFileSync(new URL('../src/places/lifelist/AddPaintings.jsx', import.meta.url), 'utf8')
+  assert.match(screen, /go to Claude \(Anthropic\)/)
+  assert.match(screen, /Jason or Laurie add her paintings/)
+  assert.doesNotMatch(screen, /Size<input|size:/, 'no size box')
+  assert.match(screen, /waits in the family’s private storage/)
+  assert.doesNotMatch(readFileSync(new URL('../src/lib/auth.js', import.meta.url), 'utf8'), /photoStore|forgetPhotos/, 'no photos are kept on the device now')
+  const hook = readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  assert.match(hook, /from\('paintings'\)\.upload/); assert.doesNotMatch(hook, /from\('drawings'\)|public\//)
+  assert.match(readFileSync(new URL('../src/places/LifeList.jsx', import.meta.url), 'utf8'), /rest\[1\] === 'add' \? <AddPaintings \/>/)
+})
+
+test('a painting added for a season never takes Home’s frame from the one the season’s show plays from', async () => {
+  const { homePainting, showFor } = await import('../src/lib/seasonShows.js')
+  const { PAINTINGS } = await import('../src/lib/paintings.js')
+  const fresh = (slug, seasons) => ({ slug, title: slug, named: false, year: null, medium: null, size: null, src: 'x', small: 'x', w: 10, h: 10, seasons, added: '2026-11-07', focus: [0, 0, 1, 1] })
+  const list = [fresh('barn-in-fall', ['fall', 'thanksgiving']), fresh('black-cat', ['halloween']), fresh('snowy-barn', ['christmas', 'winter']), ...PAINTINGS]
+  assert.equal(homePainting('fall', list).slug, showFor('fall', list).painting.slug, 'fall’s show starts in Home’s painting')
+  assert.equal(homePainting('halloween', list).slug, 'witch-and-crow', 'the crow still flies from the witch')
+  assert.equal(homePainting('christmas', list).slug, 'snowy-barn', 'a season with no show hangs her newest of it')
+  assert.equal(homePainting('lent', list).slug, 'barn-in-fall', 'and a season with none of hers, her newest')
+})
+
+test('zoomed in, the box fills the stage (with room for its handles) and sits in its middle, leaning or not', () => {
+  const W = 4000, H = 3000
+  for (const crop of [fitInside({ turn: 0, angle: 0, cx: 2000, cy: 1500, w: 1200, h: 900 }, W, H), fitInside({ turn: 90, angle: -3, cx: 1500, cy: 1200, w: 900, h: 1300 }, W, H)]) {
+    const z = viewOf(crop, W, H, 340, 400, { zoom: true }), whole = viewOf(crop, W, H, 340, 400)
+    assert.equal(z.zoom, true); assert.equal(whole.zoom, false)
+    near(z.box.left + z.box.width / 2, 170, 1e-6, 'box centred across'); near(z.box.top + z.box.height / 2, 200, 1e-6, 'box centred down')
+    // Its handles fit: the box is at most 86% of the stage in its tighter direction, and it fills that much
+    assert.ok(z.box.width <= 340 * 0.87 && z.box.height <= 400 * 0.87, 'room for the handles')
+    assert.ok(Math.max(z.box.width / 340, z.box.height / 400) >= 0.85, 'and it fills the stage in one direction')
+    // Zoomed in is closer than the whole photo
+    assert.ok(z.k > whole.k, 'more pixels per screen pixel than the whole photo')
+  }
+})
+
+test('a painting keeps its original, and its crop, so it can be cropped again from her gallery', async () => {
+  const { storedPaths, fromRow } = await import('../src/lib/paintings.js')
+  const { readFileSync } = await import('node:fs')
+  const row = { slug: 'barn', flyer: null, leaves: null, original: true, crop: { turn: 0, angle: 1.5, cx: 900, cy: 700, w: 1200, h: 800, W: 1600, H: 1200 } }
+  assert.ok(Object.values(storedPaths('barn', row)).includes('barn/original.jpg'), 'original is among its files')
+  assert.ok(!Object.values(storedPaths('barn', { ...row, original: false })).includes('barn/original.jpg'), 'and only when kept')
+  const back = fromRow(row, { 'barn/original.jpg': 'https://signed/orig', 'barn/full.jpg': 'https://signed/full' })
+  assert.equal(back.originalUrl, 'https://signed/orig'); assert.equal(back.original, true); assert.deepEqual(back.crop, row.crop)
+  assert.equal(fromRow({ slug: 'old', original: false }, {}).originalUrl, '')
+  // The migration adds the two columns, and nothing else
+  const m = readFileSync(new URL('../supabase/migrations/20261108090000_paintings_recrop.sql', import.meta.url), 'utf8')
+  assert.match(m, /alter table public\.paintings add column if not exists original boolean not null default false/)
+  assert.match(m, /alter table public\.paintings add column if not exists crop jsonb/)
+  assert.doesNotMatch(m, /drop|grant|policy/i)
+  // Re-cropping and the details form only ever change their own painting's row
+  const re = readFileSync(new URL('../src/places/lifelist/RecropPainting.jsx', import.meta.url), 'utf8')
+  const ed = readFileSync(new URL('../src/places/lifelist/PaintingEdit.jsx', import.meta.url), 'utf8')
+  assert.match(re, /\.eq\('slug', p\.slug\)/); assert.match(ed, /\.eq\('slug', p\.slug\)/)
+  assert.doesNotMatch(re, /\.delete\(|\.upsert\(/, 'the re-crop never deletes or upserts')
+  assert.doesNotMatch(ed, /\.upsert\(/, 'the details form never upserts')
+  assert.match(ed, /\.delete\(\)\.eq\('slug', p\.slug\)/, 'its one delete is its own row')
+  // The batch saves the original with the new painting
+  assert.match(readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8'), /\[FILES\.original, kept\]/)
+})
+
+test('a parent can take a painting out of her gallery: the files, then the row, after a yes', () => {
+  const ed = readFileSync(new URL('../src/places/lifelist/PaintingEdit.jsx', import.meta.url), 'utf8')
+  assert.match(ed, /Take it out of her gallery/)
+  assert.match(ed, /<Confirm /, 'asked first')
+  // Files first: if they can't go, the row stays
+  const files = ed.indexOf(".storage.from('paintings').remove(paths)"), row = ed.indexOf(".from('paintings').delete().eq('slug', p.slug)")
+  assert.ok(files > 0 && row > files && ed.includes('if (fe) { setBusy(false); setGone(false); setErr(fe.message); return }'))
+  assert.match(ed, /navigate\('\/lifelist\/paintings', \{ replace: true \}\)/)
+})
+
+test('a batch waits in the family’s storage, parents only, and two devices see each other’s work', async () => {
+  const { inboxData, mergeInbox, claimStale, newId, SYNCED, slugFor, inboxPath } = await import('../src/lib/paintingBatch.js')
+  const { readFileSync } = await import('node:fs')
+  // What a row keeps: only the synced parts, in a fixed order, so two copies compare as text
+  const item = { id: 'a', seq: 5, status: 'ready', title: 'Barn', local: false, editing: true, file: 'secret.heic', touched: {}, W: 10 }
+  const data = inboxData(item)
+  assert.deepEqual(Object.keys(data), ['id', 'seq', 'status', 'title', 'touched', 'W'])
+  assert.ok(!('local' in data) && !('editing' in data) && !('file' in data), 'what stays on the device stays')
+  assert.equal(JSON.stringify(inboxData({ W: 10, touched: {}, title: 'Barn', status: 'ready', seq: 5, id: 'a' })), JSON.stringify(data), 'the same however the keys came')
+  assert.ok(SYNCED.includes('crop') && SYNCED.includes('readAt') && SYNCED.includes('savingAt'))
+  assert.match(newId(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+  assert.equal(inboxPath('abc', 'thumb'), 'inbox/abc/thumb.jpg')
+  assert.equal(slugFor('Inbox'), 'inbox-2', 'no painting takes the folder photos wait in')
+  // Merging: storage wins, except what this device changed and hasn't sent; photos still being got ready stay; put-away ones go
+  const remote = [{ id: 'b', seq: 2, title: 'B in storage' }, { id: 'a', seq: 1, title: 'A in storage' }]
+  const local = [{ id: 'a', seq: 1, title: 'A here', editing: true }, { id: 'c', seq: 9, local: true, status: 'new' }, { id: 'gone', seq: 0 }]
+  const clean = mergeInbox(local, remote, new Set())
+  assert.deepEqual(clean.map((x) => [x.id, x.title]), [['a', 'A in storage'], ['b', 'B in storage'], ['c', undefined]])
+  assert.equal(clean[0].editing, true, 'the form open on this device stays open')
+  assert.equal(mergeInbox(local, remote, new Set(['a']))[0].title, 'A here', 'a change not yet sent wins')
+  assert.ok(mergeInbox([{ id: 'n', seq: 3, title: 'new here' }], [], new Set(['n'])).some((x) => x.id === 'n'), 'on its way to storage: kept')
+  assert.ok(!mergeInbox([{ id: 'n', seq: 3 }], [], new Set()).some((x) => x.id === 'n'), 'put away elsewhere: gone')
+  // A claim on a reading or a save holds for a few minutes, then another device may take it over
+  assert.equal(claimStale(Date.now() - 1000), false); assert.equal(claimStale(Date.now() - 5 * 60 * 1000), true); assert.equal(claimStale(undefined), true)
+  // The migration: a parents-only table, nothing for anyone else
+  const m = readFileSync(new URL('../supabase/migrations/20261108120000_painting_inbox.sql', import.meta.url), 'utf8').replace(/--.*$/gm, '')
+  assert.match(m, /create table public\.painting_inbox/)
+  const policies = [...m.matchAll(/create policy \w+ on public\.painting_inbox[^;]+;/gi)].map((x) => x[0])
+  assert.equal(policies.length, 4)
+  for (const p of policies) assert.match(p, /\(select public\.is_parent\(\)\)/); for (const p of policies) assert.doesNotMatch(p, /is_family/)
+  // The hook sends pictures and rows to storage, not to the device
+  const hook = readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  assert.doesNotMatch(hook, /photoStore|indexedDB\.open|localStorage\.setItem/)
+  assert.match(hook, /putInboxFile/); assert.match(hook, /saveInboxRow/); assert.match(hook, /READ_AT_ONCE = 3/)
+})
+
+test('a slow or stuck upload holds nothing up: sending is outside the canvas queue, and reading never waits on the network’s first look', async () => {
+  const hook = (await import('node:fs')).readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  // The queue the canvas work waits in (oneAtATime) holds the preparing and nothing sent up
+  const prep = hook.slice(hook.indexOf('// 1. A new photo'), hook.indexOf('// 2. Claude reads'))
+  const queued = prep.slice(prep.indexOf('oneAtATime(async () => {'), prep.indexOf('}).then('))
+  assert.match(queued, /preparePhoto/); assert.doesNotMatch(queued, /putInboxFile|supabase/)
+  // Sending is in the background, tries again, and gives up on a request that never answers
+  const send = hook.slice(hook.indexOf('const send = useCallback'), hook.indexOf('// 1. A new photo'))
+  assert.match(send, /within\(putInboxFile/); assert.match(send, /attempt >= 3/); assert.match(send, /sendError/)
+  // A photo still being sent can be read, from the copy held here, and neither reading nor saving waits for the first look
+  const reading = hook.slice(hook.indexOf('// 2. Claude reads'), hook.indexOf('// 3. Saved'))
+  assert.match(reading, /\(!x\.local \|\| x\.sending\)/); assert.doesNotMatch(reading, /!loaded/)
+  assert.doesNotMatch(hook.slice(hook.indexOf('// 3. Saved')), /if \(!loaded/)
+  const store = (await import('node:fs')).readFileSync(new URL('../src/lib/inboxStore.js', import.meta.url), 'utf8')
+  assert.match(store, /holdHere/); assert.match(store, /here\.has\(`\$\{id\}:\$\{name\}`\)/); assert.match(store, /didn’t answer/)
+})
+
+test('Claude reads the photo on screen first, then the ones after it', async () => {
+  const hook = (await import('node:fs')).readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  assert.match(hook, /const from = Math\.max\(0, items\.findIndex\(\(x\) => x\.id === atId\)\)/)
+  assert.match(hook, /const ordered = \[\.\.\.items\.slice\(from\), \.\.\.items\.slice\(0, from\)\]/)
+  assert.match(hook, /READ_TIMEOUT_MS/, 'one stuck request can’t hold a place for ever')
+})

@@ -4,7 +4,7 @@ import { askClaude, prepareUpload } from './claude.js'
 import { photoPaths, takenOn, suggestionRows, handTag, MAX_PER_BATCH } from './photos.js'
 
 // ============================================
-// photoStore -- the trip photo reel, shared by every screen that shows a photo
+// reelStore -- the trip photo reel, shared by every screen that shows a photo
 // ============================================
 // One copy of the photos and their tags in memory, loaded once and refreshed when
 // something changes, so a recipe page, a bird's page and the Garden don't each ask.

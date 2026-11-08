@@ -140,7 +140,7 @@ test('photos are private and the family’s; tags are suggestions until confirme
   assert.match(m, /status text not null default 'suggested' check \(status in \('suggested', 'confirmed'\)\)/)
   assert.ok(!/\blat\b|\blng\b/.test(m), 'a town and a day, never a point')
   assert.ok(!/'person'|'people'/.test(m), 'no kind for a person')
-  const store = src('src/lib/photoStore.js')
+  const store = src('src/lib/reelStore.js')
   assert.match(store, /from\('trips'\)\.upload/)
   assert.ok(!/public\//.test(store), 'never in the app’s own files')
   assert.match(store, /status: 'suggested'|suggestionRows/)
