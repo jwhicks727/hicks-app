@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { useSession } from './auth.js'
-import { prepareUpload } from './claude.js'
 import { sortDrawings, drawingFiles, migrationMissing } from './drawings.js'
 
 // Anna's drawings: the table's rows (every one, paged: Supabase stops at 1000
@@ -30,27 +29,12 @@ export function useDrawings() {
   return { ...state, reload: useCallback(() => setN((x) => x + 1), []) }
 }
 
-/**
- * A drawing in: the picture and a small one into the private bucket, then its row. The files come out again if the
- * row can't be saved, so nothing is left in the bucket that no row points at.
- */
-export async function addDrawing({ file, fields, me }) {
-  const id = crypto.randomUUID(), { path, thumb } = drawingFiles(id)
-  const full = await prepareUpload(file, { max: 2000, quality: 0.9 }), small = await prepareUpload(file, { max: 640, quality: 0.82 })
-  const up1 = await supabase.storage.from('drawings').upload(path, full.blob, { contentType: 'image/jpeg', upsert: false })
-  if (up1.error) return { error: up1.error }
-  const up2 = await supabase.storage.from('drawings').upload(thumb, small.blob, { contentType: 'image/jpeg', upsert: false })
-  const res = await supabase.from('annas_drawings').insert({ id, ...fields, path, thumb_path: up2.error ? null : thumb, width: full.width, height: full.height, added_by: me ? me.id : null }).select().single()
-  if (res.error) await supabase.storage.from('drawings').remove([path, up2.error ? null : thumb].filter(Boolean))
-  return res
-}
-
 export const saveDrawing = (id, fields) => supabase.from('annas_drawings').update(fields).eq('id', id)
 
 /** A drawing down: its row, then its files. */
 export async function removeDrawing(d) {
   const res = await supabase.from('annas_drawings').delete().eq('id', d.id)
-  if (!res.error) await supabase.storage.from('drawings').remove([d.path, d.thumb_path].filter(Boolean))
+  if (!res.error) await supabase.storage.from('drawings').remove([d.path, d.thumb_path, d.original ? drawingFiles(d.id).original : null].filter(Boolean))
   return res
 }
 

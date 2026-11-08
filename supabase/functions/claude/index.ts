@@ -14,7 +14,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 import {
   FALLBACK_SONNET, pickLatest, costCents, overCap, CAPS, checkUpload, uploadBlock, checkHistory,
   TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk,
-  checkUploads, paintingAsk, paintingContent,
+  checkUploads, paintingAsk, paintingContent, drawingAsk,
 } from '../_shared/claude.js'
 import { cellOf, validCellId, clean as cleanText, GUIDE_TOOL, GUIDE_BRIEF, guideAsk, cleanGuide, searchedUrls, searchesIn, SEARCH_CENTS, matchPlace, publicSite, EAT_TOOL, eatAsk, cleanPlaces, GUIDE_KEEP_MS, BUILDING_STALE_MS, GUIDES_A_DAY, UA } from '../_shared/around.js'
 import { previewImage, isPicture } from '../_shared/wildpics.js'
@@ -178,6 +178,13 @@ Deno.serve(async (req) => {
     if (body.task === 'read-painting') {
       const titles = Array.isArray(body.titles) ? body.titles.map(String) : []
       const msg = await ask({ ...base, messages: [{ role: 'user', content: paintingContent(body.files, paintingAsk({ titles, year: Number(today().slice(0, 4)) })) }] })
+      await record(msg)
+      return refused(msg) ? reply(200, { reading: null }) : reply(200, { reading: jsonOf(msg), model: id })
+    }
+    // ---- Anna's drawing: a working title, the topic and any day written on it ---------------------
+    if (body.task === 'read-drawing') {
+      const titles = Array.isArray(body.titles) ? body.titles.map(String) : []
+      const msg = await ask({ ...base, messages: [{ role: 'user', content: [uploadBlock(body.file), { type: 'text', text: drawingAsk({ titles, today: today() }) }] }] })
       await record(msg)
       return refused(msg) ? reply(200, { reading: null }) : reply(200, { reading: jsonOf(msg), model: id })
     }

@@ -6,6 +6,37 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — Anna's drawings come in many at once, and Claude may suggest a title
+
+Jason asked for everything Laurie's paintings now have (adding many at once, an auto-crop and a crop
+and turn tool, a batch that can be sent from one device and finished on another, cropping again
+later) for Anna's Gallery. He also said, when asked, that Claude may make guesses, and that everyone
+can use the batch screen. Decided:
+
+- **Claude suggests, a person confirms.** For each drawing Claude suggests a working title, whether
+  it's about the pets, and any day written on it, each shown with where it came from, none kept until
+  whoever is adding it says it looks right. **This reverses** 2026-11-05 ("her title, the day and her
+  words are what the person adding it typed, never guessed from the picture"; kept below) for the
+  title, the topic and a written day. **What stays:** her words are only ever what someone types
+  (Claude is never asked for them), and a name written on a drawing is never taken from it (the cats'
+  names stay Jason's to type: 2026-11-05, "Pets starts as a coming-soon screen"). Only the cropped photo
+  goes to Claude (Anthropic), the screen says so first, and it can be switched off. Any one in the family
+  can ask for it (it's a family task, not a parent's), about a cent a drawing, an estimate, within the caps.
+- **Anyone in the family adds, in a batch**, as they could add one at a time (Anna herself, or a parent
+  for her). `/drawings/add` replaces "Add a drawing". A set sent from Anna's tablet waits in the family's
+  storage (`drawing_inbox` and `inbox/<id>/` in the `drawings` bucket) and a parent can finish it at a
+  computer: **whoever sent a photo sees and changes it, and so do the parents**, who see everyone's;
+  a parent finishing it saves the drawing under Anna's name (a new policy lets a parent add a drawing
+  for her). The title is still required.
+- **A drawing keeps its original and its crop** (`<id>.original.jpg`, `annas_drawings.original`, `crop`), so
+  its page offers "Crop it again". A crop made again is saved under new file names and the old two are
+  taken away, rather than written over: the bucket has no right to change a file, and a link already
+  handed out then never shows the old crop. Drawings added before this keep their details but not their crop.
+- **Kept smaller than the paintings:** 3000 px at 88% (the bucket's limit is 8 MB a file), saved at 2000 px
+  and 640 px as before. Migration `20261108150000_drawing_inbox`; the `claude` function gains `read-drawing`.
+
+---
+
 ## 2026-11-08 — A batch of her paintings waits in the family's storage, so any device can pick it up
 
 Jason wants to send the photos from his phone, go to a computer to do the cropping, and be

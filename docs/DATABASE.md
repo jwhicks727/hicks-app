@@ -196,6 +196,7 @@ model, is in `supabase/functions/_shared/claude.js`.
   once answered yes or no, is no longer read; its rows are kept as history.
 - **A refused request** is retried server-side on Anthropic's recommended
   fallback model (`fallbacks: "default"`).
+- **Anna's drawings, as they're added** (`read-drawing`, anyone in the family): the cropped photo of the drawing, one picture. Claude suggests a working title, whether it's about the pets and any day written on it; her words are never asked for, and a name written on a drawing is never taken. Nothing is written until whoever is adding it says it looks right on screen. About a cent a drawing (an estimate, not yet measured), within the caps.
 - **Laurie's paintings, as they're added** (`read-painting`, Jason or Laurie
   only): the cropped photo and its four corners enlarged (five pictures at
   most, `checkUploads`). Claude reads the year by her signature and suggests a
@@ -259,6 +260,7 @@ sign-in link won't come back to the app.
 | `garden_plants` | What grows in a spot: variety, when planted, water every N days | The family | The family |
 | `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
 | `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
+| `drawing_inbox` | A batch of Anna's drawings waiting to be added: one row a photo (`data`: its crop, title, day, topic and where it stands) and who sent it (`added_by`); its three pictures under `inbox/<id>/` in the private `drawings` bucket. Not kept on any device | Whoever sent a photo, and the parents | Whoever sent it, and the parents; a row goes when its batch is put away |
 | `annas_drawings` | Anna's Gallery: a drawing's title, the day she drew it, her own words, what it's about (`pets` hangs it in the Pets launch), its size; the pictures (a large one and a small one) in the private `drawings` bucket, read through signed links | The family | Anyone in the family adds their own; whoever added it, or a parent, changes or removes it (and its files) |
 | `painting_inbox` | A batch of Laurie's paintings waiting to be added: one row a photo (`data`: its crop, title, year, medium, seasons and where it stands), its three pictures under `inbox/<id>/` in the private `paintings` bucket. Not kept on any device | Parents | Parents; a row goes when its batch is put away |
 | `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move, the original photo's flag and the crop it was saved with (`original`, `crop`); the files in the private `paintings` bucket, the original at `<slug>/original.jpg` | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
@@ -318,6 +320,7 @@ Migration index:
 | `20261102120000_birds_more_cache` | `outside_cache` also takes the key `birds-more` (hotspots, county numbers, this month's possibles) |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
+| `20261108150000_drawing_inbox` | `drawing_inbox` (a batch of Anna's drawings waiting to be added, so it can be sent from one device and finished on another; whoever sent a photo and the parents see and change it); `annas_drawings.original` and `crop` (a drawing keeps its original photo and its crop, so it can be cropped again); and a policy so a parent can add a drawing for Anna from a set she sent. Additive. |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
 | `20261108120000_painting_inbox` | `painting_inbox`: a batch of photos waiting to be checked, parents only (Jason or Laurie, either), so it can be sent from a phone and cropped on a computer or picked up on another device. The pictures use the `paintings` bucket's existing policies. Additive. |
 | `20261108090000_paintings_recrop` | Two columns on `paintings`: `original` (the photo is kept at `<slug>/original.jpg`) and `crop` (the crop it was saved with), so a painting can be cropped again from her gallery. Additive; the family reads and the parents change, as before. |

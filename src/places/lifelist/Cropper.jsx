@@ -10,7 +10,7 @@ import { viewOf, edgesOf, dragCrop, nearestCorner, fitInside, turnCrop, leanCrop
 const HANDLES = { nw: 'Top-left corner', n: 'Top edge', ne: 'Top-right corner', e: 'Right edge', se: 'Bottom-right corner', s: 'Bottom edge', sw: 'Bottom-left corner', w: 'Left edge' }
 const PAD = 22 // room round the photo for the handles
 
-export default function Cropper({ src, W, H, crop, auto, onChange }) {
+export default function Cropper({ src, W, H, crop, auto, onChange, what = 'painting' }) {
   const stage = useRef(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
   const [live, setLive] = useState(null)
@@ -100,7 +100,7 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
           </div>
         )}
       </div>
-      <p className="ll-crop-how">Drag the edges or corners, or tap where a corner of the painting is.</p>
+      <p className="ll-crop-how">Drag the edges or corners, or tap where a corner of the {what} is.</p>
       <div className="ll-crop-tools">
         <button type="button" className="ll-crop-b" onClick={() => turn(-90)} aria-label="Turn it left">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h10.5a5.5 5.5 0 0 1 0 11H10M8 5.5 4 9.5l4 4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>

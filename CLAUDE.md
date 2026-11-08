@@ -211,9 +211,15 @@ licence nobody wrote down.
   in the private `drawings` bucket and are read through signed links, never in
   `public/` or `src/` (anything in the built app can be opened by anyone with the
   address), and a drawing is shown whole, as she drew it: crop and frame it, never
-  alter it. Her title, the day and her words are what the person adding it typed,
-  never guessed from the picture. Anything that moves around a drawing (the Pets
-  launch) is drawn in code (`tests/drawings.test.mjs`).
+  alter it. When drawings are added (`src/places/AddDrawings.jsx`) Claude suggests
+  a working title, whether it's about the pets and any day written on it, each shown
+  with where it came from for whoever is adding it to confirm or change (Jason, decisions
+  log 2026-11-08); her words are only ever what someone types, and a name written on a
+  drawing is never taken from it. Only the cropped photo goes to Claude, the screen says
+  so, and it can be switched off. Crop and straighten on the phone, like Laurie's
+  (`src/lib/drawingBatch.js`), and the original is kept (`annas_drawings.original`,
+  `crop`) so a drawing can be cropped again. Anything that moves around a drawing (the
+  Pets launch) is drawn in code (`tests/drawings.test.mjs`, `tests/drawing-batch.test.mjs`).
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything
   large: iPhones repaint it slowly. Soft shapes come from gradients.
@@ -273,12 +279,13 @@ licence nobody wrote down.
   background, so anything someone types into, or that takes more than one
   tap (a cook check, a new source), keeps its draft on the device until it's
   finished or cancelled (`useDraft`, `src/lib/useDraft.js`; drafts are
-  cleared on sign-out). A batch of Laurie's paintings waiting to be added is not
-  kept on a device at all: it waits in the family's storage (`painting_inbox` and
-  `inbox/<id>/` in the private `paintings` bucket, `src/lib/inboxStore.js`), parents
-  only, so it survives the app closing and can be picked up on another device (send
-  from a phone, crop on a computer). A device keeps only a small draft of which
-  photo it was on.
+  cleared on sign-out). A batch of Laurie's paintings or Anna's drawings waiting to be
+  added is not kept on a device at all: it waits in the family's storage (`painting_inbox`
+  and `inbox/<id>/` in the private `paintings` bucket, parents only; `drawing_inbox` and
+  `inbox/<id>/` in the `drawings` bucket, whoever sent a photo and the parents;
+  `src/lib/inboxStore.js`), so it survives the app closing and can be picked up on another
+  device (send from a phone, crop on a computer). A device keeps only a small draft of
+  which photo it was on.
 
 ## The database (Supabase)
 
