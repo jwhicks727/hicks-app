@@ -251,6 +251,11 @@ licence nobody wrote down.
   `crop`) so a drawing can be cropped again. Anything that moves around a drawing (the
   Pets launch) is drawn in code (`tests/drawings.test.mjs`, `tests/drawing-batch.test.mjs`).
   The Pets launch always hangs the first drawing marked "Our pets", never a newer one.
+  Anna's Art is upgraded in step with Laurie's gallery (decisions log, 2026-11-08): the
+  featured wall and the finder are one shared part (`src/parts/ArtFinder.jsx`, her rows
+  through `artOf`, `src/lib/annasArt.js`), so a change to one wall is made for both. What
+  goes to Claude about her art never includes her own words, and her featured wall
+  (`collection` 'drawings') never judges or ranks her work (`tests/annas-art.test.mjs`).
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything
   large: iPhones repaint it slowly. Soft shapes come from gradients.

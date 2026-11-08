@@ -12,6 +12,18 @@ import { drawingsInbox } from '../lib/drawingInbox.js'
 import { preparePhoto, readingFiles, paintingFiles, oneAtATime, printOfCrop, printFromPicture, measurePicture } from './lifelist/paintingPhotos.js'
 import { cropKey, missingColumn } from './lifelist/usePaintingBatch.js'
 import { lookAlikes } from '../lib/artColour.js'
+import { cleanShape } from '../lib/shapes.js'
+import { cleanLooks } from '../lib/gallery.js'
+
+/** The columns the Anna's Art migrations add (20261108200000, 20261108210000): left out and tried again if they haven't been run. */
+const NEW_COLUMNS = ['print', 'medium', 'shape', 'palette', 'looks']
+/** A write to her table that still works before those steps are run: without the new columns, the second time. */
+export async function writeDrawing(run, row) {
+  const first = await run(row)
+  if (!first.error || !missingColumn(first.error)) return { ...first, old: false }
+  const again = await run(Object.fromEntries(Object.entries(row).filter(([k]) => !NEW_COLUMNS.includes(k))))
+  return { ...again, old: true }
+}
 
 // The batch of photos being added to Anna's Art. Like Laurie's (src/places/lifelist/usePaintingBatch.js) it
 // waits in the family's storage, not on one device: anyone in the family can send photos from one device and
@@ -55,6 +67,8 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
   // Fingerprints of her art already on the wall: kept with each, and measured here for any added before they were
   const [prints, setPrints] = useState({})
   const [noPrints, setNoPrints] = useState(false) // the migration that keeps them hasn't been run
+  const [oldDb, setOldDb] = useState(false) // saved without the new columns: their migration hasn't been run
+  const parent = Boolean(me && me.role === 'parent')
 
   const update = useCallback((id, fn) => setItems((xs) => xs.map((x) => (x.id === id ? fn(x) : x))), [])
   const isDirty = useCallback((x) => !x.local && pushed.current.get(x.id) !== JSON.stringify(drawingInboxData(x)), [])
@@ -233,7 +247,8 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
 
   // Which photos look like art already on her wall, or like another photo in this batch
   const alike = useMemo(() => {
-    const onWall = gallery.map((d) => ({ id: d.id, title: d.title, print: d.print || prints[d.id], where: 'gallery' }))
+    // A photo can go in place of one already up only for whoever added that one, or a parent (who may change its files)
+    const onWall = gallery.map((d) => ({ id: d.id, title: d.title, print: d.print || prints[d.id], where: 'gallery', canReplace: parent || Boolean(me && d.added_by === me.id), path: d.thumb_path || d.path }))
     const out = {}
     items.forEach((x, i) => {
       if (!x.print || DONE.includes(x.status) || x.status === 'saving') return
@@ -253,22 +268,40 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
     busy.current.add(key)
     saving.current.add(it.id)
     ;(async () => {
-      const fields = cleanDrawing({ title: it.title, madeOn: it.madeOn, words: it.words, topic: it.topic }, today)
+      const fields = cleanDrawing({ title: it.title, madeOn: it.madeOn, words: it.words, topic: it.topic, medium: it.medium || '' }, today)
       if (fields.error) throw new Error(fields.error)
       const kept = await within(inboxBlob(it.id), 60000, 'The photo couldn’t be fetched from the family’s storage.')
       const f = await oneAtATime(() => paintingFiles(kept, it.crop, DRAWING_SAVED))
+      const measured = { width: f.w, height: f.h, crop: { ...it.crop, W: it.W, H: it.H }, print: f.print, palette: f.palette }
+      if (it.replace) {
+        // A better photo of one already on her wall: its pictures and crop change; its title, day, words and topic stay as
+        // they were kept, and its medium, shape and Claude's words are filled in only where it had none. The bucket takes
+        // files added but never written over, so the new pictures get names of their own and the old ones are taken away.
+        const { data: old, error: readErr } = await supabase.from('annas_drawings').select('*').eq('id', it.replace).maybeSingle()
+        if (readErr) throw readErr
+        if (!old) throw new Error('That one isn’t on her wall any more. Add this one as a new piece instead.')
+        const names = drawingFiles(old.id, Date.now().toString(36))
+        await putDrawingFile(names.path, f.full); await putDrawingFile(names.thumb, f.small)
+        // Its original goes too, so cropping it again starts from this photo
+        await supabase.storage.from('drawings').remove([names.original]).catch(() => {})
+        const kept2 = await supabase.storage.from('drawings').upload(names.original, kept, { contentType: 'image/jpeg', upsert: false })
+        const fill = { medium: old.medium || fields.medium, shape: old.shape ?? cleanShape(it.shape), looks: old.looks ?? cleanLooks(it.looks) }
+        const { error, old: o } = await writeDrawing((row) => supabase.from('annas_drawings').update(row).eq('id', old.id), { ...measured, ...fill, path: names.path, thumb_path: names.thumb, original: !kept2.error })
+        if (error) { await supabase.storage.from('drawings').remove([names.path, names.thumb]).catch(() => {}); throw error }
+        if (o) setOldDb(true)
+        await supabase.storage.from('drawings').remove([old.path, old.thumb_path].filter((p) => p && p !== names.path && p !== names.thumb)).catch(() => {})
+        return
+      }
       const names = drawingFiles(it.id)
       // The original (the kept copy) goes up too, so the drawing can be cropped again later
       await putDrawingFile(names.path, f.full); await putDrawingFile(names.thumb, f.small); await putDrawingFile(names.original, kept)
       // Upsert: the id was made when the photo was, so a second go after an interruption only meets its own row
-      const row = {
-        id: it.id, ...fields, path: names.path, thumb_path: names.thumb, width: f.w, height: f.h,
-        added_by: it.addedBy || (me ? me.id : null), original: true, crop: { ...it.crop, W: it.W, H: it.H }, print: f.print,
-      }
-      let { error } = await supabase.from('annas_drawings').upsert(row, { onConflict: 'id' })
-      // Before the migration that keeps fingerprints is run, it's saved without one
-      if (error && missingColumn(error)) { const { print: _p, ...plain } = row; ({ error } = await supabase.from('annas_drawings').upsert(plain, { onConflict: 'id' })) }
+      const { error, old: o } = await writeDrawing((row) => supabase.from('annas_drawings').upsert(row, { onConflict: 'id' }), {
+        id: it.id, ...fields, path: names.path, thumb_path: names.thumb, added_by: it.addedBy || (me ? me.id : null), original: true,
+        shape: cleanShape(it.shape), looks: cleanLooks(it.looks), ...measured,
+      })
       if (error) throw error
+      if (o) setOldDb(true)
     })().then(() => {
       busy.current.delete(key); saving.current.delete(it.id)
       dropInboxFiles([it.id], ['kept', 'view']).catch(() => {}) // only its thumbnail stays, for the strip
@@ -281,9 +314,11 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
   }, [items, update, onSaved, today, me])
 
   return {
-    items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, today, alike,
+    items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, today, alike, oldDb,
     /** Looks like one already on her wall, but it's a different one: add it anyway. */
-    dupOk(id, ok = true) { update(id, (x) => ({ ...x, dupOk: ok })) },
+    dupOk(id, ok = true) { update(id, (x) => ({ ...x, dupOk: ok, replace: null })) },
+    /** Put this photo in the place of one already on her wall (an id), or not (null). */
+    replaceWith(id, replace) { update(id, (x) => ({ ...x, replace, dupOk: false })) },
     refresh: reload,
     /** New photos into the batch, under whoever sent them; the first to check stays where it was. */
     add(list) {
@@ -291,7 +326,7 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
       const fresh = list.map((f, i) => {
         const id = newId()
         files.current.set(id, f)
-        return { id, seq: base + i, local: true, name: f.name || 'A photo', addedBy: me ? me.id : null, status: 'new', read: ui.read ? 'waiting' : 'off', title: '', titleFrom: null, madeOn: '', madeOnFrom: null, topic: '', topicFrom: null, words: '', touched: {} }
+        return { id, seq: base + i, local: true, name: f.name || 'A photo', addedBy: me ? me.id : null, status: 'new', read: ui.read ? 'waiting' : 'off', title: '', titleFrom: null, madeOn: '', madeOnFrom: null, topic: '', topicFrom: null, words: '', medium: '', mediumFrom: null, shape: null, shapeFrom: null, looks: null, touched: {} }
       })
       setItems((xs) => [...xs, ...fresh])
       setUi((u) => ({ ...u, at: latest.current.some((x) => x.id === u.at && !DONE.includes(x.status)) ? u.at : fresh[0].id }))
@@ -316,9 +351,9 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
     async saveDetails(id) {
       const it = latest.current.find((x) => x.id === id)
       if (!it) return
-      const fields = cleanDrawing({ title: it.title, madeOn: it.madeOn, words: it.words, topic: it.topic }, today)
+      const fields = cleanDrawing({ title: it.title, madeOn: it.madeOn, words: it.words, topic: it.topic, medium: it.medium }, today)
       if (fields.error) { update(id, (x) => ({ ...x, saveError: fields.error })); return }
-      const { error } = await saveDrawing(it.id, fields)
+      const { error } = await writeDrawing((row) => saveDrawing(it.id, row), { ...fields, looks: cleanLooks(it.looks) })
       if (error) { update(id, (x) => ({ ...x, saveError: error.message })); return }
       update(id, (x) => ({ ...x, editing: false, saveError: null, title: fields.title }))
       onSaved()

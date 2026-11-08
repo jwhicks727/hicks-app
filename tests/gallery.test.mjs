@@ -228,7 +228,7 @@ test('the gallery can be narrowed by colour, mood, what it shows, year, season, 
   assert.deepEqual(applyFilters(LIST, { q: 'cat 2022' }).map((p) => p.slug), ['blue-cat'], 'every word typed must be found')
   assert.deepEqual(applyFilters(LIST, { q: 'blues' }).map((p) => p.slug), ['blue-cat', 'blue-sea'], 'colours can be typed')
   assert.equal(filterCount({ colour: 'blue', q: ' ' }), 1)
-  assert.equal(mediumWord('Watercolour on paper'), 'Watercolor'); assert.equal(mediumWord('Mixed media and collage'), 'Mixed media'); assert.equal(mediumWord('Tempera'), 'Other'); assert.equal(mediumWord(''), '')
+  assert.equal(mediumWord('Watercolour on paper'), 'Watercolor'); assert.equal(mediumWord('Mixed media and collage'), 'Mixed media'); assert.equal(mediumWord('Tempera'), 'Paint'); assert.equal(mediumWord('Embroidery'), 'Other'); assert.equal(mediumWord(''), '')
 })
 
 test('her paintings sort newest in, by when she painted them, as a rainbow, A to Z or shuffled', () => {
@@ -286,7 +286,7 @@ test('Claude chooses a wall from facts, never pictures, and its answer is checke
   assert.equal(t.who, 'family'); assert.ok(!t.upload && !t.uploads, 'no picture goes with it')
   assert.match(t.says, /weather/); assert.match(t.says, /concerts/)
   const cat = catalogOf(LIST)
-  assert.deepEqual(Object.keys(cat[0]).sort(), ['colours', 'feel', 'medium', 'month', 'moods', 'seasons', 'shape', 'shows', 'slug', 'style', 'title', 'weather', 'year'].sort())
+  assert.deepEqual(Object.keys(cat[0]).sort(), ['about', 'colours', 'feel', 'kind', 'medium', 'month', 'moods', 'seasons', 'shape', 'shows', 'slug', 'style', 'title', 'weather', 'year'].sort())
   const ask = featureAsk({ catalog: cat, context: { today: '2026-11-08', weather: 'Light rain, 58°F now', coming: ['a concert on 2026-11-12: Goose'], seasons: ['Fall'], recent: ['Feeling blue'] } })
   assert.match(ask, /blue-cat \| blue cat \| 3\/2022 \| Watercolor on paper/)
   assert.match(ask, /Weather at home now: Light rain, 58°F now/); assert.match(ask, /Goose/); assert.match(ask, /choose something different\): Feeling blue/)
@@ -318,7 +318,7 @@ test('a painting read when it’s added, or looked at again, asks for the month,
 
 test('the screens that send her paintings to Claude say so first', () => {
   assert.match(read('src/places/lifelist/LookAgain.jsx'), /go to Claude \(Anthropic\)/)
-  assert.match(read('src/places/lifelist/Gallery.jsx'), /Claude is sent her paintings’ titles/)
+  assert.match(read('src/parts/ArtFinder.jsx'), /Claude is sent her paintings’ titles/)
   assert.match(read('src/places/lifelist/AddPaintings.jsx'), /the shape of its canvas/)
 })
 

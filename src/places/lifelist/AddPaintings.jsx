@@ -13,7 +13,7 @@ import { inboxUrl } from '../../lib/inboxStore.js'
 import { cleanTitle, cleanYear, MONTHS } from '../../lib/paintingBatch.js'
 import { SEASONS, SEASON_ORDER } from '../../lib/seasons.js'
 import { shapeName } from '../../lib/shapes.js'
-import { MOODS, STYLES, WEATHERS } from '../../lib/gallery.js'
+import LookWords from '../../parts/LookWords.jsx'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { usePaintingBatch } from './usePaintingBatch.js'
 import Cropper from './Cropper.jsx'
@@ -218,7 +218,7 @@ function Review({ b, it, loaded, onSkip }) {
             {SEASON_ORDER.map((k) => <button key={k} type="button" aria-pressed={it.seasons.includes(k)} onClick={() => set({ seasons: it.seasons.includes(k) ? it.seasons.filter((x) => x !== k) : [...it.seasons, k], seasonsFrom: null })}>{SEASONS[k].label}</button>)}
           </fieldset>
           <From it={it} field="seasons" />
-          <Looks looks={it.looks} onChange={(looks) => set({ looks })} />
+          <LookWords looks={it.looks} onChange={(looks) => set({ looks })} />
           {it.read === 'failed' && <p className="ll-up-from">Claude couldn’t read it: {it.readError} <button type="button" className="ll-up-link" onClick={() => b.readAgain(it.id)}>Read it again</button></p>}
           {it.read === 'done' && it.touched && it.touched.crop && <p className="ll-up-from">Cropped differently since Claude read it? <button type="button" className="ll-up-link" onClick={() => b.readAgain(it.id)}>Read it again</button></p>}
           {it.saveError && <p className="err" role="alert">It couldn’t be saved: {it.saveError}</p>}
@@ -271,31 +271,6 @@ function From({ it, field }) {
   else if (field === 'shape') words = it.shape && it.shapeFrom === 'claude' ? `Claude thinks its canvas is ${shapeName(it.shape).toLowerCase()}: check its outline fits.` : null
   if (!words) return null
   return <p className={'ll-up-from' + ((field === 'year' && it.yearFrom === 'unsure') || (field === 'month' && it.monthFrom === 'unsure') ? ' ll-up-flag' : '')}>{words}</p>
-}
-
-/**
- * What Claude saw in it, kept with it for the gallery's filters and featured walls once this is saved: each word can be
- * taken off with a tap (Claude's words are only ever suggestions until someone keeps them).
- */
-function Looks({ looks, onChange }) {
-  if (!looks) return null
-  const words = [
-    ...(looks.subjects || []).map((w) => ['subjects', w, w]),
-    ...(looks.moods || []).map((w) => ['moods', w, (MOODS[w] || w).toLowerCase()]),
-    ...(looks.style ? [['style', looks.style, (STYLES[looks.style] || looks.style).toLowerCase()]] : []),
-    ...(looks.weather ? [['weather', looks.weather, (WEATHERS[looks.weather] || looks.weather).toLowerCase()]] : []),
-  ]
-  if (!words.length) return null
-  const drop = (k, w) => {
-    const next = { ...looks, [k]: Array.isArray(looks[k]) ? looks[k].filter((x) => x !== w) : '' }
-    onChange(next.subjects.length || next.moods.length || next.style || next.weather ? next : null)
-  }
-  return (
-    <div className="ll-looks">
-      <span className="ll-looks-head">What Claude sees in it, for finding it in her gallery (tap one that’s wrong):</span>
-      <span className="ll-looks-row">{words.map(([k, w, label]) => <button key={k + w} type="button" className="ll-look" onClick={() => drop(k, w)} aria-label={`Take “${label}” off`}>{label} <span aria-hidden="true">×</span></button>)}</span>
-    </div>
-  )
 }
 
 /** It looks like a painting already in her gallery, or another photo here: leave it out, add it anyway, or put it in that one's place. */

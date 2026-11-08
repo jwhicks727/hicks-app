@@ -72,7 +72,9 @@ export function cleanDrawing(f, today) {
   const words = String((f && f.words) || '').trim()
   if (words.length > 1000) return { error: 'Those words are a little long: 1000 letters at most.' }
   const topic = f && TOPICS[f.topic] ? f.topic : null
-  return { title, made_on: madeOn || null, words: words || null, topic }
+  // What it's made with ("Crayon on paper"): kept only where the form asks for it, one line, its first letter capital
+  const medium = f && f.medium !== undefined ? String(f.medium || '').replace(/\s+/g, ' ').trim().replace(/[.]+$/, '').slice(0, 80) : undefined
+  return { title, made_on: madeOn || null, words: words || null, topic, ...(medium !== undefined ? { medium: medium ? medium[0].toUpperCase() + medium.slice(1) : null } : {}) }
 }
 
 /** A small, steady lean for a paper on the wall, from its id: the same every time, never random per visit. */

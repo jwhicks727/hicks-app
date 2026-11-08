@@ -15,6 +15,7 @@ import { listDay, streakShown, namesFor, noun } from '../lib/routines.js'
 import { teamDayToday } from '../parts/ListsCard.jsx'
 import { familiesOf, FAMILIES } from '../lib/artColour.js'
 import { isShaped } from '../lib/shapes.js'
+import { kindOf } from '../lib/gallery.js'
 
 function SourcesReport({ session }) {
   const { rows, error } = useSources(session)
@@ -180,7 +181,9 @@ function GalleryReport({ session }) {
     const month = new Date(); month.setDate(1); month.setHours(0, 0, 0, 0)
     Promise.all([
       supabase.from('paintings').select('*').limit(1000),
-      supabase.from('gallery_features').select('id', { count: 'exact', head: true }),
+      // Laurie's walls; before the step that tells the two walls apart is run, every wall is hers
+      supabase.from('gallery_features').select('id', { count: 'exact', head: true }).eq('collection', 'paintings')
+        .then((r) => (r.error ? supabase.from('gallery_features').select('id', { count: 'exact', head: true }) : r)),
       supabase.from('ai_usage').select('cost_cents, task').in('task', ['feature-paintings', 'look-painting', 'read-painting']).gte('created_at', month.toISOString()).limit(1000),
     ]).then(([p, f, u]) => {
       if (!live) return
@@ -211,7 +214,46 @@ function GalleryReport({ session }) {
     </tbody></table>
   )
 }
-const BUILT = { 'lifelist/gallery': GalleryReport, 'yonder/trips': TripsReport, 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
+/** Anna's Art in numbers: her pieces, the years they span, drawn or painted, her commonest colour, her featured walls and their cost. */
+function AnnasArtReport({ session }) {
+  const [d, setD] = useState(null)
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session) return undefined
+    const month = new Date(); month.setDate(1); month.setHours(0, 0, 0, 0)
+    Promise.all([
+      supabase.from('annas_drawings').select('*').limit(1000),
+      supabase.from('gallery_features').select('id', { count: 'exact', head: true }).eq('collection', 'drawings'),
+      supabase.from('ai_usage').select('cost_cents').in('task', ['feature-drawings', 'look-drawing', 'read-drawing']).gte('created_at', month.toISOString()).limit(1000),
+    ]).then(([p, f, u]) => {
+      if (!live) return
+      const rows = p.data || [], years = rows.map((r) => (r.made_on ? Number(r.made_on.slice(0, 4)) : null)).filter(Boolean)
+      const top = {}
+      for (const r of rows) for (const k of familiesOf(r.palette)) top[k] = (top[k] || 0) + 1
+      const colour = Object.entries(top).sort((a, b) => b[1] - a[1])[0]
+      setD({
+        n: rows.length, from: years.length ? Math.min(...years) : null, to: years.length ? Math.max(...years) : null,
+        drawn: rows.filter((r) => kindOf(r.medium) === 'drawing').length, painted: rows.filter((r) => kindOf(r.medium) === 'painting').length,
+        looked: rows.filter((r) => r.looks).length, colour: colour ? FAMILIES[colour[0]].label.toLowerCase() : null,
+        walls: f.error ? null : f.count ?? 0, cents: (u.data || []).reduce((a, r) => a + Number(r.cost_cents || 0), 0),
+      })
+    })
+    return () => { live = false }
+  }, [session])
+  if (!d) return <p className="muted">Counting…</p>
+  return (
+    <table className="table"><tbody>
+      <tr><td>Her pieces</td><td className="num">{d.n}</td></tr>
+      {d.from && <tr><td>Made from</td><td className="num">{d.from === d.to ? d.from : `${d.from}–${d.to}`}</td></tr>}
+      <tr><td>Drawings and paintings</td><td className="num">{d.drawn} and {d.painted}</td></tr>
+      <tr><td>Looked at by Claude, words kept</td><td className="num">{d.looked}</td></tr>
+      {d.colour && <tr><td>Her commonest colour</td><td className="num">{d.colour}</td></tr>}
+      {d.walls !== null && <tr><td>Featured walls hung by Claude</td><td className="num">{d.walls}</td></tr>}
+      <tr><td>Claude’s cost for her art this month</td><td className="num">${(d.cents / 100).toFixed(2)}</td></tr>
+    </tbody></table>
+  )
+}
+const BUILT = { 'drawings/art': AnnasArtReport, 'lifelist/gallery': GalleryReport, 'yonder/trips': TripsReport, 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
 
 export default function Reports() {
   const session = useSession()

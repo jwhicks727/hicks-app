@@ -1,8 +1,10 @@
 // ============================================
-// gallery.js -- Laurie's gallery: finding paintings by what they are, sorting them, and the walls that rotate
+// gallery.js -- Laurie's gallery and Anna's Art: finding pieces by what they are, sorting them, and the walls that rotate
 // ============================================
-// Pure, so tests run it in Node (tests/gallery.test.mjs). The screen is
-// src/places/lifelist/Gallery.jsx. What a painting can be found by:
+// Pure, so tests run it in Node (tests/gallery.test.mjs). The screens are
+// src/places/lifelist/Gallery.jsx and src/places/Drawings.jsx, through the shared
+// src/parts/ArtFinder.jsx; Anna's pieces come in as the same shape by `artOf`
+// (src/lib/annasArt.js). What a piece can be found by:
 //   - her own facts, or a parent's word on them: the year (and month), the medium, the seasons
 //   - its colours and its shape, measured from her pixels (src/lib/artColour.js, src/lib/shapes.js)
 //   - what Claude saw in it ("looks": what it shows, its mood, its style, its weather), read with
@@ -14,6 +16,7 @@ import { SEASONS, SEASON_ORDER, windowsOf } from './seasons.js'
 import { FAMILIES, FAMILY_ORDER, familiesOf, toneOf, TONES, rainbowKey } from './artColour.js'
 import { SHAPES, shapeFamily } from './shapes.js'
 import { seeded } from './scenes.js'
+import { TOPICS } from './drawings.js'
 
 // ---- What Claude may say a painting is like (the claude function's schema uses the same words) ----
 export const MOODS = { cozy: 'Cozy', calm: 'Calm', joyful: 'Joyful', whimsical: 'Whimsical', spooky: 'Spooky', dreamy: 'Dreamy', bold: 'Bold', wistful: 'Wistful', festive: 'Festive', mysterious: 'Mysterious', romantic: 'Romantic', lively: 'Lively' }
@@ -37,8 +40,15 @@ export function cleanLooks(r) {
 export function mediumWord(medium) {
   const m = String(medium || '').toLowerCase()
   if (!m) return ''
-  for (const [k, re] of [['Mixed media', /mixed|collage/], ['Watercolor', /water ?colou?r/], ['Gouache', /gouache/], ['Acrylic', /acrylic/], ['Oil', /\boils?\b/], ['Pastel', /pastel/], ['Ink', /\bink\b/], ['Pencil', /pencil|graphite|charcoal/]]) if (re.test(m)) return k
+  for (const [k, re] of [['Mixed media', /mixed|collage/], ['Watercolor', /water ?colou?r/], ['Gouache', /gouache/], ['Acrylic', /acrylic/], ['Oil', /\boils?\b/], ['Pastel', /pastel/], ['Crayon', /crayon/], ['Marker', /marker|felt.?tip/], ['Colored pencil', /colou?red pencil/], ['Ink', /\bink\b/], ['Pencil', /pencil|graphite|charcoal/], ['Paint', /paint|tempera/]]) if (re.test(m)) return k
   return 'Other'
+}
+/** Drawn or painted, from the medium: '' when it doesn't say (Anna's Art has both; her mother's are all painted). */
+export function kindOf(medium) {
+  const w = mediumWord(medium)
+  if (['Watercolor', 'Gouache', 'Acrylic', 'Oil', 'Paint'].includes(w)) return 'painting'
+  if (['Crayon', 'Marker', 'Colored pencil', 'Pencil', 'Ink', 'Pastel'].includes(w)) return 'drawing'
+  return ''
 }
 
 /** The seasons a home date ('YYYY-MM-DD') is in, the specific ones first (the app's own order). */
@@ -54,7 +64,7 @@ export function factsOf(p) {
   return {
     colours: familiesOf(p.palette), tones: toneOf(p.palette), year: p.year ? String(p.year) : '', medium: mediumWord(p.medium),
     seasons: p.seasons || [], moods: looks.moods || [], subjects: looks.subjects || [], style: looks.style || '', weather: looks.weather || '',
-    shape: shapeFamily(p.shape),
+    shape: shapeFamily(p.shape), topics: p.topics || [], kind: kindOf(p.medium),
   }
 }
 
@@ -70,6 +80,8 @@ export const FACETS = {
   style: { label: 'Style', of: (f) => (f.style ? [f.style] : []), name: (k) => STYLES[k] || k },
   weather: { label: 'Weather', of: (f) => (f.weather ? [f.weather] : []), name: (k) => WEATHERS[k] || k },
   shape: { label: 'Shape', of: (f) => (f.shape !== 'rect' ? [f.shape] : []), name: (k) => (SHAPES[k] ? SHAPES[k].label : k), order: (k) => Object.keys(SHAPES).indexOf(k) },
+  kind: { label: 'Drawn or painted', of: (f) => (f.kind ? [f.kind] : []), name: (k) => ({ drawing: 'Drawings', painting: 'Paintings' })[k] || k },
+  topic: { label: 'About', of: (f) => f.topics, name: (k) => TOPICS[k] || k },
 }
 
 /**
@@ -97,7 +109,7 @@ export function applyFilters(list, filters = {}) {
     const f = factsOf(p)
     for (const [key, facet] of Object.entries(FACETS)) if (filters[key] && !facet.of(f).includes(filters[key])) return false
     if (q) {
-      const hay = [p.title, p.medium, p.year, ...f.subjects, ...f.moods, f.style, f.weather, ...f.seasons.map((s) => SEASONS[s] && SEASONS[s].label), ...f.colours.map((c) => FAMILIES[c].label)].map((x) => word(x, 200)).join(' · ')
+      const hay = [p.title, p.medium, p.year, ...f.topics.map((t) => TOPICS[t] || t), ...f.subjects, ...f.moods, f.style, f.weather, ...f.seasons.map((s) => SEASONS[s] && SEASONS[s].label), ...f.colours.map((c) => FAMILIES[c].label)].map((x) => word(x, 200)).join(' · ')
       if (!q.split(' ').every((t) => hay.includes(t))) return false
     }
     return true
@@ -108,6 +120,8 @@ export const filterCount = (filters = {}) => Object.keys(FACETS).filter((k) => f
 
 // ---- Sorting ------------------------------------------------------------------------------
 export const SORTS = { added: 'Newest in', painted: 'Newest painted', oldest: 'Oldest painted', rainbow: 'By colour', title: 'A to Z', shuffle: 'Shuffled' }
+/** The sorts in words for whoever made them: "Newest painted" for Laurie's, "Newest made" for Anna's. */
+export const sortsFor = (verb = 'painted') => ({ ...SORTS, painted: `Newest ${verb}`, oldest: `Oldest ${verb}` })
 
 /** The list in an order: the gallery's own (newest in) unless asked otherwise; unknown years go last either way. `seed` shuffles. */
 export function sortPaintings(list, by = 'added', seed = 1) {
@@ -137,20 +151,22 @@ export function featureWindow(today, days = FEATURE_DAYS) {
 const MOOD_LINES = { cozy: 'Ones to curl up with.', calm: 'Quiet ones, for a slow morning.', joyful: 'The cheerful ones.', whimsical: 'A little bit of magic.', spooky: 'A shiver or two.', dreamy: 'Half awake, half dreaming.', bold: 'The loud ones.', wistful: 'For a thoughtful mood.', festive: 'Dressed up for a party.', mysterious: 'Something going on in each.', romantic: 'Soft-hearted ones.', lively: 'Everything moving.' }
 
 /**
- * Walls the app can make by itself from her paintings' own facts: a year, a colour, a season that's on, a mood Claude
- * saw and a parent kept, a subject, a medium, a shape. Each holds four to eight paintings; fewer than four makes no wall.
+ * Walls the app can make by itself from the pieces' own facts: a year, a colour, a season that's on, a mood Claude
+ * saw and a parent kept, a subject, a medium, a shape, what it's about. Each holds four to eight; fewer than four makes
+ * no wall. `who` and `verb` word it for the artist ("by Laurie", "painted"; "by Anna", "made").
  */
-export function localFeatures(list, today) {
+export function localFeatures(list, today, { who = 'Laurie', verb = 'painted' } = {}) {
   const out = []
   const add = (key, title, line, ps) => { if (ps.length >= 4) out.push({ key, title, line, slugs: ps.map((p) => p.slug) }) }
   const by = (fn) => { const m = new Map(); for (const p of list) for (const k of fn(p)) m.set(k, [...(m.get(k) || []), p]); return m }
-  for (const [y, ps] of by((p) => (p.year ? [p.year] : []))) add(`year:${y}`, `All painted in ${y}`, ps.length >= 6 ? `${ps.length} from the same year.` : 'From the same year.', ps)
+  for (const [y, ps] of by((p) => (p.year ? [p.year] : []))) add(`year:${y}`, `All ${verb} in ${y}`, ps.length >= 6 ? `${ps.length} from the same year.` : 'From the same year.', ps)
   for (const [c, ps] of by((p) => familiesOf(p.palette).filter((k) => k !== 'neutral'))) add(`colour:${c}`, { red: 'Seeing red', orange: 'Orange, every one', yellow: 'Mellow yellows', green: 'Something green', teal: 'Teal and sea-glass', blue: 'Feeling blue', purple: 'Purple patches', pink: 'In the pink', earth: 'Down to earth' }[c], 'Hung together for their colour.', ps)
   const on = seasonsOn(today)
   for (const [s, ps] of by((p) => (p.seasons || []).filter((k) => on.includes(k)))) add(`season:${s}`, `For ${SEASONS[s].label}`, 'The season we’re in.', ps)
   for (const [m, ps] of by((p) => (p.looks && p.looks.moods) || [])) add(`mood:${m}`, `${MOODS[m]} ones`, MOOD_LINES[m], ps)
-  for (const [w, ps] of by((p) => (p.looks && p.looks.subjects) || [])) add(`subject:${w}`, `${w[0].toUpperCase()}${w.slice(1)}${/s$/.test(w) ? '' : 's'}, by Laurie`, 'One thing, painted many ways.', ps)
-  for (const [m, ps] of by((p) => (mediumWord(p.medium) && mediumWord(p.medium) !== 'Other' ? [mediumWord(p.medium)] : []))) add(`medium:${m}`, `All in ${m.toLowerCase()}`, 'The same paint, many places.', ps)
+  for (const [w, ps] of by((p) => (p.looks && p.looks.subjects) || [])) add(`subject:${w}`, `${w[0].toUpperCase()}${w.slice(1)}${/s$/.test(w) ? '' : 's'}, by ${who}`, `One thing, ${verb} many ways.`, ps)
+  for (const [m, ps] of by((p) => (mediumWord(p.medium) && mediumWord(p.medium) !== 'Other' ? [mediumWord(p.medium)] : []))) add(`medium:${m}`, `All in ${m.toLowerCase()}`, verb === 'painted' ? 'The same paint, many places.' : 'One box of supplies, many ideas.', ps)
+  for (const [k, ps] of by((p) => (p.topics || []).filter((t) => TOPICS[t]))) add(`topic:${k}`, k === 'pets' ? `Our pets, by ${who}` : TOPICS[k], k === 'pets' ? `Appa and the cats, as ${who} sees them.` : 'All about one thing.', ps)
   for (const [t, ps] of by((p) => toneOf(p.palette))) add(`tone:${t}`, TONES[t], { colourful: 'Turn it up.', soft: 'Easy on the eyes.', dark: 'For the evening.', bright: 'Like a window open.' }[t], ps)
   const shaped = list.filter((p) => shapeFamily(p.shape) !== 'rect')
   if (shaped.length >= 3) out.push({ key: 'shape', title: 'Not a rectangle among them', line: 'Round, many-sided and pointed canvases.', slugs: shaped.map((p) => p.slug) })
@@ -158,8 +174,8 @@ export function localFeatures(list, today) {
 }
 
 /** The app's own wall for a window: one of the walls above, the same all window long, and not the one before if it can help it. At most eight, chosen the same way all window. */
-export function appFeature(list, today) {
-  const all = localFeatures(list, today).sort((a, b) => a.key.localeCompare(b.key))
+export function appFeature(list, today, words) {
+  const all = localFeatures(list, today, words).sort((a, b) => a.key.localeCompare(b.key))
   if (!all.length) return null
   const { n, from, to } = featureWindow(today)
   const pick = (k) => all[Math.floor(seeded(k * 7919 + 13)() * all.length)]
@@ -191,7 +207,7 @@ export function catalogOf(list) {
     return {
       slug: p.slug, title: p.title, year: p.year || null, month: p.month || null, medium: p.medium || '',
       seasons: f.seasons, colours: f.colours, feel: f.tones, shows: f.subjects, moods: f.moods, style: f.style, weather: f.weather,
-      shape: f.shape === 'rect' ? '' : f.shape,
+      shape: f.shape === 'rect' ? '' : f.shape, about: f.topics, kind: f.kind,
     }
   })
 }

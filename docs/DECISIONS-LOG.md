@@ -6,6 +6,45 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — Anna's Art catches up with Laurie's gallery
+
+Jason: Anna's Art should be upgraded in parallel with Laurie's gallery, on a branch of its own. The
+entry below gave Anna's Art the calmer crop tool, the look-alike check, its name and the Pets fix, but not
+the rest. Decided, worded for her and kept to what fits a child's art:
+
+- **The same tools, shared.** The featured wall and the finder are one part for both walls
+  (`src/parts/ArtFinder.jsx`), and her pieces come in as the gallery's own shape (`artOf`,
+  `src/lib/annasArt.js`), so a change to one wall is a change to both.
+- **Her featured wall** is Claude's (`feature-drawings`), kept in `gallery_features` with `collection`
+  'drawings' so the two walls never mix (walls kept before are Laurie's). Claude gets her pieces' titles,
+  the days she made them, their mediums, colours, what they're about and the words kept about each:
+  never the pictures and **never her own words**. It's asked to choose with love and never to judge,
+  rank or compare her work. Until it can, the app hangs its own, worded for her ("All made in 2025",
+  "Our pets, by Anna").
+- **What it's made with** (`annas_drawings.medium`, "Crayon on paper"), suggested by Claude when a piece
+  is added and confirmed like the rest, since she now paints too: it gives the wall a "Drawn or painted"
+  filter. Her pieces are found by colour, feel, mood, what they show, the year she made them, medium,
+  drawn or painted, what they're about (the pets) and shape; sorted newest in, newest or oldest made, a
+  rainbow, A to Z or shuffled.
+- **Shapes, colours and Claude's words** as for Laurie's (`shape`, `palette`, `looks`): a shaped piece is
+  shown in its own shape with no paper round it, the tape still on top. Claude's words are kept only once
+  whoever added the piece, or a parent, says so, and never take a name written on it (the cats' names
+  stay Jason's to type).
+- **"Put this photo in its place"** for a look-alike, for whoever added the one already up, or a parent
+  (only they may change its files): the bucket can't overwrite, so the new pictures get names of their
+  own and the old ones go; its original is replaced too, so cropping it again starts from the new photo.
+- **`/drawings/look-again`** (parents) looks over her pieces already up: colours and fingerprints
+  measured and kept at once, and Claude's suggestions (`look-drawing`) of the medium, the paper's shape, a
+  day written on it and words, to tick. About a cent a piece, an estimate.
+- **Left as they are, because they don't fit:** a month by her signature (her pieces keep a full day
+  when one is written), autumn's leaves (the season's shows come from Laurie's paintings), and seasons on
+  her pieces.
+- Migration `20261108210000_annas_art_gallery` (additive), run after Laurie's. The `claude` function's
+  `feature-drawings` and `look-drawing` are deployed after the merge; until the migration is run, her
+  pieces save without the new columns and her featured wall is the app's own.
+
+---
+
 ## 2026-11-08 — Laurie's gallery finds, rotates and frames any shape; the crop tool holds still; Anna's Art
 
 Jason, with a good library of her paintings in: the add button and "photos waiting" belong at the top;
