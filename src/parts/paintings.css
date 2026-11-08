@@ -44,9 +44,19 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 .gallery-piece:focus-visible .gallery-frame { outline: 3px solid var(--sky-ink); outline-offset: 4px; }
 .gallery-note { color: var(--sky-ink); font-weight: 700; opacity: .85; }
 
+/* A round, many-sided or pointed canvas: the frame takes its shape (Framed, PaintingFrame.jsx), with a shadow of the
+   same shape behind it (no blur: a soft-edged copy, offset) */
+.gallery-shaped { position: relative; display: block; align-self: start; width: 100%; max-width: 320px; }
+.gallery-shaped::before { content: ""; position: absolute; inset: 0; clip-path: var(--clip); background: rgba(0, 0, 0, .38); transform: translate(0, 9px) scale(.97); }
+.gallery-shaped > .gallery-frame { position: relative; max-width: none; clip-path: var(--clip); box-shadow: none; }
+.gallery-shaped > .gallery-frame img, .gallery-shaped > .gallery-frame .pf { clip-path: var(--clip); }
+.gallery-shaped > .gallery-frame .pf { background: transparent; }
+
 /* One painting, hung large */
 .painting-hang { display: grid; justify-items: center; padding: 6px 0 4px; }
 .painting-hang .gallery-frame { max-width: min(100%, calc(72vh * .75 + 20px)); padding: 12px; }
+.painting-hang .gallery-shaped { max-width: min(100%, calc(72vh * .75 + 20px)); }
+.painting-hang .gallery-shaped > .gallery-frame { max-width: none; }
 .painting-hang .pf { width: 100%; }
 .painting-facts { margin: 0; display: grid; }
 .painting-facts div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
@@ -87,3 +97,51 @@ html[data-motion="less"] .art-flap.go { animation: none; }
 .ll-edit { margin-top: 4px; }
 .ll-edit-crop { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
 .ll-recrop { display: grid; gap: 10px; min-width: 0; }
+
+/* The gallery's top: adding her paintings comes first */
+.gallery-top { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* The featured wall: a few that hang together for a few days, in a row that scrolls on its own, never the page */
+.gf { display: grid; gap: 8px; min-width: 0; }
+.gf-title { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(24px, 6vw, 32px); line-height: 1.1; }
+.gf-line { margin: 0; font-weight: 700; }
+.gf-row { display: flex; gap: 16px; overflow-x: auto; overscroll-behavior-x: contain; padding: 10px 4px 16px; margin: 0 -4px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+.gf-piece { flex: none; width: min(46vw, 190px); display: grid; gap: 8px; justify-items: center; align-content: start; text-decoration: none; color: var(--ink); scroll-snap-align: start; }
+.gf-piece .gallery-frame, .gf-piece .gallery-shaped { padding: 7px; }
+.gf-piece .gallery-shaped { padding: 0; }
+.gf-piece .gallery-shaped > .gallery-frame { padding: 7px; }
+.gf-piece b { font-family: var(--font-display); font-weight: 400; font-size: 16px; line-height: 1.15; text-align: center; }
+.gf-piece:focus-visible .gallery-frame { outline: 3px solid var(--ink); outline-offset: 3px; }
+.gf-by { margin: 0; }
+
+/* Finding her paintings: words, a sort, colour swatches, and the filters behind a button */
+.gfind { display: grid; gap: 10px; min-width: 0; }
+.gfind-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gfind-q { flex: 1 1 220px; min-width: 0; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 600; }
+.gfind-sort { display: inline-flex; align-items: center; gap: 6px; color: var(--sky-ink); font-weight: 800; font-size: 14px; }
+.gfind-sort select { min-height: 44px; padding: 0 8px; border: 1.5px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 700; }
+.gfind-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.gfind-sw { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 2px solid transparent; border-radius: var(--r-control); background: color-mix(in srgb, var(--card) 70%, transparent); cursor: pointer; }
+.gfind-sw i { width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(255, 248, 238, .5), 0 1px 2px rgba(0, 0, 0, .3); }
+.gfind-sw[aria-pressed="true"] { border-color: var(--card); background: var(--card); box-shadow: 0 0 0 2px var(--ink); }
+@media (pointer: coarse) { .gfind-sw { width: 44px; height: 44px; } }
+.gfind-panel { display: grid; gap: 12px; padding: 14px 16px; border-radius: var(--r-card); background: var(--card); box-shadow: 0 6px 16px -10px rgba(40, 20, 10, .5); }
+.gfind-set { margin: 0; padding: 0; border: 0; min-width: 0; }
+.gfind-set legend { padding: 0; margin-bottom: 6px; font-weight: 800; font-size: 14px; color: var(--muted); }
+.gfind-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gfind-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 11px; border: 1.5px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 750; cursor: pointer; white-space: nowrap; }
+.gfind-chip small { color: var(--muted); font-weight: 800; font-size: 12px; }
+.gfind-chip[aria-pressed="true"], .gfind-chip.on { border-color: var(--ink); background: color-mix(in srgb, #C0824F 18%, var(--card)); }
+.gfind-chip.on span { color: var(--muted); font-weight: 900; }
+@media (pointer: coarse) { .gfind-chip { min-height: 44px; } }
+.gfind-on { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.gfind-clear { min-height: 36px; padding: 0 6px; border: 0; background: none; color: var(--sky-ink); font: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@media (pointer: coarse) { .gfind-clear { min-height: 44px; } }
+.gfind-count { margin-left: auto; color: var(--sky-ink); font-weight: 800; white-space: nowrap; }
+
+/* A painting's own colours, measured from it */
+.painting-swatches { display: inline-flex; gap: 3px; margin-left: 8px; vertical-align: middle; }
+.painting-swatches i { width: 14px; height: 14px; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .18); }
+/* Autumn's wind: the leaves cut from her painting, on the dark of a lightbox (their own colours in both themes) */
+.ll-leaves-sheet { overflow-x: auto; padding: 10px; border-radius: var(--r-control); background: #2A1E16; }
+.ll-leaves-sheet img { display: block; max-width: none; height: auto; width: min(100%, 900px); min-width: 480px; }

@@ -153,7 +153,8 @@ licence nobody wrote down.
   (`src/lib/seasonShows.js`): the crow flies out of her painting and home again;
   autumn's wind (`src/lib/wind.js`, `src/shell/WindShow.jsx`) reads the real wind
   at home and lifts leaves from where she painted them (`src/lib/leafOrigins.js`,
-  measured by `scripts/leaf-origins.py`), then lets them settle on the cards. A new
+  measured by `scripts/leaf-origins.py`, or cut on a painting's page from any autumn
+  painting: `src/lib/leafCut.js`, which notes where each came from), then lets them settle on the cards. A new
   season's show finds its own motion rather than reusing another's, uses only real
   data (no stand-in wind), and never alters her painting: what moves is a copy of
   her pixels, over a painting that stays whole (`tests/wind.test.mjs`). Home
@@ -220,7 +221,23 @@ licence nobody wrote down.
   cropped, turned and shrunk, never altered. A painting's original photo is kept
   behind sign-in at `<slug>/original.jpg`, with its crop (`paintings.original`, `crop`),
   so a parent can crop it again from its page (`src/places/lifelist/RecropPainting.jsx`).
-- **Anna's drawings are hers, and private** (`src/places/Drawings.jsx`): they live
+  A month she wrote with the year is read the same way (what she wrote first, never the
+  season it shows: `monthFromReading`). A **round or many-sided canvas** keeps the box
+  crop; its shape (`paintings.shape`, `src/lib/shapes.js`) is the frame drawn round it
+  (`Framed`), never a cut of her pixels, and a shaped painting is shown whole in a panel.
+  Her colours and a fingerprint are measured on the device (`src/lib/artColour.js`);
+  Claude's words about a painting (`looks`) are kept only once a parent says so and are for
+  finding and the featured wall, never her title, year or medium nor `subjects`
+  (`tests/gallery.test.mjs`). The **featured wall** (`gallery_features`) is written only by
+  the `claude` function from the paintings' facts, never their pictures; until it can, the
+  app hangs its own from those facts (`src/lib/gallery.js`).
+- **The crop tool holds still** (`src/places/lifelist/Cropper.jsx`): the first tap only
+  picks it up, the view never follows the box while it's dragged, nothing zooms by itself,
+  every change can be undone (Ctrl or ⌘ Z, never while typing), and a crop from storage is
+  compared by value. A second photo of something already in is a question (leave it out,
+  add it anyway, or replace the photo), never a silent duplicate.
+- **Anna's drawings are hers, and private** (Anna's Art, `src/places/Drawings.jsx`,
+  at `/drawings`: drawings and paintings both): they live
   in the private `drawings` bucket and are read through signed links, never in
   `public/` or `src/` (anything in the built app can be opened by anyone with the
   address), and a drawing is shown whole, as she drew it: crop and frame it, never
@@ -233,6 +250,7 @@ licence nobody wrote down.
   (`src/lib/drawingBatch.js`), and the original is kept (`annas_drawings.original`,
   `crop`) so a drawing can be cropped again. Anything that moves around a drawing (the
   Pets launch) is drawn in code (`tests/drawings.test.mjs`, `tests/drawing-batch.test.mjs`).
+  The Pets launch always hangs the first drawing marked "Our pets", never a newer one.
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything
   large: iPhones repaint it slowly. Soft shapes come from gradients.

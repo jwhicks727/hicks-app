@@ -5,7 +5,8 @@
 // picture is made from the photo by cropping, turning and shrinking: nothing
 // of hers is altered. One canvas job runs at a time (`oneAtATime`), since a
 // phone has little memory for big pictures, and each canvas is emptied after.
-import { SIZES, drawTransform, signatureCorners } from '../../lib/paintingBatch.js'
+import { SIZES, drawTransform, signatureCorners, paintingPoint } from '../../lib/paintingBatch.js'
+import { paletteOf, fingerprintOf } from '../../lib/artColour.js'
 
 const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c }
 const free = (c) => { if (c && c.getContext) { c.width = 0; c.height = 0 } }
@@ -89,17 +90,53 @@ function drawPainting(pic, crop, opts) {
   return c
 }
 
-/** Her gallery's two files: full.jpg (2400 px) and small.jpg (720 px), with the full one's size. */
+/** A canvas's colours and fingerprint (src/lib/artColour.js), measured from a copy about 360 px across. */
+function measure(c) {
+  const m = shrink(c, c.width, c.height, 360)
+  try {
+    const px = m.getContext('2d').getImageData(0, 0, m.width, m.height)
+    return { palette: paletteOf(px), print: fingerprintOf(px) }
+  } finally { free(m) }
+}
+
+/** Her gallery's two files: full.jpg (2400 px) and small.jpg (720 px), with the full one's size, and its colours and fingerprint. */
 export async function paintingFiles(kept, crop, { full: fullMax = SIZES.full, small: smallMax = SIZES.small, fullQuality = 0.88, smallQuality = 0.84 } = {}) {
   const pic = await openPicture(kept)
   let full, small
   try {
     full = drawPainting(pic, crop, { max: fullMax })
     small = shrink(full, full.width, full.height, smallMax)
-    return { full: await toBlob(full, fullQuality), small: await toBlob(small, smallQuality), w: full.width, h: full.height }
+    const { palette, print } = measure(small)
+    return { full: await toBlob(full, fullQuality), small: await toBlob(small, smallQuality), w: full.width, h: full.height, palette, print }
   } finally {
     free(full); free(small); pic.close()
   }
+}
+
+/** A picture already cut (a painting's small.jpg, a drawing's thumbnail), measured: its colours and fingerprint. */
+export async function measurePicture(blob) {
+  const pic = await openPicture(blob)
+  let c
+  try {
+    c = shrink(pic.img, pic.width, pic.height, 360)
+    return measure(c)
+  } finally { free(c); pic.close() }
+}
+
+/**
+ * The fingerprint of the painting in a waiting photo, by its crop, from any copy of the photo (its crop-screen view, or
+ * the little copy the auto-crop measured: `pixels`, already read). W and H are the kept photo's size, which the crop is in.
+ */
+export function printOfCrop(pixels, crop, W, H) {
+  return fingerprintOf(pixels, paintingPoint(crop, W, H, pixels.width / W))
+}
+export async function printFromPicture(blob, crop, W, H) {
+  const pic = await openPicture(blob)
+  let c
+  try {
+    c = shrink(pic.img, pic.width, pic.height, 480)
+    return printOfCrop(c.getContext('2d').getImageData(0, 0, c.width, c.height), crop, W, H)
+  } finally { free(c); pic.close() }
 }
 
 /** What goes to Claude to read: the cropped painting, then each corner enlarged, as JPEG. */

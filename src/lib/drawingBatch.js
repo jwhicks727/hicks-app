@@ -13,7 +13,7 @@ export const DRAWING_KEPT = { kept: 3000, keptQuality: 0.88 }
 export const DRAWING_SAVED = { full: 2000, small: 640, fullQuality: 0.9, smallQuality: 0.82 }
 
 /** The parts of a waiting drawing that travel to the family's storage; the rest stays on the device. */
-export const DRAWING_SYNCED = ['id', 'seq', 'name', 'status', 'read', 'readAt', 'readError', 'title', 'titleFrom', 'madeOn', 'madeOnFrom', 'topic', 'topicFrom', 'words', 'touched', 'reading', 'W', 'H', 'crop', 'auto', 'sure', 'kind', 'saveError', 'savingAt', 'error', 'addedBy']
+export const DRAWING_SYNCED = ['id', 'seq', 'name', 'status', 'read', 'readAt', 'readError', 'title', 'titleFrom', 'madeOn', 'madeOnFrom', 'topic', 'topicFrom', 'words', 'touched', 'reading', 'W', 'H', 'crop', 'auto', 'sure', 'kind', 'saveError', 'savingAt', 'error', 'addedBy', 'print', 'printOf', 'dupOk']
 export const drawingInboxData = (item) => inboxData(item, DRAWING_SYNCED)
 
 /**

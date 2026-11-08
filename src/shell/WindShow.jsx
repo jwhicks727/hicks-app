@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useWeather } from '../lib/useWeather.js'
 import { cropFor, paintingBySlug } from '../lib/paintings.js'
-import { LEAF_ORIGINS } from '../lib/leafOrigins.js'
 import { windOf, pushOf, gustPlan, windAt, delayAt, originInFrame, paintedWidth, stirOf, GUSTS, MAX_AIR, MAX_RESTING, SHOW_SECONDS } from '../lib/wind.js'
 
 // Autumn's show: the wind at home, blowing Laurie's leaves (src/lib/wind.js says how the wind is read).
@@ -60,7 +59,7 @@ export default function WindShow({ show, list, path }) {
       const vw = window.innerWidth, vh = window.innerHeight, sy = window.scrollY
       let made = 0
       for (const [si, sh] of sheets.entries()) {
-        const o = LEAF_ORIGINS[sh.slug], p = paintingBySlug(sh.slug, listRef.current)
+        const o = sh.origins, p = paintingBySlug(sh.slug, listRef.current)
         const frame = document.querySelector(`.pf[data-art-slug="${sh.slug}"]`)
         if (!o || !p || !frame || made >= n) continue
         const r = frame.getBoundingClientRect()

@@ -324,7 +324,7 @@ function Scrapbook({ id }) {
       )}
       {hearts.length > 0 && <Card tint="#C14D83" label="Hearted there" glyph="star" className="span-3"><ul className="ar-list">{hearts.map((r) => <li key={r.id}><a href={mapsSearch(r.name, r.town)} target="_blank" rel="noopener noreferrer"><b>{r.name}</b>{r.why && <small>{r.why}</small>}</a></li>)}</ul></Card>}
       {guide && <Card tint="#B5658F" label="The guide we had" glyph="star" className="span-3"><p>{guide.intro}</p><Link className="btn ghost" to={`/world/around/${guide.id}`}>Open it ›</Link></Card>}
-      <Card tint="#C14D83" label="Anna’s drawings" glyph="star" className="span-3"><p className="muted">Anna’s drawings from those days are in her gallery, by the day she drew them.</p><Link className="btn ghost" to="/drawings">Anna’s Gallery ›</Link></Card>
+      <Card tint="#C14D83" label="Anna’s drawings" glyph="star" className="span-3"><p className="muted">Anna’s drawings from those days are in her gallery, by the day she drew them.</p><Link className="btn ghost" to="/drawings">Anna’s Art ›</Link></Card>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDraft } from '../lib/useDraft.js'
 import { askClaude } from '../lib/claude.js'
 import { supabase } from '../lib/supabase.js'
@@ -9,9 +9,11 @@ import { drawingInboxData, applyDrawingReading, DRAWING_KEPT, DRAWING_SAVED } fr
 import { cleanDrawing, drawingFiles } from '../lib/drawings.js'
 import { saveDrawing } from '../lib/useDrawings.js'
 import { drawingsInbox } from '../lib/drawingInbox.js'
-import { preparePhoto, readingFiles, paintingFiles, oneAtATime } from './lifelist/paintingPhotos.js'
+import { preparePhoto, readingFiles, paintingFiles, oneAtATime, printOfCrop, printFromPicture, measurePicture } from './lifelist/paintingPhotos.js'
+import { cropKey, missingColumn } from './lifelist/usePaintingBatch.js'
+import { lookAlikes } from '../lib/artColour.js'
 
-// The batch of photos being added to Anna's Gallery. Like Laurie's (src/places/lifelist/usePaintingBatch.js) it
+// The batch of photos being added to Anna's Art. Like Laurie's (src/places/lifelist/usePaintingBatch.js) it
 // waits in the family's storage, not on one device: anyone in the family can send photos from one device and
 // go through them on another, and the parents see everyone's. A device keeps only a small draft of its own (whether
 // to have Claude look, and which photo it was on). Three queues run while the screen is open: each new photo is
@@ -42,12 +44,17 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
   const latest = useRef(items)
   latest.current = items
   const pushed = useRef(new Map())
+  // id -> when this device last sent it: a look at storage that began before then may bring back the old copy, so it's kept
+  const pushedAt = useRef(new Map())
   const saving = useRef(new Set())
   const files = useRef(new Map())
   const busy = useRef(new Set())
   const timer = useRef(null)
   const lastLook = useRef(0)
   const today = todayAtHome()
+  // Fingerprints of her art already on the wall: kept with each, and measured here for any added before they were
+  const [prints, setPrints] = useState({})
+  const [noPrints, setNoPrints] = useState(false) // the migration that keeps them hasn't been run
 
   const update = useCallback((id, fn) => setItems((xs) => xs.map((x) => (x.id === id ? fn(x) : x))), [])
   const isDirty = useCallback((x) => !x.local && pushed.current.get(x.id) !== JSON.stringify(drawingInboxData(x)), [])
@@ -55,10 +62,12 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
   // Looks at what's in storage and brings it in; what this device has changed and not yet sent stays
   const reload = useCallback(async () => {
     lastLook.current = Date.now()
+    const began = Date.now()
     let remote
     try { remote = await loadInbox() } catch (e) { setSyncError((e && e.message) || 'The family’s storage couldn’t be reached.'); setLoaded(true); return }
     setSyncError(null)
-    const dirty = new Set(latest.current.filter(isDirty).map((x) => x.id))
+    // Changed here and not sent, or sent while this look was on its way (storage may have answered with the copy before)
+    const dirty = new Set(latest.current.filter((x) => isDirty(x) || (pushedAt.current.get(x.id) || 0) > began - 2000).map((x) => x.id))
     for (const x of remote) if (!dirty.has(x.id)) pushed.current.set(x.id, JSON.stringify(drawingInboxData(x)))
     const fixed = remote.map((x) => (x.read === 'reading' && claimStale(x.readAt) ? { ...x, read: 'waiting' } : x))
     setItems((local) => mergeInbox(local, fixed, dirty))
@@ -72,6 +81,7 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
       const j = JSON.stringify(drawingInboxData(x))
       if (pushed.current.get(x.id) === j) continue
       pushed.current.set(x.id, j)
+      pushedAt.current.set(x.id, Date.now())
       const { error } = await saveInboxRow(x)
       if (error) { pushed.current.delete(x.id); setSyncError(error.message || 'Changes couldn’t be saved to the family’s storage.'); clearTimeout(timer.current); timer.current = setTimeout(flush, 5000); return }
       setSyncError(null)
@@ -139,7 +149,7 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
       const p = await preparePhoto(files.current.get(it.id), DRAWING_KEPT)
       const found = findPainting(p.look)
       const crop = found.kind === 'found' ? fromFound(found, p.W, p.H, p.look.width, p.look.height) : wholeCrop(p.W, p.H)
-      return { p, r: { W: p.W, H: p.H, crop, auto: crop, sure: found.sure, kind: found.kind } }
+      return { p, r: { W: p.W, H: p.H, crop, auto: crop, sure: found.sure, kind: found.kind, print: printOfCrop(p.look, crop, p.W, p.H), printOf: cropKey(crop) } }
     }).then(
       ({ p, r }) => {
         files.current.delete(it.id); busy.current.delete(key)
@@ -178,6 +188,62 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
     }
   }, [items, pause, atId, gallery, update, today])
 
+  // 2b. A crop changed by hand: its fingerprint is taken again from the crop screen's view, a moment after it settles
+  const cur = items.find((x) => x.id === atId)
+  const reprint = cur && cur.status === 'ready' && cur.crop && cur.printOf !== cropKey(cur.crop) ? cur : null
+  useEffect(() => {
+    if (!reprint) return undefined
+    const { id, crop, W, H } = reprint, want = cropKey(crop)
+    const t = setTimeout(() => {
+      const blob = hereBlob(id, 'view')
+      ;(blob ? Promise.resolve(blob) : inboxBlob(id, 'view'))
+        .then((b) => oneAtATime(() => printFromPicture(b, crop, W, H)))
+        .then((print) => update(id, (x) => (cropKey(x.crop) === want ? { ...x, print, printOf: want } : x)), () => {})
+    }, 1200)
+    return () => clearTimeout(t)
+  }, [reprint && reprint.id, reprint && cropKey(reprint.crop)]) // eslint-disable-line react-hooks/exhaustive-deps -- by the crop's value
+
+  // 2c. Her art without a fingerprint yet is measured once, from its small picture, while a batch is open; kept with it
+  // where this person may change it (their own, or any for a parent), and remembered here either way
+  const galleryKey = gallery.map((d) => d.id + (d.print ? '+' : '')).join('|')
+  useEffect(() => {
+    if (!items.length || !supabase) return undefined
+    let live = true
+    const todo = gallery.filter((d) => !d.print && (d.thumb_path || d.path) && !prints[d.id])
+    ;(async () => {
+      for (let i = 0; i < todo.length && live; i += 20) {
+        const part = todo.slice(i, i + 20)
+        const { data } = await supabase.storage.from('drawings').createSignedUrls(part.map((d) => d.thumb_path || d.path), 600)
+        for (const [k, d] of part.entries()) {
+          const url = data && data[k] && data[k].signedUrl
+          if (!url || !live) continue
+          try {
+            const res = await fetch(url)
+            if (!res.ok) continue
+            const m = await oneAtATime(async () => measurePicture(await res.blob()))
+            if (!live) return
+            setPrints((x) => ({ ...x, [d.id]: m.print }))
+            if (!noPrints) { const { error } = await supabase.from('annas_drawings').update({ print: m.print }).eq('id', d.id); if (error && missingColumn(error)) setNoPrints(true) }
+          } catch { /* the next one */ }
+        }
+      }
+    })()
+    return () => { live = false }
+  }, [galleryKey, items.length > 0]) // eslint-disable-line react-hooks/exhaustive-deps -- once per wall, while a batch is open
+
+  // Which photos look like art already on her wall, or like another photo in this batch
+  const alike = useMemo(() => {
+    const onWall = gallery.map((d) => ({ id: d.id, title: d.title, print: d.print || prints[d.id], where: 'gallery' }))
+    const out = {}
+    items.forEach((x, i) => {
+      if (!x.print || DONE.includes(x.status) || x.status === 'saving') return
+      const earlier = items.slice(0, i).filter((y) => y.status !== 'skipped').map((y) => ({ id: y.id, title: y.title || '', n: items.indexOf(y) + 1, print: y.print, where: 'batch' }))
+      const hits = lookAlikes(x.print, [...onWall, ...earlier])
+      if (hits.length) out[x.id] = hits.slice(0, 3)
+    })
+    return out
+  }, [items, gallery, prints])
+
   // 3. Saved, one at a time: the pictures into the private bucket, then its row, under whoever sent it
   useEffect(() => {
     if ([...busy.current].some((k) => k.endsWith(':save'))) return
@@ -195,10 +261,13 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
       // The original (the kept copy) goes up too, so the drawing can be cropped again later
       await putDrawingFile(names.path, f.full); await putDrawingFile(names.thumb, f.small); await putDrawingFile(names.original, kept)
       // Upsert: the id was made when the photo was, so a second go after an interruption only meets its own row
-      const { error } = await supabase.from('annas_drawings').upsert({
+      const row = {
         id: it.id, ...fields, path: names.path, thumb_path: names.thumb, width: f.w, height: f.h,
-        added_by: it.addedBy || (me ? me.id : null), original: true, crop: { ...it.crop, W: it.W, H: it.H },
-      }, { onConflict: 'id' })
+        added_by: it.addedBy || (me ? me.id : null), original: true, crop: { ...it.crop, W: it.W, H: it.H }, print: f.print,
+      }
+      let { error } = await supabase.from('annas_drawings').upsert(row, { onConflict: 'id' })
+      // Before the migration that keeps fingerprints is run, it's saved without one
+      if (error && missingColumn(error)) { const { print: _p, ...plain } = row; ({ error } = await supabase.from('annas_drawings').upsert(plain, { onConflict: 'id' })) }
       if (error) throw error
     })().then(() => {
       busy.current.delete(key); saving.current.delete(it.id)
@@ -212,7 +281,9 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
   }, [items, update, onSaved, today, me])
 
   return {
-    items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, today,
+    items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, today, alike,
+    /** Looks like one already on her wall, but it's a different one: add it anyway. */
+    dupOk(id, ok = true) { update(id, (x) => ({ ...x, dupOk: ok })) },
     refresh: reload,
     /** New photos into the batch, under whoever sent them; the first to check stays where it was. */
     add(list) {

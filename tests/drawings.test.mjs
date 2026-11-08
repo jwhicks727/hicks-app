@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { TOPICS, drawingFiles, sortDrawings, petsDrawing, drawnWords, validMadeOn, cleanDrawing, tilt, tapeOf, migrationMissing } from '../src/lib/drawings.js'
+import { TOPICS, drawingFiles, sortDrawings, petsDrawing, petsPaperWidth, drawnWords, validMadeOn, cleanDrawing, tilt, tapeOf, migrationMissing } from '../src/lib/drawings.js'
 import { parsePath, PLACES, APP_PLACES } from '../src/lib/router.js'
 
 const root = new URL('..', import.meta.url).pathname
@@ -19,16 +19,25 @@ test('newest first: the day she drew it where known, else the day it was added, 
   assert.deepEqual(rows.map((r) => r.id), ['a', 'b', 'c', 'd'], 'the list it was given is left alone')
 })
 
-test('the Pets launch hangs the newest drawing marked as being about the pets, and nothing otherwise', () => {
+test('the Pets launch always hangs the first drawing marked as being about the pets, and nothing otherwise', () => {
   const rows = [
-    { id: 'old', topic: 'pets', made_on: '2026-10-01', created_at: '2026-10-02T00:00:00Z' },
     { id: 'new', topic: 'pets', made_on: null, created_at: '2026-11-05T00:00:00Z' },
+    { id: 'first', topic: 'pets', made_on: '2026-10-01', created_at: '2026-10-02T00:00:00Z' },
     { id: 'other', topic: null, made_on: null, created_at: '2026-11-06T00:00:00Z' },
+    { id: 'drawn-earlier', topic: 'pets', made_on: '2020-01-01', created_at: '2026-11-08T00:00:00Z' },
   ]
-  assert.equal(petsDrawing(rows).id, 'new')
+  assert.equal(petsDrawing(rows).id, 'first', 'the scene was made round the first one: a newer drawing of the pets never covers it')
   assert.equal(petsDrawing([rows[2]]), null, 'a drawing about nothing in particular is never hung there')
   assert.equal(petsDrawing([]), null)
   assert.deepEqual(Object.keys(TOPICS), ['pets'])
+})
+
+test('a tall drawing hangs narrower in the Pets launch, so it never comes down over the cats', () => {
+  assert.equal(petsPaperWidth(1500, 1000), 62, 'a wide drawing hangs at its usual width')
+  assert.equal(petsPaperWidth(0, 0), 62)
+  const tall = petsPaperWidth(1000, 1400)
+  assert.ok(tall < 40, `a tall one is narrower (${tall}%)`)
+  assert.ok(((tall - 3.4) * 1.4) <= 47.2, 'and its picture is no taller than the room above the wall')
 })
 
 test('a drawing’s files go under its own id', () => {

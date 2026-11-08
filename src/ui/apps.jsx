@@ -14,7 +14,7 @@ export const APPS = [
     icon: <g {...S}><path d="M3 15c3 0 5-2 6-5 1-3 3-5 6-5 2 0 3 1 3 3l3 1-3 1c0 4-3 7-8 7H6z" /><path d="M9 20l1-3M12 20l1-3" /><circle cx="15.2" cy="7.6" r=".4" fill="currentColor" /></g> },
   { key: 'gallery', to: '/lifelist/paintings', name: 'Laurie’s Gallery', sub: 'Her paintings', colours: ['#E9A08A', '#B3401A'],
     icon: <g {...S}><rect x="3.5" y="5" width="17" height="14" rx="2" /><path d="M3.5 16l4.8-4.8 3.8 3.8 2.6-2.6 5.8 5.6" /><circle cx="15.5" cy="9" r="1.6" /></g> },
-  { key: 'drawings', to: '/drawings', name: 'Anna’s Gallery', sub: 'Her drawings', colours: ['#F3B7CE', '#C14D83'],
+  { key: 'drawings', to: '/drawings', name: 'Anna’s Art', sub: 'Drawings and paintings', colours: ['#F3B7CE', '#C14D83'],
     icon: <g {...S}><rect x="5" y="4" width="14" height="16.5" rx="1.6" /><path d="M9.5 4h5" /><path d="M12 16.4s-3.8-2.3-4.8-4.6C6.6 10.3 7.5 8.8 9.1 8.8c1 0 1.9.5 2.9 1.6 1-1.1 1.9-1.6 2.9-1.6 1.6 0 2.5 1.5 1.9 3-1 2.3-4.8 4.6-4.8 4.6z" /></g> },
   { key: 'jams', to: '/jams', name: 'Jams', sub: 'Our music', colours: ['#94BDEB', '#3E63A8'],
     icon: <g {...S}><path d="M9 18V6l11-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="17.5" cy="16" r="2.5" /></g> },

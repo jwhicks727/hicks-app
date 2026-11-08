@@ -13,6 +13,8 @@ import { useEffect, useState } from 'react'
 import { addDays } from '../lib/cal/dates.js'
 import { listDay, streakShown, namesFor, noun } from '../lib/routines.js'
 import { teamDayToday } from '../parts/ListsCard.jsx'
+import { familiesOf, FAMILIES } from '../lib/artColour.js'
+import { isShaped } from '../lib/shapes.js'
 
 function SourcesReport({ session }) {
   const { rows, error } = useSources(session)
@@ -169,7 +171,47 @@ function TripsReport({ session }) {
     </tbody></table>
   )
 }
-const BUILT = { 'yonder/trips': TripsReport, 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
+/** Her gallery in numbers: paintings, the years they span, how many have a month or a shape, colours, the featured walls and their cost. */
+function GalleryReport({ session }) {
+  const [d, setD] = useState(null)
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session) return undefined
+    const month = new Date(); month.setDate(1); month.setHours(0, 0, 0, 0)
+    Promise.all([
+      supabase.from('paintings').select('*').limit(1000),
+      supabase.from('gallery_features').select('id', { count: 'exact', head: true }),
+      supabase.from('ai_usage').select('cost_cents, task').in('task', ['feature-paintings', 'look-painting', 'read-painting']).gte('created_at', month.toISOString()).limit(1000),
+    ]).then(([p, f, u]) => {
+      if (!live) return
+      const rows = p.data || [], years = rows.map((r) => r.year).filter(Boolean)
+      const top = {}
+      for (const r of rows) for (const k of familiesOf(r.palette)) top[k] = (top[k] || 0) + 1
+      const colour = Object.entries(top).sort((a, b) => b[1] - a[1])[0]
+      setD({
+        n: rows.length, from: years.length ? Math.min(...years) : null, to: years.length ? Math.max(...years) : null,
+        months: rows.filter((r) => r.month).length, shaped: rows.filter((r) => isShaped(r.shape)).length, looked: rows.filter((r) => r.looks).length,
+        colour: colour ? FAMILIES[colour[0]].label.toLowerCase() : null, walls: f.error ? null : f.count ?? 0,
+        cents: (u.data || []).reduce((a, r) => a + Number(r.cost_cents || 0), 0),
+      })
+    })
+    return () => { live = false }
+  }, [session])
+  if (!d) return <p className="muted">Counting…</p>
+  return (
+    <table className="table"><tbody>
+      <tr><td>Her paintings</td><td className="num">{d.n}</td></tr>
+      {d.from && <tr><td>Painted from</td><td className="num">{d.from === d.to ? d.from : `${d.from}–${d.to}`}</td></tr>}
+      <tr><td>With a month by her signature</td><td className="num">{d.months}</td></tr>
+      <tr><td>On a canvas that isn’t a rectangle</td><td className="num">{d.shaped}</td></tr>
+      <tr><td>Looked at by Claude, words kept</td><td className="num">{d.looked}</td></tr>
+      {d.colour && <tr><td>Her commonest colour</td><td className="num">{d.colour}</td></tr>}
+      {d.walls !== null && <tr><td>Featured walls hung by Claude</td><td className="num">{d.walls}</td></tr>}
+      <tr><td>Claude’s cost for her gallery this month</td><td className="num">${(d.cents / 100).toFixed(2)}</td></tr>
+    </tbody></table>
+  )
+}
+const BUILT = { 'lifelist/gallery': GalleryReport, 'yonder/trips': TripsReport, 'world/guides': GuidesReport, 'home/lists': ListsReport, 'calendar/sources': SourcesReport, 'calendar/family-days': FamilyDaysReport, 'kitchen/cookbook': CookbookReport }
 
 export default function Reports() {
   const session = useSession()

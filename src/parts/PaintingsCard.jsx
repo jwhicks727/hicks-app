@@ -3,11 +3,10 @@ import { Card } from '../ui/Card.jsx'
 import { Link } from '../shell/Link.jsx'
 import PaintingFrame from './PaintingFrame.jsx'
 import { usePaintings } from './PaintingsProvider.jsx'
-import { showFor, homePainting } from '../lib/seasonShows.js'
+import { showFor, homePainting, originsOf } from '../lib/seasonShows.js'
 import { usePrefs } from '../lib/prefs.js'
 import { reducedMotion } from '../lib/motion.js'
 import { tilt } from '../lib/drawings.js'
-import { LEAF_ORIGINS } from '../lib/leafOrigins.js'
 import { useDrawings, useDrawingUrls } from '../lib/useDrawings.js'
 
 /**
@@ -33,7 +32,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
     return () => window.removeEventListener('hicks:gust', on)
   }, [])
   const p = homePainting(season, list)
-  const annaLink = <Link to="/drawings">Anna’s Gallery{drawings.list.length > 1 ? ` · ${drawings.list.length}` : ''} ›</Link>
+  const annaLink = <Link to="/drawings">Anna’s Art{drawings.list.length > 1 ? ` · ${drawings.list.length}` : ''} ›</Link>
   // Never silently gone: with nothing to show, the card says why (the hosted app carries none of her paintings until a parent has moved them into private storage)
   if (!p || !p.src) {
     if (!loaded) return null
@@ -90,14 +89,14 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
 
 /**
  * Which bottom corner Anna's paper goes in: never over the painting's bird, and otherwise over the fewer of the
- * places the wind lifts leaves from (src/lib/leafOrigins.js), so the leaves can be seen leaving the painting.
+ * places the wind lifts leaves from (`originsOf`, src/lib/seasonShows.js), so the leaves can be seen leaving the painting.
  */
 function paperCorner(p) {
   if (p.flyer) {
     const [x, y, w, h] = p.flyer.at
     if (y + h / 2 > 0.5) return x + w / 2 > 0.5 ? 'left' : 'right'
   }
-  const o = LEAF_ORIGINS[p.slug]
+  const o = originsOf(p)
   if (!o) return 'right'
   const under = (side) => o.origins.filter(([x, y]) => y > 0.62 && (side === 'right' ? x > 0.62 : x < 0.38)).length
   return under('left') < under('right') ? 'left' : 'right'

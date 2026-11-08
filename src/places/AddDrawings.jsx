@@ -36,9 +36,9 @@ export default function AddDrawings({ me, members = [], g, today }) {
   return (
     <>
       <header className="hero span-6">
-        <Crumb to="/drawings">Anna’s Gallery</Crumb>
-        <span className="kicker">Drawn by Anna</span>
-        <h1 className="greet">Add her drawings</h1>
+        <Crumb to="/drawings">Anna’s Art</Crumb>
+        <span className="kicker">Made by Anna</span>
+        <h1 className="greet">Add her art</h1>
       </header>
       {working && <Working>{working}</Working>}
       {b.syncError && <p className="ll-up-note span-6" role="alert">The family’s storage couldn’t be reached just now, so changes may not be saved: {b.syncError} <button type="button" className="ll-up-link" onClick={b.refresh}>Try again</button></p>}
@@ -85,10 +85,10 @@ export default function AddDrawings({ me, members = [], g, today }) {
 
 function Start({ read, setRead, add }) {
   return (
-    <Card tint={TINT} label="Photos of her drawings" glyph="star" className="span-6">
-      <p>Choose as many as you like. Each is straightened and cropped to the paper as it’s sent up; then you go through them one at a time and fix any it got wrong, here or on another device. Her drawing is only ever cropped and turned, never changed.</p>
+    <Card tint={TINT} label="Photos of her art" glyph="star" className="span-6">
+      <p>Drawings and paintings both: choose as many as you like. Each is straightened and cropped to the paper as it’s sent up; then you go through them one at a time and fix any it got wrong, here or on another device. Her art is only ever cropped and turned, never changed.</p>
       <ReadSwitch read={read} setRead={setRead} />
-      <Dropzone accept="image/*" multiple label="Photos of her drawings" hint="Take a photo of each paper, flat and in good light. Choose them, take one, paste or drop them in." onFiles={add} />
+      <Dropzone accept="image/*" multiple label="Photos of her drawings and paintings" hint="Take a photo of each one, flat and in good light. Choose them, take one, paste or drop them in." onFiles={add} />
       <p className="muted">They’re sent to the family’s private storage and wait until each is added, even if the app is closed. Send them from a phone and open this page on a computer to crop them, if that’s easier.</p>
     </Card>
   )
@@ -155,6 +155,7 @@ function Review({ b, it, me, names, today, onSkip }) {
           {it.sending && <p className="ll-up-from">Sending it to the family’s storage, so another device can pick it up. You can carry on here.</p>}
           {it.sendError && <p className="err" role="alert">It couldn’t be sent to the family’s storage: {it.sendError} <button type="button" className="ll-up-link" onClick={() => b.resend(it.id)}>Try again</button></p>}
           <Cropper src={url} W={it.W} H={it.H} crop={it.crop} auto={it.auto} what="drawing" onChange={(crop) => set({ crop })} />
+          <LookAlike b={b} it={it} onSkip={onSkip} />
         </>
       )}
       {it.crop && saved && !editing && (
@@ -203,6 +204,25 @@ function Review({ b, it, me, names, today, onSkip }) {
         </nav>
       )}
     </article>
+  )
+}
+
+/** It looks like art already on her wall, or another photo here: leave it out, or add it anyway. */
+function LookAlike({ b, it, onSkip }) {
+  const hits = b.alike[it.id]
+  if (!hits || !hits.length) return null
+  if (it.dupOk) return <p className="ll-up-from">Adding it even though it looks like {hits[0].title || 'another'}. <button type="button" className="ll-up-link" onClick={() => b.dupOk(it.id, false)}>Undo</button></p>
+  const top = hits[0]
+  return (
+    <div className="ll-dup" role="status">
+      <div>
+        <p className="ll-up-flag">{top.where === 'gallery' ? <>This looks like <b>{top.title}</b>, already on her wall.</> : <>This looks like photo {top.n} in this batch.</>}</p>
+        <div className="ll-dup-acts">
+          <button type="button" className="ll-up-link" onClick={() => { b.skip(it.id); onSkip({ id: it.id, title: it.title }) }}>Leave this one out</button>
+          <button type="button" className="ll-up-link" onClick={() => b.dupOk(it.id)}>It’s a different one: add it</button>
+        </div>
+      </div>
+    </div>
   )
 }
 

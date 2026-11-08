@@ -6,6 +6,8 @@
 // is in her gallery; each is cropped and turned from its photo, never altered.
 //
 import { SEASONS, SEASON_ORDER } from './seasons.js'
+import { cleanShape, shapeFromReading } from './shapes.js'
+import { cleanLooks } from './gallery.js'
 
 // A crop is { turn, angle, cx, cy, w, h }: the photo turned clockwise by `turn`
 // (0, 90, 180 or 270), then a w x h box centred at cx,cy (in the turned photo's
@@ -102,26 +104,51 @@ export function drawTransform(crop, W, H, { max = Infinity, region } = {}) {
 }
 
 /**
+ * The other way from drawTransform: for a point of the upright painting (u and v from 0 to 1), the photo's pixel it
+ * comes from, as [x, y]. `k` scales that to a smaller copy of the photo (its width over W), so a fingerprint can be
+ * taken from the little copy the auto-crop measures.
+ */
+export function paintingPoint(crop, W, H, k = 1) {
+  const t = drawTransform(crop, W, H)
+  const det = t.a * t.d - t.b * t.c || 1e-9
+  return (u, v) => {
+    const ox = u * t.width - t.e, oy = v * t.height - t.f
+    return [k * ((t.d * ox - t.c * oy) / det), k * ((-t.b * ox + t.a * oy) / det)]
+  }
+}
+
+/**
  * The crop screen's view: the turned photo, straightened, fitted to a stage of sw x sh. `k` is the scale,
  * `matrix` the CSS transform for an <img> sized W x H with its origin at 0 0, and `box` where the crop's
  * box sits on the stage. Its box is level on screen: the photo leans under it.
  */
-export function viewOf(crop, W, H, sw, sh, { zoom = false } = {}) {
-  const [tw, th] = turnedSize(W, H, crop.turn)
-  const cos = Math.cos(rad(crop.angle)), sin = Math.sin(rad(crop.angle))
-  const ed = edgesOf(crop, W, H)
+export function viewOf(crop, W, H, sw, sh, { zoom = false, frame = crop } = {}) {
+  // Fitted to `frame` (the crop the view was last framed on: it holds still while a box is dragged, so the photo never
+  // slides about under a finger), with the box drawn where `crop` is now. The two share their turn and lean.
+  const [tw, th] = turnedSize(W, H, frame.turn)
+  const cos = Math.cos(rad(frame.angle)), sin = Math.sin(rad(frame.angle))
+  const fe = edgesOf(frame, W, H), ed = edgesOf(crop, W, H)
   // Whole photo: fit the photo's own bounds. Zoomed: fit the box (with a margin for its handles) and centre it.
   const bw = tw * Math.abs(cos) + th * Math.abs(sin), bh = tw * Math.abs(sin) + th * Math.abs(cos)
-  const k = zoom ? Math.min(sw / (ed.right - ed.left), sh / (ed.bottom - ed.top)) * 0.86 : Math.min(sw / bw, sh / bh)
-  // Where the box's centre sits, in the level frame, from the photo's centre: zoomed, it's moved to the stage's centre
-  const bx = zoom ? (ed.left + ed.right) / 2 : 0, by = zoom ? (ed.top + ed.bottom) / 2 : 0
-  const [a11, a12, a21, a22, t1, t2] = turnMatrix(W, H, crop.turn)
+  const k = zoom ? Math.min(sw / (fe.right - fe.left), sh / (fe.bottom - fe.top)) * 0.86 : Math.min(sw / bw, sh / bh)
+  // Where the frame's centre sits, in the level frame, from the photo's centre: zoomed, it's moved to the stage's centre
+  const bx = zoom ? (fe.left + fe.right) / 2 : 0, by = zoom ? (fe.top + fe.bottom) / 2 : 0
+  const [a11, a12, a21, a22, t1, t2] = turnMatrix(W, H, frame.turn)
   const m11 = k * (cos * a11 + sin * a21), m12 = k * (cos * a12 + sin * a22)
   const m21 = k * (-sin * a11 + cos * a21), m22 = k * (-sin * a12 + cos * a22)
   const qx = t1 - tw / 2, qy = t2 - th / 2
   const e = k * (cos * qx + sin * qy) + sw / 2 - k * bx, f = k * (-sin * qx + cos * qy) + sh / 2 - k * by
   return { k, zoom, matrix: [m11, m21, m12, m22, e, f], box: { left: sw / 2 + (ed.left - bx) * k, top: sh / 2 + (ed.top - by) * k, width: (ed.right - ed.left) * k, height: (ed.bottom - ed.top) * k } }
 }
+
+/** Does the box sit comfortably on the stage as it's framed: wholly on it, and not lost in the middle of a zoomed view? */
+export function fitsStage(box, sw, sh, { zoom = false } = {}) {
+  const on = box.left >= -1 && box.top >= -1 && box.left + box.width <= sw + 1 && box.top + box.height <= sh + 1
+  return on && (!zoom || Math.max(box.width / sw, box.height / sh) > 0.3)
+}
+
+/** Two crops the same, to half a pixel (a copy brought back from the family's storage is the same crop). */
+export const sameCrop = (a, b) => Boolean(a && b) && ['turn', 'angle', 'cx', 'cy', 'w', 'h'].every((k) => Math.abs((a[k] || 0) - (b[k] || 0)) < 0.5)
 
 /** The box as level edges round the turned photo's centre, as the crop screen sees it: { left, top, right, bottom }. */
 export function edgesOf(crop, W, H) {
@@ -212,6 +239,41 @@ export function cleanYear(text, thisYear) {
   return { year: y }
 }
 
+export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTH_WORDS = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(?:uary|ruary|ch|il|e|y|ust|t|tember|ober|ember)?\b\.?/i
+
+/**
+ * The month she wrote with the year, when she wrote one ("6/21", "June 2019", "Mar '19", "10.2018"): { month, from },
+ * `from` as for the year. What she wrote is read first (a number before the year, the American way round, or a month's
+ * name); Claude's own reading only when the writing gives none. Never a month from the style or the season it shows.
+ */
+export function monthFromReading(reading) {
+  if (!reading || reading.legible === 'none') return { month: null, from: null }
+  const w = String(reading.written || '').trim()
+  let month = null
+  const three = w.match(/(?:^|\D)(\d{1,2})\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{2,4}(?!\d)/) // 6/12/21: month, day, year
+  const two = w.match(/(?:^|\D)(\d{1,2})\s*[/.-]\s*(?:\d{2}|\d{4})\s*$/) // 6/21, 10.2018: month, year
+  const back = w.match(/(?:^|\D)(?:19|20)\d{2}\s*[/.-]\s*(\d{1,2})(?!\d)/) // 2019/06
+  const name = w.match(MONTH_WORDS)
+  if (name) month = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(name[1].toLowerCase()) + 1
+  else if (three) month = Number(three[1])
+  else if (two) month = Number(two[1])
+  else if (back) month = Number(back[1])
+  const ok = (m) => Number.isInteger(m) && m >= 1 && m <= 12
+  // Writing it couldn't make out a month from (and more than a bare year): Claude's own reading of it
+  const bareYear = /^\s*(?:['’‘`]?\d{2}|\d{4})\s*$/.test(w)
+  if (!ok(month)) month = w && !bareYear && ok(Number(reading.month)) ? Number(reading.month) : null
+  if (!ok(month)) return { month: null, from: null }
+  const agrees = !Number(reading.month) || Number(reading.month) === month
+  return { month, from: reading.legible === 'clear' && agrees ? 'signature' : 'unsure' }
+}
+
+/** A month chosen in the box: 1 to 12, or null for none. */
+export const cleanMonth = (v) => { const m = Number(v); return Number.isInteger(m) && m >= 1 && m <= 12 ? m : null }
+
+/** "June 2019", "2019", or '' with neither. */
+export const paintedWords = (year, month) => (year ? (cleanMonth(month) ? `${MONTHS[month - 1]} ${year}` : String(year)) : '')
+
 /** A working title as Claude gave it or someone typed it: one line, no wrapping quotes, at most 200 letters. */
 export function cleanTitle(t) {
   return String(t ?? '').replace(/\s+/g, ' ').trim().replace(/^["“”'‘’]+|["“”'‘’.]+$/g, '').trim().slice(0, 200)
@@ -229,7 +291,7 @@ export const cleanSeasons = (list) => SEASON_ORDER.filter((k) => (Array.isArray(
 /** A slug for the painting's address and its folder in the bucket, not taken by another (nor by /add). */
 export function slugFor(title, taken = []) {
   const base = String(title || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).replace(/-$/, '') || 'painting'
-  const used = new Set([...taken, 'add', 'inbox']) // /add is the screen for adding; inbox/ is the folder photos wait in
+  const used = new Set([...taken, 'add', 'inbox', 'look-again']) // /add and /look-again are screens; inbox/ is the folder photos wait in
   if (!used.has(base)) return base
   for (let k = 2; ; k++) if (!used.has(`${base}-${k}`)) return `${base}-${k}`
 }
@@ -249,6 +311,9 @@ export function applyReading(item, reading, thisYear) {
   if (!touched.year) { const y = yearFromReading(reading, thisYear); next.year = y.year ? String(y.year) : ''; next.yearFrom = y.from }
   if (!touched.medium) { next.medium = cleanMedium(reading.medium); next.mediumFrom = next.medium ? 'claude' : null }
   if (!touched.seasons) { next.seasons = cleanSeasons(reading.seasons); next.seasonsFrom = 'claude' }
+  if (!touched.month && !touched.year) { const m = monthFromReading(reading); next.month = next.year && m.month ? m.month : null; next.monthFrom = next.month ? m.from : null }
+  if (!touched.shape && reading.shape !== undefined) { const sh = cleanShape(shapeFromReading(reading.shape)); next.shape = sh; next.shapeFrom = sh ? 'claude' : null }
+  if (!touched.looks && reading.subjects !== undefined) next.looks = cleanLooks(reading)
   const turn = readTurn(reading.turn)
   if (!touched.crop && turn && item.crop) next.crop = fitInside(turnCrop(item.crop, item.W, item.H, turn), item.W, item.H)
   return next
@@ -290,7 +355,7 @@ export function takenSlugs(gallery = [], bundled = [], items = [], except) {
 
 // ---- A batch that waits in the family's storage, to be picked up on any device -------------
 /** The parts of a photo that travel to the family's storage; the rest (its File, `local`, `editing`) stays on the device. */
-export const SYNCED = ['id', 'seq', 'name', 'status', 'read', 'readAt', 'readError', 'title', 'named', 'year', 'yearFrom', 'medium', 'mediumFrom', 'seasons', 'seasonsFrom', 'touched', 'reading', 'W', 'H', 'crop', 'auto', 'sure', 'kind', 'slug', 'saveError', 'savingAt', 'error']
+export const SYNCED = ['id', 'seq', 'name', 'status', 'read', 'readAt', 'readError', 'title', 'named', 'year', 'yearFrom', 'month', 'monthFrom', 'medium', 'mediumFrom', 'seasons', 'seasonsFrom', 'shape', 'shapeFrom', 'looks', 'touched', 'reading', 'W', 'H', 'crop', 'auto', 'sure', 'kind', 'print', 'printOf', 'dupOk', 'replace', 'slug', 'saveError', 'savingAt', 'error']
 const DEVICE_ONLY = ['editing']
 /** A photo as its row keeps it: only the synced parts, always in the same order, so two copies compare as text. */
 export const inboxData = (item, keys = SYNCED) => Object.fromEntries(keys.filter((k) => item[k] !== undefined).map((k) => [k, item[k]]))
@@ -326,4 +391,28 @@ export function mergeInbox(local, remote, dirty = new Set()) {
   const unsent = local.filter((x) => !x.local && !remoteIds.has(x.id) && dirty.has(x.id))
   const order = (a, b) => (a.seq || 0) - (b.seq || 0) || String(a.id).localeCompare(String(b.id))
   return [...[...synced, ...unsent].sort(order), ...local.filter((x) => x.local)]
+}
+
+// ---- Her gallery looked over again (src/places/lifelist/LookAgain.jsx) ------------------------
+/**
+ * What looking at a painting already in her gallery again suggests changing, for a parent to tick: a month by her
+ * signature (where it has none, or a different one), a year (only where it has none), a canvas shape (only where it
+ * has none), and Claude's words about it. Each says where it came from; `sure` is whether to tick it to begin with.
+ * Nothing she or a parent already gave is ever suggested away.
+ */
+export function lookProposals(p, reading, thisYear) {
+  const out = {}
+  if (!reading) return out
+  const y = yearFromReading(reading, thisYear)
+  const m = monthFromReading(reading)
+  const written = String(reading.written || '').slice(0, 40)
+  if (!p.year && y.year) out.year = { value: y.year, sure: y.from === 'signature', written }
+  const year = p.year || (out.year && out.year.value)
+  // A month only with a year, and only if the year read agrees with the one kept
+  if (m.month && year && (!y.year || y.year === year) && m.month !== p.month) out.month = { value: m.month, sure: m.from === 'signature' && !p.month, written, was: p.month || null }
+  const sh = cleanShape(shapeFromReading(reading.shape))
+  if (sh && !cleanShape(p.shape)) out.shape = { value: sh, sure: true }
+  const looks = cleanLooks(reading)
+  if (looks) out.looks = { value: looks }
+  return out
 }

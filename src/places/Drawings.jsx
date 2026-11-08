@@ -17,8 +17,8 @@ import './drawings.css'
 
 const TINT = '#D9739B'
 
-// /drawings          Anna's Gallery: her drawings, taped to the wall, newest first
-// /drawings/<id>     one drawing, hung large; its next and previous replace the address
+// /drawings          Anna's Art: her drawings and paintings, taped to the wall, newest first
+// /drawings/<id>     one piece, hung large; its next and previous replace the address
 // /drawings/add      adding drawings, one or many at once (src/places/AddDrawings.jsx)
 // Behind sign-in, like Laurie's paintings: the pictures are in a private bucket, read through
 // signed links, never in the app's own files (CLAUDE.md, "Anna's drawings"). Anyone in the
@@ -62,7 +62,7 @@ export default function Drawings({ rest }) {
   return (
     <>
       {id === 'add'
-        ? (family.loaded && me ? <AddDrawings me={me} members={family.members} g={g} today={today} /> : <header className="hero span-6"><Crumb to="/drawings">Anna’s Gallery</Crumb><h1 className="greet">…</h1></header>)
+        ? (family.loaded && me ? <AddDrawings me={me} members={family.members} g={g} today={today} /> : <header className="hero span-6"><Crumb to="/drawings">Anna’s Art</Crumb><h1 className="greet">…</h1></header>)
         : id ? <DrawingPage id={id} g={g} list={list} me={me} parent={parent} today={today} onTakeDown={takeDown} /> : <Wall g={g} list={list} />}
       {undo && <Toast key={undo.id} action="Undo" onAction={undoIt} onClose={() => { setUndo(null); commit() }}>{undo.text}</Toast>}
     </>
@@ -72,7 +72,7 @@ export default function Drawings({ rest }) {
 function SetupCard() {
   return (
     <Card tint={TINT} label="One step first" glyph="star" className="span-6">
-      <p>Anna’s Gallery keeps her drawings in the family’s private storage, and the database doesn’t have a place for them yet. A parent runs <b>20261105040000_annas_gallery</b> (it’s in the repository’s <code>supabase/migrations</code> folder) once, and this page works.</p>
+      <p>Anna’s Art keeps her drawings and paintings in the family’s private storage, and the database doesn’t have a place for them yet. A parent runs <b>20261105040000_annas_gallery</b> (it’s in the repository’s <code>supabase/migrations</code> folder) once, and this page works.</p>
     </Card>
   )
 }
@@ -86,8 +86,8 @@ function AddDrawingsLink() {
     return () => { live = false }
   }, [])
   const n = waiting ? waiting.ready + waiting.saving : 0
-  if (n) return <Link to="/drawings/add" className="shine span-6">Drawings waiting to be checked<span className="n">{n}</span></Link>
-  return <div className="span-6 ag-add"><Link to="/drawings/add" className="btn">Add her drawings</Link></div>
+  if (n) return <Link to="/drawings/add" className="shine span-6">Photos of her art waiting<span className="n">{n}</span></Link>
+  return <div className="span-6 ag-add"><Link to="/drawings/add" className="btn">Add her art</Link></div>
 }
 
 function Wall({ g, list }) {
@@ -95,24 +95,24 @@ function Wall({ g, list }) {
   return (
     <>
       <header className="hero span-6">
-        <span className="kicker">Drawn by Anna</span>
-        <h1 className="greet">Anna’s Gallery</h1>
+        <span className="kicker">Made by Anna</span>
+        <h1 className="greet">Anna’s Art</h1>
       </header>
       {g.missing && <SetupCard />}
       {!g.missing && g.error && <Card tint={TINT} label="Couldn’t open it" glyph="star" className="span-6"><p>{g.error}</p></Card>}
       {!g.missing && !g.error && <AddDrawingsLink />}
       {g.loaded && !g.missing && !g.error && !list.length && (
         <Card tint={TINT} label="Nothing hung yet" glyph="star" className="span-6">
-          <p>Anna’s drawings go here, taped up the way they would be on the fridge. Photograph one, crop it close to the paper, and tap <b>Add her drawings</b>.</p>
+          <p>Anna’s drawings and paintings go here, taped up the way they would be on the fridge. Photograph one, crop it close to the paper, and tap <b>Add her art</b>.</p>
         </Card>
       )}
-      <section className="ag-wall span-6" aria-label="Anna’s drawings">
+      <section className="ag-wall span-6" aria-label="Anna’s drawings and paintings">
         {list.map((d) => (
           <Link key={d.id} className="ag-piece" to={'/drawings/' + d.id} style={{ '--tilt': `${tilt(d.id)}deg` }}>
             <span className="ag-paper" data-tape={tapeOf(d.id)}>
               <span className="ag-tape" aria-hidden="true" />
               {urls[d.thumb_path || d.path]
-                ? <img src={urls[d.thumb_path || d.path]} alt={`${d.title}, a drawing by Anna`} width={d.width || undefined} height={d.height || undefined} loading="lazy" style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} />
+                ? <img src={urls[d.thumb_path || d.path]} alt={`${d.title}, by Anna`} width={d.width || undefined} height={d.height || undefined} loading="lazy" style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} />
                 : <span className="ag-blank" style={{ aspectRatio: d.width && d.height ? `${d.width} / ${d.height}` : '3 / 2' }} />}
             </span>
             <b>{d.title}</b>
@@ -120,7 +120,7 @@ function Wall({ g, list }) {
           </Link>
         ))}
       </section>
-      {list.length > 0 && <p className="ag-note span-6">{list.length === 1 ? 'The first drawing on the wall.' : `${list.length} drawings on the wall.`} Tap one to see it large.</p>}
+      {list.length > 0 && <p className="ag-note span-6">{list.length === 1 ? 'The first of her pieces on the wall.' : `${list.length} of her pieces on the wall.`} Tap one to see it large.</p>}
     </>
   )
 }
@@ -132,8 +132,8 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
   if (!d) {
     return (
       <header className="hero span-6">
-        <Crumb to="/drawings">Anna’s Gallery</Crumb>
-        <h1 className="greet">{g.loaded ? 'Not one of her drawings' : '…'}</h1>
+        <Crumb to="/drawings">Anna’s Art</Crumb>
+        <h1 className="greet">{g.loaded ? 'Not one of her pieces' : '…'}</h1>
       </header>
     )
   }
@@ -144,15 +144,15 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
   return (
     <>
       <header className="hero span-6">
-        <Crumb to="/drawings">Anna’s Gallery</Crumb>
-        <span className="kicker">Drawn by Anna</span>
+        <Crumb to="/drawings">Anna’s Art</Crumb>
+        <span className="kicker">Made by Anna</span>
         <h1 className="greet">{d.title}</h1>
       </header>
       <div className="ag-hang span-6" style={{ '--tilt': `${tilt(d.id) / 2}deg` }}>
         <div className="ag-paper" data-tape={tapeOf(d.id)}>
           <span className="ag-tape" aria-hidden="true" />
           {src
-            ? <img src={src} alt={`${d.title}, a drawing by Anna`} width={d.width || undefined} height={d.height || undefined} style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} />
+            ? <img src={src} alt={`${d.title}, by Anna`} width={d.width || undefined} height={d.height || undefined} style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} />
             : <span className="ag-blank" style={{ aspectRatio: d.width && d.height ? `${d.width} / ${d.height}` : '3 / 2' }} />}
         </div>
       </div>
@@ -163,7 +163,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
           : (
           <Card className="span-6" tint={TINT} label="About it" glyph="star">
             <dl className="ag-facts">
-              {d.made_on && <div><dt>Drawn</dt><dd>{drawnWords(d.made_on).replace(/^Drawn /, '')}</dd></div>}
+              {d.made_on && <div><dt>Made</dt><dd>{drawnWords(d.made_on).replace(/^Drawn /, '')}</dd></div>}
               {d.topic === 'pets' && <div><dt>About</dt><dd><Link to="/pets">{TOPICS.pets}</Link></dd></div>}
               {d.words && <div><dt>In her words</dt><dd className="ag-words">“{d.words}”</dd></div>}
               {!d.made_on && !d.topic && !d.words && <div><dt>By</dt><dd>Anna</dd></div>}
@@ -176,7 +176,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
               </div>
             )}
             {list.length > 1 && (
-              <nav className="place-step" aria-label="Her other drawings">
+              <nav className="place-step" aria-label="Her other pieces">
                 <a href={'/drawings/' + near(-1).id} onClick={step(near(-1))}>‹ {near(-1).title}</a>
                 <a href={'/drawings/' + near(1).id} onClick={step(near(1))}>{near(1).title} ›</a>
               </nav>

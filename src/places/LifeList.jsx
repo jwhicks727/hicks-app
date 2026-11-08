@@ -1,6 +1,7 @@
 import Gallery from './lifelist/Gallery.jsx'
 import AddPaintings from './lifelist/AddPaintings.jsx'
 import PaintingPage from './lifelist/PaintingPage.jsx'
+import LookAgain from './lifelist/LookAgain.jsx'
 import Recent from './lifelist/Recent.jsx'
 import Birds from './lifelist/Birds.jsx'
 import Trips from './lifelist/Trips.jsx'
@@ -12,8 +13,9 @@ import Parks from './lifelist/Parks.jsx'
 // /lifelist/parks/...                the national parks, checked off
 // /lifelist/paintings[/<slug>]       Laurie's gallery
 // /lifelist/paintings/add            adding her paintings, many at once (parents only; no painting is slugged "add")
+// /lifelist/paintings/look-again     her gallery looked over again: months, shapes, colours (parents only; nor "look-again")
 export default function LifeList({ rest = [] }) {
-  if (rest[0] === 'paintings') return rest[1] === 'add' ? <AddPaintings /> : rest[1] ? <PaintingPage slug={rest[1]} /> : <Gallery />
+  if (rest[0] === 'paintings') return rest[1] === 'add' ? <AddPaintings /> : rest[1] === 'look-again' ? <LookAgain /> : rest[1] ? <PaintingPage slug={rest[1]} /> : <Gallery />
   if (rest[0] === 'birds') return <Birds rest={rest.slice(1)} />
   if (rest[0] === 'trips') return <Trips rest={rest.slice(1)} />
   if (rest[0] === 'parks') return <Parks rest={rest.slice(1)} />
