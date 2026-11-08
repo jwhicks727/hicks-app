@@ -119,6 +119,7 @@ export default function Settings() {
         <ul className="here-pack">
           <li>Your phone is asked only while the app is open: when it opens, and when you come back to it, at most every ten minutes. Never in the background.</li>
           <li>Where you are is rounded to about a kilometre at once and kept only on this phone. It’s forgotten after six hours, when you sign out, or when this is switched off. No history is kept.</li>
+          <li>After a stay away, Home keeps a recap named for the town, so you can add what you didn’t get to. For that, this phone remembers only the town and the first and last day of the stay, for a week (or until you put the recap away). Never a point, never a path.</li>
           <li>The rounded position goes to Open-Meteo for the weather, the National Weather Service for alerts, and OpenStreetMap for the town’s name. Away from home, the birds and the map are asked about the area only, to about ten kilometres.</li>
           <li>Away from home, What’s around here? writes itself: Claude is sent the town, the area to about ten kilometres and the family’s interests (Admin › What’s around here), never who you are. The guide is kept for the family by place, never by person.</li>
           <li>While you’re away, the rest of the family sees which town you’re in (never the place in it): until you’re home again, or twelve hours after you last opened the app there. Switching this off, or signing out, takes it away at once.</li>
