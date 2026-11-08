@@ -277,6 +277,19 @@ licence nobody wrote down.
   `cd C:\Users\Admin\projects\hicks-app-clone; git pull; Get-Content supabase\migrations\<file>.sql -Raw | Set-Clipboard`
   then Supabase dashboard → SQL Editor → new query → paste → Run, and what
   "Success" looks like. Never ask him to open or copy the file by hand.
+- **Check the Supabase account before any CLI command** (2026-11-08): Jason's
+  machine is often logged into the SOAR school account, which sees only SOAR's
+  project and is refused (403) on this one; this app's database is a separate
+  Supabase account and project, called "Hicks App". Whenever you give Jason
+  Supabase CLI commands (a function deploy, `supabase link`, secrets), start
+  with `npx supabase projects list`, say that "Hicks App" must be in the list
+  (and that SOAR's project must never be the target), and if it isn't, give
+  the fix before the command: a token for the Hicks account in that one
+  window (`$env:SUPABASE_ACCESS_TOKEN = "..."`, made at
+  supabase.com/dashboard/account/tokens, never pasted into chat), or
+  `npx supabase logout` then `login`. Give the branch switch too, since he
+  works on several branches: `cd C:\Users\Admin\projects\hicks-app-clone; git checkout main; git pull`
+  before a deploy of merged work, and `git checkout <his branch>` after.
 - New tables are not exposed automatically: each migration grants its
   tables to `authenticated`, never to `anon`, and switches on row-level
   security. Never `using (true)`: a signed-in stranger must see nothing.
