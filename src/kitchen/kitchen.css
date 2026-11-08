@@ -46,6 +46,13 @@
 .stars { display: flex; gap: 2px; font-size: 24px; line-height: 1; color: color-mix(in srgb, var(--ink) 18%, var(--card)); }
 .stars button { font: inherit; border: 0; background: none; padding: 6px 2px; cursor: pointer; color: inherit; min-width: 32px; min-height: 40px; }
 .stars .on { color: #E0A320; }
+/* Choosing a rating: the star under the pointer (or the keyboard) and every star before it fill in, so you see the rating you're about to give */
+.stars[role="radiogroup"] button:focus-visible, .stars[role="radiogroup"]:has(button:focus-visible) button { color: #E0A320; }
+.stars[role="radiogroup"] button:focus-visible ~ button { color: inherit; }
+@media (hover: hover) {
+  .stars[role="radiogroup"] button:hover, .stars[role="radiogroup"]:has(button:hover) button { color: #E0A320; }
+  .stars[role="radiogroup"] button:hover ~ button { color: inherit; }
+}
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
 .plates { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
@@ -152,7 +159,6 @@ html.phone-landscape .cm-text { font-size: 20px; }
 .rn-t b { font-family: var(--font-voice); font-weight: 400; font-size: 19px; line-height: 1.2; }
 .rn-k { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8A2A0E; }
 .stars.big { font-size: 30px; color: #D8CFC2; }
-.stars.big button:hover, .stars.big button:focus-visible { color: #E0A320; }
 .rn-later { justify-self: start; border: 0; background: none; padding: 4px 0; min-height: 32px; font: inherit; font-size: 13px; font-weight: 700; color: #6E5B4B; cursor: pointer; text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) { .rate-nudge::before, .badge.unicorn { animation: none; } }
 html[data-motion="less"] .badge.unicorn { animation: none; }
