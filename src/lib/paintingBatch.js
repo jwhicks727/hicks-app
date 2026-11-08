@@ -2,8 +2,8 @@
 // paintingBatch.js -- many of Laurie's paintings at once: the crop, the year by her signature, the slugs
 // ============================================
 // Pure, so tests run it in Node. The screen is src/places/lifelist/AddPaintings.jsx.
-// A photo is kept on the phone (src/lib/photoStore.js) until its painting is in
-// her gallery; each is cropped and turned from the photo, never altered.
+// A batch waits in the family's storage (src/lib/inboxStore.js) until each painting
+// is in her gallery; each is cropped and turned from its photo, never altered.
 //
 import { SEASONS, SEASON_ORDER } from './seasons.js'
 
@@ -229,7 +229,7 @@ export const cleanSeasons = (list) => SEASON_ORDER.filter((k) => (Array.isArray(
 /** A slug for the painting's address and its folder in the bucket, not taken by another (nor by /add). */
 export function slugFor(title, taken = []) {
   const base = String(title || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).replace(/-$/, '') || 'painting'
-  const used = new Set([...taken, 'add'])
+  const used = new Set([...taken, 'add', 'inbox']) // /add is the screen for adding; inbox/ is the folder photos wait in
   if (!used.has(base)) return base
   for (let k = 2; ; k++) if (!used.has(`${base}-${k}`)) return `${base}-${k}`
 }
@@ -286,4 +286,44 @@ export function nextToCheck(items, fromId) {
 /** The slugs a new painting mustn't take: the gallery's, the ones bundled with the code, and the others in this batch. */
 export function takenSlugs(gallery = [], bundled = [], items = [], except) {
   return [...gallery.map((p) => p.slug), ...bundled.map((p) => p.slug), ...items.filter((x) => x.id !== except && x.slug).map((x) => x.slug)]
+}
+
+// ---- A batch that waits in the family's storage, to be picked up on any device -------------
+/** The parts of a photo that travel to the family's storage; the rest (its File, `local`, `editing`) stays on the device. */
+export const SYNCED = ['id', 'seq', 'name', 'status', 'read', 'readAt', 'readError', 'title', 'named', 'year', 'yearFrom', 'medium', 'mediumFrom', 'seasons', 'seasonsFrom', 'touched', 'reading', 'W', 'H', 'crop', 'auto', 'sure', 'kind', 'slug', 'saveError', 'savingAt', 'error']
+const DEVICE_ONLY = ['editing']
+/** A photo as its row keeps it: only the synced parts, always in the same order, so two copies compare as text. */
+export const inboxData = (item) => Object.fromEntries(SYNCED.filter((k) => item[k] !== undefined).map((k) => [k, item[k]]))
+/** Where one of a waiting photo's pictures is in the private `paintings` bucket. */
+export const inboxPath = (id, name) => `inbox/${id}/${name}.jpg`
+/** A fresh id for a photo (a uuid: it is the row's key and its folder in the bucket). */
+export function newId() {
+  const c = typeof globalThis !== 'undefined' ? globalThis.crypto : null
+  if (c && c.randomUUID) return c.randomUUID()
+  const h = (n) => Array.from({ length: n }, () => Math.floor(Math.random() * 16).toString(16)).join('')
+  return `${h(8)}-${h(4)}-4${h(3)}-${'89ab'[Math.floor(Math.random() * 4)]}${h(3)}-${h(12)}`
+}
+/** How long a device's claim on a reading or a save holds before another device may take it over (it was closed mid-way). */
+export const CLAIM_MS = 3 * 60 * 1000
+export const claimStale = (at, now = Date.now(), ms = CLAIM_MS) => !at || now - at > ms
+
+/**
+ * This device's photos and the family's storage's, as one list. What's in storage wins, except
+ * a photo this device has changed and not yet sent (`dirty`, a set of ids), and photos still being
+ * got ready here (`local`). A photo that's gone from storage (put away on another device) goes.
+ * Order is the order they were added (`seq`).
+ */
+export function mergeInbox(local, remote, dirty = new Set()) {
+  const mine = new Map(local.map((x) => [x.id, x]))
+  const remoteIds = new Set(remote.map((x) => x.id))
+  // A photo taken from storage keeps what only this device knows about it (the form it has open)
+  const keepDevice = (x, from) => ({ ...x, ...Object.fromEntries(DEVICE_ONLY.filter((k) => from && from[k] !== undefined).map((k) => [k, from[k]])) })
+  const synced = remote.map((r) => {
+    const l = mine.get(r.id)
+    return l && !l.local && dirty.has(r.id) ? l : keepDevice(r, l)
+  })
+  // Changed here and not sent yet, and not in storage (yet): keep it, it's on its way
+  const unsent = local.filter((x) => !x.local && !remoteIds.has(x.id) && dirty.has(x.id))
+  const order = (a, b) => (a.seq || 0) - (b.seq || 0) || String(a.id).localeCompare(String(b.id))
+  return [...[...synced, ...unsent].sort(order), ...local.filter((x) => x.local)]
 }

@@ -9,7 +9,7 @@ import { navigate } from '../../lib/router.js'
 import { reducedMotion } from '../../lib/motion.js'
 import { useSession } from '../../lib/auth.js'
 import { useFamily } from '../../lib/useCalendar.js'
-import { getPhoto } from '../../lib/photoStore.js'
+import { inboxUrl } from '../../lib/inboxStore.js'
 import { cleanTitle, cleanYear } from '../../lib/paintingBatch.js'
 import { SEASONS, SEASON_ORDER } from '../../lib/seasons.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
@@ -18,13 +18,14 @@ import Cropper from './Cropper.jsx'
 import './addpaintings.css'
 
 // /lifelist/paintings/add: many of Laurie's paintings at once, for Jason or Laurie.
-// Each photo is straightened and cropped to the painting on the phone; Claude
+// Each photo is straightened and cropped to the painting as it's sent up; Claude
 // (if they leave it on) reads the year by her signature and suggests a working
 // title, the medium and the seasons; then they go through the photos one at a
 // time, fix whatever's off, and each one that looks right is saved while they
 // look at the next. Her blanket yes covers every painting (decisions log,
-// 2026-11-01). The photos stay on this phone until saved, and survive the app
-// being closed.
+// 2026-11-01). The batch waits in the family's private storage, not on one
+// device: send it from a phone and go through it on a computer, or leave it half
+// done and carry on from another device (decisions log, 2026-11-08).
 export default function AddPaintings() {
   const session = useSession()
   const family = useFamily(session)
@@ -60,10 +61,11 @@ function Batch() {
   return (
     <>
       {working && <Working>{working}</Working>}
-      {b.lost > 0 && <p className="ll-up-note span-6" role="status">{b.lost === 1 ? 'One photo' : `${b.lost} photos`} hadn’t finished getting ready when the app closed. Add {b.lost === 1 ? 'it' : 'them'} again.</p>}
+      {b.syncError && <p className="ll-up-note span-6" role="alert">The family’s storage couldn’t be reached just now, so changes may not be saved: {b.syncError} <button type="button" className="ll-up-link" onClick={b.refresh}>Try again</button></p>}
+      {!b.loaded && <p className="ll-up-note span-6" role="status">Looking for photos already waiting…</p>}
       {b.pause && <p className="ll-up-note span-6" role="status">Reading stopped: {b.pause} <button type="button" className="ll-up-link" onClick={b.resume}>Try again</button></p>}
 
-      {!t.total && <Start read={b.read} setRead={b.setRead} add={b.add} />}
+      {b.loaded && !t.total && <Start read={b.read} setRead={b.setRead} add={b.add} />}
 
       {t.finished && (
         <Card tint="#5F8A4A" label="All done" glyph="star" className="span-6">
@@ -83,13 +85,17 @@ function Batch() {
         <Card tint="#C0824F" label="More photos" glyph="star" className="span-6">
           <Dropzone accept="image/*" multiple label="Add more photos" hint="Choose them, take one, paste or drop them in." onFiles={b.add} />
           <ReadSwitch read={b.read} setRead={b.setRead} />
-          <button type="button" className="btn ghost" onClick={() => setWipe(true)}>Put this batch away</button>
+          <p className="muted">This batch waits in the family’s private storage, so you can open this page on another device (a computer, say) and carry on from here.</p>
+          <div className="form-actions">
+            <button type="button" className="btn ghost" onClick={b.refresh}>Look for photos from another device</button>
+            <button type="button" className="btn ghost" onClick={() => setWipe(true)}>Put this batch away</button>
+          </div>
         </Card>
       )}
 
       {wipe && (
         <Confirm title="Put this batch away?" yes="Put it away" danger onNo={() => setWipe(false)} onYes={() => { b.finish(); setWipe(false) }}>
-          <p>{t.added ? `The ${t.added === 1 ? 'one' : t.added} already in her gallery stay${t.added === 1 ? 's' : ''}. ` : ''}The {t.toCheck + t.saving === 1 ? 'photo' : `${t.toCheck + t.saving} photos`} not yet added {t.toCheck + t.saving === 1 ? 'is' : 'are'} taken off this phone.</p>
+          <p>{t.added ? `The ${t.added === 1 ? 'one' : t.added} already in her gallery stay${t.added === 1 ? 's' : ''}. ` : ''}The {t.toCheck + t.saving === 1 ? 'photo' : `${t.toCheck + t.saving} photos`} not yet added {t.toCheck + t.saving === 1 ? 'is' : 'are'} taken out of the family’s storage, from every device.</p>
         </Confirm>
       )}
       {toast && <Toast action="Undo" onAction={() => { b.unskip(toast.id); setToast(null) }} onClose={() => setToast(null)}>Left out {toast.title || 'that photo'}.</Toast>}
@@ -101,10 +107,10 @@ function Batch() {
 function Start({ read, setRead, add }) {
   return (
     <Card tint="#C0824F" label="Photos of her paintings" glyph="star" className="span-6">
-      <p>Choose as many as you like. Each is straightened and cropped to the painting here on the phone; then you go through them one at a time and fix any it got wrong. Her painting is only ever cropped and turned, never changed.</p>
+      <p>Choose as many as you like. Each is straightened and cropped to the painting as it’s sent up; then you go through them one at a time and fix any it got wrong, here or on another device. Her painting is only ever cropped and turned, never changed.</p>
       <ReadSwitch read={read} setRead={setRead} />
       <Dropzone accept="image/*" multiple label="Photos of her paintings" hint="docs/ART-CAPTURE.md says how to take them. Choose them, take one, paste or drop them in." onFiles={add} />
-      <p className="muted">They stay on this phone until each is added, even if the app is closed.</p>
+      <p className="muted">They’re sent to the family’s private storage (only Jason and Laurie see them there) and wait until each is added, even if the app is closed. Send them from a phone and open this page on a computer to crop them, if that’s easier.</p>
     </Card>
   )
 }
@@ -122,7 +128,7 @@ function ReadSwitch({ read, setRead }) {
 function Review({ b, it, loaded, onSkip }) {
   const saved = it.status === 'added'
   const locked = it.status === 'saving' || saved
-  // Once saved, only its thumbnail is still on the phone
+  // Once saved, only its thumbnail is still kept
   const url = usePhotoUrl(it.status === 'new' || it.status === 'failed' ? null : it.id + (locked ? ':thumb' : ':view'))
   // Details of a photo that's already saved can be fixed here; its crop can't (the files are in her gallery)
   const editing = it.status === 'ready' || (saved && Boolean(it.editing))
@@ -270,15 +276,16 @@ function Thumb({ id }) {
   return url ? <img src={url} alt="" /> : <span className="ll-up-blank" />
 }
 
-/** A picture kept on the phone, as an address an <img> can show while it's on screen. */
+/** One of a photo's pictures in the family's storage ("<id>:view"), as an address an <img> can show. */
 function usePhotoUrl(key) {
   const [url, setUrl] = useState(null)
   useEffect(() => {
-    let live = true, made = null
+    let live = true
     setUrl(null)
     if (!key) return undefined
-    getPhoto(key).then((blob) => { if (live && blob) { made = URL.createObjectURL(blob); setUrl(made) } }, () => {})
-    return () => { live = false; if (made) URL.revokeObjectURL(made) }
+    const [id, name] = key.split(':')
+    inboxUrl(id, name).then((u) => { if (live) setUrl(u) }, () => {})
+    return () => { live = false }
   }, [key])
   return url
 }

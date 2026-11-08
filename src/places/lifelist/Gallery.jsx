@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Crumb } from '../../shell/Link.jsx'
 import { Card } from '../../ui/Card.jsx'
 import { supabase } from '../../lib/supabase.js'
 import { useSession } from '../../lib/auth.js'
 import { useFamily } from '../../lib/useCalendar.js'
-import { readDraft } from '../../lib/useDraft.js'
+import { loadInbox } from '../../lib/inboxStore.js'
 import { PAINTINGS, toRow, storedPaths } from '../../lib/paintings.js'
 import { tally } from '../../lib/paintingBatch.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
@@ -84,9 +84,15 @@ function MoveIn({ have, onDone }) {
 
 /** To the batch screen: a plain button, or the shine while photos are waiting there to be checked. */
 function AddPaintingsLink() {
-  const waiting = tally((readDraft('paintings.batch') || {}).items || [])
+  // Photos waiting in the family's storage (a batch sent from any device)
+  const [waiting, setWaiting] = useState(null)
+  useEffect(() => {
+    let live = true
+    loadInbox().then((items) => { if (live) setWaiting(tally(items)) }, () => {})
+    return () => { live = false }
+  }, [])
   // Still to check, and any the app closed on mid-save (opening the screen finishes them)
-  const n = waiting.ready + waiting.failed + waiting.saving
+  const n = waiting ? waiting.ready + waiting.failed + waiting.saving : 0
   if (n) return <Link to="/lifelist/paintings/add" className="shine span-6">Photos of her paintings waiting<span className="n">{n}</span></Link>
   return <div className="span-6"><Link to="/lifelist/paintings/add" className="btn">Add her paintings</Link></div>
 }

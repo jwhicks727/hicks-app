@@ -117,7 +117,7 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
       </div>
       <div className="ll-crop-tools">
         {own && <button type="button" className="btn ghost" disabled={same(own, crop)} onClick={() => change(own)}>Its own crop</button>}
-        <button type="button" className="btn ghost" aria-pressed={zoom} onClick={() => setZoom((z) => !z)}>{zoom ? 'Show the whole photo' : 'Zoom in on the painting'}</button>
+        <button type="button" className="btn ghost" aria-pressed={zoom} onClick={() => setZoom((z) => !z)}>{zoom ? 'Zoom out' : 'Zoom in'}</button>
         <button type="button" className="btn ghost" disabled={same(wholeCrop(W, H, crop.turn), crop)} onClick={() => onChange(wholeCrop(W, H, crop.turn))}>The whole photo</button>
       </div>
     </div>

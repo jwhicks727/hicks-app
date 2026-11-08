@@ -6,6 +6,39 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — A batch of her paintings waits in the family's storage, so any device can pick it up
+
+Jason wants to send the photos from his phone, go to a computer to do the cropping, and be
+able to leave a set half done and carry on from another device. That reverses part of
+2026-11-07 ("the photos wait on the phone", kept below), which tied a batch to one device.
+Decided:
+
+- **A batch is rows and files in the family's storage**, not on a device: a row a photo in
+  `painting_inbox` (its crop, title, year, medium, seasons and where it stands) and its
+  three pictures (the kept photo, the crop screen's view and a thumbnail) under `inbox/<id>/`
+  in the private `paintings` bucket. Parents only, and a batch is shared: Jason or Laurie can
+  carry on what the other started. Migration `20261108120000_painting_inbox`.
+- **A device keeps only its own small draft** (whether to have Claude read, which photo it
+  was on). Nothing of Laurie's paintings is kept in the browser any more
+  (`src/lib/photoStore.js` is gone); the older on-device batch isn't carried over.
+- **Changes are sent a moment after they're made and the screen looks again** when it opens,
+  when it comes back into view, and every half a minute. A change not yet sent is never
+  overwritten by a look. Two devices editing the same photo at once: the last one wins.
+- **A reading or a save is claimed** with the time it began, so a second device doesn't do it
+  too; a claim over three minutes old (that device was closed) is taken over.
+- **Claude reads the photo on screen first**, then the ones after it, three at a time, with a
+  ninety-second limit on each. Reading went in the order photos were added, two at a time,
+  so a photo in the middle of a batch waited behind all the earlier ones. Whichever device
+  sends the photos starts the reading at once, so a computer opened later finds many done.
+- **Privacy is unchanged but worth saying:** the pictures waiting are in the same private
+  bucket as the paintings, so a signed-in family member could open one by its link, but only
+  parents see the list of what's waiting. A saved painting's kept and view copies are removed
+  from the bucket (its thumbnail stays for the strip until the batch is put away, which removes
+  everything of the batch's). While waiting, a photo is stored three times, a few megabytes
+  in all, unmeasured.
+
+---
+
 ## 2026-11-08 — A painting in her gallery can be cropped again and its details changed
 
 Jason asked that a mistake found later in the gallery can always be fixed: the crop, the

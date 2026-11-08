@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { clearDrafts } from './useDraft.js'
-import { forgetPhotos } from './photoStore.js'
 import { forgetHere } from './useHere.js'
 import { unshareHere } from './useWhereabouts.js'
 
@@ -37,9 +36,8 @@ export function signInWithCode(email, token) {
   return supabase.auth.verifyOtp({ email, token, type: 'email' })
 }
 
-/** Signing out also forgets anything half-typed on this device, photos waiting to be saved and where it's been, and takes away the town it shared. */
+/** Signing out also forgets anything half-typed on this device and where it's been, and takes away the town it shared. */
 export async function signOut() {
-  forgetPhotos()
   clearDrafts()
   forgetHere()
   await unshareHere()

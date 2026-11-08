@@ -149,7 +149,7 @@ For anything that fits the glass and has no thick paint:
 
 - **Her paintings, one or many:** Laurie's gallery › "Add her paintings"
   (`/lifelist/paintings/add`, Jason or Laurie). Choose every photo at once.
-  - Each is straightened and cropped to the painting on the phone. A photo it
+  - Each is straightened and cropped to the painting as it's sent up. A photo it
     wasn't sure of (the painting runs off the photo, or it couldn't find the
     edges) says so, and has an amber dot in the strip of photos.
   - Unless it's switched off, Claude reads each one: the year by her signature,
@@ -160,8 +160,12 @@ For anything that fits the glass and has no thick paint:
     it up to 12° either way. "Its own crop" goes back to the app's go at it.
     "Looks right: add it" saves it while the next comes up; "Leave this one
     out" skips it, with an Undo.
-  - The photos wait on the phone until they're saved, even if the app is
-    closed; the gallery shows how many are waiting. Signing out forgets them.
+  - The batch waits in the family's private storage until each painting is
+    added, so it isn't tied to one device: send the photos from a phone and open
+    this page on a computer to crop them, or leave it half done and carry on from
+    another device. The gallery shows how many are waiting. "Look for photos from
+    another device" looks again; "Put this batch away" removes it from storage.
+    Only Jason and Laurie see the list.
   - Its seasons decide when it hangs on Home, except in a season with a show:
     then Home keeps the painting the show plays from.
 - **A season's show:** something she painted can move across the screen

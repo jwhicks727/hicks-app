@@ -225,12 +225,13 @@ test('Claude reads a painting for a parent only: five pictures at most, labelled
   assert.doesNotMatch(paintingAsk({ year: 2026 }), /so far/)
 })
 
-test('the batch screen says what goes to Claude, keeps the photos only until saved, and forgets them on sign-out', () => {
+test('the batch screen says what goes to Claude and where the photos wait', () => {
   const screen = readFileSync(new URL('../src/places/lifelist/AddPaintings.jsx', import.meta.url), 'utf8')
   assert.match(screen, /go to Claude \(Anthropic\)/)
   assert.match(screen, /Jason or Laurie add her paintings/)
   assert.doesNotMatch(screen, /Size<input|size:/, 'no size box')
-  assert.match(readFileSync(new URL('../src/lib/auth.js', import.meta.url), 'utf8'), /export async function signOut\(\) \{[^}]*\bforgetPhotos\(\)/)
+  assert.match(screen, /waits in the family’s private storage/)
+  assert.doesNotMatch(readFileSync(new URL('../src/lib/auth.js', import.meta.url), 'utf8'), /photoStore|forgetPhotos/, 'no photos are kept on the device now')
   const hook = readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
   assert.match(hook, /from\('paintings'\)\.upload/); assert.doesNotMatch(hook, /from\('drawings'\)|public\//)
   assert.match(readFileSync(new URL('../src/places/LifeList.jsx', import.meta.url), 'utf8'), /rest\[1\] === 'add' \? <AddPaintings \/>/)
@@ -294,4 +295,47 @@ test('a parent can take a painting out of her gallery: the files, then the row, 
   const files = ed.indexOf(".storage.from('paintings').remove(paths)"), row = ed.indexOf(".from('paintings').delete().eq('slug', p.slug)")
   assert.ok(files > 0 && row > files && ed.includes('if (fe) { setBusy(false); setGone(false); setErr(fe.message); return }'))
   assert.match(ed, /navigate\('\/lifelist\/paintings', \{ replace: true \}\)/)
+})
+
+test('a batch waits in the family’s storage, parents only, and two devices see each other’s work', async () => {
+  const { inboxData, mergeInbox, claimStale, newId, SYNCED, slugFor, inboxPath } = await import('../src/lib/paintingBatch.js')
+  const { readFileSync } = await import('node:fs')
+  // What a row keeps: only the synced parts, in a fixed order, so two copies compare as text
+  const item = { id: 'a', seq: 5, status: 'ready', title: 'Barn', local: false, editing: true, file: 'secret.heic', touched: {}, W: 10 }
+  const data = inboxData(item)
+  assert.deepEqual(Object.keys(data), ['id', 'seq', 'status', 'title', 'touched', 'W'])
+  assert.ok(!('local' in data) && !('editing' in data) && !('file' in data), 'what stays on the device stays')
+  assert.equal(JSON.stringify(inboxData({ W: 10, touched: {}, title: 'Barn', status: 'ready', seq: 5, id: 'a' })), JSON.stringify(data), 'the same however the keys came')
+  assert.ok(SYNCED.includes('crop') && SYNCED.includes('readAt') && SYNCED.includes('savingAt'))
+  assert.match(newId(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+  assert.equal(inboxPath('abc', 'thumb'), 'inbox/abc/thumb.jpg')
+  assert.equal(slugFor('Inbox'), 'inbox-2', 'no painting takes the folder photos wait in')
+  // Merging: storage wins, except what this device changed and hasn't sent; photos still being got ready stay; put-away ones go
+  const remote = [{ id: 'b', seq: 2, title: 'B in storage' }, { id: 'a', seq: 1, title: 'A in storage' }]
+  const local = [{ id: 'a', seq: 1, title: 'A here', editing: true }, { id: 'c', seq: 9, local: true, status: 'new' }, { id: 'gone', seq: 0 }]
+  const clean = mergeInbox(local, remote, new Set())
+  assert.deepEqual(clean.map((x) => [x.id, x.title]), [['a', 'A in storage'], ['b', 'B in storage'], ['c', undefined]])
+  assert.equal(clean[0].editing, true, 'the form open on this device stays open')
+  assert.equal(mergeInbox(local, remote, new Set(['a']))[0].title, 'A here', 'a change not yet sent wins')
+  assert.ok(mergeInbox([{ id: 'n', seq: 3, title: 'new here' }], [], new Set(['n'])).some((x) => x.id === 'n'), 'on its way to storage: kept')
+  assert.ok(!mergeInbox([{ id: 'n', seq: 3 }], [], new Set()).some((x) => x.id === 'n'), 'put away elsewhere: gone')
+  // A claim on a reading or a save holds for a few minutes, then another device may take it over
+  assert.equal(claimStale(Date.now() - 1000), false); assert.equal(claimStale(Date.now() - 5 * 60 * 1000), true); assert.equal(claimStale(undefined), true)
+  // The migration: a parents-only table, nothing for anyone else
+  const m = readFileSync(new URL('../supabase/migrations/20261108120000_painting_inbox.sql', import.meta.url), 'utf8').replace(/--.*$/gm, '')
+  assert.match(m, /create table public\.painting_inbox/)
+  const policies = [...m.matchAll(/create policy \w+ on public\.painting_inbox[^;]+;/gi)].map((x) => x[0])
+  assert.equal(policies.length, 4)
+  for (const p of policies) assert.match(p, /\(select public\.is_parent\(\)\)/); for (const p of policies) assert.doesNotMatch(p, /is_family/)
+  // The hook sends pictures and rows to storage, not to the device
+  const hook = readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  assert.doesNotMatch(hook, /photoStore|indexedDB\.open|localStorage\.setItem/)
+  assert.match(hook, /putInboxFile/); assert.match(hook, /saveInboxRow/); assert.match(hook, /READ_AT_ONCE = 3/)
+})
+
+test('Claude reads the photo on screen first, then the ones after it', async () => {
+  const hook = (await import('node:fs')).readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  assert.match(hook, /const from = Math\.max\(0, items\.findIndex\(\(x\) => x\.id === atId\)\)/)
+  assert.match(hook, /const ordered = \[\.\.\.items\.slice\(from\), \.\.\.items\.slice\(0, from\)\]/)
+  assert.match(hook, /READ_TIMEOUT_MS/, 'one stuck request can’t hold a place for ever')
 })

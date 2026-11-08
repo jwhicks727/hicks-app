@@ -60,8 +60,9 @@ Built in this order, each part in daily use before the next.
       straightened and cropped on the phone (`src/lib/autocrop.js`), a guided
       walk through them with a crop and turn tool to fix any it got wrong, and
       Claude reading the year by her signature and suggesting a working title,
-      the medium and the seasons (all changeable). Photos wait on the phone
-      until saved. Home keeps a season show's own painting.
+      the medium and the seasons (all changeable). The batch waits in the family's
+      storage, so it can be sent from a phone, cropped on a computer, or left half
+      done and picked up on another device. Home keeps a season show's own painting.
 - [ ] Laurie's paintings photographed (how: `docs/ART-CAPTURE.md`), all
       covered by her blanket yes; a painting she'd rather not have public waits for private
       storage behind sign-in, since anything in `public/` can be fetched by

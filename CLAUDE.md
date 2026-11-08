@@ -273,9 +273,12 @@ licence nobody wrote down.
   background, so anything someone types into, or that takes more than one
   tap (a cook check, a new source), keeps its draft on the device until it's
   finished or cancelled (`useDraft`, `src/lib/useDraft.js`; drafts are
-  cleared on sign-out). Pictures waiting to be saved (a batch of Laurie's
-  paintings) are kept in IndexedDB (`src/lib/photoStore.js`), which is far
-  bigger than localStorage, and forgotten on sign-out too.
+  cleared on sign-out). A batch of Laurie's paintings waiting to be added is not
+  kept on a device at all: it waits in the family's storage (`painting_inbox` and
+  `inbox/<id>/` in the private `paintings` bucket, `src/lib/inboxStore.js`), parents
+  only, so it survives the app closing and can be picked up on another device (send
+  from a phone, crop on a computer). A device keeps only a small draft of which
+  photo it was on.
 
 ## The database (Supabase)
 
