@@ -139,12 +139,13 @@ licence nobody wrote down.
 - The sky of the hour sits behind everything; cards are warm paper with a
   blush of their place's colour; corners are nearly square (4px controls,
   6px cards; the floating tab bar is the one rounded exception).
-- Fonts: Caprasimo (upright, curvy, Cooper-like) for headings, the loud
-  moments and big numbers; Nunito for everything read or tapped. No slanted
-  or italic headings. The one exception is the wordmark "Team Hicks", set in
-  Agbalumo (`--font-brand`) to match the home-screen icon, and nothing else. Never a font SOAR uses
-  (Fraunces, Instrument Sans, Russo One, Atkinson Hyperlegible), and no
-  handwriting faces.
+- Fonts: Agbalumo, the wordmark's and the home-screen icon's own face, for
+  "Team Hicks", headings, the loud moments and big numbers (`--font-brand`,
+  `--font-voice`, `--font-display`); Nunito for everything read or tapped.
+  Agbalumo's lean is the one slant allowed (decisions log, 2026-11-08): no
+  italic or slanted style on top of it, and no other slanted face. Caprasimo
+  is retired. Never a font SOAR uses (Fraunces, Instrument Sans, Russo One,
+  Atkinson Hyperlegible), and no handwriting faces.
 - Colour means something: each place has its own. A shine in a place's own
   colour means something is waiting on you; a rainbow gleam means something
   wonderful happened. Rare, one at a time.

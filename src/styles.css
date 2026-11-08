@@ -10,9 +10,10 @@
   --kitchen: #C42D20; --journal: #3F5C31; --chapel: #3E7A4C; --family: #453644;
   --r-control: 4px; --r-card: 6px;
   --font-ui: Nunito, "Segoe UI", system-ui, sans-serif;
-  --font-voice: Caprasimo, "Cooper Black", Georgia, serif;
-  --font-display: Caprasimo, "Cooper Black", Georgia, serif;
-  --font-brand: Agbalumo, Caprasimo, Georgia, serif; /* the wordmark only, the icon's own font */
+  /* Headings, the loud moments and big numbers share the wordmark's font, Agbalumo, the home-screen icon's own */
+  --font-voice: Agbalumo, "Cooper Black", Georgia, serif;
+  --font-display: Agbalumo, "Cooper Black", Georgia, serif;
+  --font-brand: Agbalumo, "Cooper Black", Georgia, serif;
   --tabbar: 58px; /* the floating tab bar's height: 4px padding, a 48px tab, 4px padding, a border */
   --tab-bottom: calc(4px + env(safe-area-inset-bottom, 0px) * .4); /* how far it floats above the bottom: close, clear of the home indicator */
   --shadow-warm: inset 0 1px 0 rgba(255, 255, 255, .55), 0 2px 4px rgba(90, 50, 20, .07), 0 16px 32px -22px rgba(90, 45, 10, .6);

@@ -6,6 +6,23 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — Every heading in the wordmark's font
+
+Jason asked to see every heading in the "Team Hicks" font instead of the one
+headings used. (He took that one for Fraunces; it was Caprasimo, and Fraunces
+left on 2026-10-31.) Agbalumo now sets the wordmark, headings, the loud moments
+and big numbers, so the name, the icon and every title match. Caprasimo is
+retired and no longer loaded. Nunito stays for everything read or tapped.
+
+This reverses two earlier entries: "The wordmark in the icon's font"
+(2026-11-01), which kept Agbalumo for the wordmark alone, and "Upright headings:
+Caprasimo, not Shrikhand" (2026-10-31), since Agbalumo leans a little. Its
+lean is the one slant allowed: no italic style on top of it, and no other
+slanted face. Agbalumo is narrower than Caprasimo, so no heading or big number
+grew wider.
+
+---
+
 ## 2026-11-08 — A photo reel for each trip, tagged by Claude
 
 Jason: a small photo reel for each trip, uploaded by hand, in the style of the paintings
