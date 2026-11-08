@@ -59,6 +59,14 @@ export function checkUpload(f, { pdf = false } = {}) {
   return null
 }
 export const uploadBlock = (f) => ({ type: f.media_type === 'application/pdf' ? 'document' : 'image', source: { type: 'base64', media_type: f.media_type, data: f.data } })
+/** Several pictures sent together (a painting and its corners): one to `max`, each valid, under 12 MB in all. */
+export function checkUploads(files, max = 5) {
+  if (!Array.isArray(files) || !files.length || files.length > max) return `One to ${max} pictures, please`
+  let total = 0
+  for (const f of files) { const why = checkUpload(f); if (why) return why; total += f.data.length }
+  if ((total * 3) / 4 > 12 * 1024 * 1024) return 'Those pictures are too big together; the app shrinks them first, so try again'
+  return null
+}
 
 // ---- The Kitchen's standing brief: the household and the format (docs/KITCHEN.md) ----
 export const KITCHEN_BRIEF = `You help Team Hicks in their kitchen app. Jason cooks; Laurie and their daughter Anna (11) eat with him.
@@ -112,6 +120,13 @@ export const EVENTS_SCHEMA = obj({
   title: str, notes: str,
   events: { type: 'array', items: obj({ title: str, starts_on: str, ends_on: str, time: str, kind: { type: 'string', enum: ['no_school', 'school', 'event', 'other'] }, note: str }) },
 })
+// Laurie's painting: what her signature says, the year written with it, a working title, its medium, the seasons it
+// suits, and whether it lies sideways. The season keys are src/lib/seasons.js's (tests/painting-batch.test.mjs keeps them in step).
+export const PAINTING_SEASONS = { christmas: 'Christmas', advent: 'Advent', easter: 'Easter', lent: 'Lent', muertos: 'the Day of the Dead', halloween: 'Halloween', thanksgiving: 'Thanksgiving', valentine: 'Valentine’s Day', july4: 'the Fourth of July', 'back-to-school': 'back to school', summer: 'summer', spring: 'spring', fall: 'fall', winter: 'winter' }
+export const PAINTING_SCHEMA = obj({
+  signature: str, written: str, year: int, legible: { type: 'string', enum: ['clear', 'unsure', 'none'] }, title: str, medium: str,
+  seasons: { type: 'array', items: { type: 'string', enum: Object.keys(PAINTING_SEASONS) } }, turn: int,
+})
 export const GARDEN_SCHEMA = obj({
   plants: { type: 'array', items: obj({ name: str, confidence: { type: 'string', enum: ['low', 'medium', 'high'] } }) },
   health: { type: 'string', enum: ['thriving', 'fine', 'watch', 'trouble', 'unsure'] },
@@ -126,6 +141,8 @@ export const TASKS = {
   'recipe-from-image': { who: 'parent', effort: 'medium', maxTokens: 16000, schema: PHOTO_RECIPE_SCHEMA, upload: true },
   'calendar-from-image': { who: 'parent', effort: 'low', maxTokens: 16000, schema: EVENTS_SCHEMA, upload: true, pdf: true },
   'garden-photo': { who: 'family', effort: 'medium', maxTokens: 8000, schema: GARDEN_SCHEMA, upload: true },
+  // Reads only: the year by her signature and a working title, for a parent to check on screen (src/places/lifelist/AddPaintings.jsx)
+  'read-painting': { who: 'parent', effort: 'medium', maxTokens: 4000, schema: PAINTING_SCHEMA, uploads: 5, says: 'the cropped photo of her painting, and its four corners enlarged; back come a working title, the year by her signature, its medium and seasons' },
   // What's around here (supabase/functions/_shared/around.js): written by itself when one of us is away or a trip is coming
   'around-here': { who: 'family', effort: 'medium', maxTokens: 16000, says: 'the town you’re in, the area to about ten kilometres, and the family’s interests from Settings' },
   // Where Laurie can eat well near here: a parent's ask, with her food rules (as for any recipe); the answer isn't kept
@@ -205,4 +222,23 @@ export function gardenAsk({ spot = '', plants = [], indoor = false, question = '
     (spot ? ` It's of ${spot}.` : '') + (plants.length ? ` They've said it holds: ${plants.slice(0, 20).join(', ')}.` : '') +
     ' Name the plants you see, judge their health honestly, and give care that fits this climate and season: plain, specific, a few lines each. Say plainly when you can’t tell from the photo.' +
     (question ? `\nTheir question: ${String(question).slice(0, 800)}` : '')
+}
+
+// ---- Laurie's paintings: the year by her signature, and a working title -----------------
+/** What each picture of a painting is, in the order the app sends them. */
+export const PAINTING_PARTS = ['The whole painting:', 'Its top-left corner, enlarged:', 'Its top-right corner, enlarged:', 'Its bottom-left corner, enlarged:', 'Its bottom-right corner, enlarged:']
+export function paintingAsk({ titles = [], year }) {
+  const used = (Array.isArray(titles) ? titles : []).map((t) => String(t).replace(/\s+/g, ' ').trim().slice(0, 80)).filter(Boolean).slice(0, 200)
+  return `These are photos of one painting by Laurie, who paints for the family. The first is the whole painting; the others are its corners enlarged, where she usually signs and often dates her work.
+
+1. Find her signature. In signature, write what it says, exactly as painted (initials, a name, a date); empty if you see none.
+2. In written, copy the date painted with her signature exactly as it appears ("'19", "2019", "6/21"), or empty if there is none. Read only what is painted there: never estimate a date from the style, the subject or anything else. In year, give the four-digit year that date means (a two-digit year is the one not in the future; it is ${year} now), or 0 when nothing is written. legible: clear when you can read every digit with confidence, unsure when any digit is hard to make out, none when no date is written.
+3. In title, give a working title until Laurie names it: two to five words in sentence case, plain and descriptive of what it shows, like "Autumn pond", "Autumn stream" or "The witch and the crow". Not poetic, no quotation marks.${used.length ? ` Make it different from her paintings' titles so far: ${used.join('; ')}.` : ''}
+4. In medium, what it looks painted in and on, the way a gallery label says it: "Watercolor on paper", "Acrylic on canvas", "Oil on canvas board", "Gouache on paper". Judge it from the paint and the surface in the photo; the family checks it before it's saved. Empty if you truly can't tell.
+5. In seasons, when in the year it would suit hanging on the family's home screen, from what it shows: autumn leaves are fall (and thanksgiving, for a harvest or a warm autumn scene); snow is winter; blossom and new green are spring; beaches and long bright days are summer; a witch, a black cat or a jack-o'-lantern is halloween; a nativity, a Christmas tree or holly is christmas. One or two, the most fitting first; none (an empty list) when it suits any time of year. The seasons: ${Object.entries(PAINTING_SEASONS).map(([k, v]) => `${k} (${v})`).join(', ')}.
+6. In turn, if the painting is shown sideways or upside down (its signature or its subject says so), the degrees clockwise to turn it upright: 90, 180 or 270. Otherwise 0.`
+}
+/** The pictures, each with a line saying which part of the painting it is, then the ask. */
+export function paintingContent(files, ask) {
+  return [...files.slice(0, PAINTING_PARTS.length).flatMap((f, i) => [{ type: 'text', text: PAINTING_PARTS[i] }, uploadBlock(f)]), { type: 'text', text: ask }]
 }

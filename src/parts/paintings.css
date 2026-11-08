@@ -82,3 +82,8 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 .art-by b { color: var(--ink); }
 html[data-motion="less"] .art-flap.go { animation: none; }
 @media (prefers-reduced-motion: reduce) { .art-flap.go { animation: none; } }
+
+/* On a painting's own page: changing its details and cropping it again (PaintingEdit.jsx) */
+.ll-edit { margin-top: 4px; }
+.ll-edit-crop { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+.ll-recrop { display: grid; gap: 10px; min-width: 0; }

@@ -196,6 +196,13 @@ model, is in `supabase/functions/_shared/claude.js`.
   once answered yes or no, is no longer read; its rows are kept as history.
 - **A refused request** is retried server-side on Anthropic's recommended
   fallback model (`fallbacks: "default"`).
+- **Laurie's paintings, as they're added** (`read-painting`, Jason or Laurie
+  only): the cropped photo and its four corners enlarged (five pictures at
+  most, `checkUploads`). Claude reads the year by her signature and suggests a
+  working title, the medium and the seasons; nothing is written until a parent
+  says it looks right on screen. About two cents a painting (an estimate, not
+  yet measured), within the caps; at the day's cap the screen stops asking and
+  the rest can be typed in or read the next day.
 - **What's around here (`around-here`)** writes a guide to an area in the
   background (Supabase's `EdgeRuntime.waitUntil`), with Anthropic's web search
   (at most 12 searches a guide, each counted against the caps at an estimated
@@ -253,7 +260,8 @@ sign-in link won't come back to the app.
 | `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
 | `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
 | `annas_drawings` | Anna's Gallery: a drawing's title, the day she drew it, her own words, what it's about (`pets` hangs it in the Pets launch), its size; the pictures (a large one and a small one) in the private `drawings` bucket, read through signed links | The family | Anyone in the family adds their own; whoever added it, or a parent, changes or removes it (and its files) |
-| `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move; the files in the private `paintings` bucket | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
+| `painting_inbox` | A batch of Laurie's paintings waiting to be added: one row a photo (`data`: its crop, title, year, medium, seasons and where it stands), its three pictures under `inbox/<id>/` in the private `paintings` bucket. Not kept on any device | Parents | Parents; a row goes when its batch is put away |
+| `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move, the original photo's flag and the crop it was saved with (`original`, `crop`); the files in the private `paintings` bucket, the original at `<slug>/original.jpg` | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
 | `bird_sightings` | Laurie's birds from her eBird download: one row per bird per checklist, the place by name and to about a kilometre | Parents only | Parents (the file is read in the browser; same file twice changes nothing) |
 | `outings` | Camping trips, Disneyland trips, trips and outings: dates, place, who came, a national park if it was one, notes; the calendar event a kept trip came from (`event_id`, one outing per event) | The family | Parents |
 | `park_marks` | The national parks: the day we went, whether it's starred as next, a note | The family | Parents |
@@ -305,10 +313,14 @@ Migration index:
 | `20261101090000_journal` | Each person's journal: entries, notes to your future self, settings. Every policy is the writer's only, with no parent or family override (tests/migrations.test.mjs checks). |
 | `20261101090100_academy` | Anna's academy: settings, rooms, tasks, goals, grades, cheers, the family's own pictures and the private `academy` bucket (family reads; parents add pictures). |
 | `20261101120000_parish_stations_birds` | What the app reads from outside: Sacred Heart's schedules (every version), the station each place reads (the schools' seeded, home's set in Admin), and the last answer from Synoptic and eBird. The family reads; the functions write; parents choose the stations. |
+| `20261101214500_plans_stay_until_dismissed` | A week plan stays open until someone puts it away (`dismissed_at`), whatever week it was made for. |
+| `20261101231500_life_list` | The Life List: Laurie's birds from eBird, trips, the national parks, and the subjects a painting stands in for. Parents see her birds; the family reads the rest. |
 | `20261102120000_birds_more_cache` | `outside_cache` also takes the key `birds-more` (hotspots, county numbers, this month's possibles) |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
+| `20261108120000_painting_inbox` | `painting_inbox`: a batch of photos waiting to be checked, parents only (Jason or Laurie, either), so it can be sent from a phone and cropped on a computer or picked up on another device. The pictures use the `paintings` bucket's existing policies. Additive. |
+| `20261108090000_paintings_recrop` | Two columns on `paintings`: `original` (the photo is kept at `<slug>/original.jpg`) and `crop` (the crop it was saved with), so a painting can be cropped again from her gallery. Additive; the family reads and the parents change, as before. |
 | `20261107230000_birds_near_cache` | `outside_cache` also takes `birds-near:<lat>,<lng>` keys: the birds where one of us is, a tenth-of-a-degree cell each, kept an hour |
 | `20261107231000_around_here` | What's around here: `area_guides` (the map layer and the guide, by area, every version kept, written only by the functions) and `travel_settings` (the family's interests; parents write) |
 | `20261107232000_family_towns_trips` | `member_whereabouts` (which town each of us is in while away; one row a person, only its owner writes it) and `outings.event_id` (a kept trip's calendar event, one outing per event) |
