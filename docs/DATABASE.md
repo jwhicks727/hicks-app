@@ -213,6 +213,13 @@ model, is in `supabase/functions/_shared/claude.js`.
   the open map (`_shared/around.js`, `cleanGuide`). It keeps the guide in
   `area_guides` with the service role (one being written per area at a time, at
   most four new guides a day, each kept a month), by place, never by person.
+- **A trip photo's tags (`photo-tags`)** is the family's task: one shrunk photo, the town
+  and day, and the titles of the cookbook and of the places on that town's list; it
+  answers with a short caption and up to eight subjects (plant, bird, animal, dish,
+  place, other), each with a confidence and, for a dish or place, a `match` that is kept
+  only if it is exactly one of the titles sent. It is told never to identify or describe a
+  person, and `cleanPhotoTags` drops any subject or caption that does. The phone keeps
+  the answer as suggestions.
 - **Where Laurie can eat well (`eat-well`)** is a parent's task: her food rules
   (read as the caller), the town and the cell, web search (at most 8), one strict
   tool (`save_places`), each place kept only with a source its own searches
@@ -289,6 +296,8 @@ sign-in link won't come back to the app.
 | `postcards` | A postcard to the family: the town and the day, a line of words, who sent it (never a point) | The family | Each of us our own; the sender or a parent removes |
 | `packing_items` | A calendar trip's packing list: our own items and the suggestions someone added, ticked off | The family | The family |
 | `trip_hikes` | A guide's hike ticked off: its name, miles and climb, the day and the town, who ticked it | The family | Each of us our own; the ticker or a parent removes |
+| `trip_photos` | A photo from a trip: its town and day, its two files in the private `trips` bucket (a large one and a small one), a caption, when Claude looked at it, who added it. Never a point | The family | The family adds and captions; whoever added it, or a parent, removes |
+| `photo_tags` | What's in a photo: a plant, bird, animal, dish, place or other, its name, a scientific name and Claude's confidence, whether it's `suggested` or `confirmed`, and a link to a recipe or a place on a town's list | The family | The family |
 | `been_towns` | Our list for each town: the towns we keep a list for (town, state, country), one row each, so a town's page has an id | The family | The family adds |
 | `been_places` | A place on a town's list: its name, what kind (eat, drink, hike, do, shop, stay, Mass), loved / good / not again, a note, its link | The family | The family adds and changes; whoever added it, or a parent, removes |
 | `been_visits` | A day we went to a place on a town's list (one a day) | The family | The family adds; whoever added it, or a parent, removes |
@@ -328,6 +337,7 @@ Migration index:
 | `20261107231000_around_here` | What's around here: `area_guides` (the map layer and the guide, by area, every version kept, written only by the functions) and `travel_settings` (the family's interests; parents write) |
 | `20261107232000_family_towns_trips` | `member_whereabouts` (which town each of us is in while away; one row a person, only its owner writes it) and `outings.event_id` (a kept trip's calendar event, one outing per event) |
 | `20261107233000_travel_app` | The travel app: its name on `travel_settings`; `trip_recipes`, `postcards`, `packing_items`, `trip_hikes` and `someday`. Postcards and hikes keep a town and a day, never a point |
+| `20261108130000_trip_photos` | The trip photo reel: `trip_photos`, `photo_tags` and the private `trips` bucket (JPEGs, 6 MB, the family only). Claude's tags start as suggestions |
 | `20261107234000_our_list_each_town` | Our list for each town: `been_towns`, `been_places`, `been_visits`. The town only, never a point |
 | `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

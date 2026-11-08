@@ -92,7 +92,19 @@ and write the code fresh. SOAR's code belongs to the school.
   accuracy, at most every ten minutes. The reading is rounded to about a kilometre
   (`roundPoint`) before it is kept or sent anywhere, kept only on the device, one at a
   time, forgotten after six hours and on sign-out. No history of where anyone has been,
-  ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep.
+  ever: a trip, a stamp or a scrapbook comes only from a trip someone chose to keep. The one
+  exception is the **recap** (`src/lib/stay.js`, `tests/stay.test.mjs`, decisions log
+  2026-11-08): this phone remembers the town and the first and last day of a stay away, for
+  a week, on the device only, so Home can offer to add what was missed; never a point or a
+  path, and gone on sign-out and when location is switched off.
+- **Trip photos are the family's and private** (`trips` bucket, signed links; never in
+  `public/` or `src/`). Claude may suggest what's in one (a plant, bird, animal, dish or place
+  named by a sign), never identify or describe a person, and its tags are suggestions until
+  someone confirms them; a match is kept only if it is a title the phone sent
+  (`tests/photos.test.mjs`).
+- Whatever someone records must not vanish: a save that fails waits on the phone and is
+  sent again (`addBeenOrQueue`), and a real problem is shown on the form in words, never
+  only in a toast.
 - The family sees which **town** each of us is in while away (Jason, "full
   transparency"): `member_whereabouts`, one row a person written only by its owner's
   phone, a tenth of a degree, lapsing in twelve hours, removed at home, when switched
@@ -301,6 +313,19 @@ licence nobody wrote down.
   `cd C:\Users\Admin\projects\hicks-app-clone; git pull; Get-Content supabase\migrations\<file>.sql -Raw | Set-Clipboard`
   then Supabase dashboard → SQL Editor → new query → paste → Run, and what
   "Success" looks like. Never ask him to open or copy the file by hand.
+- **Check the Supabase account before any CLI command** (2026-11-08): Jason's
+  machine is often logged into the SOAR school account, which sees only SOAR's
+  project and is refused (403) on this one; this app's database is a separate
+  Supabase account and project, called "Hicks App". Whenever you give Jason
+  Supabase CLI commands (a function deploy, `supabase link`, secrets), start
+  with `npx supabase projects list`, say that "Hicks App" must be in the list
+  (and that SOAR's project must never be the target), and if it isn't, give
+  the fix before the command: a token for the Hicks account in that one
+  window (`$env:SUPABASE_ACCESS_TOKEN = "..."`, made at
+  supabase.com/dashboard/account/tokens, never pasted into chat), or
+  `npx supabase logout` then `login`. Give the branch switch too, since he
+  works on several branches: `cd C:\Users\Admin\projects\hicks-app-clone; git checkout main; git pull`
+  before a deploy of merged work, and `git checkout <his branch>` after.
 - New tables are not exposed automatically: each migration grants its
   tables to `authenticated`, never to `anon`, and switches on row-level
   security. Never `using (true)`: a signed-in stranger must see nothing.

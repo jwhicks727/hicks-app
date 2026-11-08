@@ -404,6 +404,29 @@ and the phases are in issue #19; what's built is ticked here.
       the guide marks places we've been ("♥ Loved · 3×", "Not again")
       (`been_towns`, `been_places`, `been_visits`; `src/lib/been.js`). Unverified live
       until migration 20261107234000 runs.
+- [x] **A stay's recap, and saves that wait** (2026-11-08, Jason's ask after a day in
+      Temecula, where two places didn't save because their tables weren't there yet):
+      after a stay away, Home shows a card named for the town ("Temecula", Nov 7) for a
+      week or until put away, with the places added so far to rate and note, "Add places
+      we went" (one a line, many at once, for any day of the stay), "Keep it as a trip"
+      for a parent, and "Not for the scrapbook: put it away" with an Undo. A place that
+      can't be saved (no signal, a hiccup) waits on the phone, shows as "waiting to be
+      sent" with Send now, and is sent again by itself; a real problem stays on the
+      form in words with what was typed kept (`src/lib/stay.js`, `Recap.jsx`). For a trip
+      the phone didn't see, "Start a recap for a recent trip" in the travel app takes a
+      town and days from the last week and puts the same card on Home.
+- [x] **The trip photo reel, tagged by Claude** (2026-11-08, Jason's ask): photos added by
+      hand (many at once, in the paintings uploader's style) to a stay's recap or a kept
+      trip's scrapbook, sent to the private `trips` bucket and read through signed links.
+      Claude looks at each (if left on) and suggests what's in it: plants, birds, other
+      animals, a dish, a place named by a sign, never a person; a dish it matches to one of
+      our recipes and a place to one on the town's list are linked. The suggestions count
+      once someone confirms them ("Looks right" does all of a reel's), and then the photo
+      turns up on that recipe's page, on the place's row in the town's list, on the bird's
+      page in the Life List, and in the Garden's "Plants we've seen on trips". Tags can be
+      fixed, linked, added by hand and removed (`trip_photos`, `photo_tags`,
+      `src/lib/photos.js`, `src/parts/PhotoReel.jsx`). Unverified live until migration
+      20261108130000 runs and the `claude` function is deployed again.
 - [ ] Still to come: road-trip bingo and "along the way" (they need the route), the
       weather we had in a scrapbook, Anna's drawings shown in it (a link for now),
       Openverse and Park Service photos, Caltrans chain controls read live, and shows near

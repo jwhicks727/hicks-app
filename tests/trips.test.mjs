@@ -92,7 +92,7 @@ test('the database keeps one row a person, a tenth of a degree, written and remo
 })
 
 test('a town shared is taken away on sign-out, when switched off, and at home', () => {
-  assert.match(src('src/lib/auth.js'), /forgetHere\(\)\n\s+await unshareHere\(\)/)
+  assert.match(src('src/lib/auth.js'), /forgetHere\(\)\n\s+clearStays\(\)\n\s+clearOutbox\(\)\n\s+resetPhotos\(\)\n\s+await unshareHere\(\)/)
   assert.match(src('src/consoles/Settings.jsx'), /if \(prefs\.here === true\) unshareHere\(\)/)
   const s = src('src/lib/useWhereabouts.js')
   assert.match(s, /!row && last && \(tier === 'home' \|\| tier === 'near' \|\| here\.status === 'off'\)\) unshareHere\(\)/)

@@ -7,7 +7,9 @@ import { useFamily } from '../../lib/useCalendar.js'
 import { useNow } from '../../lib/useNow.js'
 import { useDraft } from '../../lib/useDraft.js'
 import { useOutings } from '../../lib/useLife.js'
-import { useBeen, addBeen, dropBeen, wentAgain, undoVisit, updateBeen, removeBeen, restoreBeen } from '../../lib/useBeen.js'
+import { TaggedPhotos } from '../../parts/PhotoBits.jsx'
+import { addBeenOrQueue } from '../../lib/useStay.js'
+import { useBeen, dropBeen, wentAgain, undoVisit, updateBeen, removeBeen, restoreBeen } from '../../lib/useBeen.js'
 import { KINDS, KIND_ORDER, KIND_ONE, RATINGS, townOf, findTown, withVisits, byKind, summaryWords, timesWords, matchBeen, kindFromSection, norm } from '../../lib/been.js'
 import { mapsSearch } from '../../lib/around.js'
 import { placeWords } from '../../lib/here.js'
@@ -49,17 +51,20 @@ export function AddBeen({ t, defaultKind = 'eat', onDone }) {
   const now = useNow()
   const today = todayAt(HOME_TOWN.tz, now)
   const [d, setD, clear] = useDraft(`been.add.${norm(t.town)}`, { name: '', kind: defaultKind, rating: '', note: '' })
-  const [busy, setBusy] = useState(false), [toast, setToast] = useState(null)
+  const [busy, setBusy] = useState(false), [toast, setToast] = useState(null), [err, setErr] = useState(null)
   const submit = async (e) => {
     e.preventDefault()
     if (!d.name.trim() || busy) return
-    setBusy(true)
-    const r = await addBeen(t, { name: d.name, kind: d.kind, rating: d.rating || null, note: d.note }, today)
+    setBusy(true); setErr(null)
+    const r = await addBeenOrQueue(t, { name: d.name, kind: d.kind, rating: d.rating || null, note: d.note }, today)
     setBusy(false)
-    if (r.error) { setToast({ text: r.error, undo: () => setToast(null) }); return }
+    // A real problem (no name) stays on the form, in words, with what was typed kept
+    if (r.error) { setErr(r.error); return }
     const name = d.name.trim()
     clear()
-    setToast({ text: `${name} is on our ${t.town} list.`, undo: async () => { if (r.created) await dropBeen(r.id); else await undoVisit(r.id, today); setToast(null) } })
+    // Couldn't be sent just now: it waits on this phone and goes by itself, so nothing is lost
+    if (r.queued) setToast({ text: `${name} is saved on this phone and will go to our ${t.town} list as soon as it can.`, undo: () => setToast(null) })
+    else setToast({ text: `${name} is on our ${t.town} list.`, undo: async () => { if (r.created) await dropBeen(r.id); else await undoVisit(r.id, today); setToast(null) } })
     if (onDone) onDone()
   }
   return (
@@ -76,6 +81,7 @@ export function AddBeen({ t, defaultKind = 'eat', onDone }) {
         <button type="submit" className="btn" disabled={busy || !d.name.trim()}>{busy ? 'Adding…' : 'Add it, with today'}</button>
         {(d.name || d.note) && <button type="button" className="btn ghost" onClick={() => clear()}>Cancel</button>}
       </div>
+      {err && <p className="err" role="alert">{err}</p>}
       {toast && <Toast action="Undo" onAction={toast.undo} onClose={() => setToast(null)}>{toast.text}</Toast>}
     </form>
   )
@@ -90,6 +96,7 @@ function BeenRow({ p, t, me, parent, visits, today }) {
       <div className="yo-been-main">
         <b>{p.name}</b>
         <small className="fig">{timesWords(p)}</small>
+        <TaggedPhotos spec={{ refKind: 'been_place', refId: p.id }} title="Photos" max={4} />
         {!editing && p.note && <button type="button" className="yo-been-note" onClick={() => setEditing(true)}>“{p.note}”</button>}
         {editing && (
           <form className="yo-been-edit" onSubmit={async (e) => { e.preventDefault(); await updateBeen(p.id, { note }); setEditing(false) }}>
@@ -202,8 +209,9 @@ export function BeenButton({ item, section, t, list }) {
   if (!t) return null
   const add = async (rating) => {
     setAsking(false)
-    const r = await addBeen(t, { name: item.name, kind: kindFromSection(section), rating, website: item.website || '' }, today)
+    const r = await addBeenOrQueue(t, { name: item.name, kind: kindFromSection(section), rating, website: item.website || '' }, today)
     if (r.error) { setToast({ text: r.error, undo: () => setToast(null) }); return }
+    if (r.queued) { setToast({ text: `${item.name} is saved on this phone and will go to our ${t.town} list as soon as it can.`, undo: () => setToast(null) }); return }
     setToast({ text: `${item.name} is on our ${t.town} list.`, undo: async () => { if (r.created) await dropBeen(r.id); else await undoVisit(r.id, today); setToast(null) } })
   }
   return (

@@ -37,6 +37,62 @@ can use the batch screen. Decided:
 
 ---
 
+## 2026-11-08 — A photo reel for each trip, tagged by Claude
+
+Jason: a small photo reel for each trip, uploaded by hand, in the style of the paintings
+uploader (PR 21); a photo of a plant should be findable elsewhere in the app, a photo of a
+dish he cooked taggable to that dish, and the same for places and birds, with as much AI as
+possible so nobody has to fuss. Decided:
+
+- **Photos belong to a town and a day**, so a stay's recap and a kept trip's scrapbook both
+  gather them by their dates. They are the family's, in a private `trips` bucket read through
+  signed links, never in the app's files.
+- **Claude suggests; someone confirms.** Each photo is read (if left on, the default) and its
+  tags arrive as suggestions; one tap, "Looks right", confirms all of a reel's. This keeps
+  the rule that whatever Claude suggests is a proposal confirmed on screen, while asking for
+  almost no fuss. Only confirmed tags show the photo anywhere else.
+- **Where a photo turns up:** a dish linked to a recipe, on that recipe's page; a place linked to
+  a place on the town's list, on its row; a bird by name, on its page in the Life List (parents,
+  like all of her birds); a plant by name, in the Garden's "Plants we've seen on trips". Claude
+  matches a dish or place only to titles the phone sent it, and the function drops any other.
+- **Never a person.** Claude is told not to identify, name or describe anyone, and the
+  function drops a subject or caption that mentions one; there is no kind for a person.
+- **What goes to Claude is said on the screen:** a shrunk copy of the photo, the town, and the
+  titles of the cookbook and of the places on that town's list (titles only; never Laurie's food
+  rules).
+- **Built beside the paintings uploader, not on it**, since PR 21 is still open: the same
+  choose-many, "Have Claude read each" note, working bar and thumbnails, but photos go straight
+  to storage rather than through a batch inbox. The two can share code once PR 21 is merged.
+
+---
+
+## 2026-11-08 — A stay's recap on Home, and what we record never vanishes
+
+Jason, tired after a day in Temecula and then home: two places he'd added didn't save
+(the lists' tables hadn't been created yet, and the only sign was a toast that vanishes),
+and he wants to go back at leisure rather than do it all on the trip. Decided:
+
+- **A recap card, named for the town**, appears on Home after a stay away, for a week
+  or until put away ("Not for the scrapbook"), with the places so far, a box to add many
+  at once (one a line, any day of the stay), and "Keep it as a trip" for a parent.
+- **A save that fails is never lost.** A place that can't be sent waits on the phone,
+  says so ("saved on this phone, waiting to be sent"), and is sent again when the app
+  opens, when the phone is back online and every few minutes. A real problem (no name)
+  stays on the form, in words, with what was typed kept; it is no longer a toast.
+- **This changes one privacy rule, on purpose.** The position is still forgotten after six
+  hours, but the phone now also remembers, for the recap, the **town and the first and
+  last day of a stay away**: never a point, never a path, on this device only, for a week
+  after the last day, gone on sign-out and when Notice where I am is switched off. It
+  isn't a trip and reaches the database only when someone adds something. Settings says
+  so, and the card says so. (This refines "no history of where anyone has been": it is
+  one town and its days, remembered for a week, because Jason asked for the card.)
+- **A recap can be started by hand** ("Start a recap for a recent trip", in the travel app) for a
+  trip the phone didn't see: the town, an optional state, and days from the last week. Typed, so
+  it's no more than the phone would have remembered; it exists because the first real trip
+  (Temecula, 2026-11-07) happened before the feature did.
+
+---
+
 ## 2026-11-08 — A batch of her paintings waits in the family's storage, so any device can pick it up
 
 Jason wants to send the photos from his phone, go to a computer to do the cropping, and be
@@ -133,7 +189,6 @@ since he doesn't want to measure them all. Decided:
   hung the newest painting of the season; that would have taken the frame from the
   painting the season's show plays from. Home now hangs the show's own painting
   (`homePainting`), and the newest of the season only where there's no show.
-
 ---
 
 ## 2026-11-07 — Our list for each town we keep going back to

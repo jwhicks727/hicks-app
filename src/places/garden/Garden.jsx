@@ -1,3 +1,4 @@
+import { SeenPlantsCard } from '../../parts/PhotoBits.jsx'
 import { useState } from 'react'
 import { Card } from '../../ui/Card.jsx'
 import { Crumb, Link } from '../../shell/Link.jsx'
@@ -78,6 +79,7 @@ function GardenHome({ g, me, parent, today, forecast }) {
   return (
     <>
       <header className="hero span-6"><span className="kicker">Yard and rooms</span><h1 className="greet">The Garden</h1></header>
+      <SeenPlantsCard />
       <Card tint="#5F8A4A" label="Today" glyph="weather" tag={care.length ? `${care.length}` : undefined} className="span-3">
         <CareList care={care} today={today} me={me} onDone={g.reload} />
       </Card>

@@ -1,3 +1,4 @@
+import { TaggedPhotos } from '../../parts/PhotoBits.jsx'
 import { useMemo, useState } from 'react'
 import { Card } from '../../ui/Card.jsx'
 import { Confirm } from '../../ui/Confirm.jsx'
@@ -199,6 +200,7 @@ function Species({ c, rows, loaded, id }) {
         </div>
         <div className="ll-stats"><Stat n={s.days} label={s.days === 1 ? 'day' : 'days'} /><Stat n={s.best || '–'} label="most at once" /><Stat n={s.places.length} label={s.places.length === 1 ? 'place' : 'places'} /></div>
         <p className="muted small">Last seen {shortDay(s.last.observed_on)}. Her painting of it, when she’s painted one, stands in for a photo.</p>
+        <TaggedPhotos spec={{ kind: 'bird', names: [s.species, s.sci] }} title="Photos from our trips" />
       </Card>
       <Card tint="#6C7FB8" label="When she sees it" glyph="calendar" className="span-3">
         <div className="ll-bars">{s.months.map((n, i) => <Link key={i} to={`/lifelist/birds/months/${i + 1}`} aria-label={`${monthName(i + 1)}: ${n} ${n === 1 ? 'day' : 'days'}`}><span>{n || ''}</span><i style={{ height: `${Math.max(3, (n / max) * 74)}px`, opacity: n ? 1 : 0.25 }} /><span>{monthName(i + 1)[0]}</span></Link>)}</div>
