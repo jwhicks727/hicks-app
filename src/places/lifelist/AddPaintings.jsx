@@ -54,7 +54,9 @@ function Batch() {
   const [toast, setToast] = useState(null), [wipe, setWipe] = useState(false)
   const t = b.tally, it = b.current
 
+  const sending = b.items.filter((x) => x.sending).length
   const working = t.new ? `Getting ${t.new === 1 ? 'a photo' : `${t.new} photos`} ready…`
+    : sending ? `Sending ${sending === 1 ? 'a photo' : `${sending} photos`} to the family’s storage…`
     : t.saving ? `Saving ${t.saving === 1 ? 'one painting' : `${t.saving} paintings`} to her gallery…`
       : t.reading && !b.pause ? `Claude is reading ${t.reading === 1 ? 'her signature' : `${t.reading} signatures`}…` : null
 
@@ -170,6 +172,8 @@ function Review({ b, it, loaded, onSkip }) {
       {it.crop && it.status === 'ready' && (
         <>
           <CropNote it={it} />
+          {it.sending && <p className="ll-up-from">Sending it to the family’s storage, so another device can pick it up. You can carry on here.</p>}
+          {it.sendError && <p className="err" role="alert">It couldn’t be sent to the family’s storage: {it.sendError} <button type="button" className="ll-up-link" onClick={() => b.resend(it.id)}>Try again</button></p>}
           <Cropper src={url} W={it.W} H={it.H} crop={it.crop} auto={it.auto} onChange={(crop) => set({ crop })} />
         </>
       )}

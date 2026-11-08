@@ -333,6 +333,23 @@ test('a batch waits in the family’s storage, parents only, and two devices see
   assert.match(hook, /putInboxFile/); assert.match(hook, /saveInboxRow/); assert.match(hook, /READ_AT_ONCE = 3/)
 })
 
+test('a slow or stuck upload holds nothing up: sending is outside the canvas queue, and reading never waits on the network’s first look', async () => {
+  const hook = (await import('node:fs')).readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
+  // The queue the canvas work waits in (oneAtATime) holds the preparing and nothing sent up
+  const prep = hook.slice(hook.indexOf('// 1. A new photo'), hook.indexOf('// 2. Claude reads'))
+  const queued = prep.slice(prep.indexOf('oneAtATime(async () => {'), prep.indexOf('}).then('))
+  assert.match(queued, /preparePhoto/); assert.doesNotMatch(queued, /putInboxFile|supabase/)
+  // Sending is in the background, tries again, and gives up on a request that never answers
+  const send = hook.slice(hook.indexOf('const send = useCallback'), hook.indexOf('// 1. A new photo'))
+  assert.match(send, /within\(putInboxFile/); assert.match(send, /attempt >= 3/); assert.match(send, /sendError/)
+  // A photo still being sent can be read, from the copy held here, and neither reading nor saving waits for the first look
+  const reading = hook.slice(hook.indexOf('// 2. Claude reads'), hook.indexOf('// 3. Saved'))
+  assert.match(reading, /\(!x\.local \|\| x\.sending\)/); assert.doesNotMatch(reading, /!loaded/)
+  assert.doesNotMatch(hook.slice(hook.indexOf('// 3. Saved')), /if \(!loaded/)
+  const store = (await import('node:fs')).readFileSync(new URL('../src/lib/inboxStore.js', import.meta.url), 'utf8')
+  assert.match(store, /holdHere/); assert.match(store, /here\.has\(`\$\{id\}:\$\{name\}`\)/); assert.match(store, /didn’t answer/)
+})
+
 test('Claude reads the photo on screen first, then the ones after it', async () => {
   const hook = (await import('node:fs')).readFileSync(new URL('../src/places/lifelist/usePaintingBatch.js', import.meta.url), 'utf8')
   assert.match(hook, /const from = Math\.max\(0, items\.findIndex\(\(x\) => x\.id === atId\)\)/)

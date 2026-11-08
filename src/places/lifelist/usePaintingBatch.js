@@ -8,7 +8,7 @@ import {
   fromFound, wholeCrop, applyReading, slugFor, takenSlugs, cleanTitle, cleanYear, cleanMedium, cleanSeasons, tally, nextToCheck, DONE,
   inboxData, mergeInbox, newId, claimStale,
 } from '../../lib/paintingBatch.js'
-import { loadInbox, saveInboxRow, dropInboxRows, dropInboxFiles, putInboxFile, inboxBlob } from '../../lib/inboxStore.js'
+import { loadInbox, saveInboxRow, dropInboxRows, dropInboxFiles, putInboxFile, inboxBlob, holdHere, hereBlob, releaseHere } from '../../lib/inboxStore.js'
 import { FILES, PAINTINGS } from '../../lib/paintings.js'
 import { preparePhoto, readingFiles, paintingFiles, oneAtATime } from './paintingPhotos.js'
 
@@ -17,9 +17,11 @@ import { preparePhoto, readingFiles, paintingFiles, oneAtATime } from './paintin
 // cropped on a computer, or left half done and picked up on another device. This
 // device keeps only its own small draft: whether to have Claude read, and which photo
 // it was on. Three queues run by themselves while the screen is open: each new photo
-// is got ready (auto-cropped) and sent up, one at a time; Claude reads its signature,
-// three at a time, the one on screen first; and each one the parent says looks right is
-// saved to her gallery, one at a time, while they go on to the next. Changes to a photo
+// is shrunk and auto-cropped here, one at a time, so it can be checked and read at once, and
+// sent up in the background (never in the queue the canvas work waits in, so a slow or
+// stuck upload holds nothing up); Claude reads its signature, three at a time, the one on
+// screen first; and each one the parent says looks right is saved to her gallery, one at a
+// time, while they go on to the next. Changes to a photo
 // are sent to storage a moment after they're made, and the screen looks again when it's
 // opened or comes back into view, so two devices see each other's work.
 const BLANK = { read: true, at: null }
@@ -99,7 +101,37 @@ export function usePaintingBatch({ gallery, onSaved }) {
   const current = items.find((x) => x.id === ui.at) || items.find((x) => !DONE.includes(x.status)) || null
   const atId = current ? current.id : null
 
-  // 1. A new photo, one at a time: shrunk, auto-cropped, and its three pictures sent up
+  // Sends a prepared photo's three pictures up, in the background, trying again a couple of times; until they're
+  // in storage the photo stays `local`, so it isn't offered to other devices
+  const send = useCallback(async (id) => {
+    const key = id + ':send'
+    if (busy.current.has(key)) return
+    busy.current.add(key)
+    try {
+      for (let attempt = 1; ; attempt++) {
+        try {
+          await Promise.all(['kept', 'view', 'thumb'].map(async (name) => {
+            const blob = hereBlob(id, name)
+            if (!blob) throw new Error('The photo isn’t on this device any more. Add it again.')
+            const { error } = await within(putInboxFile(id, name, blob), 120000, 'Sending it took too long.')
+            if (error) throw new Error(error.message || 'It couldn’t be sent to the family’s storage.')
+          }))
+          break
+        } catch (e) {
+          if (attempt >= 3) throw e
+          await new Promise((ok) => setTimeout(ok, 1500 * attempt))
+        }
+      }
+      releaseHere(id)
+      update(id, (x) => ({ ...x, local: false, sending: false, sendError: null }))
+    } catch (e) {
+      update(id, (x) => ({ ...x, sending: false, sendError: (e && e.message) || 'It couldn’t be sent to the family’s storage.' }))
+    } finally {
+      busy.current.delete(key)
+    }
+  }, [update])
+
+  // 1. A new photo, one at a time: shrunk and auto-cropped here, so it can be checked and read at once; then sent up in the background
   useEffect(() => {
     if ([...busy.current].some((k) => k.endsWith(':prep'))) return
     const it = items.find((x) => x.status === 'new' && x.local && files.current.has(x.id))
@@ -108,33 +140,35 @@ export function usePaintingBatch({ gallery, onSaved }) {
     busy.current.add(key)
     oneAtATime(async () => {
       const p = await preparePhoto(files.current.get(it.id))
-      for (const [name, blob] of [['kept', p.kept], ['view', p.view], ['thumb', p.thumb]]) {
-        const { error } = await putInboxFile(it.id, name, blob)
-        if (error) throw new Error(error.message || 'It couldn’t be sent to the family’s storage.')
-      }
       const found = findPainting(p.look)
       const crop = found.kind === 'found' ? fromFound(found, p.W, p.H, p.look.width, p.look.height) : wholeCrop(p.W, p.H)
-      return { W: p.W, H: p.H, crop, auto: crop, sure: found.sure, kind: found.kind }
+      return { p, r: { W: p.W, H: p.H, crop, auto: crop, sure: found.sure, kind: found.kind } }
     }).then(
-      (r) => { files.current.delete(it.id); busy.current.delete(key); update(it.id, (x) => ({ ...x, ...r, status: 'ready', local: false })) },
-      (e) => { files.current.delete(it.id); busy.current.delete(key); dropInboxFiles([it.id]).catch(() => {}); update(it.id, (x) => ({ ...x, status: 'failed', error: (e && e.message) || 'That photo couldn’t be opened.' })) },
+      ({ p, r }) => {
+        files.current.delete(it.id); busy.current.delete(key)
+        holdHere(it.id, 'kept', p.kept); holdHere(it.id, 'view', p.view); holdHere(it.id, 'thumb', p.thumb)
+        update(it.id, (x) => ({ ...x, ...r, status: 'ready', local: true, sending: true, sendError: null }))
+        send(it.id)
+      },
+      (e) => { files.current.delete(it.id); busy.current.delete(key); update(it.id, (x) => ({ ...x, status: 'failed', error: (e && e.message) || 'That photo couldn’t be opened.' })) },
     )
-  }, [items, update])
+  }, [items, update, send])
 
   // 2. Claude reads the signature and suggests a working title, a few at a time, the photo on screen first and then the ones after it
   useEffect(() => {
-    if (pause || !loaded) return
+    if (pause) return
     const under = items.filter((x) => busy.current.has(x.id + ':read')).length
     const from = Math.max(0, items.findIndex((x) => x.id === atId))
     const ordered = [...items.slice(from), ...items.slice(0, from)]
-    const waiting = ordered.filter((x) => x.status === 'ready' && !x.local && x.read === 'waiting' && !busy.current.has(x.id + ':read'))
+    // A photo still being sent up is read from the copy held here
+    const waiting = ordered.filter((x) => x.status === 'ready' && (!x.local || x.sending) && x.read === 'waiting' && !busy.current.has(x.id + ':read'))
     for (const it of waiting.slice(0, Math.max(0, READ_AT_ONCE - under))) {
       const key = it.id + ':read'
       busy.current.add(key)
       // Marked as being read, with the time, so another device doesn't read it too (until the claim goes stale)
       update(it.id, (x) => ({ ...x, read: 'reading', readAt: Date.now(), readError: null }))
       ;(async () => {
-        const kept = await inboxBlob(it.id)
+        const kept = await within(inboxBlob(it.id), 60000, 'The photo couldn’t be fetched from the family’s storage.')
         const sent = await oneAtATime(() => readingFiles(kept, it.crop))
         const titles = [...gallery.map((p) => p.title), ...latest.current.filter((x) => x.id !== it.id && x.title && x.status !== 'skipped').map((x) => x.title)]
         return within(askClaude('read-painting', { files: sent, titles }), READ_TIMEOUT_MS, 'Claude took too long over this one.')
@@ -148,19 +182,19 @@ export function usePaintingBatch({ gallery, onSaved }) {
         update(it.id, (x) => (x.status === 'ready' ? applyReading(x, res.reading, thisYear) : { ...x, read: 'done' }))
       }, (e) => { busy.current.delete(key); update(it.id, (x) => ({ ...x, read: 'failed', readError: (e && e.message) || 'It couldn’t be read.' })) })
     }
-  }, [items, pause, loaded, atId, gallery, update, thisYear])
+  }, [items, pause, atId, gallery, update, thisYear])
 
   // 3. Saved, one at a time: the pictures into the private bucket, then its row. This device saves the ones it approved;
   // one another device was saving when it closed is taken over once its claim has gone stale.
   useEffect(() => {
-    if (!loaded || [...busy.current].some((k) => k.endsWith(':save'))) return
+    if ([...busy.current].some((k) => k.endsWith(':save'))) return
     const it = items.find((x) => x.status === 'saving' && !x.local && (saving.current.has(x.id) || claimStale(x.savingAt)))
     if (!it) return
     const key = it.id + ':save'
     busy.current.add(key)
     saving.current.add(it.id)
     ;(async () => {
-      const kept = await inboxBlob(it.id)
+      const kept = await within(inboxBlob(it.id), 60000, 'The photo couldn’t be fetched from the family’s storage.')
       const f = await oneAtATime(() => paintingFiles(kept, it.crop))
       // The original (the kept copy, 3600 px at most) goes up too, so the painting can be re-cropped from her gallery later
       for (const [name, blob] of [[FILES.src, f.full], [FILES.small, f.small], [FILES.original, kept]]) {
@@ -184,7 +218,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
       busy.current.delete(key); saving.current.delete(it.id)
       update(it.id, (x) => ({ ...x, status: 'ready', saveError: (e && e.message) || 'It couldn’t be saved.' }))
     })
-  }, [items, loaded, update, onSaved, thisYear])
+  }, [items, update, onSaved, thisYear])
 
   return {
     items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, thisYear,
@@ -246,6 +280,8 @@ export function usePaintingBatch({ gallery, onSaved }) {
       setUi((u) => ({ ...u, read: on }))
       setItems((xs) => xs.map((x) => (DONE.includes(x.status) || x.status === 'saving' ? x : on && x.read === 'off' ? { ...x, read: 'waiting' } : !on && x.read === 'waiting' ? { ...x, read: 'off' } : x)))
     },
+    /** Tries sending a photo up again (it couldn't be sent). */
+    resend(id) { update(id, (x) => ({ ...x, sending: true, sendError: null })); send(id) },
     readAgain(id) { setPause(null); update(id, (x) => ({ ...x, read: 'waiting', readError: null })) },
     resume() { setPause(null) },
     /** The batch put away: every photo's row and pictures in the family's storage, and this device's draft. */

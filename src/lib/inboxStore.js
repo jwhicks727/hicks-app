@@ -15,9 +15,18 @@ const BUCKET = 'paintings'
 export const INBOX_NAMES = ['kept', 'view', 'thumb']
 
 const signed = new Map() // path -> { url, until }
+// A photo just prepared on this device is held here while it's sent up in the background, so it can be shown,
+// cropped and read at once, and a slow or failed upload never holds anything up. Dropped once it's in storage.
+const here = new Map() // `${id}:${name}` -> { blob, url }
+export function holdHere(id, name, blob) { here.set(`${id}:${name}`, { blob, url: URL.createObjectURL(blob) }) }
+export const hereBlob = (id, name) => (here.get(`${id}:${name}`) || {}).blob
+/** Lets go of a photo's blobs (the addresses already handed to the screen stay good until the page closes). */
+export function releaseHere(id) { for (const n of INBOX_NAMES) here.delete(`${id}:${n}`) }
 
 /** A link to one of a photo's pictures that's good for an hour (kept a little under that). */
 export async function inboxUrl(id, name) {
+  const mine = here.get(`${id}:${name}`)
+  if (mine) return mine.url
   const path = inboxPath(id, name), hit = signed.get(path)
   if (hit && hit.until > Date.now()) return hit.url
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600)
@@ -28,6 +37,7 @@ export async function inboxUrl(id, name) {
 
 /** One of a photo's pictures, as a blob (the kept copy, to crop or to read). */
 export async function inboxBlob(id, name = 'kept') {
+  if (here.has(`${id}:${name}`)) return here.get(`${id}:${name}`).blob
   const { data, error } = await supabase.storage.from(BUCKET).download(inboxPath(id, name))
   if (error || !data) throw new Error('The photo isn’t in the family’s storage any more.')
   return data
@@ -45,7 +55,9 @@ export async function dropInboxFiles(ids, names = INBOX_NAMES) {
 
 /** Every photo waiting, as the items the batch screen works with. (A batch is a few dozen at most, far under the 1000-row limit.) */
 export async function loadInbox() {
-  const { data, error } = await supabase.from('painting_inbox').select('id, data').limit(1000)
+  // A request that never answers mustn't hold the screen up for ever
+  const asked = supabase.from('painting_inbox').select('id, data').limit(1000)
+  const { data, error } = await Promise.race([asked, new Promise((ok) => setTimeout(() => ok({ error: { message: 'The family’s storage didn’t answer.' } }), 15000))])
   if (error) throw new Error(error.message)
   return (data || []).map((r) => ({ ...r.data, id: r.id }))
 }
