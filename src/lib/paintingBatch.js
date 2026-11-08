@@ -106,18 +106,21 @@ export function drawTransform(crop, W, H, { max = Infinity, region } = {}) {
  * `matrix` the CSS transform for an <img> sized W x H with its origin at 0 0, and `box` where the crop's
  * box sits on the stage. Its box is level on screen: the photo leans under it.
  */
-export function viewOf(crop, W, H, sw, sh) {
+export function viewOf(crop, W, H, sw, sh, { zoom = false } = {}) {
   const [tw, th] = turnedSize(W, H, crop.turn)
   const cos = Math.cos(rad(crop.angle)), sin = Math.sin(rad(crop.angle))
+  const ed = edgesOf(crop, W, H)
+  // Whole photo: fit the photo's own bounds. Zoomed: fit the box (with a margin for its handles) and centre it.
   const bw = tw * Math.abs(cos) + th * Math.abs(sin), bh = tw * Math.abs(sin) + th * Math.abs(cos)
-  const k = Math.min(sw / bw, sh / bh)
+  const k = zoom ? Math.min(sw / (ed.right - ed.left), sh / (ed.bottom - ed.top)) * 0.86 : Math.min(sw / bw, sh / bh)
+  // Where the box's centre sits, in the level frame, from the photo's centre: zoomed, it's moved to the stage's centre
+  const bx = zoom ? (ed.left + ed.right) / 2 : 0, by = zoom ? (ed.top + ed.bottom) / 2 : 0
   const [a11, a12, a21, a22, t1, t2] = turnMatrix(W, H, crop.turn)
   const m11 = k * (cos * a11 + sin * a21), m12 = k * (cos * a12 + sin * a22)
   const m21 = k * (-sin * a11 + cos * a21), m22 = k * (-sin * a12 + cos * a22)
   const qx = t1 - tw / 2, qy = t2 - th / 2
-  const e = k * (cos * qx + sin * qy) + sw / 2, f = k * (-sin * qx + cos * qy) + sh / 2
-  const { left, top, right, bottom } = edgesOf(crop, W, H)
-  return { k, matrix: [m11, m21, m12, m22, e, f], box: { left: sw / 2 + left * k, top: sh / 2 + top * k, width: (right - left) * k, height: (bottom - top) * k } }
+  const e = k * (cos * qx + sin * qy) + sw / 2 - k * bx, f = k * (-sin * qx + cos * qy) + sh / 2 - k * by
+  return { k, zoom, matrix: [m11, m21, m12, m22, e, f], box: { left: sw / 2 + (ed.left - bx) * k, top: sh / 2 + (ed.top - by) * k, width: (ed.right - ed.left) * k, height: (ed.bottom - ed.top) * k } }
 }
 
 /** The box as level edges round the turned photo's centre, as the crop screen sees it: { left, top, right, bottom }. */

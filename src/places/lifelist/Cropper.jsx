@@ -14,6 +14,8 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
   const stage = useRef(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
   const [live, setLive] = useState(null)
+  // Zoomed onto the painting, so its edges and brushwork can be checked close up; it switches on once a crop is adjusted
+  const [zoom, setZoom] = useState(false)
   const liveRef = useRef(null), drag = useRef(null), leanFrom = useRef(null)
   useEffect(() => {
     const el = stage.current
@@ -30,8 +32,10 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
   const [tw0, th0] = turnedSize(W, H, crop.turn)
   const fitHeight = Math.max(220, (size.w - 2 * PAD) * (th0 / tw0) * 1.06 + 2 * PAD)
   const sw = Math.max(1, size.w - 2 * PAD), sh = Math.max(1, size.h - 2 * PAD)
-  const v = size.w ? viewOf(c, W, H, sw, sh) : null
+  const v = size.w ? viewOf(c, W, H, sw, sh, { zoom }) : null
   const show = (next) => { liveRef.current = next; setLive(next) }
+  // Any change to the crop itself switches the zoom on, so the painting is close enough to finish
+  const change = (next) => { setZoom(true); onChange(next) }
 
   // Pointer to the level edges' own space: the turned photo's pixels, round its centre
   const at = (e) => {
@@ -62,12 +66,12 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
       // A tap: the nearest corner of the box comes to it (a tap on a handle only picks it up)
       if (e.target.closest('[data-h]')) return
       const p = at(e), ed = edgesOf(crop, W, H), h = nearestCorner(ed, p.x, p.y)
-      onChange(dragCrop(crop, h, p.x - (h.includes('w') ? ed.left : ed.right), p.y - (h.includes('n') ? ed.top : ed.bottom), W, H))
+      change(dragCrop(crop, h, p.x - (h.includes('w') ? ed.left : ed.right), p.y - (h.includes('n') ? ed.top : ed.bottom), W, H))
       return
     }
     const next = liveRef.current
     liveRef.current = null; setLive(null)
-    if (next) onChange(next)
+    if (next) change(next)
   }
   const cancel = () => { drag.current = null; liveRef.current = null; setLive(null) }
   const key = (h) => (e) => {
@@ -75,11 +79,11 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
     const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key]
     if (!d) return
     e.preventDefault()
-    onChange(dragCrop(crop, h, d[0], d[1], W, H))
+    change(dragCrop(crop, h, d[0], d[1], W, H))
   }
 
-  const turn = (by) => onChange(fitInside(turnCrop(crop, W, H, by), W, H))
-  const lean = (e) => onChange(leanCrop(leanFrom.current || crop, Number(e.target.value), W, H))
+  const turn = (by) => change(fitInside(turnCrop(crop, W, H, by), W, H))
+  const lean = (e) => change(leanCrop(leanFrom.current || crop, Number(e.target.value), W, H))
   const startLean = () => { leanFrom.current = crop }
   const endLean = () => { leanFrom.current = null }
   const own = auto ? fitInside(turnCrop(auto, W, H, crop.turn), W, H) : null
@@ -112,7 +116,8 @@ export default function Cropper({ src, W, H, crop, auto, onChange }) {
         </label>
       </div>
       <div className="ll-crop-tools">
-        {own && <button type="button" className="btn ghost" disabled={same(own, crop)} onClick={() => onChange(own)}>Its own crop</button>}
+        {own && <button type="button" className="btn ghost" disabled={same(own, crop)} onClick={() => change(own)}>Its own crop</button>}
+        <button type="button" className="btn ghost" aria-pressed={zoom} onClick={() => setZoom((z) => !z)}>{zoom ? 'Show the whole photo' : 'Zoom in on the painting'}</button>
         <button type="button" className="btn ghost" disabled={same(wholeCrop(W, H, crop.turn), crop)} onClick={() => onChange(wholeCrop(W, H, crop.turn))}>The whole photo</button>
       </div>
     </div>

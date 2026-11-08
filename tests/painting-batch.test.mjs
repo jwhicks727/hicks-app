@@ -246,3 +246,17 @@ test('a painting added for a season never takes Home’s frame from the one the 
   assert.equal(homePainting('christmas', list).slug, 'snowy-barn', 'a season with no show hangs her newest of it')
   assert.equal(homePainting('lent', list).slug, 'barn-in-fall', 'and a season with none of hers, her newest')
 })
+
+test('zoomed in, the box fills the stage (with room for its handles) and sits in its middle, leaning or not', () => {
+  const W = 4000, H = 3000
+  for (const crop of [fitInside({ turn: 0, angle: 0, cx: 2000, cy: 1500, w: 1200, h: 900 }, W, H), fitInside({ turn: 90, angle: -3, cx: 1500, cy: 1200, w: 900, h: 1300 }, W, H)]) {
+    const z = viewOf(crop, W, H, 340, 400, { zoom: true }), whole = viewOf(crop, W, H, 340, 400)
+    assert.equal(z.zoom, true); assert.equal(whole.zoom, false)
+    near(z.box.left + z.box.width / 2, 170, 1e-6, 'box centred across'); near(z.box.top + z.box.height / 2, 200, 1e-6, 'box centred down')
+    // Its handles fit: the box is at most 86% of the stage in its tighter direction, and it fills that much
+    assert.ok(z.box.width <= 340 * 0.87 && z.box.height <= 400 * 0.87, 'room for the handles')
+    assert.ok(Math.max(z.box.width / 340, z.box.height / 400) >= 0.85, 'and it fills the stage in one direction')
+    // Zoomed in is closer than the whole photo
+    assert.ok(z.k > whole.k, 'more pixels per screen pixel than the whole photo')
+  }
+})
