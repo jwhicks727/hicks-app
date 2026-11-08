@@ -18,25 +18,42 @@ const BODY = { 'birds-more': { kind: 'more' } }
 async function ask(name) {
   if (asking[name]) return
   asking[name] = true
-  const { data, error } = await supabase.functions.invoke(FUNCTION[name] || name, { body: BODY[name] || {} })
+  const { data, error } = await supabase.functions.invoke(FUNCTION[name] || name, { body: BODY[name] || bodyFor(name) })
   asking[name] = false
   const v = outsideProblem({ error, data, online: typeof navigator === 'undefined' || navigator.onLine !== false }) || data
   kept[name] = { data: v, at: Date.now() }
   ;(subs[name] || new Set()).forEach((f) => f(v))
 }
 
+// Names made on the fly: `birds-near:<lat>,<lng>`, a tenth-of-a-degree cell away from home.
+const NEAR = /^birds-near:(-?\d{1,2}\.\d),(-?\d{1,3}\.\d)$/
+function bodyFor(name) {
+  const m = NEAR.exec(name)
+  return m ? { kind: 'near', lat: Number(m[1]), lng: Number(m[2]) } : {}
+}
+const againFor = (name) => AGAIN_MS[name] || 60 * 60e3 // a place away from home: hourly, as at home
+
 function useOutside(name) {
   const session = useSession()
-  const [v, setV] = useState(kept[name] ? kept[name].data : null)
+  const [v, setV] = useState(name && kept[name] ? kept[name].data : null)
   useEffect(() => {
-    if (!supabase || !session) return undefined
+    if (!supabase || !session || !name) return undefined
+    setV(kept[name] ? kept[name].data : null)
     ;(subs[name] ||= new Set()).add(setV)
-    if (!kept[name] || Date.now() - kept[name].at > AGAIN_MS[name]) ask(name)
-    const t = setInterval(() => ask(name), AGAIN_MS[name])
+    if (!kept[name] || Date.now() - kept[name].at > againFor(name)) ask(name)
+    const t = setInterval(() => ask(name), againFor(name))
     return () => { subs[name].delete(setV); clearInterval(t) }
   }, [session, name])
-  return session ? v : null
+  return session && name ? v : null
 }
+
+/**
+ * The cell a point away from home falls in, for the birds function: a tenth
+ * of a degree (about ten kilometres), the most it is ever told.
+ */
+export const nearCellName = (point) => (point && Number.isFinite(point.lat) && Number.isFinite(point.lng) ? `birds-near:${(Math.round(point.lat * 10) / 10).toFixed(1)},${(Math.round(point.lng * 10) / 10).toFixed(1)}` : null)
+/** The birds where we are, away from home: { at, cell, species, sample, hotspots } or { error }, or null while asking (or with no point). */
+export const useBirdsNear = (point) => useOutside(nearCellName(point))
 
 /** { at, places: { home, kordyak, ruble, soar } } from our stations, or { error }, or null while asking. */
 export const useStations = () => useOutside('stations')

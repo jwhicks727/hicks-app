@@ -72,6 +72,135 @@ since he doesn't want to measure them all. Decided:
 
 ---
 
+## 2026-11-07 — Our list for each town we keep going back to
+
+Jason, on a day trip in Temecula: for places we go to many times, keep a list of the
+restaurants, hikes and other things we've done there, as a reference. Decided:
+
+- **A list for each town**, in the travel app and on Home whenever we're in that town
+  (away or out and about), with its own page by id (`/yonder/town/<id>`).
+- **Each place has a kind** (places to eat; coffee, wine and beer; hikes; things to do;
+  shops; where we stayed; Mass), **what we thought** (loved, good, not again), **a note
+  for next time**, and **the days we went**. Loved come first, "not again" last, so the
+  list answers "where should we go?" and "where shouldn't we?".
+- **Added by one of us, never by the phone:** "We went here" on a guide's place, a hike
+  ticked off with "We did it", or by hand (a winery found on a whim). Each goes at once
+  with an Undo; a half-typed place is kept on the device. The town only, never a point.
+- **The guide marks what's on the list** ("♥ Loved · 3×", "✓ Been", "Not again"), and a
+  trip's scrapbook shows where we went those days. The list isn't sent to Claude.
+
+---
+
+## 2026-11-07 — The travel app: Yonder, recipes from a trip, postcards and the passport
+
+Phases 6 and 7 of issue #19. Decided:
+
+- **Its own app on the Apps sheet, called Yonder** unless Admin chooses Postcards, Field
+  Trip, Wayfaring or Wanderings (decision 7 left to Jason; Yonder was the recommendation).
+  The address stays `/yonder` whatever its name.
+- **Only what someone chose is kept**: a postcard written, a hike ticked, a place
+  hearted, a packing item added, a recipe tagged. A postcard and a hike keep the town and
+  the day, never a point. The scrapbook gathers these by the trip's dates.
+- **Recipes from a trip (Jason's ask).** On a trip (a calendar one, a kept one, or today
+  away), a new recipe is tagged to it unless unticked, and ticking it keeps the trip if
+  nobody had. Cook mode can say "cooked on our trip"; any recipe's page can add it to a
+  kept trip. "Bring it home" opens the Kitchen chat with the dish asked for (a parent
+  sends it; Laurie's rules go as for any recipe) and offers the tag on the recipe's page.
+- **Where Laurie can eat well** is a parent's ask with her rules, answered to the screen
+  and never stored, so her health information stays out of the shared guide.
+- **Stamps are drawn in code on cream paper** (the app's #FFF8EE), so the ink reads the
+  same in light and dark; national parks are round.
+- **The prayer for the road** is Psalm 120 (121) in the Douay-Rheims (public domain), the
+  Angel of God, and an invocation of St Raphael, patron of travellers.
+- **Left for later, said so in the plan:** road-trip bingo and "along the way" (they need
+  the route; only the time-zone moment is built), the weather we had in a scrapbook,
+  Anna's drawings shown in it, Openverse and Park Service photos, Caltrans read live, and
+  shows near here (with the jam scout). "Two skies" is a card, not a split background.
+
+---
+
+## 2026-11-07 — The family sees each other's towns; a trip is kept when someone says so
+
+Phase 5 of issue #19. Decided:
+
+- **"Full transparency" means the town, for all three of us, while away.** Jason said
+  yes to the others seeing where you are; it's read as the town (never the place in
+  it), shared by your own phone once Notice where I am is on, and only while away. One
+  row a person, overwritten, never a log, with a tenth of a degree the database can't
+  hold more closely; it lapses twelve hours after the app was last opened there, and
+  goes back on home ground, when switched off, or on sign-out. Every screen that shows
+  or sends it says so. Anna's is shared like everyone's (the family reads it all); the
+  Settings card says so on her phone too. If Jason meant something closer than the
+  town, that's a new decision.
+- **Mass near here** uses the guide's own Mass section (times only from a parish's own
+  page) or the churches on the open map, on a Saturday evening or Sunday morning away,
+  and says the times aren't checked.
+- **A national park is recognised from the open map's park boundaries** (no list of
+  coordinates typed by hand), matched to the sixty-three by name. Checking it off is a
+  parent's, asked first; a new park gets the rainbow gleam.
+- **A trip is kept only when someone keeps it**: "Keep this trip?" for a calendar trip
+  in the ten days after it ends, or "Keep today in Temecula" while away with nothing
+  planned, at once with an Undo, as an outing tied to its event. Nothing is kept from
+  where a phone has been.
+- **The lists' Skip puts "Away" first while away**, and the garden hears about heat,
+  frost or wind at home in the next few days.
+
+---
+
+## 2026-11-07 — What's around here: the open map at once, Claude's guide within a minute
+
+Phases 3 and 4 of issue #19. Decided:
+
+- **Two layers, both kept by area.** The `around` function reads OpenStreetMap (through
+  Overpass) and Wikipedia's articles near a tenth-of-a-degree cell, with Commons photos,
+  a week at a time; the guide is the `claude` function's new `around-here` task, with
+  web search, a month at a time. Both go in `area_guides`, a new row for every version,
+  saying which place and never who asked or was there.
+- **It writes itself** (Jason's decision): a phone that's away asks for the map and the
+  guide by itself, once per area per day, and looks again every few seconds while it's
+  written; a calendar trip's guide is asked for two days ahead. Settings says so once,
+  and the card's footer every time. Only one guide is written per area at a time, four
+  new guides a day at most, inside the family's Claude caps.
+- **The guide is information, not a change.** It's kept like the outside services'
+  answers, written by the function with the service role; nothing Claude writes
+  changes the family's own data.
+- **No invented places.** Claude finishes with one strict tool (`save_guide`, since a
+  forced tool choice isn't allowed on the newest models and structured output isn't
+  combined with web search here). Before it's kept, each place must name a source its
+  own searches returned, or it's dropped; each is matched to the open map for its point,
+  hours and link, and one the map doesn't have says "check before you go".
+- **Photos, high quality and free:** Commons' Featured and Quality pictures first, then
+  any openly licensed Commons photo (author and licence shown), then a place's own
+  preview picture from its own website (checked, loaded from the site); Laurie's
+  painting leads wherever a parent has said she painted the place. Openverse and the
+  Park Service's photos are left for later.
+- **Searches are counted at a cent each** for the app's caps (Anthropic bills each
+  search; the figure is an estimate to check against its pricing page).
+- **Reports counts guides and their cost, never the places**, so where we've been stays
+  off Reports.
+
+---
+
+## 2026-11-07 — Birds where we are, and the ones that could be new to Laurie
+
+Phase 2 of issue #19. Decided:
+
+- **eBird hears only the area.** Away from home the app sends the birds function a
+  tenth-of-a-degree cell (about ten kilometres), and the function asks eBird about
+  the cell's centre. Each cell is kept an hour, like home's birds, and at most ten new
+  cells are looked up a day, so a long drive can't run up the key.
+- **"Most reported" there is a smaller sample:** twenty recent checklists from the
+  county the cell's hotspots are filed under (home's uses forty), to keep each new
+  place to about two dozen eBird calls.
+- **"Could be a lifer" is worked out on the phone.** For Jason and Laurie only, the
+  birds reported there this week that aren't on her life list, matched by scientific
+  name (a subspecies group still matches) or common name. Her sightings never leave
+  the phone for this, and with no list of hers it claims nothing.
+- **The rest of the birds page stays about home**, below the cards for where we are,
+  and the bird sheet for a bird seen away leaves out "nearest to home".
+
+---
+
 ## 2026-11-07 — Away from home: the app follows us, and becomes our own travel app
 
 Jason asked for the app to change when one of us is on a trip or about to go on one:

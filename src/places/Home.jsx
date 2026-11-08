@@ -36,6 +36,13 @@ import { todayAt } from '../lib/cal/dates.js'
 import { useHere } from '../lib/useHere.js'
 import { hourIn, clockIn } from '../lib/here.js'
 import { WeatherHere, HereNowLine, TripAhead, whereWords } from '../parts/HereCards.jsx'
+import AroundCard from '../parts/AroundCard.jsx'
+import { BeenHereCard } from './yonder/Been.jsx'
+import { FamilyAway, MassNearHere, ParkNear, KeepTrip } from '../parts/FamilyTrips.jsx'
+import { ShareHere } from '../lib/useWhereabouts.js'
+import { PostcardForm, PrayerForTheRoad, TwoSkies, AbroadCard, SnowHere, ZoneShift, YearAgoTrips } from '../parts/TravelBits.jsx'
+import { tripsAhead } from '../lib/here.js'
+import { Card } from '../ui/Card.jsx'
 import '../calendar/calendar.css'
 
 const hourFmt = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TOWN.tz, hour: 'numeric', hourCycle: 'h23' })
@@ -84,14 +91,29 @@ function HomeScreen() {
       <FamilyBanner today={today} days={family.days} occasion={occasion && occasion.key === 'family' ? occasion : null} />
       <AcademyCard session={session} me={me} today={today} />
       {occasion && occasion.on === 'event' && <OccasionCard occasion={occasion} day={today} className="span-6" />}
+      <ShareHere here={here} me={me} />
+      <SnowHere here={here} />
+      <ZoneShift here={here} />
+      <PrayerForTheRoad trip={tripsAhead(events, today, 0).find((t) => t.inDays === 0)} hour={hour} />
       <TripAhead session={session} today={today} here={here} />
+      {here.tier === 'away' && <AroundCard here={here} />}
+      {(here.tier === 'away' || here.tier === 'near') && <BeenHereCard here={here} />}
+      {here.tier === 'away' && me && <Card tint="#B5658F" label="A postcard" glyph="star" className="span-3"><PostcardForm here={here} me={me} today={today} /></Card>}
+      <FamilyAway family={family} me={me} />
+      <TwoSkies here={here} now={now} />
+      {here.tier === 'away' && <AbroadCard here={here} />}
+      <KeepTrip here={here} session={session} me={me} today={today} />
+      {here.tier === 'away' && <ParkNear here={here} session={session} me={me} today={today} />}
       {here.tier === 'away' && here.point ? <WeatherHere here={here} /> : <WeatherNow extra={here.tier === 'near' ? <HereNowLine here={here} /> : null} />}
-      <BirdsCard />
+      <BirdsCard here={here} />
+      {here.tier === 'near' && <AroundCard here={here} />}
       <PaintingsCard season={tryKey || seasonFor(today).key} auto />
       <GlowWrap occasion={occasion && ['church', 'day', 'sky'].includes(occasion.on) ? occasion : null} day={today} className="span-3"><TodayCard today={today} hour={hour} /></GlowWrap>
+      {here.tier === 'away' && <MassNearHere here={here} now={now} />}
+      <YearAgoTrips session={session} today={today} />
       <DaysOffCard today={today} />
       <FridgeCard book={book} />
-      <GardenCard today={today} me={me} />
+      <GardenCard today={today} me={me} away={here.tier === 'away'} />
       <SunsetCard />
       {atTable(hour) && <TableCard today={today} />}
       {prefs.mindful !== false && <MindfulCard today={today} />}

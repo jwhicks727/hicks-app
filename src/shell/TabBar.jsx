@@ -3,6 +3,7 @@ import { Link } from './Link.jsx'
 import { APP_PLACES, navigateFromSheet } from '../lib/router.js'
 import IconTile from '../ui/IconTile.jsx'
 import { APPS, TOOLS } from '../ui/apps.jsx'
+import { useTravelSettings } from '../lib/useAround.js'
 import AppsSheet from './AppsSheet.jsx'
 
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
@@ -30,6 +31,7 @@ const TABS = [['home', 'Home'], ['calendar', 'Calendar'], ['kitchen', 'Kitchen']
  */
 export default function TabBar({ current }) {
   const [open, setOpen] = useState(false)
+  const travelName = useTravelSettings().appName // the travel app's name, as chosen in Admin
   const inApp = APP_PLACES.includes(current)
   const path = window.location.pathname
   // The tab bar stays in view under the Apps sheet and still works: a tab closes the
@@ -58,7 +60,7 @@ export default function TabBar({ current }) {
         </button>
         <span className="rail-apps">
           <span className="rail-apps-h">Apps</span>
-          {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={30} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.name}</Link>)}
+          {APPS.map((p) => <Link key={p.to} to={p.to} aria-current={path === p.to || (path.startsWith(p.to + '/') && !APPS.some((q) => q.to !== p.to && q.to.startsWith(p.to) && path.startsWith(q.to))) ? 'page' : undefined}><IconTile colours={p.colours} size={30} flat><svg viewBox="0 0 24 24">{p.icon}</svg></IconTile>{p.key === 'yonder' ? travelName : p.name}</Link>)}
         </span>
         <span className="rail-more">
           {TOOLS.map((t) => <Link key={t.key} to={t.to} aria-current={current === t.key ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true">{t.icon}</svg>{t.name}</Link>)}

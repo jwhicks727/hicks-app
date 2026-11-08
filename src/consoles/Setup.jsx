@@ -8,6 +8,7 @@ import CalendarFromPicture from './CalendarFromPicture.jsx'
 import ParishTimes from './ParishTimes.jsx'
 import StationsSetup from './StationsSetup.jsx'
 import ListsSetup from './ListsSetup.jsx'
+import AroundSetup, { YonderSetup } from './AroundSetup.jsx'
 import { useSession } from '../lib/auth.js'
 import { useSources, todayAtHome } from '../lib/useSources.js'
 import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
@@ -177,6 +178,10 @@ export default function Setup() {
       <ParishTimes />
 
       <StationsSetup />
+
+      <AroundSetup />
+
+      <YonderSetup />
 
       <Card tint="#8A5BC4" label="Still to come here" glyph="star" className="span-6">
         <ul className="coming">

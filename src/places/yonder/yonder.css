@@ -1,0 +1,115 @@
+/* The travel app (src/places/yonder/, src/parts/TravelBits.jsx): prefix yo- */
+
+.yo-stamp { display: block; flex: none; }
+.yo-stamp-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.yo-trips { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.yo-trips a { display: flex; gap: 10px; align-items: center; padding: 6px 0; color: inherit; text-decoration: none; min-height: 44px; }
+.yo-trips span, .yo-li { display: grid; gap: 2px; min-width: 0; }
+.yo-trips small, .yo-li small { color: var(--muted); font-size: 13px; }
+
+.yo-now { gap: 14px; }
+.yo-visit { font-weight: 700; }
+.yo-next .yo-sky { position: relative; display: grid; gap: 2px; padding: 16px 92px 16px 16px; margin: 0 -16px; min-height: 104px; color: #2A1E1A; }
+.yo-next .yo-sky.dark { color: var(--on-colour); }
+.yo-next .yo-sky .yo-stamp { position: absolute; right: 14px; top: 50%; translate: 0 -50%; background: rgba(255, 248, 238, .82); border-radius: 4px; }
+.yo-sleeps { font-family: var(--font-voice); font-weight: 400; font-size: 28px; line-height: 1.1; overflow-wrap: anywhere; }
+.yo-sky span { font-size: 13px; font-weight: 700; opacity: .9; }
+
+.yo-pack-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.yo-pack-list li { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); }
+.yo-pack-list li:first-child { border-top: 0; }
+.yo-pack-list label { flex: 1; display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+.yo-pack-list input { width: 22px; height: 22px; accent-color: var(--tint); }
+.yo-pack-list li.done span { text-decoration: line-through; color: var(--muted); }
+.yo-pack-add { display: flex; gap: 8px; }
+.yo-pack-add input { flex: 1; min-width: 0; min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; }
+
+.yo-someday h3, .yo-pc-write h3, .yo-quest h3, .yo-jams h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin: 0 0 6px; }
+.yo-hearts { list-style: none; margin: 0; padding: 0; display: grid; }
+.yo-hearts li { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); }
+.yo-hearts li:first-child { border-top: 0; }
+.yo-hearts a { flex: 1; display: grid; gap: 2px; padding: 8px 0; color: inherit; text-decoration: none; min-height: 44px; }
+.yo-hearts small { color: var(--muted); font-size: 13px; }
+
+.yo-postcard { margin: 0; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; background: var(--card); box-shadow: var(--shadow-warm); max-width: 560px; }
+.yo-pc-front img, .yo-pc-front .painting-frame { display: block; width: 100%; height: 100%; min-height: 150px; object-fit: cover; }
+.yo-pc-drawn { display: grid; place-items: center; height: 100%; min-height: 150px; padding: 12px; text-align: center; font-family: var(--font-voice); font-size: 26px; color: var(--on-colour); background: linear-gradient(160deg, #2F7D7A, #B5658F); overflow-wrap: anywhere; }
+.yo-pc-back { position: relative; display: grid; align-content: start; gap: 6px; padding: 12px 12px 10px; border-left: 1px dashed var(--line); }
+.yo-pc-back .yo-stamp { justify-self: end; }
+.yo-pc-words { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.yo-pc-from { margin: 0; font-size: 13px; color: var(--muted); font-weight: 700; }
+.yo-pc-credit { font-size: 10px; color: var(--muted); overflow-wrap: anywhere; }
+@media (max-width: 420px) { .yo-postcard { grid-template-columns: 1fr; } .yo-pc-back { border-left: 0; border-top: 1px dashed var(--line); } }
+.yo-pc-write { display: grid; gap: 8px; }
+.yo-pc-write textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; resize: vertical; }
+.yo-cards { display: grid; gap: 12px; }
+
+.yo-quest ul { margin: 0 0 8px; padding-left: 20px; }
+
+.yo-day { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.yo-day li { display: grid; grid-template-columns: 6.2em minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 0 6px 10px; border-left: 4px solid var(--c); }
+.yo-day li.past { opacity: .6; }
+.yo-time { font-size: 13px; font-weight: 800; color: var(--muted); }
+.yo-stop { display: grid; gap: 2px; text-align: left; background: none; border: 0; padding: 4px 0; font: inherit; color: var(--ink); cursor: pointer; min-height: 44px; }
+.yo-stop small { color: var(--muted); font-size: 13px; }
+.yo-move { display: flex; gap: 4px; }
+
+.yo-scrap-head { display: flex; gap: 14px; align-items: flex-start; }
+.yo-scrap-head > div { min-width: 0; display: grid; gap: 4px; }
+.yo-totals { font-weight: 800; }
+.yo-bring { display: grid; gap: 6px; }
+.yo-linklike { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+
+.yo-pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; justify-items: center; }
+.yo-page { display: block; padding: 6px; border-radius: var(--r-control); }
+.yo-page:focus-visible { outline: 3px solid var(--ink); }
+
+.yo-prayer { margin: 0; padding: 8px 12px; border-left: 3px solid var(--tint); font-size: 15px; }
+.yo-prayer cite { display: block; margin-top: 4px; font-style: normal; font-size: 12px; color: var(--muted); }
+.yo-prayer-end { font-weight: 700; }
+
+.yo-two-skies { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.yo-two-skies div { display: grid; gap: 2px; padding: 12px; border-radius: var(--r-control); color: #2A1E1A; min-height: 86px; }
+.yo-two-skies div.dark { color: var(--on-colour); }
+.yo-two-skies b { font-family: var(--font-voice); font-weight: 400; font-size: 24px; }
+.yo-two-skies span { font-size: 13px; font-weight: 700; }
+
+.yo-zone { margin: 0; padding: 10px 14px; border-radius: var(--r-card); background: color-mix(in srgb, #2F3F7A 14%, var(--card)); border: 1px solid var(--line); font-weight: 800; }
+.yo-ago { display: flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; }
+.yo-ago span { display: grid; gap: 2px; }
+.yo-ago small { color: var(--muted); }
+
+.yo-snow { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+.yo-snow i { position: absolute; top: -12px; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 70%); transform: scale(var(--s, 1)); animation: yo-snowfall linear infinite; }
+@keyframes yo-snowfall { to { translate: 24px 105vh; } }
+html[data-motion="less"] .yo-snow { display: none; }
+
+/* Our list for each town (src/places/yonder/Been.jsx) */
+.yo-been { gap: 12px; }
+.yo-been-group h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin: 0 0 4px; }
+.yo-been-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.yo-been-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yo-been-row:first-child { border-top: 0; }
+.yo-been-row.not-again .yo-been-main b { color: var(--muted); }
+.yo-been-main { display: grid; gap: 2px; min-width: 0; }
+.yo-been-main b { overflow-wrap: anywhere; }
+.yo-been-main small { color: var(--muted); font-size: 13px; }
+.yo-been-note { justify-self: start; text-align: left; background: none; border: 0; padding: 2px 0; font: inherit; font-size: 14px; color: var(--ink); cursor: pointer; overflow-wrap: anywhere; }
+.yo-been-edit { display: flex; flex-wrap: wrap; gap: 6px; }
+.yo-been-edit input { flex: 1 1 180px; min-width: 0; min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; }
+.yo-been-rate { display: flex; gap: 4px; align-self: start; }
+.yo-rate { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--muted); font: inherit; font-weight: 800; cursor: pointer; }
+.yo-rate[aria-pressed="true"].loved { background: color-mix(in srgb, #C14D83 22%, var(--card)); color: color-mix(in srgb, #C14D83 85%, var(--ink)); border-color: #C14D83; }
+.yo-rate[aria-pressed="true"].good { background: color-mix(in srgb, #4E6C3D 20%, var(--card)); color: color-mix(in srgb, #4E6C3D 85%, var(--ink)); border-color: #4E6C3D; }
+.yo-rate[aria-pressed="true"].not-again { background: color-mix(in srgb, #8A5A33 20%, var(--card)); color: color-mix(in srgb, #8A5A33 85%, var(--ink)); border-color: #8A5A33; }
+@media (pointer: coarse) { .yo-rate { width: 44px; height: 44px; } }
+.yo-been-go { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.yo-been-add { display: grid; gap: 10px; }
+.yo-field { display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+.yo-field input { min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; }
+.yo-kinds { flex-wrap: wrap; }
+.yo-been-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 800; white-space: nowrap; background: color-mix(in srgb, #4E6C3D 18%, var(--card)); color: color-mix(in srgb, #4E6C3D 85%, var(--ink)); }
+.yo-been-badge.loved { background: color-mix(in srgb, #C14D83 18%, var(--card)); color: color-mix(in srgb, #C14D83 85%, var(--ink)); }
+.yo-been-badge.not-again { background: color-mix(in srgb, #8A5A33 18%, var(--card)); color: color-mix(in srgb, #8A5A33 85%, var(--ink)); }
+.yo-been-here { margin-top: 6px; }
+.ar-tile-badge { padding: 0 10px; margin-top: -2px; }

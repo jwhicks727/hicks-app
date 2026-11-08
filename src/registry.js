@@ -10,8 +10,8 @@ export const REGISTRY = [
     setup: [{ key: 'lists', title: 'Morning and evening lists: their names and the family challenges', ready: true }],
     reports: [{ key: 'lists', title: 'Lists and streaks', blurb: 'Lists finished, Team Hicks days, challenges won, and each of us’s streaks', ready: true }] },
   { key: 'world', name: 'World', colour: '#3BA3A8',
-    setup: [{ key: 'stations', title: 'Weather stations', ready: true }, { key: 'places', title: 'Places we love', ready: false }],
-    reports: [] },
+    setup: [{ key: 'stations', title: 'Weather stations', ready: true }, { key: 'around', title: 'What’s around here: what the guide is written for', ready: true }, { key: 'places', title: 'Places we love', ready: false }],
+    reports: [{ key: 'guides', title: 'What’s around here', blurb: 'Guides written lately and what they cost, never which places', ready: true }] },
   { key: 'calendar', name: 'Calendar', colour: '#3E7A4C',
     setup: [{ key: 'sources', title: 'Calendar sources', ready: true }, { key: 'family-days', title: 'Family days', ready: true }, { key: 'mass-times', title: 'Mass times from the parish', ready: true }],
     reports: [{ key: 'sources', title: 'Calendar sources', blurb: 'Every source, what it covers, and which need rolling over', ready: true },
@@ -37,4 +37,7 @@ export const REGISTRY = [
   { key: 'pets', name: 'Pets', colour: '#8A5A33',
     setup: [{ key: 'pets', title: 'Our pets: their pages, vet visits and reminders', ready: false }],
     reports: [] },
+  { key: 'yonder', name: 'Yonder', colour: '#2F7D7A',
+    setup: [{ key: 'name', title: 'The travel app’s name', ready: true }],
+    reports: [{ key: 'trips', title: 'Trips', blurb: 'Trips kept, postcards, hikes and stamps: counts, never where', ready: true }] },
 ]

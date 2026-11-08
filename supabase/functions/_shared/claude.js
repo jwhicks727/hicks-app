@@ -143,6 +143,10 @@ export const TASKS = {
   'garden-photo': { who: 'family', effort: 'medium', maxTokens: 8000, schema: GARDEN_SCHEMA, upload: true },
   // Reads only: the year by her signature and a working title, for a parent to check on screen (src/places/lifelist/AddPaintings.jsx)
   'read-painting': { who: 'parent', effort: 'medium', maxTokens: 4000, schema: PAINTING_SCHEMA, uploads: 5, says: 'the cropped photo of her painting, and its four corners enlarged; back come a working title, the year by her signature, its medium and seasons' },
+  // What's around here (supabase/functions/_shared/around.js): written by itself when one of us is away or a trip is coming
+  'around-here': { who: 'family', effort: 'medium', maxTokens: 16000, says: 'the town you’re in, the area to about ten kilometres, and the family’s interests from Settings' },
+  // Where Laurie can eat well near here: a parent's ask, with her food rules (as for any recipe); the answer isn't kept
+  'eat-well': { who: 'parent', effort: 'medium', maxTokens: 8000, says: 'Laurie’s food rules, the town and the area to about ten kilometres' },
 }
 
 // ---- The Kitchen chat's tools: proposals only, confirmed on screen ------------------

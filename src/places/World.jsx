@@ -10,6 +10,7 @@ import PlacePage from './world/PlacePage.jsx'
 import DayPage from './world/DayPage.jsx'
 import SkyPage from './world/SkyPage.jsx'
 import BirdsPage from './world/BirdsPage.jsx'
+import AroundPage from './world/AroundPage.jsx'
 import './world/world.css'
 
 // /world                 today's place and its weather, home's weather, the sky, and all our places on a map (last)
@@ -20,6 +21,7 @@ export default function World({ rest = [] }) {
   const today = todayAt('America/Los_Angeles', now)
   if (rest[0] === 'place') return <PlacePage slug={rest[1]} />
   if (rest[0] === 'birds') return <BirdsPage />
+  if (rest[0] === 'around') return <AroundPage id={rest[1]} />
   if (rest[0] === 'sky') return <SkyPage k={rest[1] || 'sunrise'} />
   if (rest[0] === 'day') return <DayPage date={rest[1] || today} hour={rest[2]} />
   return (

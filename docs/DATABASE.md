@@ -138,6 +138,23 @@ every function; nothing to set for that.
   within twenty), and looks up a photo on iNaturalist for the first dozen
   species, kept only with a Creative Commons licence and its credit. A
   sighting at a private location keeps its bird and day, not its place.
+  Away from home (`kind: near`), the app sends a tenth-of-a-degree cell
+  (about ten kilometres), never a closer point; the function asks eBird about
+  the cell's centre (the week's sightings, the notable ones, the hotspots, and
+  a sample of twenty checklists from the county its hotspots are filed under),
+  keeps each cell's answer an hour under `birds-near:<lat>,<lng>` (migration
+  20261107230000), and asks about at most ten new cells a day. Home's own cell
+  gets `{ home: true }`. Deploy it again after the merge for this to work.
+
+- **`around`** reads what the open map knows around an area away from home: a
+  tenth-of-a-degree cell from the app, never a closer point. OpenStreetMap
+  through Overpass (roasters, breweries, book and record shops, trailheads,
+  viewpoints, Catholic churches, museums and galleries, within 15 km), and
+  Wikipedia's articles near the cell with their Wikimedia Commons photos (open
+  licences only, with the author and licence). It keeps the answer in
+  `area_guides` (kind `map`), reads again at most weekly per cell and about a
+  dozen new cells a day. No key. Deploy it after the merge:
+  `npx supabase functions deploy around --no-verify-jwt --project-ref <project-ref>`.
 
 - **`wild`** reads each wild season's own site (the eagle cam, the monarch
   count, BirdCast and the rest, listed in `_shared/wildpics.js`) at most once a
@@ -186,6 +203,19 @@ model, is in `supabase/functions/_shared/claude.js`.
   says it looks right on screen. About two cents a painting (an estimate, not
   yet measured), within the caps; at the day's cap the screen stops asking and
   the rest can be typed in or read the next day.
+- **What's around here (`around-here`)** writes a guide to an area in the
+  background (Supabase's `EdgeRuntime.waitUntil`), with Anthropic's web search
+  (at most 12 searches a guide, each counted against the caps at an estimated
+  cent), finishing with one strict tool, `save_guide`. Sent: the town, a
+  tenth-of-a-degree cell, and `travel_settings.interests`. Before it's kept,
+  every place must carry a source its own searches returned, and is matched to
+  the open map (`_shared/around.js`, `cleanGuide`). It keeps the guide in
+  `area_guides` with the service role (one being written per area at a time, at
+  most four new guides a day, each kept a month), by place, never by person.
+- **Where Laurie can eat well (`eat-well`)** is a parent's task: her food rules
+  (read as the caller), the town and the cell, web search (at most 8), one strict
+  tool (`save_places`), each place kept only with a source its own searches
+  returned. The answer goes to the screen and is never stored.
 
 Set the key and deploy:
 
@@ -232,7 +262,7 @@ sign-in link won't come back to the app.
 | `annas_drawings` | Anna's Gallery: a drawing's title, the day she drew it, her own words, what it's about (`pets` hangs it in the Pets launch), its size; the pictures (a large one and a small one) in the private `drawings` bucket, read through signed links | The family | Anyone in the family adds their own; whoever added it, or a parent, changes or removes it (and its files) |
 | `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move, the original photo's flag and the crop it was saved with (`original`, `crop`); the files in the private `paintings` bucket, the original at `<slug>/original.jpg` | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
 | `bird_sightings` | Laurie's birds from her eBird download: one row per bird per checklist, the place by name and to about a kilometre | Parents only | Parents (the file is read in the browser; same file twice changes nothing) |
-| `outings` | Camping trips, Disneyland trips, trips and outings: dates, place, who came, a national park if it was one, notes | The family | Parents |
+| `outings` | Camping trips, Disneyland trips, trips and outings: dates, place, who came, a national park if it was one, notes; the calendar event a kept trip came from (`event_id`, one outing per event) | The family | Parents |
 | `park_marks` | The national parks: the day we went, whether it's starred as next, a note | The family | Parents |
 | `journal_entries` | A person's journal: one page a day, the day's question and answer, anything else, gratitudes; whether it was brought in from elsewhere | Its writer only, not even a parent | Its writer only |
 | `journal_notes` | Notes to your future self: written, sealed until their day (a surprise day isn't shown), opened | Its writer only | Its writer only |
@@ -248,7 +278,18 @@ sign-in link won't come back to the app.
 | `weather_stations` | Which station each place reads (home, Kordyak, Wayne Ruble, SOAR) and its fallback airport | The family | Parents (station and fallback only) |
 | `sync_consents` | Laurie's own yes to the nightly eBird sync | Parents | A parent records a yes under their own id; either parent can remove it |
 | `bird_sync_runs` | A log of each nightly eBird run (written before it signs in, so a rejected sign-in is never retried within 24 hours) | Parents | Nobody from the app: only the job (service role) |
-| `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`), as the functions shaped it | The family | Only the `stations` and `birds` functions |
+| `outside_cache` | The last answer from Synoptic (`stations`) and eBird (`birds`, `birds-more`, and `birds-near:<cell>` for each place away from home), as the functions shaped it | The family | Only the `stations` and `birds` functions |
+| `area_guides` | What's around here, by area (a tenth-of-a-degree cell): what the open map knows there (`map`, a week at a time) and Claude's guide (`guide`, a month at a time; `building` while it's written). Every version a new row; it says which place, never who asked or who was there | The family | Only the `around` and `claude` functions |
+| `member_whereabouts` | Which town each of us is in while away: one row a person (overwritten, never a log), the town, region and country, a tenth-of-a-degree point (`numeric(4,1)`), when it lapses (twelve hours on) | The family | Each of us our own row only (`my_member_id()`) |
+| `travel_settings` | One row: the family's interests, what the guide is written for (sent to Claude with each guide, as the screens say), and the travel app's name (`app_name`) | The family | Parents |
+| `trip_recipes` | A recipe found, cooked or brought home from a kept trip (one recipe can belong to several) | The family | Parents |
+| `postcards` | A postcard to the family: the town and the day, a line of words, who sent it (never a point) | The family | Each of us our own; the sender or a parent removes |
+| `packing_items` | A calendar trip's packing list: our own items and the suggestions someone added, ticked off | The family | The family |
+| `trip_hikes` | A guide's hike ticked off: its name, miles and climb, the day and the town, who ticked it | The family | Each of us our own; the ticker or a parent removes |
+| `been_towns` | Our list for each town: the towns we keep a list for (town, state, country), one row each, so a town's page has an id | The family | The family adds |
+| `been_places` | A place on a town's list: its name, what kind (eat, drink, hike, do, shop, stay, Mass), loved / good / not again, a note, its link | The family | The family adds and changes; whoever added it, or a parent, removes |
+| `been_visits` | A day we went to a place on a town's list (one a day) | The family | The family adds; whoever added it, or a parent, removes |
+| `someday` | A place from a guide hearted for next time we're near: the area, the town, its name and line | The family | The family adds; whoever hearted it, or a parent, removes |
 | `routine_items` | The things on each person's morning and evening lists: words, a picture, which weekdays, every week or every other, any day or school days or days off, turns, until when, order; taken off (`archived_on`) rather than deleted | Its keeper, and the parents for Anna's | Its keeper, and the parents for Anna's (`lists_i_keep()`) |
 | `routine_changes` | A day that's different: something skipped, something added just for the day, a day off (with its reason) | Its keeper, and the parents for Anna's | The same |
 | `routine_ticks` | One per thing done, per day | Its keeper, and the parents for Anna's | The same; a tick is removed to untick |
@@ -278,5 +319,10 @@ Migration index:
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
 | `20261108090000_paintings_recrop` | Two columns on `paintings`: `original` (the photo is kept at `<slug>/original.jpg`) and `crop` (the crop it was saved with), so a painting can be cropped again from her gallery. Additive; the family reads and the parents change, as before. |
+| `20261107230000_birds_near_cache` | `outside_cache` also takes `birds-near:<lat>,<lng>` keys: the birds where one of us is, a tenth-of-a-degree cell each, kept an hour |
+| `20261107231000_around_here` | What's around here: `area_guides` (the map layer and the guide, by area, every version kept, written only by the functions) and `travel_settings` (the family's interests; parents write) |
+| `20261107232000_family_towns_trips` | `member_whereabouts` (which town each of us is in while away; one row a person, only its owner writes it) and `outings.event_id` (a kept trip's calendar event, one outing per event) |
+| `20261107233000_travel_app` | The travel app: its name on `travel_settings`; `trip_recipes`, `postcards`, `packing_items`, `trip_hikes` and `someday`. Postcards and hikes keep a town and a day, never a point |
+| `20261107234000_our_list_each_town` | Our list for each town: `been_towns`, `been_places`, `been_visits`. The town only, never a point |
 | `20261107180000_morning_evening_lists` | The morning and evening lists: items, a day's changes and ticks (their keeper's, and the parents' for Anna's, through `lists_i_keep()`), how each day went (`routine_days`, no words, family-readable), the lists' settings, the challenges and their runs. `tests/migrations.test.mjs` checks that a list's words never reach the whole family. |
 | `20261102000500_ebird_sync_parent_can_stop` | Either parent can remove the sync's yes, so Laurie can stop one Jason switched on |

@@ -328,12 +328,81 @@ and the phases are in issue #19; what's built is ticked here.
       whether or not Notice where I am is on.
 - [ ] Unverified on a real iPhone: whether the installed app asks for location again
       each time it opens, and how to undo a "Don't Allow".
-- [ ] Birds around here, and "Could be a lifer" for the parents.
-- [ ] What's around here?: the map layer, then the guide (written by itself when we're
-      away or a trip is coming up), with high-quality free photos.
-- [ ] Which town each of us is in, on the others' Home (decided: full transparency).
-- [ ] The travel app: countdown, packing, Anna's trip quest, the postcard, Our day,
-      recipes from the trip (tagged to it), the scrapbook, the passport and the rest.
+- [x] **Birds around here** (2026-11-07): away, Home's Birds card and `/world/birds`
+      are the birds around where we are (most reported, rare, birding places), with
+      what iNaturalist's observers see there this month; for Jason and Laurie, "Could
+      be a lifer for Laurie" (birds reported there that aren't on her list, worked out
+      on the phone from her own sightings, `src/lib/life/lifers.js`). eBird is asked
+      about a tenth-of-a-degree cell, ten new places a day at most. Unverified live
+      until migration 20261107230000 runs and the `birds` function is deployed again.
+- [x] **What's around here?** (2026-11-07): away, Home leads with a guide to the place
+      that writes itself (no button): the place's picture (Laurie's painting where a
+      parent has said she painted it, else a Featured or Quality photo from Wikimedia
+      Commons, credited), its height, weather and sunset, then hikes (short, medium,
+      long, with when to set off before sunset), the village, coffee roasters,
+      brewpubs, the local food, things for Anna, records and books, art, Mass and the
+      sky, in the moment's order (`/world/around`; a kept one at `/world/around/<id>`).
+      Every place has its sources, distance, OpenStreetMap's hours where known, and
+      Directions. What the open map and Wikipedia know nearby shows at once, and the
+      guide streams in within about a minute, kept for the family for a month. A trip
+      on the calendar gets its guide written two days ahead, linked from Coming up.
+      Out and about, a small card offers it. Admin › What's around here keeps the
+      family's interests; Reports counts guides and their cost, never the places.
+      Unverified live until migration 20261107231000 runs and the `around` and
+      `claude` functions are deployed.
+- [x] **Which town each of us is in** (2026-11-07, Jason: "full transparency"): while away,
+      the others' Home has "Meanwhile: Laurie is in Big Bear Lake: 41°, clear". The
+      phone shares the town and a tenth of a degree (`member_whereabouts`, one row a
+      person, never a log), lapsing twelve hours after the app was last opened there;
+      gone on home ground, when switched off, or on sign-out. Never on the wall or Reports.
+- [x] **The rest of the app joins in:** Mass near here on a Saturday evening or Sunday
+      morning away (the guide's own Mass section, else the Catholic churches the open
+      map knows, times unchecked); a national park near here from the open map's park
+      boundaries, checked off by a parent with the rainbow gleam for a new one; "Keep
+      this trip?" for a calendar trip just over or a day away nothing planned, kept as an
+      outing with an Undo (`outings.event_id`); the lists' Skip offers "Away" first; the
+      garden hears about heat, frost or wind at home (`src/lib/trips.js`). Shows near
+      here wait for the jam scout. Unverified live until migration 20261107232000 runs.
+- [x] **The travel app** (2026-11-07; Yonder unless Admin names it Postcards, Field Trip,
+      Wayfaring or Wanderings; `/yonder`, `src/places/yonder/`, `src/lib/yonder.js`):
+      the next trip counting its sleeps over the sky there now, with "your fourth time
+      in Big Bear" from kept trips; a shared packing list (our own items first,
+      suggestions from the forecast and the trip a tap away); while away, a postcard to
+      the family (Laurie's painting or the place's photo on the front, a stamp drawn in
+      code; it shows in Meanwhile), Our day (`/yonder/day`: coffee, a hike that fits
+      before sunset, lunch, the afternoon, golden hour, Mass, dinner, the Milky Way in
+      its season, worked out on the phone, moved with arrows), a trip quest for Anna in
+      her academy, and the town in jam history (the Live Music Archive). Each kept trip
+      has a scrapbook (`/yonder/trip/<id>`: the hikes and their totals, the recipes,
+      postcards, Laurie's birds and lifers with the gleam, hearts, the guide we had) and
+      a stamp in the passport (`/yonder/passport`). Someday keeps hearted places.
+- [x] **Recipes from the trip** (Jason's ask): a recipe written while away or on a
+      calendar trip is tagged to it unless unticked; cook mode can say "cooked on our
+      trip"; any recipe's page adds it to a kept trip; "Bring it home" in a scrapbook
+      opens the Kitchen chat with the dish asked for and tags the recipe after
+      (`trip_recipes`, `src/kitchen/TripTag.jsx`).
+- [x] **And on Home:** a prayer for the road on the morning a trip begins, two skies in
+      another time zone, a card abroad (words, money, plugs, the emergency number), snow
+      drifting when it's really snowing where we are, "You just gained an hour", a year
+      ago today; at height, cook mode's word on boiling; the journal asks a travel
+      question while away (picked on the phone); "We did it" on a guide's hike (the
+      longest yet gets the gleam) and a heart for Someday; for the parents, where Laurie
+      can eat well (the `eat-well` task, her rules sent, the answer not kept).
+- [x] **Our list for each town** (2026-11-07, Jason's ask on a day in Temecula): for the
+      towns we keep going back to, the places to eat, coffee, wine and beer, hikes,
+      things to do, shops, where we stayed and Mass, each with what we thought (loved,
+      good, not again), a note for next time, and the days we went. Added from a guide's
+      place ("We went here"), a hike ticked off, or by hand; on Home whenever we're in
+      that town (away or out and about), loved first, "We went today" a tap away; a
+      page for each town (`/yonder/town/<id>`); "Where we went" in a trip's scrapbook;
+      the guide marks places we've been ("♥ Loved · 3×", "Not again")
+      (`been_towns`, `been_places`, `been_visits`; `src/lib/been.js`). Unverified live
+      until migration 20261107234000 runs.
+- [ ] Still to come: road-trip bingo and "along the way" (they need the route), the
+      weather we had in a scrapbook, Anna's drawings shown in it (a link for now),
+      Openverse and Park Service photos, Caltrans chain controls read live, and shows near
+      here this week (with the jam scout). Unverified live until migration
+      20261107233000 runs and the `claude` function is deployed again.
 
 ## 2. World
 

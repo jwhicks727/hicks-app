@@ -12,12 +12,14 @@ import { dedupeEvents } from '../lib/cal/tidy.js'
 import { addDays } from '../lib/cal/dates.js'
 import { inchWords } from '../lib/weather.js'
 import { tripForecastUrl } from '../lib/outdoors.js'
+import { useAround } from '../lib/useAround.js'
+import { cellIdOf } from '../lib/around.js'
 import { placeWords, tripsAhead, whenWords, tripWindow, shapeTripDays, packWords, miles, cellOf, OSM_CREDIT, TRIP_AHEAD_DAYS } from '../lib/here.js'
 
 /** The town's name, or our own place's while the name is still being looked up. */
 export const whereWords = (here) => placeWords(here.town) || (here.place ? here.place.town : '')
 
-const WHERE_NOTE = 'Where you are is rounded to about a kilometre and kept only on this phone (Settings › Notice where I am).'
+const WHERE_NOTE = 'Where you are is rounded to about a kilometre and kept only on this phone; while you’re away the family sees which town (Settings › Notice where I am).'
 
 /** The National Weather Service's alerts where we are: the United States only, so this is drawn only there. */
 function HereAlerts({ point }) {
@@ -85,7 +87,7 @@ export function HereNowLine({ here }) {
 
 const KEEP_MS = 15 * 60e3
 /** The forecast for a trip's days there: { days, error }, kept for a quarter hour. */
-function useTripDays(trip, today) {
+export function useTripDays(trip, today) {
   const win = trip ? tripWindow(trip, today) : null
   const key = trip && win ? `teamhicks.weather.trip.${trip.lat.toFixed(2)},${trip.lng.toFixed(2)}.${win.from}.${win.to}` : null
   const [state, setState] = useState({ days: null, error: null })
@@ -109,6 +111,20 @@ function useTripDays(trip, today) {
     return () => { live = false }
   }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
   return state
+}
+
+/**
+ * A trip's guide, written ahead: from two days before it starts, the first of us to open
+ * the app asks for it, so it's waiting when we arrive. Sent: the area to about ten
+ * kilometres, and the place's name and region as the calendar has them.
+ */
+function TripGuide({ trip }) {
+  const [town, region] = trip.place.split(',').map((x) => x.trim())
+  const place = { cell: cellIdOf(trip), town: town || trip.title, region: region || '', cc: '' }
+  const { guide, building } = useAround(trip.inDays <= 2 ? place : null, { auto: true })
+  if (guide) return <Link className="here-home" to={`/world/around/${guide.id}`}><span>The guide to {place.town} is ready: hikes, roasters, brewpubs and the rest ›</span></Link>
+  if (building) return <p className="here-line"><span>Writing the guide to {place.town}, ready before you go.</span></p>
+  return null
 }
 
 const short = (date) => new Date(date + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' })
@@ -150,6 +166,7 @@ export function TripAhead({ session, today, here, className = 'span-3' }) {
       )}
       {days && !days.length && <p className="muted">The forecast doesn’t reach those days yet.</p>}
       {pack.length > 0 && <ul className="here-pack">{pack.map((p) => <li key={p}>{p}</li>)}</ul>}
+      <TripGuide trip={trip} />
       <p className="wx-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>, for the place on the calendar, rounded to about a kilometre.</p>
     </Card>
   )
