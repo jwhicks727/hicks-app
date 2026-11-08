@@ -400,7 +400,9 @@ and the phases are in issue #19; what's built is ticked here.
       for a parent, and "Not for the scrapbook: put it away" with an Undo. A place that
       can't be saved (no signal, a hiccup) waits on the phone, shows as "waiting to be
       sent" with Send now, and is sent again by itself; a real problem stays on the
-      form in words with what was typed kept (`src/lib/stay.js`, `Recap.jsx`).
+      form in words with what was typed kept (`src/lib/stay.js`, `Recap.jsx`). For a trip
+      the phone didn't see, "Start a recap for a recent trip" in the travel app takes a
+      town and days from the last week and puts the same card on Home.
 - [x] **The trip photo reel, tagged by Claude** (2026-11-08, Jason's ask): photos added by
       hand (many at once, in the paintings uploader's style) to a stay's recap or a kept
       trip's scrapbook, sent to the private `trips` bucket and read through signed links.

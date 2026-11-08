@@ -55,6 +55,10 @@ and he wants to go back at leisure rather than do it all on the trip. Decided:
   isn't a trip and reaches the database only when someone adds something. Settings says
   so, and the card says so. (This refines "no history of where anyone has been": it is
   one town and its days, remembered for a week, because Jason asked for the card.)
+- **A recap can be started by hand** ("Start a recap for a recent trip", in the travel app) for a
+  trip the phone didn't see: the town, an optional state, and days from the last week. Typed, so
+  it's no more than the phone would have remembered; it exists because the first real trip
+  (Temecula, 2026-11-07) happened before the feature did.
 
 ---
 

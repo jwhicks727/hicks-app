@@ -26,6 +26,7 @@ import { PostcardForm, PostcardFront, TripQuest } from '../../parts/TravelBits.j
 import Stamp from './Stamp.jsx'
 import PhotoReel from '../../parts/PhotoReel.jsx'
 import { BeenTownPage, BeenTownsCard } from './Been.jsx'
+import { StartRecap } from './Recap.jsx'
 import { useBeen } from '../../lib/useBeen.js'
 import { withVisits, visitedBetween, norm as beenNorm, KINDS as BEEN_KINDS } from '../../lib/been.js'
 import './yonder.css'
@@ -82,6 +83,7 @@ function YonderHome() {
         <Link className="btn ghost" to="/yonder/passport">Open the passport ›</Link>
       </Card>
       <BeenTownsCard />
+      <Card tint="#C9863F" label="A recent trip" glyph="calendar" className="span-3"><p>Went somewhere the app didn’t see? Start its recap to add the places and photos, within the week.</p><StartRecap /></Card>
       <SomedayCard c={c} />
     </>
   )

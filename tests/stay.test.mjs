@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { updateStays, recaps, setDismissed, stayId, stayWords, retryable, enqueue, dequeue, queuedFor, parseLines, RECAP_DAYS, KEEP_STAYS } from '../src/lib/stay.js'
+import { manualStay, withStay, updateStays, recaps, setDismissed, stayId, stayWords, retryable, enqueue, dequeue, queuedFor, parseLines, RECAP_DAYS, KEEP_STAYS } from '../src/lib/stay.js'
 
 const src = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8')
 const temecula = { tier: 'away', town: { town: 'Temecula', region: 'California', cc: 'US' } }
@@ -87,3 +87,24 @@ test('the phone forgets a stay on sign-out and when location is switched off; sa
   assert.match(src('src/places/Home.jsx'), /useRememberStay\(here, today\)/)
   assert.match(src('src/places/Home.jsx'), /<RecapCards here=\{here\} me=\{me\} today=\{today\} \/>/)
 })
+
+test('a recap started by hand: a town and days inside the last week, checked in words', () => {
+  const today = '2026-11-08'
+  const ok = manualStay({ town: '  Temecula ', region: 'California', from: '2026-11-07', last: '2026-11-07' }, today)
+  assert.deepEqual(ok.stay, { town: 'Temecula', region: 'California', cc: null, from: '2026-11-07', last: '2026-11-07', dismissed: false })
+  assert.equal(manualStay({ town: 'Sedona', from: '2026-11-06' }, today).stay.last, '2026-11-06', 'no last day means the first')
+  assert.equal(manualStay({ town: 'Sedona', region: '', from: '2026-11-06' }, today).stay.region, null)
+  assert.equal(manualStay({ town: '', from: '2026-11-07' }, today).error, 'Which town?')
+  assert.equal(manualStay({ town: 'X', from: 'soon' }, today).error, 'Which day did it start?')
+  assert.match(manualStay({ town: 'X', from: '2026-11-07', last: '2026-11-06' }, today).error, /before the first/)
+  assert.match(manualStay({ town: 'X', from: '2026-11-09', last: '2026-11-09' }, today).error, /future/)
+  assert.match(manualStay({ town: 'X', from: '2026-10-01', last: '2026-10-02' }, today).error, /last 7 days/)
+  assert.match(manualStay({ town: 'X', from: '2026-11-04', last: '2026-11-12' }, '2026-11-12').error, /a week at most/)
+  assert.ok(manualStay({ town: 'X', from: '2026-11-01', last: '2026-11-08' }, today).stay, 'a full week is fine')
+  assert.deepEqual(Object.keys(ok.stay).sort(), ['cc', 'dismissed', 'from', 'last', 'region', 'town'], 'still no point, no path')
+  // it joins the list, replacing the same trip, and shows as a recap
+  const once = withStay([], ok.stay), twice = withStay(once, { ...ok.stay, last: '2026-11-08' })
+  assert.equal(twice.length, 1)
+  assert.equal(recaps(twice, today).length, 1)
+})
+
