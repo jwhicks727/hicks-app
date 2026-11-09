@@ -44,3 +44,46 @@ test('each of us is asked to rate for a few days after a dinner, until we do', (
   assert.deepEqual(ratingsOwed(cooked, ratings, { id: 'a' }, '2026-10-31').map((c) => c.recipe_id), [1, 3])
   assert.deepEqual(ratingsOwed(cooked, ratings, null, '2026-10-31'), [])
 })
+
+test('hunt & gather: the shopping list loses what is crossed off, and a dish waiting on nothing is done', async () => {
+  const { shoppingList, crossOff, stillToShop, boughtOn } = await import('../src/lib/kitchen/week.js')
+  const dishes = [
+    { id: 'f1', title: 'Miso salmon', groups: [[{ item: 'scallions', amount: '4', unit: '' }, { item: 'fresh ginger', amount: '1', unit: 'Tbsp' }], [{ item: 'white miso', amount: '2', unit: 'Tbsp' }]] },
+    { id: 'f2', title: 'Soba bowls', groups: [[{ item: 'green onions', amount: '1', unit: 'bunch' }], [{ item: 'frozen ginger paste', amount: '1', unit: 'tsp' }]] },
+  ]
+  let got = []
+  let s = shoppingList(dishes, got)
+  assert.deepEqual(s.left, { f1: 3, f2: 2 })
+  assert.equal(s.empty, false)
+  const scallions = s.buy[0].items.find((i) => /scallion/.test(i.name))
+  // Fresh ginger is bought; the frozen paste is checked for: crossing one off never crosses off the other
+  const ginger = s.buy[0].items.find((i) => /ginger/.test(i.name))
+  assert.notEqual(ginger.key, s.check.flatMap((x) => x.items).find((i) => /ginger/.test(i.name)).key)
+
+  got = [...got, ...crossOff(scallions, '2026-11-08')]
+  assert.deepEqual(got.map((g) => g.fridge_id), ['f1', 'f2'], 'one thing crossed off for every dish that needs it')
+  s = shoppingList(dishes, got)
+  assert.ok(!s.buy.flatMap((x) => x.items).some((i) => /scallion/.test(i.name)), 'gone from the list')
+  assert.deepEqual(s.left, { f1: 2, f2: 1 })
+
+  got = [...got, ...crossOff(ginger, '2026-11-08')]
+  const miso = shoppingList(dishes, got).check.flatMap((x) => x.items).find((i) => /miso/.test(i.name))
+  got = [...got, ...crossOff(miso, '2026-11-08')]
+  s = shoppingList(dishes, got)
+  assert.deepEqual(s.done, ['f1'], 'everything for the salmon is got')
+  assert.deepEqual(s.left, { f1: 0, f2: 1 })
+
+  // A dish added later brings back only its own use of something already crossed off
+  const more = [...dishes, { id: 'f3', title: 'Scallion pancakes', groups: [[{ item: 'scallions', amount: '6', unit: '' }]] }]
+  const back = shoppingList(more, got).buy.flatMap((x) => x.items).find((i) => /scallion/.test(i.name))
+  assert.deepEqual(back.uses.map((u) => u.recipe), ['Scallion pancakes'])
+
+  const paste = s.check.flatMap((x) => x.items).find((i) => /ginger/.test(i.name))
+  s = shoppingList(dishes, [...got, ...crossOff(paste, '2026-11-08')])
+  assert.equal(s.empty, true); assert.deepEqual(s.done, ['f1', 'f2'])
+
+  assert.equal(stillToShop({ status: 'waiting', bought_on: null }), true)
+  assert.equal(stillToShop({ status: 'waiting', bought_on: '2026-11-08' }), false)
+  assert.equal(stillToShop({ status: 'cooked', bought_on: null }), false)
+  assert.equal(boughtOn({ added_on: '2026-11-01', bought_on: '2026-11-03' }), '2026-11-03')
+})

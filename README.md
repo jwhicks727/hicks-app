@@ -147,7 +147,9 @@ and added: `docs/ART-CAPTURE.md`.
 - **Food pictures:** the Food Icon Pack by Michael Bollin,
   https://foodiconpack.com, CC BY 4.0 (`public/food/LICENSE.txt`): its
   ingredient drawings, one file each in `public/food/`, with their path data
-  rounded and a fill shape added so the app can colour each one in.
+  rounded and fill shapes added so the app can colour each one in. The
+  shapes are worked out from each drawing's own lines by
+  `scripts/food-fills.py` (no image generator); the drawings are unchanged.
 - **Sun and moon:** worked out on the device with SunCalc (BSD licence);
   the calendar's solstices, equinoxes, moon phases, the moon's distance and
   eclipses follow Jean Meeus, *Astronomical Algorithms* (chapters 27, 47, 49

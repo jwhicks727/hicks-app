@@ -10,6 +10,10 @@ export const ICONS = new Set('achiote_paste acorn_squash active_dry_yeast adobo_
 const FIRST = [
   [/\bgreen onions?\b|\bspring onions?\b/, 'scallion'], [/\bshallots?\b/, 'onion'], [/\bchili crisp\b|\bred pepper flakes\b|\bchile\b|\bchiles\b|\bchilies\b/, 'chili_pepper'],
   [/\b(kosher|flaky|sea) salt\b/, 'salt'], [/\bextra[- ]virgin\b|\bevoo\b/, 'olive_oil'], [/\bmicrowave rice|rice pouch/, 'rice'],
+  // A nut butter is its nut, never butter; butter beans are beans
+  [/\bpeanut butter\b/, 'peanuts'], [/\balmond butter\b/, 'almonds'], [/\bcashew butter\b/, 'cashews'], [/\bbutter beans?\b/, 'great_northern_beans'],
+  [/\bgrape tomato(es)?\b/, 'cherry_tomato'], [/\bpepper jack\b/, 'monterey_jack'], [/\bparm(igiano)?\b/, 'parmesan'], [/\b(coconut|liquid) aminos\b/, 'tamari'],
+  [/\bmahi\b/, 'halibut'], [/\bsalsa\b/, 'tomato'], [/\bsparkling water\b|\bseltzer\b|\bclub soda\b/, 'water'],
 ]
 // When nothing else matched.
 const SYNONYMS = [
@@ -21,7 +25,8 @@ const SYNONYMS = [
 
 /** The icon for an ingredient line's item, or null: the longest name it contains, plurals too. */
 export function iconFor(item) {
-  const t = ' ' + String(item).toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[^a-z\s-]/g, ' ').replace(/-/g, ' ').replace(/\s+/g, ' ') + ' '
+  // Accents go first, so "Gruyère" is gruyere and "jalapeño" is jalapeno, not "gruy re" and "jalape o"
+  const t = ' ' + String(item).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\(.*?\)/g, ' ').replace(/[^a-z\s-]/g, ' ').replace(/-/g, ' ').replace(/\s+/g, ' ') + ' '
   for (const [re, name] of FIRST) if (re.test(t)) return name
   let best = null
   for (const name of ICONS) {
@@ -34,24 +39,72 @@ export function iconFor(item) {
   return null
 }
 
-const FAMILIES = [
-  [/salmon|trout|shrimp|prawns|lobster|crab|crawfish|smoked/, '#F7A386'],
-  [/cod|halibut|tilapia|sea_bass|haddock|pollock|flounder|rockfish|monkfish|swordfish|tuna|mackerel|sardine|anchovy|catfish|whitefish|scallops|squid|octopus|clams|mussels|oysters|yellowtail|snapper|fish|eel|herring|smelt|carp|pike|bluefish/, '#C9DCEB'],
-  [/spinach|kale|arugula|lettuce|bok_choy|collard|basil|parsley|cilantro|dill|chives|mint|tarragon|oregano|thyme|rosemary|sage|marjoram|scallion|leek|celery|cucumber|zucchini|green_beans|snap_peas|snow_peas|broccoli|asparagus|edamame|avocado|lime|okra|brussels|fennel|pesto|shiso|curry_leaf|kaffir|lemongrass|matcha|tomatillo|jalapeno|poblano|cabbage|napa|kohlrabi|artichoke|frisee|endive|nori|wakame|kiwi|pistachio|pea|bay_leaf|cornichons|pickles|capers|wasabi|seaweed|green/, '#A9D48F'],
-  [/carrot|sweet_potato|butternut|pumpkin|acorn|orange|apricot|mango|papaya|cantaloupe|peach|persimmon|turmeric|paprika|cayenne|curry|harissa|gochugaru|achiote|annatto|saffron|habanero|kabocha|yam/, '#F6BC57'],
-  [/tomato|bell_pepper|chili|strawberry|raspberry|beet|radish|red_cabbage|cranberry|pomegranate|watermelon|apple|cherry|gochujang|sriracha|ketchup|red_onion|sambal|chorizo|salami|doubanjiang|adobo|grapefruit|currant|rose|radicchio|red/, '#F08A7A'],
-  [/corn|lemon|banana|egg|pineapple|yellow_squash|butter|mustard|honey|ghee|polenta|cornmeal|yuzu|calamansi|star_fruit|plantain|chickpea|hummus|mango_chutney/, '#F8D25A'],
-  [/eggplant|blueberry|plum|grape|blackberry|fig|elderberry|purple|ube|taro|dragon_fruit|wine_red|balsamic/, '#B9A3D9'],
-  [/milk|cream|yogurt|ricotta|mozzarella|burrata|feta|goat_cheese|paneer|labneh|kefir|mascarpone|cottage|creme|sour_cream|mayonnaise|brie|camembert|halloumi|coconut|tofu|white/, '#F4E9CF'],
-  [/cheddar|gouda|gruyere|parmesan|pecorino|manchego|swiss|fontina|provolone|asiago|comte|emmental|havarti|edam|monterey|muenster|oaxaca|cotija|raclette|taleggio|stilton|gorgonzola|roquefort|blue_cheese/, '#F5D98B'],
-  [/beef|pork|bacon|ham|chicken|turkey|sausage|lamb|duck|veal|venison|goose|rabbit|goat_meat|prosciutto|pancetta|steak|ribs/, '#E8A890'],
-]
+// Each drawing's colour, chosen for it by name and checked by eye against the drawing (scripts/food-fills.py
+// makes the shapes it fills). A colour is decided here once per drawing, never by a word inside its name: that
+// made peanuts green ("pea"), egg whites yellow ("egg") and mascarpone a fish ("carp").
+export const PALETTE = {
+  leaf: '#A9D48F', pale: '#D6E7A6', olive: '#BDBF72', lime: '#C3D96B',
+  orange: '#F6BC57', yolk: '#F7B33B', yellow: '#F8D25A', butter: '#F5D98B', gold: '#EBC066',
+  red: '#F08A7A', hot: '#E2553F', brick: '#C9684A', pink: '#F5B1A6', coral: '#F7A386', magenta: '#E57FAF', wine: '#B65A78',
+  purple: '#B9A3D9', blue: '#93A9DE',
+  white: '#FBF7EE', cream: '#F4E9CF', wheat: '#E6CC9C', nut: '#D5A56E', amber: '#C9802F', brown: '#A6744B', cocoa: '#7C5136',
+  meat: '#E8A890', fish: '#C9DCEB', slate: '#8A96AA', dark: '#666D76', grey: '#C9C3BA', water: '#BFDDF0',
+}
+const COLOURS = {
+  leaf: 'artichoke arugula asparagus avocado basil bay_leaf bok_choy broccoli brussels_sprouts cabbage celery chimichurri chives cilantro collard_greens cucumber curry_leaf dill edamame fava_beans green_beans green_jackfruit jalapeno kaffir_lime_leaf kale lettuce lime marjoram mint nopales okra oregano parsley pesto poblano rosemary sage scallion seaweed_salad_veg shiso snap_peas snow_peas spinach tarragon thyme wakame zucchini gooseberry',
+  pale: 'endive fennel frisee honeydew kohlrabi lemongrass napa_cabbage sauerkraut leek',
+  olive: 'avocado_oil capers cardamom cornichons durian herbes_de_provence jackfruit mung_beans olive_oil pickles pistachios furikake agave',
+  lime: 'pear tomatillo wasabi calamansi kiwi guava',
+  orange: 'acorn_squash apricot butternut_squash cantaloupe carrot habanero mango mango_chutney orange papaya persimmon pumpkin sweet_potato turmeric turmeric_root',
+  yolk: 'egg_yolk',
+  yellow: 'baby_corn banana corn cornmeal dijon_mustard lemon mustard pineapple plantain polenta star_fruit yellow_squash yuzu',
+  butter: 'asiago butter cheddar comte edam emmental fontina gouda gruyere havarti manchego margarine monterey_jack muenster parmesan pecorino provolone raclette swiss_cheese taleggio wine_white',
+  gold: 'apple_cider_vinegar beer canola_oil chicken_broth curry_powder fish_stock ghee grapeseed_oil honey mirin peanut_oil schmaltz sunflower_oil truffle_oil vegetable_oil vegetable_stock walnut_oil vermouth',
+  red: 'berries achiote_paste ajvar annatto_seeds apple bell_pepper cherry cherry_tomato chili_pepper cranberry cranberry_sauce currant kimchi lychee pomegranate radish rambutan raspberry salami strawberry sweet_chili_sauce tomato tomato_chutney tomato_juice watermelon',
+  hot: 'cayenne gochugaru hot_sauce ketchup sambal_oelek sriracha',
+  brick: 'chorizo adobo_sauce bbq_sauce chili_powder curry_paste_massaman doubanjiang gochujang harissa paprika saffron',
+  pink: 'ground_pork ham octopus pancetta pork prosciutto rabbit rose_water veal scallops',
+  coral: 'crab crawfish grapefruit lobster peach prawns salmon shrimp trout',
+  magenta: 'dragon_fruit',
+  wine: 'adzuki_beans banana_blossom beet kidney_beans radicchio red_onion red_wine_vinegar sumac wine_red',
+  purple: 'blackberry eggplant elderberry fig grape mangosteen passion_fruit plum red_cabbage',
+  blue: 'blueberry',
+  white: 'agar arborio_rice baking_powder baking_soda basmati_rice bread_flour burrata cake_flour coconut_cream coconut_flour coconut_milk coconut_oil cornstarch cotija cottage_cheese cream cream_cheese creme_fraiche egg_white enoki feta flour garlic gelatin goat_cheese greek_yogurt heavy_cream hominy jasmine_rice kefir labneh lard mascarpone milk mozzarella oaxaca_cheese paneer_indian pastry_flour powdered_sugar rice rice_noodles ricotta salt sour_cream sugar tapioca tofu udon yogurt daikon cauliflower',
+  cream: 'blue_cheese brie buttermilk camembert cannellini_beans corn_syrup eggs gorgonzola great_northern_beans halloumi hearts_of_palm horseradish_sauce mayonnaise rice_wine_vinegar roquefort sake soy_milk squid stilton water_chestnuts white_wine_vinegar coconut turnip',
+  wheat: 'active_dry_yeast almond_flour amaranth amchur applesauce asafoetida bamboo_shoots barley black_eyed_peas brown_rice buckwheat bulgur cashews celeriac chickpeas couscous dashi_powder farro fenugreek_seed galangal ginger hemp_seeds horseradish hummus instant_yeast jicama lasagna_sheet macadamia millet miso onion onion_powder oyster_mushroom panko parsnip pasta pine_nuts plantain_flour potato quinoa ramen_noodles sesame_seeds tahini teff tempeh white_pepper whole_wheat_flour pumpkin_seeds',
+  nut: 'almonds brazil_nuts brown_sugar cassava coriander_seed cumin_seed hazelnuts lentils malanga morel mushroom peanuts pecans pickling_spice pinto_beans soba walnuts yuca bonito',
+  amber: 'fish_sauce maple_syrup sesame_oil sherry_vinegar tea',
+  brown: 'allspice balsamic_vinegar beef_broth caraway cinnamon date flax_seeds garam_masala hoisin nutmeg oyster_sauce shiitake star_anise tamarind_paste teriyaki vanilla_extract worcestershire',
+  cocoa: 'chocolate_chips cloves_spice cocoa_powder coffee espresso molasses soy_sauce tamari truffle vanilla_bean wild_rice',
+  meat: 'bacon beef beef_ribs chicken duck goat_meat goose ground_beef ground_lamb lamb pork_ribs sausage steak_beef turkey venison',
+  fish: 'anchovy bluefish carp catfish clams cod eel flounder haddock halibut herring mackerel monkfish pike pollock rockfish sardine sea_bass smelt swordfish tilapia tuna whitefish yellowtail',
+  slate: 'mussels poppy_seed',
+  dark: 'black_beans black_pepper black_vinegar chia_seeds kombu nigella_seed nori tapenade',
+  grey: 'dutch_oven oysters sheet_pan skillet slow_cooker smoked_salt wok stevia',
+  water: 'water',
+  // (each name is in exactly one list: tests/food-icons.test.mjs)
+}
+const COLOUR_OF = new Map(Object.entries(COLOURS).flatMap(([c, names]) => names.split(' ').map((n) => [n, c])))
 /** The colour that fills an ingredient's drawing. */
 export function colourFor(name) {
-  if (!name) return '#EBD9B4'
-  for (const [re, c] of FAMILIES) if (re.test(name)) return c
-  return '#E6CC9C' // grains, beans, nuts, sauces, spices: warm wheat
+  if (!name) return PALETTE.wheat
+  return PALETTE[COLOUR_OF.get(name)] || PALETTE.wheat
 }
+// Drawings with stems, leaves or a husk of another colour: their `#fill2` (the points that pick those regions
+// are in scripts/food-fills.json), and the colour it takes.
+export const SECOND = {
+  ...Object.fromEntries([
+    'acorn_squash apple apricot beet bell_pepper berries blackberry blueberry carrot cayenne celeriac',
+    'cherry cherry_tomato chili_pepper corn cranberry currant daikon eggplant elderberry grape',
+    'grapefruit habanero kohlrabi leek mango mangosteen orange parsnip peach pear persimmon pineapple',
+    'plum pumpkin radish raspberry strawberry tomato turnip watermelon',
+  ].join(' ').split(' ').map((n) => [n, 'leaf'])),
+  avocado: 'nut', guava: 'pink', // a pit, and the inside of a slice
+}
+/** The colour of a drawing's stems or leaves, or null when it has one colour. */
+export const secondFor = (name) => (SECOND[name] ? PALETTE[SECOND[name]] : null)
+/** Which palette colour a drawing is filled with, by name (for the tests). */
+export const colourNameFor = (name) => COLOUR_OF.get(name) || null
 
 // How long fresh things keep in our fridge, and how to tell: [match, days, what, how to tell].
 export const KEEPS = [
@@ -88,7 +141,7 @@ const TITLE_WORDS = [
 ]
 /** Up to three pictures for the words of a dish's name, in the order they are said; fewer (or none) rather than a wrong one. */
 export function artFromTitle(title) {
-  let t = ' ' + String(title || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ') + ' '
+  let t = ' ' + String(title || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ') + ' '
   const found = []
   const take = (name, start, end) => { if (ICONS.has(name)) found.push({ name, start, end }); t = t.slice(0, start) + ' '.repeat(end - start) + t.slice(end) }
   for (const [re, name] of TITLE_PHRASES) { const m = re.exec(t); if (m) take(name, m.index, m.index + m[0].length) } // "peanut butter" is not butter

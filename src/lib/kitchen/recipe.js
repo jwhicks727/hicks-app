@@ -58,6 +58,60 @@ export function inline(s) {
   return out
 }
 
+// Words that never stand for an ingredient on their own: how it is cut or kept, its colour, its container.
+const NOT_ALONE = new Set('fresh large small medium big baby whole chopped sliced minced diced grated shredded crushed ground thinly finely roughly peeled cooked raw organic boneless skinless skin on about plus more extra for the a an of to and or with without into divided optional packed loosely firmly heaping level red green white yellow black brown golden dark light hot sweet dry dried frozen canned jarred creamy crunchy crispy smooth plain unsalted salted low sodium reduced fat free full super firm soft extra-firm sauce oil juice zest paste powder leaves leaf seeds seed flakes fillets fillet pieces piece cubes mix blend cup cups can cans jar bag box bunch head heads stalks sprigs cloves clove sheets slices tbsp tsp oz lb liquid carton pouch store bought trader joe’s joe\'s jason’s laurie’s anna’s plate add-on side kosher flaky sea cherry grape plum roma yukon gold italian thai japanese mexican greek english persian pure'.split(' '))
+const STRIP = /\b(fresh|large|small|medium|chopped|sliced|minced|diced|grated|shredded|crushed|thinly|finely|roughly|peeled|cooked|raw|organic|boneless|skinless|skin[- ]on|divided|optional|about|plus more|store[- ]bought|packed)\b/g
+const lastWord = (w) => {
+  if (/ss$/.test(w) || w.length < 4) return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:es)?'
+  const one = w.replace(/(oes|ches|shes|xes)$/, (m) => m.slice(0, -2)).replace(/ies$/, 'y').replace(/s$/, '')
+  return one.endsWith('y') ? one.slice(0, -1) + '(?:y|ies)' : one + '(?:s|es)?'
+}
+/** The ways a recipe's ingredients are named in its steps: "salmon fillets, skin on" is "salmon fillets", "salmon", "fillets"… Longest first. */
+export function ingredientNames(groups) {
+  const out = new Set()
+  for (const g of groups || []) for (const ing of g) {
+    const t = String(ing.item || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\(.*?\)/g, ' ').replace(/,.*$/, '').replace(STRIP, ' ').replace(/[^a-z’'\s-]/g, ' ').replace(/\s+/g, ' ').trim()
+    const words = t.split(' ').filter(Boolean).slice(0, 6)
+    for (let i = 0; i < words.length; i++) for (let j = i + 1; j <= words.length; j++) {
+      const ws = words.slice(i, j)
+      if (ws.length === 1 && (NOT_ALONE.has(ws[0]) || ws[0].length < 3)) continue
+      const edge = /^(and|or|of|with|for|the|a|an|to|plus|cups?|tbsp|tsp|oz|lbs?|cans?|jars?|bags?|bunch|heads?|stalks?|sprigs?|cloves?|pieces?|slices?)$/
+      if (edge.test(ws[0]) || edge.test(ws[ws.length - 1])) continue
+      out.add(ws.join(' '))
+    }
+  }
+  return [...out].sort((a, b) => b.length - a.length)
+}
+
+const MEASURE = new RegExp(`(?<![\\w.])(?:${AMOUNT})\\s*(?:oz|ounces?|lbs?|pounds?|cups?|tbsp|tablespoons?|tsp|teaspoons?|g|grams?|ml|cloves?|sprigs?|pinch(?:es)?|cans?)\\b\\.?`, 'gi')
+/**
+ * A step's words with what to look for picked out, for cook mode: its **bold** amounts as the recipe
+ * wrote them, any amount it left plain ("2 Tbsp"), and every ingredient it names, matched against the
+ * recipe's own ingredient list. [{ text, bold?, italic?, ingredient?, amount? }], never HTML.
+ */
+export function stepParts(text, groups) {
+  const names = ingredientNames(groups)
+  const ing = names.length ? new RegExp(`(?<![\\p{L}’'-])(?:${names.map((n) => { const ws = n.split(' '); return [...ws.slice(0, -1).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), lastWord(ws[ws.length - 1])].join('\\s+') }).join('|')})(?![\\p{L}’'])`, 'giu') : null
+  const out = []
+  for (const part of inline(String(text || ''))) {
+    if (part.bold) { out.push(part); continue }
+    // Plain words: amounts first, then the ingredients they name ("Gruyère" read as "gruyere", letter for letter)
+    const marks = []
+    const plain = part.text.replace(/[\u00C0-\u024F]/g, (c) => c.normalize('NFD')[0])
+    for (const m of plain.matchAll(MEASURE)) marks.push({ at: m.index, end: m.index + m[0].length, amount: true })
+    if (ing) for (const m of plain.matchAll(ing)) if (!marks.some((x) => m.index < x.end && m.index + m[0].length > x.at)) marks.push({ at: m.index, end: m.index + m[0].length, ingredient: true })
+    marks.sort((a, b) => a.at - b.at)
+    let at = 0
+    for (const x of marks) {
+      if (x.at > at) out.push({ ...(part.italic ? { italic: true } : {}), text: part.text.slice(at, x.at) })
+      out.push({ text: part.text.slice(x.at, x.end), ...(x.amount ? { amount: true } : { ingredient: true }) })
+      at = x.end
+    }
+    if (at < part.text.length) out.push({ ...(part.italic ? { italic: true } : {}), text: part.text.slice(at) })
+  }
+  return out
+}
+
 const STEP = /^\*\*\s*(\d+)\.\s*(?:\(([^)]*)\))?\s*\*\*\s*(.*)$/
 const STEP_LOOSE = /^(\d+)\.\s+(?:\(([^)]*)\)\s*)?(.*)$/
 

@@ -70,6 +70,14 @@ and write the code fresh. SOAR's code belongs to the school.
 - No invented data in the real app: no stand-in numbers. If the real source
   isn't connected yet, the part says what's coming instead.
 
+## The Kitchen's shopping
+
+- A dish added to the week is still to shop for (the **Hunt & gather** card,
+  `fridge.bought_on` empty) until everything it needs is crossed off, or
+  someone moves it into the fridge. What is crossed off is kept in the
+  database (`fridge_got`), never on a device, so every phone sees the same
+  list and a shop is never forgotten (decisions log, 2026-11-08).
+
 ## The morning and evening lists
 
 - **A list's words are its keeper's** (Early Bird and Night Owl, `src/places/lists/`):
@@ -202,6 +210,12 @@ licence nobody wrote down.
   AI-made art, the home-screen icon included: it's the letter H set in
   Agbalumo (decisions log, 2026-11-01). Laurie's paintings replace photos
   wherever she has painted the thing.
+- **Food pictures** (`public/food/`, the Food Icon Pack): the line drawing
+  is never changed; the colour under it is a shape `scripts/food-fills.py`
+  works out from the ink, and each drawing's colour is chosen by name in
+  `COLOURS` (`src/lib/kitchen/food.js`), never from a word inside the name
+  ("peanuts" is not green because it holds "pea"). A new drawing gets a
+  colour there and its shapes from the script (`tests/food-icons.test.mjs`).
 - **Our own things (crucifixes, statues) are illustrated from their own
   photos** by `scripts/lift-art.py illustrate`, never by an image
   generator (docs/CHURCH-ART.md).

@@ -271,7 +271,8 @@ sign-in link won't come back to the app.
 | `recipes` | Jason's recipe files, less Laurie's plate; their three pictures | The family | Parents |
 | `recipe_private` | Each recipe's "Laurie's plate" (protein, what was kept off) | Parents only | Parents |
 | `recipe_ratings` | Our 1–5 ratings, one each per recipe | The family | Each of us, our own only (`my_member_id()`) |
-| `fridge` | The recipes bought for this week, until cooked | The family | Parents |
+| `fridge` | The recipes picked for this week, until cooked; `bought_on` empty while a dish is still to shop for (the Kitchen's Hunt & gather card), set when it goes into the fridge | The family | Parents |
+| `fridge_got` | What has been crossed off a dish's shopping list while it is still to shop for: the dish's fridge row and the list's own key for the thing ("buy/ginger") | The family | Parents add and remove |
 | `ai_usage` | Each call to Claude: who, which task, which model, tokens and cost | Parents all; each of us our own | Only `ai_record()`, from the `claude` function |
 | `ai_consents` | Once: each owner's yes or no to sending something of theirs to Claude (Laurie's food rules). No longer read since 2026-11-01; kept as history | Parents, and each of us our own | Each of us, our own only |
 | `food_rules` | Laurie's food rules, every version kept, dated, with what changed | Parents only | Parents add a new version; nobody edits one |
@@ -346,6 +347,7 @@ Migration index:
 | `20261102120000_birds_more_cache` | `outside_cache` also takes the key `birds-more` (hotspots, county numbers, this month's possibles) |
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
+| `20261108170000_still_to_shop` | `fridge.bought_on` (empty while a dish is still to shop for; everything already in the fridge counts as bought the day it was added) and `fridge_got` (what has been crossed off a dish's shopping list; the family reads, the parents change). Additive. |
 | `20261108200000_gallery_shapes_months_features` | `paintings.month`, `shape`, `palette`, `print` and `looks`, `annas_drawings.print`, and `gallery_features` (the featured walls, written only by the `claude` function; the family reads, a parent takes one down). Additive. |
 | `20261108150000_drawing_inbox` | `drawing_inbox` (a batch of Anna's drawings waiting to be added, so it can be sent from one device and finished on another; whoever sent a photo and the parents see and change it); `annas_drawings.original` and `crop` (a drawing keeps its original photo and its crop, so it can be cropped again); and a policy so a parent can add a drawing for Anna from a set she sent. Additive. |
 | `20261105040000_annas_gallery` | Anna's Gallery (now Anna's Art): `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |

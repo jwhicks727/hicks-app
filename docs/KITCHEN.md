@@ -76,28 +76,61 @@ exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
   then the closing sections, Why it works set apart.
 - **The cook check** lists the fresh things most likely to have turned,
   fastest first, from how long each keeps and how many days the recipe has
-  been in the fridge, with how to tell (`KEEPS` in
+  been in the fridge (since it was shopped for), with how to tell (`KEEPS` in
   `src/lib/kitchen/food.js`). "Good" or "Gone" for each; a gone one says to
   swap it or pick more up.
 - **Cook mode** (`…/cook`): one step at a time in big type, its timer a tap
   away, the ingredients a tap away, the screen kept awake; swipe or the big
   buttons to move; Back leaves it. It ends on the plating and the three
-  plates.
+  plates. In each step the amounts **and the ingredients it names** are
+  picked out in the same bold colour, matched against the recipe's own
+  ingredient list (`stepParts` in `src/lib/kitchen/recipe.js`): "whisk **3
+  Tbsp** **peanut butter** with the **hoisin sauce**". The recipe page's
+  steps do the same.
 - **Timers** are kept on the device as their end times, so one started
   before the phone closed the app is still right; each chimes and buzzes
   once.
-- **Home** shows what's still in the fridge, only while something is.
+- **Home** shows what's still in the fridge, and how many dishes are still
+  to shop for, only while there are some.
+- **Food pictures.** Each ingredient's drawing (the Food Icon Pack's line
+  drawing, never changed) has its colour underneath, filling the whole
+  drawing: `scripts/food-fills.py` works the shapes out from the ink, closing
+  the small gaps where a line stops short of another, so a lime, a cilantro
+  sprig or a head of lettuce is coloured all over, while thin stems stay
+  ink. Every drawing's colour is chosen for it by name in
+  `src/lib/kitchen/food.js` (`COLOURS`, from one small palette), never from
+  a word inside its name. Forty-odd fruits and vegetables have their stems,
+  leaves or husk in green (`SECOND`, with the points that pick those regions
+  in `scripts/food-fills.json`); the avocado's pit is brown. Accents are read
+  ("Gruyère"), and a nut butter is its nut. To change a colour, move the name
+  to another list in `COLOURS`; to change a shape, adjust
+  `scripts/food-fills.json` and run the script (`--show DIR` draws each
+  drawing's regions, numbered). `tests/food-icons.test.mjs` checks them.
 - **Keepers and unicorns.** A recipe everyone who rated it gave 4 or 5 (two
   of us at least) is a keeper; all three of us giving it 5 is a unicorn,
   celebrated with its own light and badge, and again the moment the third 5
   lands. Both come back on "Make it again" once they haven't been cooked in
   three weeks, unicorns first (`src/lib/kitchen/week.js`).
-- **This week's two lists, not a grocery list.** Jason writes his own. Once
-  the week's dishes are picked ("Add to this week"), the Kitchen gives
-  **Probably buy** (produce and herbs, protein, fresh dairy and bread: what the
-  dishes can't do without) and **Check the pantry** (fridge staples like
-  miso, Parmesan and chili crisp; the freezer; the shelves), each line saying
-  which dish needs how much. Ticks stay on the device for the week.
+- **Hunt & gather, then the fridge.** "Add to this week" (on a recipe, or
+  "And add them to this week" when saving the planner's recipes) puts a dish
+  on the **Hunt & gather** card first: picked, still to shop for. Its likely
+  shopping list is there with it, worked out from the ingredients of those
+  dishes only: **Probably buy** (produce and herbs, protein, fresh dairy and
+  bread) and **Check the pantry** (fridge staples like miso, Parmesan and
+  chili crisp; the freezer; the shelves), each line saying which dish needs
+  how much.
+  - Crossing a thing off takes it off the list at once, with an Undo. Once a
+    dish has everything, it moves into the fridge by itself; when the list is
+    empty the card goes with a poof, and nothing asks again.
+  - "Into the fridge" on a dish moves just that one; "Done shopping" moves
+    them all, crossed off or not; on the recipe page a dish still to shop
+    for has "Shopped: into the fridge" and "Not this week".
+  - It is all kept in the database (`fridge.bought_on`, `fridge_got`), so
+    every phone sees the same list and nothing is remembered on a device.
+    A dish added later brings back only its own share of something already
+    crossed off. Only Jason and Laurie cross things off; Anna sees the list.
+  - "Bought 3 days ago" and the cook check count from the day a dish went
+    into the fridge, not the day it was picked.
 - **Rating, after.** For four days after a dinner is cooked, each of us is
   asked "How was it?" on Home and in the Kitchen, with stars to tap, until
   we've rated it or said "Not now".
