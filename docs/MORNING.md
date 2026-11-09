@@ -297,3 +297,8 @@ New since the first sitting. Each part works on its own; skip any for now.
     example 2024-01-01) to fill it in, up to 400 days a run. It never signs in to
     eBird. **Unverified against live eBird** until that run; checklists at private
     places may not be in the public feed (then use the file in step 12).
+14. **Pictures in Cloudflare R2** (when Supabase's 1 GB of storage runs short; the
+    app works on Supabase's storage until then). A free Cloudflare account, a
+    private bucket `hicks-media`, an R2 token for that bucket, three secrets on the
+    `media` function, deploy it, then Admin › Where pictures are kept copies
+    everything over and frees the space: `docs/R2-SETUP.md`, step by step.

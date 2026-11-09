@@ -3,6 +3,7 @@ import { Link, Crumb } from '../../shell/Link.jsx'
 import { Card } from '../../ui/Card.jsx'
 import { Toast } from '../../ui/Toast.jsx'
 import { supabase } from '../../lib/supabase.js'
+import { media } from '../../lib/media.js'
 import { useSession } from '../../lib/auth.js'
 import { useFamily, useEvents } from '../../lib/useCalendar.js'
 import { useWeather } from '../../lib/useWeather.js'
@@ -242,7 +243,7 @@ function MoveIn({ have, onDone }) {
       const local = { src: p.src, small: p.small, sprite: p.flyer && p.flyer.sprite, sky: p.flyer && p.flyer.sky, sheet: p.leaves && p.leaves.sheet }
       for (const [k, path] of Object.entries(paths)) {
         const blob = await (await fetch(local[k])).blob()
-        const { error } = await supabase.storage.from('paintings').upload(path, blob, { contentType: blob.type, upsert: true })
+        const { error } = await media.from('paintings').upload(path, blob, { contentType: blob.type, upsert: true })
         if (error) { setBusy(`${p.title}: ${error.message}`); return }
       }
       const { error } = await supabase.from('paintings').upsert(row, { onConflict: 'slug' })

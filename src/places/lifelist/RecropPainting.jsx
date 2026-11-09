@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Cropper from './Cropper.jsx'
 import { supabase } from '../../lib/supabase.js'
+import { media } from '../../lib/media.js'
 import { FILES } from '../../lib/paintings.js'
 import { fitInside, wholeCrop } from '../../lib/paintingBatch.js'
 import { cleanShape } from '../../lib/shapes.js'
@@ -42,7 +43,7 @@ export default function RecropPainting({ painting: p, onDone, onCancel }) {
     try {
       const f = await paintingFiles(st.blob, st.crop)
       for (const [name, blob] of [[FILES.src, f.full], [FILES.small, f.small]]) {
-        const { error } = await supabase.storage.from('paintings').upload(`${p.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
+        const { error } = await media.from('paintings').upload(`${p.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
         if (error) throw error
       }
       const { error } = await writePainting((row) => supabase.from('paintings').update(row).eq('slug', p.slug), { w: f.w, h: f.h, crop: { ...st.crop, W: st.W, H: st.H }, shape: cleanShape(st.shape), palette: f.palette, print: f.print })

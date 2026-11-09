@@ -12,6 +12,7 @@
 // The pure parts (what a row holds, how two copies merge) are in
 // src/lib/paintingBatch.js, where `npm test` can run them.
 import { supabase } from './supabase.js'
+import { media } from './media.js'
 import { inboxData, inboxPath } from './paintingBatch.js'
 
 export const INBOX_NAMES = ['kept', 'view', 'thumb']
@@ -37,7 +38,7 @@ export function makeInbox({ table, bucket, upsert = true, keys, columns = 'id, d
     if (mine) return mine.url
     const path = inboxPath(id, name), hit = signed.get(path)
     if (hit && hit.until > Date.now()) return hit.url
-    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 3600)
+    const { data, error } = await media.from(bucket).createSignedUrl(path, 3600)
     if (error || !data || !data.signedUrl) throw new Error((error && error.message) || 'That picture couldn’t be found in the family’s storage.')
     signed.set(path, { url: data.signedUrl, until: Date.now() + 50 * 60 * 1000 })
     return data.signedUrl
@@ -46,14 +47,14 @@ export function makeInbox({ table, bucket, upsert = true, keys, columns = 'id, d
   /** One of a photo's pictures, as a blob (the kept copy, to crop or to read). */
   async function inboxBlob(id, name = 'kept') {
     if (here.has(`${id}:${name}`)) return here.get(`${id}:${name}`).blob
-    const { data, error } = await supabase.storage.from(bucket).download(inboxPath(id, name))
+    const { data, error } = await media.from(bucket).download(inboxPath(id, name))
     if (error || !data) throw new Error('The photo isn’t in the family’s storage any more.')
     return data
   }
 
   /** Sends one of a photo's pictures up. */
   async function putInboxFile(id, name, blob) {
-    const res = await supabase.storage.from(bucket).upload(inboxPath(id, name), blob, { contentType: 'image/jpeg', upsert })
+    const res = await media.from(bucket).upload(inboxPath(id, name), blob, { contentType: 'image/jpeg', upsert })
     if (res.error && !upsert && (String(res.error.statusCode) === '409' || /already exists|duplicate/i.test(res.error.message || ''))) return { error: null }
     return res
   }
@@ -61,7 +62,7 @@ export function makeInbox({ table, bucket, upsert = true, keys, columns = 'id, d
   /** Takes pictures away: all three of each photo by default. */
   async function dropInboxFiles(ids, names = INBOX_NAMES) {
     const paths = ids.flatMap((id) => names.map((n) => inboxPath(id, n)))
-    if (paths.length) await supabase.storage.from(bucket).remove(paths)
+    if (paths.length) await media.from(bucket).remove(paths)
     paths.forEach((p) => signed.delete(p))
   }
 

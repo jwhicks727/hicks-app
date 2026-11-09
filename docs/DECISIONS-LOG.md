@@ -6,6 +6,52 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-09 — The family's pictures move to Cloudflare R2
+
+Jason, about to photograph a hundred more of Laurie's paintings: is Supabase's storage
+enough, and could pictures live somewhere else, a Drive folder or another fast, cheap
+service with an API? Supabase's free plan holds 1 GB of files, and her paintings alone,
+each with a full copy, a small one and the original photo, would fill it within a few
+hundred. Weighed (prices as of mid-2026, from memory, not checked that day):
+
+- **Supabase Pro** ($25 a month, 100 GB): no new service, but a monthly bill for the
+  whole project to pay for pictures.
+- **Google Drive**: free space, but Drive isn't built to serve pictures to an app. Its
+  links are slow, rate-limited and tied to one person's Google account, and keeping
+  pictures private there would mean a second sign-in or a service account.
+- **Cloudflare R2**: S3's way of working, 10 GB free, then about $0.015 a GB a month,
+  and no charge for viewing. Chosen ("r2 just sounds good. Build it.").
+
+Decided:
+
+- **One private bucket, `hicks-media`**, the old bucket names as its folders. Nothing
+  in it is public: no public address, no `r2.dev` link.
+- **The `media` Edge Function is the door.** It checks the caller is family (or a
+  parent, where the area says so), keeps each old bucket's rules, types and sizes
+  (`_shared/media.js`, tested against the migrations), and hands back short-lived
+  signed links; the picture then goes straight between the phone and R2, so no picture
+  passes through the function. The signing is plain WebCrypto, checked against
+  Amazon's published example, so the function needs no S3 library.
+- **R2's keys live only in the function's secrets.** The app holds none
+  (`tests/media.test.mjs` checks no file in `src/` knows them or R2's address).
+- **Every screen goes through `src/lib/media.js`**, the same shape as Supabase's storage
+  client, so no screen changed how it reads or saves a picture. Only the Admin move reads
+  Supabase's storage directly.
+- **The move can't lose anything.** Until R2 is set up the app uses Supabase's storage as
+  before; once it is, new pictures go to R2 and the function shows any picture not yet
+  copied from Supabase. Admin › Where pictures are kept copies what's missing, checks each
+  copy is there and the same size, and frees Supabase's space only after looking again,
+  taking out only the copies R2 holds. `MEDIA_FALLBACK=off` once it's empty.
+- **A drawing remembers who added it** (their family member id, `x-amz-meta-owner`,
+  signed into its upload link), so it can still come down only by them or a parent. The
+  move keeps that too: it reads who added each drawing from `annas_drawings` and
+  `drawing_inbox`, and only a parent's upload may name someone else; a stray file nobody's
+  row mentions is marked as the mover's.
+- No migration: the tables keep their paths, which are now keys in R2. The Supabase
+  buckets and policies stay, empty, as the way back (delete the three R2 secrets).
+
+---
+
 ## 2026-11-08 — Laurie's gallery finds, rotates and frames any shape; the crop tool holds still; Anna's Art
 
 Jason, with a good library of her paintings in: the add button and "photos waiting" belong at the top;

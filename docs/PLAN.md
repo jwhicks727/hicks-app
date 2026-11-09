@@ -97,6 +97,12 @@ Built in this order, each part in daily use before the next.
 - [x] Everything behind sign-in: a sign-in screen (email and password, with
       an emailed link or code as the backup) is all there is until the
       address is on the family list. Passwords are set in Settings.
+- [x] Every picture (paintings, drawings, trip, garden and academy photos) in one
+      private Cloudflare R2 bucket, through short-lived links the `media` function
+      signs, with the old buckets' rules; Admin › Where pictures are kept copies what's
+      in Supabase over, checks each copy and frees the space (2026-11-09).
+- [ ] Set up R2 and move the pictures (Jason: `docs/R2-SETUP.md`). The app uses
+      Supabase's storage until then.
 - [x] Settings (text size, motion), Admin (calendar
       sources: paste, edit, mark checked, staleness) and Reports (calendar
       sources), all following `src/registry.js`. Home shows the rollover

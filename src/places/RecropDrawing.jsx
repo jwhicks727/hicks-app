@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Cropper from './lifelist/Cropper.jsx'
 import { supabase } from '../lib/supabase.js'
+import { media } from '../lib/media.js'
 import { drawingFiles } from '../lib/drawings.js'
 import { DRAWING_KEPT, DRAWING_SAVED } from '../lib/drawingBatch.js'
 import { fitInside, wholeCrop } from '../lib/paintingBatch.js'
@@ -18,7 +19,7 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
     let live = true, made = null
     ;(async () => {
       try {
-        const { data, error } = await supabase.storage.from('drawings').createSignedUrl(drawingFiles(d.id).original, 600)
+        const { data, error } = await media.from('drawings').createSignedUrl(drawingFiles(d.id).original, 600)
         if (error || !data) throw new Error('Its original photo isn’t in the family’s storage, so it can’t be cropped again.')
         const res = await fetch(data.signedUrl)
         if (!res.ok) throw new Error('Its original photo couldn’t be loaded just now. Try again.')
@@ -43,7 +44,7 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
     try {
       const f = await paintingFiles(st.blob, st.crop, DRAWING_SAVED)
       for (const [path, blob] of [[names.path, f.full], [names.thumb, f.small]]) {
-        const { error } = await supabase.storage.from('drawings').upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+        const { error } = await media.from('drawings').upload(path, blob, { contentType: 'image/jpeg', upsert: false })
         if (error) throw error
         added.push(path)
       }
@@ -52,11 +53,11 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
       if (error && missingColumn(error)) { const { print: _p, ...plain } = row; ({ error } = await supabase.from('annas_drawings').update(plain).eq('id', d.id)) }
       if (error) throw error
       // The old two go (if this person may remove them; if not they're only left behind, never shown)
-      await supabase.storage.from('drawings').remove(old.filter((p) => !added.includes(p))).catch(() => {})
+      await media.from('drawings').remove(old.filter((p) => !added.includes(p))).catch(() => {})
       setBusy(null)
       onDone()
     } catch (e) {
-      if (added.length) await supabase.storage.from('drawings').remove(added).catch(() => {})
+      if (added.length) await media.from('drawings').remove(added).catch(() => {})
       setBusy((e && e.message) || 'It couldn’t be saved. Try again.')
     }
   }

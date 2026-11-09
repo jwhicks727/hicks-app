@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
+import { media } from '../../lib/media.js'
 import { cleanTitle, cleanYear, cleanMedium, cleanSeasons, cleanMonth, MONTHS } from '../../lib/paintingBatch.js'
 import { SHAPES, cleanShape } from '../../lib/shapes.js'
 import { cleanLooks, MOODS, STYLES, WEATHERS } from '../../lib/gallery.js'
@@ -63,7 +64,7 @@ export default function PaintingEdit({ painting: p, onSaved }) {
   async function remove() {
     setBusy(true); setErr(null)
     const paths = Object.values(storedPaths(p.slug, p))
-    const { error: fe } = await supabase.storage.from('paintings').remove(paths)
+    const { error: fe } = await media.from('paintings').remove(paths)
     if (fe) { setBusy(false); setGone(false); setErr(fe.message); return }
     const { error } = await supabase.from('paintings').delete().eq('slug', p.slug)
     setBusy(false)

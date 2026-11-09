@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDraft } from '../../lib/useDraft.js'
 import { askClaude } from '../../lib/claude.js'
 import { supabase } from '../../lib/supabase.js'
+import { media } from '../../lib/media.js'
 import { todayAtHome } from '../../lib/useSources.js'
 import { findPainting } from '../../lib/autocrop.js'
 import {
@@ -275,7 +276,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
       const f = await oneAtATime(() => paintingFiles(kept, it.crop))
       // The original (the kept copy, 3600 px at most) goes up too, so the painting can be re-cropped from her gallery later
       for (const [name, blob] of [[FILES.src, f.full], [FILES.small, f.small], [FILES.original, kept]]) {
-        const { error } = await supabase.storage.from('paintings').upload(`${it.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
+        const { error } = await media.from('paintings').upload(`${it.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
         if (error) throw error
       }
       const year = cleanYear(it.year, thisYear).year ?? null
@@ -294,7 +295,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
         const { error, old: o } = await writePainting((row) => supabase.from('paintings').update(row).eq('slug', it.slug), { ...measured, ...fill })
         if (error) throw error
         if (o) setOldDb(true)
-        if (old.leaves) await supabase.storage.from('paintings').remove([`${it.slug}/${FILES.sheet}`]).catch(() => {})
+        if (old.leaves) await media.from('paintings').remove([`${it.slug}/${FILES.sheet}`]).catch(() => {})
         return
       }
       // Upsert: the slug was free when it was chosen, so a second go after an interruption only meets its own row

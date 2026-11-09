@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
+import { media } from './media.js'
 import { fetchAll } from './useCalendar.js'
 import { clampSpot } from './garden.js'
 
@@ -48,13 +49,13 @@ export const unlog = (id) => supabase.from('garden_log').delete().eq('id', id)
 /** A photo for a spot: the picture and a 400px thumbnail into the bucket, then its row. */
 export async function addPhoto({ spotId, full, thumb, takenOn, me }) {
   const id = crypto.randomUUID(), path = `${spotId}/${id}.jpg`, thumbPath = `${spotId}/${id}.thumb.jpg`
-  const up1 = await supabase.storage.from('garden').upload(path, full, { contentType: 'image/jpeg', upsert: false })
+  const up1 = await media.from('garden').upload(path, full, { contentType: 'image/jpeg', upsert: false })
   if (up1.error) return { error: up1.error }
-  const up2 = await supabase.storage.from('garden').upload(thumbPath, thumb, { contentType: 'image/jpeg', upsert: false })
+  const up2 = await media.from('garden').upload(thumbPath, thumb, { contentType: 'image/jpeg', upsert: false })
   return supabase.from('garden_photos').insert({ spot_id: spotId, path, thumb_path: up2.error ? null : thumbPath, taken_on: takenOn, created_by: me ? me.id : null }).select().single()
 }
 export async function removePhoto(photo) {
-  await supabase.storage.from('garden').remove([photo.path, photo.thumb_path].filter(Boolean))
+  await media.from('garden').remove([photo.path, photo.thumb_path].filter(Boolean))
   return supabase.from('garden_photos').delete().eq('id', photo.id)
 }
 export const saveAnalysis = (id, analysis) => supabase.from('garden_photos').update({ analysis, analysed_at: new Date().toISOString() }).eq('id', id)
@@ -71,7 +72,7 @@ export function useSignedUrls(paths) {
     for (const p of want) { const c = cache.get(p); if (c && c.until > now) have[p] = c.url; else missing.push(p) }
     setUrls(have)
     if (!missing.length || !supabase) return undefined
-    supabase.storage.from('garden').createSignedUrls(missing, 5 * 86400).then(({ data }) => {
+    media.from('garden').createSignedUrls(missing, 5 * 86400).then(({ data }) => {
       for (const d of data || []) if (d.signedUrl) cache.set(d.path, { url: d.signedUrl, until: now + KEEP })
       if (live) setUrls((u) => ({ ...u, ...Object.fromEntries((data || []).filter((d) => d.signedUrl).map((d) => [d.path, d.signedUrl])) }))
     })

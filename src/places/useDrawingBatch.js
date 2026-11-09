@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDraft } from '../lib/useDraft.js'
 import { askClaude } from '../lib/claude.js'
 import { supabase } from '../lib/supabase.js'
+import { media } from '../lib/media.js'
 import { todayAtHome } from '../lib/useSources.js'
 import { findPainting } from '../lib/autocrop.js'
 import { fromFound, wholeCrop, tally, nextToCheck, DONE, mergeInbox, newId, claimStale } from '../lib/paintingBatch.js'
@@ -30,7 +31,7 @@ const { loadInbox, saveInboxRow, dropInboxRows, dropInboxFiles, putInboxFile, in
 
 /** A file into the drawings bucket, which takes files added but not written over: one already there is fine. */
 async function putDrawingFile(path, blob) {
-  const res = await supabase.storage.from('drawings').upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+  const res = await media.from('drawings').upload(path, blob, { contentType: 'image/jpeg', upsert: false })
   if (res.error && (String(res.error.statusCode) === '409' || /already exists|duplicate/i.test(res.error.message || ''))) return
   if (res.error) throw res.error
 }
@@ -213,7 +214,7 @@ export function useDrawingBatch({ me, gallery, onSaved }) {
     ;(async () => {
       for (let i = 0; i < todo.length && live; i += 20) {
         const part = todo.slice(i, i + 20)
-        const { data } = await supabase.storage.from('drawings').createSignedUrls(part.map((d) => d.thumb_path || d.path), 600)
+        const { data } = await media.from('drawings').createSignedUrls(part.map((d) => d.thumb_path || d.path), 600)
         for (const [k, d] of part.entries()) {
           const url = data && data[k] && data[k].signedUrl
           if (!url || !live) continue

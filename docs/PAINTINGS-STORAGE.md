@@ -5,7 +5,8 @@ may be reachable by someone who has only its address.
 
 ## The options looked at
 
-1. **Supabase Storage, a private bucket, through signed links.** Chosen.
+1. **Supabase Storage, a private bucket, through signed links.** Chosen first;
+   the files have since moved to Cloudflare R2 the same way (below).
    - The `paintings` table holds each painting's details; the `paintings`
      bucket holds its files.
    - The family reads, and only the parents add or remove, by the same
@@ -26,6 +27,14 @@ may be reachable by someone who has only its address.
    chosen.
 
 ## How it works
+
+- **Where the files are.** In the `paintings/` folder of the family's private
+  Cloudflare R2 bucket once R2 is set up (docs/R2-SETUP.md; decisions log,
+  2026-11-09), in Supabase's private `paintings` bucket until then; the paths
+  below are the same in either. The app reaches them through `media.from('paintings')`
+  (`src/lib/media.js`) and the `media` function, which keeps this bucket's rules
+  (the family sees them, only Jason or Laurie add or take one away) and signs links
+  that last a week at most.
 
 - `supabase/migrations/20261101060200_paintings.sql` makes the table and the
   private bucket. Each painting's files are `<slug>/full.jpg` (up to 2400 px)
