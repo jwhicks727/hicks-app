@@ -69,7 +69,8 @@ function CookbookReport({ session }) {
       <div className="figures">
         <div><b>{book.recipes.length}</b><span>recipes</span></div>
         <div><b>{avg.filter((x) => x.n).length}</b><span>rated</span></div>
-        <div><b>{book.fridge.length}</b><span>in the fridge</span></div>
+        <div><b>{book.fridge.filter((f) => f.bought_on).length}</b><span>in the fridge</span></div>
+        <div><b>{book.fridge.filter((f) => !f.bought_on).length}</b><span>to shop for</span></div>
       </div>
       {top.length > 0 && (
         <table className="table">

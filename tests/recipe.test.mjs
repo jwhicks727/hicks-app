@@ -155,3 +155,17 @@ test('a group of ingredients is named from what is in it, never from where it si
   assert.equal(groupName([{ item: 'cooked ham, for Anna' }]), 'For the plates')
   assert.equal(groupName([{ item: 'widgets' }, { item: 'a lemon' }]), '', 'mixed or unknown: no heading rather than a wrong one')
 })
+
+test('cook mode picks out the ingredients a step names, as well as its amounts', async () => {
+  const { stepParts, ingredientNames } = await import('../src/lib/kitchen/recipe.js')
+  const groups = [[{ item: 'butter lettuce (about 12 oz)' }, { item: 'fresh ginger' }, { item: 'carrots' }, { item: 'cherry tomatoes' }], [{ item: 'salmon fillets, skin on' }], [{ item: 'creamy peanut butter (peanuts and salt only)' }, { item: 'hot sauce' }, { item: 'kosher salt' }, { item: 'black pepper' }, { item: 'Gruyère, grated' }]]
+  const names = ingredientNames(groups)
+  for (const n of ['butter lettuce', 'lettuce', 'salmon fillets', 'salmon', 'peanut butter', 'hot sauce', 'black pepper', 'gruyere']) assert.ok(names.includes(n), n)
+  for (const n of ['hot', 'sauce', 'black', 'kosher', 'fresh', 'creamy', 'cherry']) assert.ok(!names.includes(n), `${n} never stands for an ingredient alone`)
+  const show = (t) => stepParts(t, groups).map((p) => (p.bold ? `[${p.text}]` : p.ingredient ? `{${p.text}}` : p.amount ? `<${p.text}>` : p.text)).join('')
+  assert.equal(show('Whisk **3 Tbsp** peanut butter with 2 tsp water and the grated ginger.'), 'Whisk [3 Tbsp] {peanut butter} with <2 tsp> water and the grated {ginger}.')
+  assert.equal(show('Season the salmon, add the cherry tomato halves and the shredded carrot.'), 'Season the {salmon}, add the {cherry tomato} halves and the shredded {carrot}.')
+  assert.equal(show('Fold in the Gruyère and **1 Tbsp hot sauce**; season with salt and black pepper.'), 'Fold in the {Gruyère} and [1 Tbsp hot sauce]; season with {salt} and {black pepper}.')
+  assert.equal(show('Roast at 400°F for 10 min (3 min hands-on).'), 'Roast at 400°F for 10 min (3 min hands-on).', 'times and temperatures are not amounts')
+  assert.equal(stepParts('Plain words, *a note*', []).map((p) => p.text).join(''), 'Plain words, a note')
+})

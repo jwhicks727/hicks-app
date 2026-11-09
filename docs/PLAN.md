@@ -494,7 +494,11 @@ and the phases are in issue #19; what's built is ticked here.
 
 - [x] The Kitchen menu (`KitchenMenu.jsx`) and the cookbook on its own screen (`/kitchen/cookbook`, `Cookbook.jsx`); a dish's pictures come from its name (`artFromTitle`).
 
-- [x] "Done shopping" puts the week's two lists away on that device (with an Undo, and a "Show the shopping lists" button after); they come back when the week's dishes change (`WeekLists.jsx`).
+- [x] Hunt & gather (`HuntGather.jsx`): a dish added to the week waits there, still to shop for, with the shopping list of those dishes only. Crossing a thing off takes it off (with an Undo); a dish with everything moves into the fridge by itself, and the empty card poofs away. "Into the fridge" on one dish, "Done shopping" for all. Kept in the database, the same on every phone (`fridge.bought_on`, `fridge_got`; runs once `20261108170000_still_to_shop` has run). It replaces "Done shopping" on one device, which forgot the shop as soon as another dish was added.
+
+- [x] Cook mode picks out the ingredients a step names as well as its amounts, matched against the recipe's own ingredient list (`stepParts`); the recipe page's steps too.
+
+- [x] Food pictures coloured in properly: the shapes under each drawing worked out again by `scripts/food-fills.py` (the whole drawing, gaps in its outline closed, never a web between leaves), a colour chosen for every drawing by name in `src/lib/kitchen/food.js` (`COLOURS`), stems and leaves in a second colour where the drawing has them, and accents read ("Gruyère").
 
 - [x] The meal-planning handoff split: the pattern, the weekly rhythm, the
       recipe format and the design are in `docs/KITCHEN.md`; Laurie's food

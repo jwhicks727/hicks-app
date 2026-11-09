@@ -12,14 +12,14 @@ import { easyOnHands, scaleAmount, plainRecipe } from '../lib/kitchen/recipe.js'
 import { noteRecent } from '../lib/kitchen/recent.js'
 import { Toast } from '../ui/Toast.jsx'
 import { startTimer } from '../lib/kitchen/timers.js'
-import { rate, addToFridge, finishFridge, removeRecipe } from '../lib/useKitchen.js'
+import { rate, addToFridge, finishFridge, intoFridge, removeRecipe } from '../lib/useKitchen.js'
 import { FoodIcon, RecipeArt } from './FoodIcon.jsx'
 import KitchenMenu from './KitchenMenu.jsx'
 import { artFor } from '../lib/kitchen/food.js'
 import { Inline, Prose } from './Inline.jsx'
 import { parsed, timeWords, PEOPLE } from './art.js'
 import Timers from './Timers.jsx'
-import { standing as standingOf } from '../lib/kitchen/week.js'
+import { standing as standingOf, stillToShop, boughtOn } from '../lib/kitchen/week.js'
 import { StandingBadge, UnicornGlow } from './Unicorn.jsx'
 
 const SECTION_ICON = { Plating: 'star', Heat: 'weather', Herbs: 'bird', Texture: 'star', 'Trader Joe’s shortcuts': 'pot', Notes: 'calendar', 'Why it works': 'star' }
@@ -46,7 +46,9 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
   const startBy = r.total ? hhmm(dh * 60 + dm - r.total) : null
   const plates = [['L', 'Laurie’s plate', parent ? laurie : null], ['J', 'Jason’s plate', r.sections.find((s) => s.name === 'Jason’s plate')?.body], ['A', 'Anna’s add-on', r.sections.find((s) => s.name === 'Anna’s add-on')?.body]].filter(([, , body]) => body)
   const rest = r.sections.filter((s) => !['Jason’s plate', 'Anna’s add-on'].includes(s.name))
-  const daysIn = fridge ? Math.max(0, Math.round((Date.parse(today) - Date.parse(fridge.added_on)) / 864e5)) : 0
+  const bound = stillToShop(fridge) // picked for this week, still to shop for
+  const bought = fridge && !bound
+  const daysIn = bought ? Math.max(0, Math.round((Date.parse(today) - Date.parse(boughtOn(fridge))) / 864e5)) : 0
   const check = cookCheck(r.groups, daysIn).slice(0, 5)
   const art = artFor(r) // from the dish's name, the same as its tile (the pictures stored when it was saved were picked from the ingredients, and were often wrong)
   const st = standingOf(ratings, members)
@@ -77,9 +79,14 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
               const text = plainRecipe(r) // the shared recipe only: Laurie’s plate is never in it
               try { if (navigator.share) { await navigator.share({ title: r.title, text }); return } await navigator.clipboard.writeText(text); setSaid('Copied the recipe, without Laurie’s plate.') } catch (e) { if (e && e.name !== 'AbortError') setSaid('Couldn’t share it from here.') }
             }}>Share</button>
-            {parent && (fridge
+            {parent && (bought
               ? <button type="button" className="btn ghost" onClick={async () => { await finishFridge(fridge.id, 'cooked', today); onChanged() }}>We cooked it</button>
-              : <button type="button" className="btn ghost" onClick={async () => { await addToFridge(recipe.id, today); onChanged() }}>Add to this week</button>)}
+              : bound
+                ? <>
+                  <button type="button" className="btn ghost" onClick={async () => { await intoFridge([fridge.id], today); onChanged() }}>Shopped: into the fridge</button>
+                  <button type="button" className="btn ghost" onClick={async () => { await finishFridge(fridge.id, 'skipped', today); onChanged() }}>Not this week</button>
+                </>
+                : <button type="button" className="btn ghost" onClick={async () => { await addToFridge(recipe.id, today); onChanged() }}>Add to this week</button>)}
           </div>
           {startBy && (
             <p className="start-by">
@@ -125,12 +132,12 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
       )}
 
       {check.length > 0 && (
-        <Card tint="#3E7A4C" label="Cook check" glyph="pot" tag={fridge ? (daysIn === 0 ? 'bought today' : `in the fridge ${daysIn} ${daysIn === 1 ? 'day' : 'days'}`) : undefined} className="span-6 cook-check">
+        <Card tint="#3E7A4C" label="Cook check" glyph="pot" tag={bought ? (daysIn === 0 ? 'bought today' : `in the fridge ${daysIn} ${daysIn === 1 ? 'day' : 'days'}`) : bound ? 'still to shop for' : undefined} className="span-6 cook-check">
           <p className="muted">The fresh things most likely to have turned, first. A quick look before you start:</p>
           <ul>
             {check.map((c) => (
               <li key={c.what} className={checked[c.what] || ''}>
-                <span><b>{c.what}</b>{fridge && <span className={'left' + (c.left <= 0 ? ' due' : '')}> · {c.left <= 0 ? 'check it today' : `good about ${c.left} more ${c.left === 1 ? 'day' : 'days'}`}</span>}<br /><span className="muted">{c.tell}</span></span>
+                <span><b>{c.what}</b>{bought && <span className={'left' + (c.left <= 0 ? ' due' : '')}> · {c.left <= 0 ? 'check it today' : `good about ${c.left} more ${c.left === 1 ? 'day' : 'days'}`}</span>}<br /><span className="muted">{c.tell}</span></span>
                 <span className="cc-b">
                   <button type="button" aria-pressed={checked[c.what] === 'good'} onClick={() => setChecked({ ...checked, [c.what]: 'good' })}>Good</button>
                   <button type="button" aria-pressed={checked[c.what] === 'gone'} onClick={() => setChecked({ ...checked, [c.what]: 'gone' })}>Gone</button>
@@ -168,7 +175,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
             <span className="step-n">{s.n}</span>
             <div>
               {s.minutes != null && <button type="button" className="step-time" onClick={() => startTimer({ label: `Step ${s.n}: ${r.title}`, minutes: s.minutes, recipe: slug })} aria-label={`Start a ${s.time} timer for step ${s.n}`}>▶ {s.time}</button>}
-              <p><Inline text={s.text} /></p>
+              <p><Inline text={s.text} groups={r.groups} /></p>
             </div>
           </div>
         ))}

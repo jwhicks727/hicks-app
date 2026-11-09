@@ -6,6 +6,51 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-08 — Hunt & gather before the fridge; ingredients picked out in cook mode; food pictures coloured properly
+
+Jason had two dishes in the fridge and had pressed "Done shopping" several times. He
+then picked two more for the next week, and the Kitchen showed one combined list for
+all four. "Done shopping" was remembered on one device against that exact set of dishes,
+so adding any dish brought every list back. He asked for a step before the fridge, a
+list that loses what's crossed off and goes away by itself, the ingredients highlighted
+in cook mode as well as the amounts, and better colours on the food pictures. He asked
+that the new step's name not use the word fridge. Decided:
+
+- **Hunt & gather.** "Add to this week" puts a dish there first: picked, still to shop
+  for (`fridge.bought_on` empty, migration `20261108170000_still_to_shop`). Its shopping
+  list covers only those dishes. Crossing a thing off takes it off at once (with an
+  Undo, not a question); a dish waiting on nothing more goes into the fridge by itself;
+  the empty card goes with a poof. "Into the fridge" moves one dish and "Done shopping"
+  moves them all. What's crossed off is kept in the database (`fridge_got`), never on a
+  device, so it is the same on every phone. A dish added later brings back only its own
+  share of something already crossed off. Everything already in the fridge counted as
+  bought the day it was added, so the four dishes there now ask for nothing.
+- **"Bought N days ago" and the cook check count from the day a dish went into the
+  fridge,** not the day it was picked.
+- **Cook mode picks out the ingredients a step names,** in the same bold colour as the
+  amounts, by matching the step's words against the recipe's own ingredient list (an
+  ingredient's whole name, or any part of it that can stand alone: "salmon" from "salmon
+  fillets", never "hot" or "black"). Amounts left plain ("2 tsp") are picked out too,
+  never times or temperatures. The recipe page's steps do the same. The highlight has a
+  lighter colour in dark mode.
+- **Food pictures: the shapes.** The colour used to fill only the parts of a drawing its
+  lines closed off completely, so a lime's rind, a cilantro leaf and most of a lettuce
+  stayed bare (and on the dark theme, where the brown ink barely shows, they nearly
+  vanished). `scripts/food-fills.py` now works the shapes out from the ink: it closes the
+  small gaps where a line stops short of another, keeps only regions fat enough to be a
+  real inside (so it never paints a web between two leaves), and reaches halfway under
+  the lines. Thin stems stay ink, as before. The drawings themselves are unchanged
+  (checked byte for byte).
+- **Food pictures: the colours.** A colour used to come from the first word family that
+  matched anywhere in a drawing's name, so peanuts were green ("pea"), egg whites yellow
+  ("egg"), mascarpone a fish ("carp") and maple syrup and hot sauce a plain wheat. Each
+  drawing's colour is now chosen for it by name (`COLOURS` in `src/lib/kitchen/food.js`),
+  from one palette, and every one was checked by eye on a contact sheet of all 456.
+  Fruits and vegetables with stems, leaves or a husk have those in green (`SECOND`; the
+  avocado's pit is brown), so a carrot's top or a strawberry's leaves are no longer the
+  fruit's colour. Accents are read ("Gruyère" gets the Gruyère drawing; it got none), and
+  a nut butter is its nut.
+
 ## 2026-11-08 — Every heading in the wordmark's font
 
 Jason asked to see every heading in the "Team Hicks" font instead of the one

@@ -58,7 +58,7 @@ export default function CookMode({ data, slug, parent }) {
         {!done ? (
           <>
             <p className="cm-n">Step {s.n} of {r.steps.length}{s.time && <> · {s.time}</>}</p>
-            <p className="cm-text"><Inline text={s.text} /></p>
+            <p className="cm-text"><Inline text={s.text} groups={r.groups} /></p>
             {s.minutes != null && <button type="button" className="btn cm-timer" onClick={() => startTimer({ label: `Step ${s.n}: ${r.title}`, minutes: s.minutes, recipe: slug })}>Start a {s.time} timer</button>}
           </>
         ) : (

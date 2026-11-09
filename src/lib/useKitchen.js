@@ -4,22 +4,27 @@ import { fetchAll } from './useCalendar.js'
 import { parseRecipe, sharedBody, easyOnHands } from './kitchen/recipe.js'
 import { artFor } from './kitchen/food.js'
 
-/** Every recipe (without its body), with ratings and what's in the fridge. */
+/**
+ * Every recipe (without its body), with ratings, what's in the fridge and what is still to shop
+ * for (Hunt & gather: a fridge row with no `bought_on`: still to shop for), and what has been got for those (`got`).
+ */
 export function useCookbook(session) {
-  const [state, setState] = useState({ recipes: [], ratings: [], fridge: [], cooked: [], loaded: false, error: null })
+  const [state, setState] = useState({ recipes: [], ratings: [], fridge: [], got: [], cooked: [], loaded: false, error: null })
   const [n, setN] = useState(0)
   useEffect(() => {
     let live = true
-    if (!supabase || !session) { setState({ recipes: [], ratings: [], fridge: [], cooked: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
+    if (!supabase || !session) { setState({ recipes: [], ratings: [], fridge: [], got: [], cooked: [], loaded: Boolean(supabase && session === null), error: null }); return undefined }
     const since = new Date(Date.now() - 180 * 864e5).toISOString().slice(0, 10)
     Promise.all([
       fetchAll(() => supabase.from('recipes').select('id, slug, title, total_minutes, hands_on_minutes, serves, tags, art, created_at').order('title').order('id')),
       fetchAll(() => supabase.from('recipe_ratings').select('recipe_id, member_id, stars').order('id')),
-      supabase.from('fridge').select('id, recipe_id, added_on, status, done_on').eq('status', 'waiting').order('added_on'),
+      supabase.from('fridge').select('id, recipe_id, added_on, bought_on, status, done_on, fridge_got(item)').eq('status', 'waiting').order('added_on'),
       fetchAll(() => supabase.from('fridge').select('id, recipe_id, done_on').eq('status', 'cooked').gte('done_on', since).order('done_on').order('id')),
     ]).then(([r, g, f, c]) => {
       if (!live) return
-      setState({ recipes: r.data || [], ratings: g.data || [], fridge: f.data || [], cooked: c.data || [], loaded: true, error: (r.error || g.error || f.error || c.error || {}).message || null })
+      const fridge = (f.data || []).map(({ fridge_got: items, ...row }) => row)
+      const got = (f.data || []).flatMap((row) => (row.fridge_got || []).map((x) => ({ fridge_id: row.id, item: x.item })))
+      setState({ recipes: r.data || [], ratings: g.data || [], fridge, got, cooked: c.data || [], loaded: true, error: (r.error || g.error || f.error || c.error || {}).message || null })
     })
     return () => { live = false }
   }, [session, n])
@@ -39,7 +44,7 @@ export function useRecipe(session, slug) {
       const [p, g, f] = await Promise.all([
         supabase.from('recipe_private').select('laurie_plate').eq('recipe_id', recipe.id).maybeSingle(),
         supabase.from('recipe_ratings').select('member_id, stars').eq('recipe_id', recipe.id),
-        supabase.from('fridge').select('id, added_on, status').eq('recipe_id', recipe.id).eq('status', 'waiting').maybeSingle(),
+        supabase.from('fridge').select('id, added_on, bought_on, status').eq('recipe_id', recipe.id).eq('status', 'waiting').maybeSingle(),
       ])
       if (live) setState({ recipe, laurie: p.data ? p.data.laurie_plate : null, ratings: g.data || [], fridge: f.data || null, loaded: true, error: null })
     })
@@ -74,8 +79,21 @@ export async function saveRecipes(files) {
 export async function rate(recipeId, memberId, stars) {
   return supabase.from('recipe_ratings').upsert({ recipe_id: recipeId, member_id: memberId, stars, rated_at: new Date().toISOString() }, { onConflict: 'recipe_id,member_id' })
 }
+/** "Add to this week": the dish is on the Hunt & gather list (no `bought_on`) until it is shopped for. */
 export async function addToFridge(recipeId, today) { return supabase.from('fridge').insert({ recipe_id: recipeId, added_on: today }) }
 export async function finishFridge(fridgeId, status, today) { return supabase.from('fridge').update({ status, done_on: today }).eq('id', fridgeId) }
+/** Dishes still to shop for, shopped for: into the fridge today. `back` undoes it. */
+export async function intoFridge(ids, today) { return supabase.from('fridge').update({ bought_on: today }).in('id', ids).is('bought_on', null) }
+export async function backToShopping(ids) { return supabase.from('fridge').update({ bought_on: null }).in('id', ids) }
+/** Things crossed off a dish's shopping list ([{ fridge_id, item, got_on }]), and back on again. */
+export async function markGot(rows) { return supabase.from('fridge_got').upsert(rows, { onConflict: 'fridge_id,item', ignoreDuplicates: true }) }
+export async function unmarkGot(rows) {
+  for (const id of new Set(rows.map((r) => r.fridge_id))) {
+    const { error } = await supabase.from('fridge_got').delete().eq('fridge_id', id).in('item', rows.filter((r) => r.fridge_id === id).map((r) => r.item))
+    if (error) return { error }
+  }
+  return { error: null }
+}
 export async function removeRecipe(recipeId) { return supabase.from('recipes').delete().eq('id', recipeId) }
 
 /** The files of the week's picked recipes, for the week's lists. */

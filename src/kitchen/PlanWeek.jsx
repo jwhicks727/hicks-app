@@ -265,7 +265,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
               </li>
             ))}
           </ul>
-          <label className="check-row"><input type="checkbox" checked={fridgeToo} onChange={(e) => setFridgeToo(e.target.checked)} /> And put them in the fridge for this week</label>
+          <label className="check-row"><input type="checkbox" checked={fridgeToo} onChange={(e) => setFridgeToo(e.target.checked)} /> And add them to this week: on the Hunt & gather list until they’re shopped for</label>
           <div className="form-actions">
             <button type="button" className="btn" disabled={Boolean(busy)} onClick={saveAll}>Save to the cookbook</button>
             <button type="button" className="btn ghost" onClick={clearWritten}>Not these</button>
