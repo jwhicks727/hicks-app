@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '../../shell/Link.jsx'
 import { reducedMotion } from '../../lib/motion.js'
-import { petsDrawing } from '../../lib/drawings.js'
+import { petsDrawing, petsPaperWidth } from '../../lib/drawings.js'
 import { useDrawings, useDrawingUrls } from '../../lib/useDrawings.js'
 import './pets.css'
 
@@ -11,7 +11,8 @@ import './pets.css'
 // and Appa, our giant white husky, howls at the moon. It plays by itself the first time Pets is opened on
 // a device, then rests as a still picture, and "Watch it again" plays it once more. Under Reduce Motion it
 // never plays: the resting picture is all there is. Every shape here is code; nothing is from an image
-// generator, and her drawing is shown whole, as she drew it (it comes from her gallery, behind sign-in).
+// generator, and her drawing is shown whole, as she drew it (it comes from her gallery, behind sign-in). It is always
+// the first drawing of the pets she added, the one the scene was made round; a tall one hangs narrower, above the cats.
 const SEEN = 'teamhicks.pets.launched'
 const seen = () => { try { return localStorage.getItem(SEEN) === '1' } catch { return false } }
 const markSeen = () => { try { localStorage.setItem(SEEN, '1') } catch { /* played again next time: fine */ } }
@@ -150,11 +151,11 @@ export default function PetsLaunch() {
             </g>
           ))}
         </svg>
-        <div className="pt-paper">
+        <div className="pt-paper" style={hung && hung.width && hung.height ? { width: `${petsPaperWidth(hung.width, hung.height)}cqw` } : undefined}>
           <span className="pt-pin pt-pin-l" aria-hidden="true" /><span className="pt-pin pt-pin-r" aria-hidden="true" />
           {src
             ? <Link to={'/drawings/' + hung.id} className="pt-drawing" aria-label={`${hung.title}, a drawing by Anna. Open it.`}><img src={src} alt={`${hung.title}, Anna’s drawing of our pets`} width={hung.width || undefined} height={hung.height || undefined} style={{ aspectRatio: hung.width && hung.height ? `${hung.width} / ${hung.height}` : '3 / 2' }} /></Link>
-            : <Link to="/drawings" className="pt-drawing pt-empty"><b>Anna’s drawing of the pets will hang here</b><span>{g.missing ? 'Anna’s Gallery needs its one-time database step first.' : 'Add it in Anna’s Gallery and mark it “Our pets”.'}</span></Link>}
+            : <Link to="/drawings" className="pt-drawing pt-empty"><b>Anna’s drawing of the pets will hang here</b><span>{g.missing ? 'Anna’s Art needs its one-time database step first.' : 'Add it in Anna’s Art and mark it “Our pets”.'}</span></Link>}
         </div>
       </div>
       <div className="pt-under">

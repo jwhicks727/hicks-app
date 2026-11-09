@@ -28,8 +28,8 @@ The apps (each at its own address):
 | **Journal** (`/journal`) | Each person's own journal, readable by them alone: the day's question, anything else, gratitudes; this day in other years; notes to your future self. |
 | **The Academy** (`/academy`) | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 | **Life List** (`/lifelist`) | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off. |
-| **Laurie's Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in; Jason or Laurie add many at once at `/lifelist/paintings/add`, cropped on the phone and read by Claude for the year by her signature, a working title, the medium and seasons. |
-| **Anna's Gallery** (`/drawings`) | Anna's drawings, taped to a wall, behind sign-in; anyone in the family can add many at once at `/drawings/add` (cropped on the device, Claude suggesting a title, the topic and any written day, the batch waiting in the family's storage to finish on another device). |
+| **Laurie's Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in, in frames that follow each canvas's shape: a featured wall that changes every few days, and finding them by colour, mood, subject, year, season, medium or shape, or sorting them as a rainbow. Jason or Laurie add many at once at `/lifelist/paintings/add`, cropped on the phone and read by Claude for the year and month by her signature, a working title, the medium, seasons, shape and a few words about it; a second photo of one already in is noticed. `/lifelist/paintings/look-again` does the same for the paintings already in. |
+| **Anna's Art** (`/drawings`) | Anna's drawings and paintings, taped to a wall, behind sign-in; anyone in the family can add many at once at `/drawings/add` (cropped on the device, Claude suggesting a title, the topic and any written day, a second photo of one already up noticed, the batch waiting in the family's storage to finish on another device). |
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 | **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
 | **Pets** (`/pets`) | Coming soon: Appa and the cats, launched with a scene around Anna's drawing of them. |
@@ -134,7 +134,7 @@ and added: `docs/ART-CAPTURE.md`.
   (measured by `scripts/leaf-origins.py`, which only fits her own cut-out pixels back into
   her painting) and blows them with the real wind at home, from the same Open-Meteo forecast
   the weather card reads. Her painting itself is never changed.
-- **Anna's drawings** are hers: each is added in Anna's Gallery and kept in the family's
+- **Anna's drawings** are hers: each is added in Anna's Art and kept in the family's
   private storage, behind sign-in, never in the app's own files. The Pets launch
   hangs her drawing "My Cats" in a scene drawn in code (the moon, wall, cats, hearts,
   stars, pegs and Appa are this repository's own shapes, no one's artwork), with

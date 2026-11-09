@@ -15,6 +15,7 @@ import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
 import { REGISTRY } from '../registry.js'
 import { Card } from '../ui/Card.jsx'
 import { Confirm } from '../ui/Confirm.jsx'
+import { Link } from '../shell/Link.jsx'
 
 const KIND_NAME = Object.fromEntries(SOURCE_KINDS.map(([k, n]) => [k, n]))
 const FEEDS = ['ical', 'google_calendar'] // read by the read-sources function; the rest wait for document reading
@@ -182,6 +183,11 @@ export default function Setup() {
       <AroundSetup />
 
       <YonderSetup />
+
+      <Card tint="#C0824F" label="Laurie’s gallery: look it over again" glyph="star" className="span-6">
+        <p>For the paintings added before months, canvas shapes, colours and fingerprints were kept: each painting’s colours and fingerprint are measured on this device, and Claude can look at each again for a month she wrote by her signature, the shape of its canvas, and a few words for what it shows and how it feels. Nothing of hers changes until you tick it and save.</p>
+        <Link to="/lifelist/paintings/look-again" className="btn ghost">Look over her gallery again</Link>
+      </Card>
 
       <Card tint="#8A5BC4" label="Still to come here" glyph="star" className="span-6">
         <ul className="coming">

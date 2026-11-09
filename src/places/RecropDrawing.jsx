@@ -5,6 +5,7 @@ import { drawingFiles } from '../lib/drawings.js'
 import { DRAWING_KEPT, DRAWING_SAVED } from '../lib/drawingBatch.js'
 import { fitInside, wholeCrop } from '../lib/paintingBatch.js'
 import { preparePhoto, paintingFiles } from './lifelist/paintingPhotos.js'
+import { missingColumn } from './lifelist/usePaintingBatch.js'
 
 // Cropping a drawing already on her wall again: its original photo (kept when it was added) comes up with the crop it
 // was saved with. Saving makes two new files with names of their own, points the drawing at them, and takes the old two
@@ -46,7 +47,9 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
         if (error) throw error
         added.push(path)
       }
-      const { error } = await supabase.from('annas_drawings').update({ path: names.path, thumb_path: names.thumb, width: f.w, height: f.h, crop: { ...st.crop, W: st.W, H: st.H } }).eq('id', d.id)
+      const row = { path: names.path, thumb_path: names.thumb, width: f.w, height: f.h, crop: { ...st.crop, W: st.W, H: st.H }, print: f.print }
+      let { error } = await supabase.from('annas_drawings').update(row).eq('id', d.id)
+      if (error && missingColumn(error)) { const { print: _p, ...plain } = row; ({ error } = await supabase.from('annas_drawings').update(plain).eq('id', d.id)) }
       if (error) throw error
       // The old two go (if this person may remove them; if not they're only left behind, never shown)
       await supabase.storage.from('drawings').remove(old.filter((p) => !added.includes(p))).catch(() => {})

@@ -204,6 +204,22 @@ model, is in `supabase/functions/_shared/claude.js`.
   says it looks right on screen. About two cents a painting (an estimate, not
   yet measured), within the caps; at the day's cap the screen stops asking and
   the rest can be typed in or read the next day.
+- **Laurie's paintings looked at again** (`look-painting`, Jason or Laurie): the
+  painting and its corners, for the one-time look over her gallery
+  (`/lifelist/paintings/look-again`). Back come any month (and year) by her
+  signature, the canvas's shape, and a few words for what it shows and how it
+  feels; no title, medium or seasons. Nothing is written until a parent ticks it
+  and saves. About two cents a painting (an estimate), within the caps.
+  `read-painting` asks for the same month, shape and words when a painting is added.
+- **The gallery's featured wall** (`feature-paintings`, anyone in the family, by
+  itself): no pictures, only the paintings' facts the gallery keeps (titles,
+  years, months, mediums, seasons, colours, shapes, the words kept about each),
+  today's weather at home, the season and the coming week's concerts on the
+  calendar (never a family day). Only slugs of paintings the caller can read are
+  kept. One wall is up at a time, asked for when the last comes down (at most once
+  a day on a device) or when a parent asks for another; at most four new ones a
+  day; kept in `gallery_features` with the service role, like the guides. About a
+  cent or two a wall (an estimate).
 - **What's around here (`around-here`)** writes a guide to an area in the
   background (Supabase's `EdgeRuntime.waitUntil`), with Anthropic's web search
   (at most 12 searches a guide, each counted against the caps at an estimated
@@ -269,9 +285,10 @@ sign-in link won't come back to the app.
 | `garden_log` | Care as it's done: watered, fed, pruned, picked, refilled, notes | The family | The family |
 | `garden_photos` | A spot's photos (in the private `garden` bucket, read through signed links), and what Claude said when asked | The family | The family |
 | `drawing_inbox` | A batch of Anna's drawings waiting to be added: one row a photo (`data`: its crop, title, day, topic and where it stands) and who sent it (`added_by`); its three pictures under `inbox/<id>/` in the private `drawings` bucket. Not kept on any device | Whoever sent a photo, and the parents | Whoever sent it, and the parents; a row goes when its batch is put away |
-| `annas_drawings` | Anna's Gallery: a drawing's title, the day she drew it, her own words, what it's about (`pets` hangs it in the Pets launch), its size; the pictures (a large one and a small one) in the private `drawings` bucket, read through signed links | The family | Anyone in the family adds their own; whoever added it, or a parent, changes or removes it (and its files) |
+| `annas_drawings` | Anna's Art: a drawing's (or painting's) title, the day she drew it, her own words, what it's about (the first `pets` one hangs in the Pets launch), its size, its fingerprint (`print`, measured on the device, to notice a second photo of it); the pictures (a large one and a small one) in the private `drawings` bucket, read through signed links | The family | Anyone in the family adds their own; whoever added it, or a parent, changes or removes it (and its files) |
 | `painting_inbox` | A batch of Laurie's paintings waiting to be added: one row a photo (`data`: its crop, title, year, medium, seasons and where it stands), its three pictures under `inbox/<id>/` in the private `paintings` bucket. Not kept on any device | Parents | Parents; a row goes when its batch is put away |
-| `paintings` | Laurie's paintings: title (and whether it's her title), year, medium, size, seasons, what part a panel shows, the bird or leaves that move, the original photo's flag and the crop it was saved with (`original`, `crop`); the files in the private `paintings` bucket, the original at `<slug>/original.jpg` | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
+| `paintings` | Laurie's paintings: title (and whether it's her title), year and the month she wrote with it (`month`), medium, size, seasons, what part a panel shows, the bird or leaves that move (`leaves` holds where each leaf came from when cut in the app), the original photo's flag and the crop it was saved with (`original`, `crop`), the canvas's shape when it isn't a rectangle (`shape`), its colours and fingerprint (`palette`, `print`, measured on the device), and what Claude saw in it once a parent kept it (`looks`: what it shows, moods, style, weather; never her title, year or medium, never `subjects`); the files in the private `paintings` bucket, the original at `<slug>/original.jpg`, leaves at `<slug>/leaves.png` | The family | Parents (her blanket yes covers them all; `said_yes_by` is history) |
+| `gallery_features` | The gallery's featured walls: a title, a line, why today, four to eight painting slugs, its first and last day, and the model. Chosen by Claude from the paintings' facts (`feature-paintings`); every one kept | The family | Only the `claude` function writes one; a parent takes one down |
 | `bird_sightings` | Laurie's birds from her eBird download: one row per bird per checklist, the place by name and to about a kilometre | Parents only | Parents (the file is read in the browser; same file twice changes nothing) |
 | `outings` | Camping trips, Disneyland trips, trips and outings: dates, place, who came, a national park if it was one, notes; the calendar event a kept trip came from (`event_id`, one outing per event) | The family | Parents |
 | `park_marks` | The national parks: the day we went, whether it's starred as next, a note | The family | Parents |
@@ -331,8 +348,9 @@ Migration index:
 | `20261101183000_member_phones` | A family member's phone number, parents only (own table, so the people list stays readable by everyone), for "text the list to Laurie". |
 | `20261101233000_ebird_sync` | Laurie's own yes to the nightly eBird sync, and the log of each run (parents read both; only she writes her yes; only the job writes the log) |
 | `20261108170000_still_to_shop` | `fridge.bought_on` (empty while a dish is still to shop for; everything already in the fridge counts as bought the day it was added) and `fridge_got` (what has been crossed off a dish's shopping list; the family reads, the parents change). Additive. |
+| `20261108200000_gallery_shapes_months_features` | `paintings.month`, `shape`, `palette`, `print` and `looks`, `annas_drawings.print`, and `gallery_features` (the featured walls, written only by the `claude` function; the family reads, a parent takes one down). Additive. |
 | `20261108150000_drawing_inbox` | `drawing_inbox` (a batch of Anna's drawings waiting to be added, so it can be sent from one device and finished on another; whoever sent a photo and the parents see and change it); `annas_drawings.original` and `crop` (a drawing keeps its original photo and its crop, so it can be cropped again); and a policy so a parent can add a drawing for Anna from a set she sent. Additive. |
-| `20261105040000_annas_gallery` | Anna's Gallery: `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
+| `20261105040000_annas_gallery` | Anna's Gallery (now Anna's Art): `annas_drawings` and the private `drawings` bucket (JPEGs, 8 MB). Everyone in the family reads; whoever adds a drawing, or a parent, changes or removes it and its files. |
 | `20261108120000_painting_inbox` | `painting_inbox`: a batch of photos waiting to be checked, parents only (Jason or Laurie, either), so it can be sent from a phone and cropped on a computer or picked up on another device. The pictures use the `paintings` bucket's existing policies. Additive. |
 | `20261108090000_paintings_recrop` | Two columns on `paintings`: `original` (the photo is kept at `<slug>/original.jpg`) and `crop` (the crop it was saved with), so a painting can be cropped again from her gallery. Additive; the family reads and the parents change, as before. |
 | `20261107230000_birds_near_cache` | `outside_cache` also takes `birds-near:<lat>,<lng>` keys: the birds where one of us is, a tenth-of-a-degree cell each, kept an hour |

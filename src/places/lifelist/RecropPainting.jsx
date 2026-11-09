@@ -3,10 +3,13 @@ import Cropper from './Cropper.jsx'
 import { supabase } from '../../lib/supabase.js'
 import { FILES } from '../../lib/paintings.js'
 import { fitInside, wholeCrop } from '../../lib/paintingBatch.js'
+import { cleanShape } from '../../lib/shapes.js'
+import { writePainting } from './usePaintingBatch.js'
 import { preparePhoto, paintingFiles } from './paintingPhotos.js'
 
 // Re-cropping a painting already in her gallery: its original photo (kept in the
-// bucket when it was added) comes up with the crop it was saved with. Saving
+// bucket when it was added) comes up with the crop it was saved with, and the shape of
+// its canvas, which can be traced here corner by corner. Saving
 // writes the two gallery files again and the crop; her painting is only ever
 // cropped and turned, never altered (CLAUDE.md, "Laurie's paintings are shown as
 // she painted them").
@@ -26,7 +29,7 @@ export default function RecropPainting({ painting: p, onDone, onCancel }) {
         made = URL.createObjectURL(pic.view)
         const saved = p.crop
         const crop = saved ? fitInside({ turn: saved.turn, angle: saved.angle, cx: saved.cx, cy: saved.cy, w: saved.w, h: saved.h }, pic.W, pic.H) : wholeCrop(pic.W, pic.H)
-        if (live) setSt({ phase: 'ready', src: made, W: pic.W, H: pic.H, crop, blob })
+        if (live) setSt({ phase: 'ready', src: made, W: pic.W, H: pic.H, crop, blob, shape: cleanShape(p.shape) })
       } catch (e) {
         if (live) setSt({ phase: 'error', msg: (e && e.message) || 'Its photo couldn’t be opened.' })
       }
@@ -42,7 +45,7 @@ export default function RecropPainting({ painting: p, onDone, onCancel }) {
         const { error } = await supabase.storage.from('paintings').upload(`${p.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
         if (error) throw error
       }
-      const { error } = await supabase.from('paintings').update({ w: f.w, h: f.h, crop: { ...st.crop, W: st.W, H: st.H } }).eq('slug', p.slug)
+      const { error } = await writePainting((row) => supabase.from('paintings').update(row).eq('slug', p.slug), { w: f.w, h: f.h, crop: { ...st.crop, W: st.W, H: st.H }, shape: cleanShape(st.shape), palette: f.palette, print: f.print })
       if (error) throw error
       setBusy(null)
       onDone()
@@ -60,7 +63,7 @@ export default function RecropPainting({ painting: p, onDone, onCancel }) {
   )
   return (
     <div className="ll-recrop">
-      <Cropper src={st.src} W={st.W} H={st.H} crop={st.crop} auto={null} onChange={(crop) => setSt((s) => ({ ...s, crop }))} />
+      <Cropper src={st.src} W={st.W} H={st.H} crop={st.crop} auto={null} onChange={(crop) => setSt((s) => ({ ...s, crop }))} shape={st.shape} onShape={(shape) => setSt((s) => ({ ...s, shape }))} />
       {busy && <p className={busy === 'Saving…' ? 'muted' : 'err'} role="status">{busy}</p>}
       <div className="form-actions">
         <button type="button" className="btn" disabled={busy === 'Saving…'} onClick={save}>Save the new crop</button>

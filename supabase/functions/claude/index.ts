@@ -14,7 +14,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 import {
   FALLBACK_SONNET, pickLatest, costCents, overCap, CAPS, checkUpload, uploadBlock, checkHistory,
   TASKS, KITCHEN_BRIEF, kitchenNow, kitchenTools, findRecipe, planAsk, writeAsk, RECIPE_FROM_IMAGE_ASK, calendarAsk, gardenAsk, photoTagsAsk, cleanPhotoTags,
-  checkUploads, paintingAsk, paintingContent, drawingAsk,
+  checkUploads, paintingAsk, paintingContent, drawingAsk, lookAsk, featureAsk, cleanFeature,
 } from '../_shared/claude.js'
 import { cellOf, validCellId, clean as cleanText, GUIDE_TOOL, GUIDE_BRIEF, guideAsk, cleanGuide, searchedUrls, searchesIn, SEARCH_CENTS, matchPlace, publicSite, EAT_TOOL, eatAsk, cleanPlaces, GUIDE_KEEP_MS, BUILDING_STALE_MS, GUIDES_A_DAY, UA } from '../_shared/around.js'
 import { previewImage, isPicture } from '../_shared/wildpics.js'
@@ -191,6 +191,14 @@ Deno.serve(async (req) => {
       await record(msg)
       return refused(msg) ? reply(200, { reading: null }) : reply(200, { reading: jsonOf(msg), model: id })
     }
+    // ---- One of her paintings looked at again: any month by her signature, its shape, how it looks ----
+    if (body.task === 'look-painting') {
+      const msg = await ask({ ...base, messages: [{ role: 'user', content: paintingContent(body.files, lookAsk({ year: Number(today().slice(0, 4)) })) }] })
+      await record(msg)
+      return refused(msg) ? reply(200, { reading: null }) : reply(200, { reading: jsonOf(msg), model: id })
+    }
+    // ---- The gallery's featured wall, every few days -------------------------------------------
+    if (body.task === 'feature-paintings') return await featurePaintings(db, body, base, parent === true, record)
     // ---- Anna's drawing: a working title, the topic and any day written on it ---------------------
     if (body.task === 'read-drawing') {
       const titles = Array.isArray(body.titles) ? body.titles.map(String) : []
@@ -269,6 +277,42 @@ async function readRecipe(db: any, list: Array<{ id: string, slug: string, title
   const { data } = await db.from('recipes').select('id, body').eq('id', hit.id).maybeSingle()
   if (!data) return 'That recipe couldn’t be read.'
   return `slug: ${hit.slug}\n\n${(await withPrivate(db, data, isParent)).slice(0, 30000)}`
+}
+
+// ---- The gallery's featured wall --------------------------------------------------------
+// A few of Laurie's paintings that hang together for a few days, chosen from their facts (never the pictures). Like a
+// guide, it's information rather than a change to the family's data: kept in gallery_features, written only here with
+// the service role, every one kept. One is up at a time; a new one is asked for when it comes down, or when a parent
+// asks for another, at most four new ones a day, inside the family's Claude caps. Only paintings the caller can read
+// can be chosen.
+const FEATURES_A_DAY = 4
+const plusDays = (d: string, n: number) => new Date(Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10) + n)).toISOString().slice(0, 10)
+// deno-lint-ignore no-explicit-any
+async function featurePaintings(db: any, body: any, base: any, isParent: boolean, record: (msg: any) => Promise<void>) {
+  if (!SERVICE_KEY) return reply(503, { error: 'Not set up yet' })
+  const svc = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } })
+  const day = today()
+  const { data: up } = await svc.from('gallery_features').select('*').lte('made_on', day).gte('until', day).order('created_at', { ascending: false }).limit(1)
+  const current = up && up[0] ? up[0] : null
+  if (current && !(body.again && isParent)) return reply(200, { feature: current })
+  const { count } = await svc.from('gallery_features').select('id', { count: 'exact', head: true }).eq('made_on', day)
+  if ((count ?? 0) >= FEATURES_A_DAY) return reply(200, { feature: current, error: 'Enough new walls for today: another tomorrow' })
+  const { data: rows } = await db.from('paintings').select('slug').limit(1000)
+  const mine = new Set((rows ?? []).map((r: { slug: string }) => r.slug))
+  // deno-lint-ignore no-explicit-any
+  const catalog = (Array.isArray(body.catalog) ? body.catalog : []).filter((p: any) => p && mine.has(String(p.slug))).slice(0, 400)
+  if (catalog.length < 4) return reply(200, { feature: null, error: 'Not enough of her paintings yet' })
+  const { data: recent } = await svc.from('gallery_features').select('title').order('created_at', { ascending: false }).limit(10)
+  const context = { ...(body.context || {}), today: day, recent: (recent ?? []).map((r: { title: string }) => r.title) }
+  const msg = await ask({ ...base, messages: [{ role: 'user', content: featureAsk({ catalog, context }) }] })
+  await record(msg)
+  if (msg.stop_reason === 'refusal') return reply(200, { feature: null })
+  // deno-lint-ignore no-explicit-any
+  const f = cleanFeature(jsonOf(msg), catalog.map((p: any) => String(p.slug)))
+  if (!f) return reply(200, { feature: null, error: 'Claude’s wall didn’t hang together this time' })
+  const { data: row, error } = await svc.from('gallery_features').insert({ title: f.title, line: f.line, why: f.why, slugs: f.slugs, made_on: day, until: plusDays(day, f.days - 1), model: msg.model || base.model }).select('*').single()
+  if (error) return reply(200, { feature: null, error: 'It couldn’t be kept just now' })
+  return reply(200, { feature: row })
 }
 
 // ---- What's around here ---------------------------------------------------------------

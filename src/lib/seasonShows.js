@@ -11,18 +11,32 @@
 // Pure, so tests run it in Node.
 
 import { paintingBySlug, paintingFor, PAINTINGS } from './paintings.js'
+import { LEAF_ORIGINS } from './leafOrigins.js'
 import { seeded } from './scenes.js'
 
 export const SHOWS = {
   halloween: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top of the screen and drift down one at a time, and the crow flies on Home' },
   muertos: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top and drift down one at a time, slow, like marigold petals', slow: true },
-  // Autumn's leaves are pieces of her two autumn paintings, cut out at full size; until they are in, her witch's leaves stand in
-  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her two autumn paintings and blows them across the page, where they settle on the cards' },
-  fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her two autumn paintings and blows them across the page, where they settle on the cards' },
+  // Autumn's leaves are pieces of her autumn paintings, cut out at full size: the two first cut by the script, and any
+  // autumn painting a parent has cut leaves from on its page (src/places/lifelist/AutumnLeaves.jsx). Until one is in,
+  // her witch's leaves stand in.
+  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her autumn paintings and blows them across the page, where they settle on the cards' },
+  fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her autumn paintings and blows them across the page, where they settle on the cards' },
+}
+/** The seasons whose paintings autumn's wind may take leaves from. */
+export const WIND_SEASONS = ['fall', 'thanksgiving']
+/** The most paintings the wind takes leaves from at once. */
+export const WIND_SHEETS = 3
+
+/** Where a painting's leaves came from in it: kept with its row when cut in the app, else measured by scripts/leaf-origins.py. */
+export function originsOf(p) {
+  if (!p || !p.leaves) return null
+  if (Array.isArray(p.leaves.origins) && p.leaves.origins.length) return { scale: p.leaves.originScale || 1, origins: p.leaves.origins }
+  return LEAF_ORIGINS[p.slug] || null
 }
 
 /** A painting's leaf sheet as the show uses it: the file, the boxes, how sharp to draw it, how big. Her older sheet is small, so it is drawn larger. */
-const sheetOf = (p) => ({ slug: p.slug, sheet: p.leaves.sheet, size: p.leaves.size, boxes: p.leaves.boxes, px: p.leaves.px || 1.25, scale: p.leaves.scale || [1.1, 1.9] })
+const sheetOf = (p) => ({ slug: p.slug, sheet: p.leaves.sheet, size: p.leaves.size, boxes: p.leaves.boxes, px: p.leaves.px || 1.25, scale: p.leaves.scale || [1.1, 1.9], origins: originsOf(p) })
 
 /**
  * The show for a season with its painting(s) (from `list`, the paintings the
@@ -35,7 +49,12 @@ export function showFor(key, list = PAINTINGS) {
   const s = SHOWS[key]
   if (!s) return null
   const has = (slug) => { const p = paintingBySlug(slug, list); return p && p.leaves && p.leaves.sheet ? p : null }
-  const mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
+  let mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
+  // The wind also takes leaves from any autumn painting that has had them cut (newest first, as the list comes)
+  if (s.kind === 'wind') {
+    const more = list.filter((p) => !mine.includes(p) && p.leaves && p.leaves.sheet && originsOf(p) && (p.seasons || []).some((k) => WIND_SEASONS.includes(k)))
+    mine = [...mine, ...more].slice(0, WIND_SHEETS)
+  }
   const use = mine.length ? mine : [s.fallback && has(s.fallback)].filter(Boolean)
   if (!use.length) return null
   return { key, ...s, painting: use[0], sheets: use.map(sheetOf) }

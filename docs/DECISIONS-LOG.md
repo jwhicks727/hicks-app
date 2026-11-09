@@ -50,6 +50,92 @@ that the new step's name not use the word fridge. Decided:
   avocado's pit is brown), so a carrot's top or a strawberry's leaves are no longer the
   fruit's colour. Accents are read ("Gruyère" gets the Gruyère drawing; it got none), and
   a nut butter is its nut.
+## 2026-11-08 — Laurie's gallery finds, rotates and frames any shape; the crop tool holds still; Anna's Art
+
+Jason, with a good library of her paintings in: the add button and "photos waiting" belong at the top;
+the gallery should sort and filter more actively and rotate a few "featuring" paintings for a few days,
+in charming themes made by Claude as we go (a year, cats, blue-ish ones, a rainy day because it's raining,
+cozy ones, colourful and psychedelic ones before his concert); a month she writes with the year should be
+read, with a one-time tool for the paintings already in; duplicates caught on import, for her paintings
+and Anna's; any shape of canvas framed; the crop tool fixed (it jumped, and the first click changed it
+completely) with undo and a 3 x 3 grid; autumn's animation brought back for the new photo of the painting
+it came from; Pets to show its first drawing; and Anna's section renamed, since she paints too. Decided:
+
+- **Adding is at the top of her gallery**, the shine when photos are waiting (still one shine on the
+  screen), and a plain button at the bottom too when the wall is long.
+- **The featured wall is Claude's, kept like a guide.** Four to eight paintings for two to four days,
+  in `gallery_features`, written only by the `claude` function with the service role (information,
+  not a change to the family's data, like `area_guides`); a parent can take one down or ask for
+  another. Claude gets the paintings' facts, never the pictures: titles, years, months, mediums,
+  seasons, colours, shapes and the words kept about each, with today's weather at home, the season and
+  the coming week's **concerts** on the calendar (never a family day). It asks by itself when none is
+  up, at most once a day on a device and four new walls a day. Until the function is deployed, or when
+  the budget is spent, the app hangs its own from her paintings' facts (a year, a colour, the season,
+  a mood), so the wall still changes every three days and nothing is invented.
+- **Finding her paintings**: by colour and feel (measured from her pixels on the device:
+  `palette`), by mood, what it shows, style and weather (Claude's words, `looks`), and by year,
+  season, medium and shape; words can be typed; sorts are newest in, newest or oldest painted, a
+  rainbow, A to Z and shuffled. Filters stay out of the address and last the visit; a painting's next
+  and previous follow the order shown.
+- **Claude's words about a painting are kept only once a parent says so**: on the add screen, as
+  chips any of which can be taken off before "Looks right"; in the look over her gallery, with one
+  tick for all of them; on a painting's page, where any word can be taken off. They are for finding
+  and featuring only: never her title, year or medium, and never `subjects`, so a painting still
+  stands in for a photo only where a parent has said what it shows.
+- **The month by her signature** is read like the year: what she wrote first ("6/21" is June 2021,
+  the American way round; "Mar '19"), Claude's own reading only when the writing gives no month,
+  never from the season it shows, and only with a year. `/lifelist/paintings/look-again` is the
+  one-time tool (it can be run again for any not yet looked at): it measures colours and a
+  fingerprint and keeps them at once (measurements), and has Claude look again (`look-painting`)
+  for months, years where none is kept, canvas shapes and words, all as suggestions to tick. About
+  two cents a painting, an estimate. What it found waits on the device until saved.
+- **A second photo of the same painting or drawing is noticed** by a fingerprint taken on the device
+  (its light and dark on an 8 x 8 grid and its quarters' colours, `print`), compared with the ones
+  already in and the others in the batch, and taken again when a crop is fixed by hand. It's a
+  question, never a block: leave it out (with an Undo), add it anyway, or, for hers, put the new
+  photo in the old one's place, which keeps its title, details and address. Paintings added before
+  are fingerprinted from their small picture while a batch is open, or by the look over her gallery.
+- **Any shape of canvas.** A shape is the frame drawn round her painting, never a cut of it: the crop
+  is still the box round the painting, and the shape (round, two hexagons, octagon, two triangles,
+  diamond, arch, or traced corner by corner) says which part of the box is canvas. Frames follow it
+  everywhere (a clip of the wood and the picture, with a shadow of the same shape and no blur), and a
+  shaped painting is shown whole in any panel rather than cut to fill it. Claude suggests a shape when
+  it reads a painting; a person confirms it in the crop tool.
+- **The crop tool holds still.** The causes of the jumping were found: zoomed in, the view was framed
+  on the box as it was being dragged, so the photo slid away under the finger; any change switched the
+  zoom on; a drag was dropped whenever a copy of the same crop came back from the family's storage; and
+  a look at storage that began before a change was sent could bring the old crop back. Now the view is
+  framed when the zoom goes on (or after a turn) and moves only when the box leaves the stage, nothing
+  zooms by itself, a crop is compared by value, and a change sent while a look was on its way is kept.
+  The first tap only picks the tool up (a ring says so; a tap anywhere else puts it down), every
+  change can be undone and redone (buttons, and Ctrl or ⌘ Z, never while typing in a box), and a 3 x 3
+  grid is always in the box, stronger while dragging or straightening.
+- **Autumn's wind can come from any autumn painting.** The leaves were cut by a script on a computer
+  from the paintings first bundled with the code; the new photo of that painting has a new address, so
+  the wind lost it. A parent now cuts leaves on a painting's page with a tap (`src/lib/leafCut.js`
+  does in the browser what `lift-art.py autumn` and `leaf-origins.py` did: warm, brushy foliage, leaf
+  shapes, her pixels untouched, and where each came from), previews them, and keeps them; the wind
+  takes leaves from any Fall or Thanksgiving painting that has them (three at most), and Home hangs it
+  in autumn. Taking out a painting the wind or a bird uses now says so, and points to replacing the
+  photo instead.
+- **Pets always hangs the first drawing of the pets** (the one the scene was made round), and a tall
+  drawing hangs narrower so it never comes down over the cats. This reverses "the newest drawing
+  marked Our pets" (2026-11-05).
+- **Anna's Gallery is now Anna's Art**, since she paints too. Its address stays `/drawings` and its
+  table and bucket keep their names.
+- **The auto-crop, left for its own branch.** Jason asked whether another tool is better at this than
+  Claude. The candidate is Meta's Segment Anything (its small versions, such as SlimSAM or MobileSAM,
+  Apache-2.0) run in the browser through ONNX Runtime: given a point in the middle of the photo, it
+  outlines the canvas, frame and odd shapes included, and nothing leaves the device. Its cost is a
+  model download of tens of megabytes the first time on each device and a new dependency; Google's
+  Gemini is also strong at outlining things but would send her paintings to another company, which is
+  a new privacy decision. Not started; Jason's call.
+- Migration `20261108200000_gallery_shapes_months_features` (additive). Until it's run, saving still
+  works without the new columns, and the screens say so. The `claude` function gains `look-painting`
+  and `feature-paintings` and asks `read-painting` for the month, shape and words: deployed after the
+  merge; until then the app's own walls hang and the look over her gallery measures colours only.
+
+---
 
 ## 2026-11-08 — Every heading in the wordmark's font
 

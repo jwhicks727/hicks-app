@@ -11,6 +11,9 @@
 // (scripts/lift-art.py): the bird and the patch of sky behind it composite
 // back to the painting exactly, and at rest the painting is always shown
 // whole, as she painted it.
+import { isShaped, cleanShape } from './shapes.js'
+import { cleanPalette, validPrint } from './artColour.js'
+import { cleanLooks } from './gallery.js'
 
 export const PAINTINGS = [
   {
@@ -67,6 +70,12 @@ export const paintingFor = (season, list = PAINTINGS) => list.find((p) => p.seas
  * { width, height, left, top } in px.
  */
 export function cropFor(p, W, H, focus = [0, 0, 1, 1]) {
+  // A round, many-sided or pointed canvas is shown whole, inside the frame, so no part of it is cut off and the wall in
+  // the corners of its photo is never shown (its shape's clip does that)
+  if (isShaped(p.shape)) {
+    const s = Math.min(W / p.w, H / p.h), width = p.w * s, height = p.h * s
+    return { width, height, left: (W - width) / 2, top: (H - height) / 2 }
+  }
   const [fl, ft, fr, fb] = focus
   const s = Math.max(W / (p.w * (fr - fl)), H / (p.h * (fb - ft)), W / p.w, H / p.h)
   const width = p.w * s, height = p.h * s
@@ -150,7 +159,9 @@ export const storedPaths = (slug, row) => Object.fromEntries(Object.entries(FILE
 export function fromRow(row, urls) {
   const u = (k) => urls[`${row.slug}/${FILES[k]}`] || ''
   return {
-    slug: row.slug, title: row.title, named: row.named, year: row.year, medium: row.medium, size: row.size,
+    slug: row.slug, title: row.title, named: row.named, year: row.year, month: row.month || null, medium: row.medium, size: row.size,
+    // The canvas's shape, its colours and fingerprint (measured), and what Claude saw in it, once a parent kept it
+    shape: cleanShape(row.shape), palette: cleanPalette(row.palette), print: validPrint(row.print) ? row.print : null, looks: cleanLooks(row.looks),
     src: u('src'), small: u('small') || u('src'), w: row.w, h: row.h, seasons: row.seasons || [], added: row.added,
     focus: row.focus || [0, 0, 1, 1], subjects: row.subjects || [],
     flyer: row.flyer ? { ...row.flyer, sprite: u('sprite'), sky: u('sky') } : undefined,

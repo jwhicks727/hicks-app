@@ -1,16 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDraft } from '../../lib/useDraft.js'
 import { askClaude } from '../../lib/claude.js'
 import { supabase } from '../../lib/supabase.js'
 import { todayAtHome } from '../../lib/useSources.js'
 import { findPainting } from '../../lib/autocrop.js'
 import {
-  fromFound, wholeCrop, applyReading, slugFor, takenSlugs, cleanTitle, cleanYear, cleanMedium, cleanSeasons, tally, nextToCheck, DONE,
+  fromFound, wholeCrop, applyReading, slugFor, takenSlugs, cleanTitle, cleanYear, cleanMedium, cleanSeasons, cleanMonth, tally, nextToCheck, DONE,
   inboxData, mergeInbox, newId, claimStale,
 } from '../../lib/paintingBatch.js'
+import { cleanShape } from '../../lib/shapes.js'
+import { cleanLooks } from '../../lib/gallery.js'
+import { lookAlikes } from '../../lib/artColour.js'
 import { loadInbox, saveInboxRow, dropInboxRows, dropInboxFiles, putInboxFile, inboxBlob, holdHere, hereBlob, releaseHere } from '../../lib/inboxStore.js'
 import { FILES, PAINTINGS } from '../../lib/paintings.js'
-import { preparePhoto, readingFiles, paintingFiles, oneAtATime } from './paintingPhotos.js'
+import { preparePhoto, readingFiles, paintingFiles, oneAtATime, printOfCrop, printFromPicture, measurePicture } from './paintingPhotos.js'
+
+/** A crop as a short key, to tell whether a fingerprint was taken of the crop as it is now. */
+export const cropKey = (c) => (c ? [c.turn, c.angle, c.cx, c.cy, c.w, c.h].map((v) => Math.round(v)).join(',') : '')
+/** The columns the gallery-improvements migration adds (20261108200000): left out and tried again if it hasn't been run. */
+const NEW_COLUMNS = ['month', 'shape', 'palette', 'print', 'looks']
+export const missingColumn = (e) => Boolean(e && (e.code === 'PGRST204' || e.code === '42703' || /column .* (does not exist|of 'paintings')|could not find the '.*' column/i.test(e.message || '')))
+/** A write to the paintings table that still works before the migration is run: without the new columns, the second time. */
+export async function writePainting(run, row) {
+  const first = await run(row)
+  if (!first.error || !missingColumn(first.error)) return { ...first, old: false }
+  const again = await run(Object.fromEntries(Object.entries(row).filter(([k]) => !NEW_COLUMNS.includes(k))))
+  return { ...again, old: true }
+}
 
 // The batch of photos being added to Laurie's gallery. It lives in the family's
 // storage (src/lib/inboxStore.js), not on one device, so a set sent from a phone can be
@@ -40,12 +56,17 @@ export function usePaintingBatch({ gallery, onSaved }) {
   const latest = useRef(items)
   latest.current = items
   const pushed = useRef(new Map()) // id -> what storage last had (JSON), to tell what's changed here
+  // id -> when this device last sent it: a look at storage that began before then may bring back the old copy, so it's kept
+  const pushedAt = useRef(new Map())
   const saving = useRef(new Set()) // ids this device is saving (another device's stale save may be taken over)
   const files = useRef(new Map()) // id -> the File, until its photo is sent up
   const busy = useRef(new Set()) // "<id>:prep", "<id>:read", "<id>:save"
   const timer = useRef(null)
   const lastLook = useRef(0)
   const thisYear = Number(todayAtHome().slice(0, 4))
+  // Fingerprints of her paintings already in the gallery: kept with each, and measured here for any painted before they were
+  const [prints, setPrints] = useState({})
+  const [oldDb, setOldDb] = useState(false) // the migration for months, shapes and fingerprints hasn't been run
 
   const update = useCallback((id, fn) => setItems((xs) => xs.map((x) => (x.id === id ? fn(x) : x))), [])
   const isDirty = useCallback((x) => !x.local && pushed.current.get(x.id) !== JSON.stringify(inboxData(x)), [])
@@ -53,10 +74,12 @@ export function usePaintingBatch({ gallery, onSaved }) {
   // Looks at what's in storage and brings it in; what this device has changed and not yet sent stays
   const reload = useCallback(async () => {
     lastLook.current = Date.now()
+    const began = Date.now()
     let remote
     try { remote = await loadInbox() } catch (e) { setSyncError((e && e.message) || 'The family’s storage couldn’t be reached.'); setLoaded(true); return }
     setSyncError(null)
-    const dirty = new Set(latest.current.filter(isDirty).map((x) => x.id))
+    // Changed here and not sent, or sent while this look was on its way (storage may have answered with the copy before)
+    const dirty = new Set(latest.current.filter((x) => isDirty(x) || (pushedAt.current.get(x.id) || 0) > began - 2000).map((x) => x.id))
     for (const x of remote) if (!dirty.has(x.id)) pushed.current.set(x.id, JSON.stringify(inboxData(x)))
     // A reading another device began and never finished (it was closed) starts again
     const fixed = remote.map((x) => (x.read === 'reading' && claimStale(x.readAt) ? { ...x, read: 'waiting' } : x))
@@ -71,6 +94,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
       const j = JSON.stringify(inboxData(x))
       if (pushed.current.get(x.id) === j) continue
       pushed.current.set(x.id, j)
+      pushedAt.current.set(x.id, Date.now())
       const { error } = await saveInboxRow(x)
       if (error) { pushed.current.delete(x.id); setSyncError(error.message || 'Changes couldn’t be saved to the family’s storage.'); clearTimeout(timer.current); timer.current = setTimeout(flush, 5000); return }
       setSyncError(null)
@@ -142,7 +166,8 @@ export function usePaintingBatch({ gallery, onSaved }) {
       const p = await preparePhoto(files.current.get(it.id))
       const found = findPainting(p.look)
       const crop = found.kind === 'found' ? fromFound(found, p.W, p.H, p.look.width, p.look.height) : wholeCrop(p.W, p.H)
-      return { p, r: { W: p.W, H: p.H, crop, auto: crop, sure: found.sure, kind: found.kind } }
+      // Its fingerprint, by the crop, from the little copy already read: so a painting already in her gallery is noticed at once
+      return { p, r: { W: p.W, H: p.H, crop, auto: crop, sure: found.sure, kind: found.kind, print: printOfCrop(p.look, crop, p.W, p.H), printOf: cropKey(crop) } }
     }).then(
       ({ p, r }) => {
         files.current.delete(it.id); busy.current.delete(key)
@@ -184,6 +209,58 @@ export function usePaintingBatch({ gallery, onSaved }) {
     }
   }, [items, pause, atId, gallery, update, thisYear])
 
+  // 2b. A crop changed by hand: its fingerprint is taken again from the crop screen's view, a moment after it settles
+  const cur = items.find((x) => x.id === atId)
+  const reprint = cur && cur.status === 'ready' && cur.crop && cur.printOf !== cropKey(cur.crop) ? cur : null
+  useEffect(() => {
+    if (!reprint) return undefined
+    const { id, crop, W, H } = reprint, want = cropKey(crop)
+    const t = setTimeout(() => {
+      const blob = hereBlob(id, 'view')
+      ;(blob ? Promise.resolve(blob) : inboxBlob(id, 'view'))
+        .then((b) => oneAtATime(() => printFromPicture(b, crop, W, H)))
+        .then((print) => update(id, (x) => (cropKey(x.crop) === want ? { ...x, print, printOf: want } : x)), () => {})
+    }, 1200)
+    return () => clearTimeout(t)
+  }, [reprint && reprint.id, reprint && cropKey(reprint.crop)]) // eslint-disable-line react-hooks/exhaustive-deps -- by the crop's value
+
+  // 2c. Her paintings without a fingerprint yet (added before they were kept) are measured once, from their small picture,
+  // and the fingerprint and colours kept with them: one at a time, only while a batch is open
+  const galleryKey = gallery.map((p) => p.slug + (p.print ? '+' : '')).join('|')
+  useEffect(() => {
+    if (!items.length || oldDb) return undefined
+    let live = true
+    const todo = gallery.filter((p) => !p.print && p.small && !prints[p.slug])
+    ;(async () => {
+      for (const p of todo) {
+        if (!live) return
+        try {
+          const res = await fetch(p.small)
+          if (!res.ok) continue
+          const m = await oneAtATime(async () => measurePicture(await res.blob()))
+          if (!live) return
+          setPrints((x) => ({ ...x, [p.slug]: m.print }))
+          const { error } = await supabase.from('paintings').update({ print: m.print, palette: m.palette }).eq('slug', p.slug)
+          if (error && missingColumn(error)) { setOldDb(true); return }
+        } catch { /* the next one */ }
+      }
+    })()
+    return () => { live = false }
+  }, [galleryKey, items.length > 0, oldDb]) // eslint-disable-line react-hooks/exhaustive-deps -- once per gallery, while a batch is open
+
+  // Which photos look like a painting already in her gallery, or like another photo in this batch
+  const alike = useMemo(() => {
+    const inGallery = gallery.map((p) => ({ id: p.slug, slug: p.slug, title: p.title, small: p.small, print: p.print || prints[p.slug], flyer: Boolean(p.flyer), where: 'gallery' }))
+    const out = {}
+    items.forEach((x, i) => {
+      if (!x.print || DONE.includes(x.status) || x.status === 'saving') return
+      const others = items.map((y, j) => ({ id: y.id, title: y.title || `Photo ${j + 1}`, n: j + 1, print: y.print, where: 'batch', skip: y.id === x.id || y.status === 'skipped' || j > i }))
+      const hits = lookAlikes(x.print, [...inGallery.filter((g) => g.slug !== x.replace), ...others.filter((o) => !o.skip)])
+      if (hits.length) out[x.id] = hits.slice(0, 3)
+    })
+    return out
+  }, [items, gallery, prints])
+
   // 3. Saved, one at a time: the pictures into the private bucket, then its row. This device saves the ones it approved;
   // one another device was saving when it closed is taken over once its claim has gone stale.
   useEffect(() => {
@@ -201,14 +278,33 @@ export function usePaintingBatch({ gallery, onSaved }) {
         const { error } = await supabase.storage.from('paintings').upload(`${it.slug}/${name}`, blob, { contentType: 'image/jpeg', upsert: true })
         if (error) throw error
       }
+      const year = cleanYear(it.year, thisYear).year ?? null
+      const measured = { w: f.w, h: f.h, original: true, crop: { ...it.crop, W: it.W, H: it.H }, palette: f.palette, print: f.print }
+      if (it.replace) {
+        // A better photo of a painting already in her gallery: its pictures and crop change; its details stay as they were
+        // kept, filled in only where it had none. Leaves cut from the old photo are taken away (they'd no longer fit it):
+        // they can be cut again from the new one on its page.
+        const { data: old, error: readErr } = await supabase.from('paintings').select('*').eq('slug', it.slug).maybeSingle()
+        if (readErr) throw readErr
+        if (!old) throw new Error('That painting isn’t in her gallery any more. Add this one as a new painting instead.')
+        const fill = {
+          year: old.year ?? year, month: old.month ?? (old.year ? null : cleanMonth(it.month)), medium: old.medium || cleanMedium(it.medium) || null,
+          shape: old.shape ?? cleanShape(it.shape), looks: old.looks ?? cleanLooks(it.looks), ...(old.leaves ? { leaves: null } : {}),
+        }
+        const { error, old: o } = await writePainting((row) => supabase.from('paintings').update(row).eq('slug', it.slug), { ...measured, ...fill })
+        if (error) throw error
+        if (o) setOldDb(true)
+        if (old.leaves) await supabase.storage.from('paintings').remove([`${it.slug}/${FILES.sheet}`]).catch(() => {})
+        return
+      }
       // Upsert: the slug was free when it was chosen, so a second go after an interruption only meets its own row
-      const { error } = await supabase.from('paintings').upsert({
-        slug: it.slug, title: it.title, named: Boolean(it.named), year: cleanYear(it.year, thisYear).year ?? null,
-        medium: cleanMedium(it.medium) || null, w: f.w, h: f.h,
-        seasons: cleanSeasons(it.seasons), added: todayAtHome(), focus: [0, 0, 1, 1],
-        original: true, crop: { ...it.crop, W: it.W, H: it.H },
-      }, { onConflict: 'slug' })
+      const { error, old: o } = await writePainting((row) => supabase.from('paintings').upsert(row, { onConflict: 'slug' }), {
+        slug: it.slug, title: it.title, named: Boolean(it.named), year, month: year ? cleanMonth(it.month) : null,
+        medium: cleanMedium(it.medium) || null, seasons: cleanSeasons(it.seasons), added: todayAtHome(), focus: [0, 0, 1, 1],
+        shape: cleanShape(it.shape), looks: cleanLooks(it.looks), ...measured,
+      })
       if (error) throw error
+      if (o) setOldDb(true)
     })().then(() => {
       busy.current.delete(key); saving.current.delete(it.id)
       dropInboxFiles([it.id], ['kept', 'view']).catch(() => {}) // only its thumbnail stays, for the strip
@@ -221,7 +317,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
   }, [items, update, onSaved, thisYear])
 
   return {
-    items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, thisYear,
+    items, current, tally: tally(items), read: ui.read, pause, loaded, syncError, thisYear, alike, oldDb,
     /** Look at the family's storage again now (a set sent from another device). */
     refresh: reload,
     /** New photos into the batch; the first to check stays where it was. */
@@ -230,7 +326,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
       const fresh = list.map((f, i) => {
         const id = newId()
         files.current.set(id, f)
-        return { id, seq: base + i, local: true, name: f.name || 'A photo', status: 'new', read: ui.read ? 'waiting' : 'off', title: '', named: false, year: '', yearFrom: null, medium: '', mediumFrom: null, seasons: [], seasonsFrom: null, touched: {} }
+        return { id, seq: base + i, local: true, name: f.name || 'A photo', status: 'new', read: ui.read ? 'waiting' : 'off', title: '', named: false, year: '', yearFrom: null, month: null, monthFrom: null, medium: '', mediumFrom: null, seasons: [], seasonsFrom: null, shape: null, shapeFrom: null, looks: null, touched: {} }
       })
       setItems((xs) => [...xs, ...fresh])
       setUi((u) => ({ ...u, at: latest.current.some((x) => x.id === u.at && !DONE.includes(x.status)) ? u.at : fresh[0].id }))
@@ -245,7 +341,7 @@ export function usePaintingBatch({ gallery, onSaved }) {
       const list = latest.current, it = list.find((x) => x.id === id)
       if (!it) return
       const title = cleanTitle(it.title)
-      const slug = it.slug || slugFor(title, takenSlugs(gallery, PAINTINGS, list, id))
+      const slug = it.replace || it.slug || slugFor(title, takenSlugs(gallery, PAINTINGS, list, id))
       saving.current.add(id)
       const next = list.map((x) => (x.id === id ? { ...x, title, slug, status: 'saving', savingAt: Date.now(), saveError: null } : x))
       setItems(next)
@@ -253,14 +349,17 @@ export function usePaintingBatch({ gallery, onSaved }) {
     },
     /** A saved photo's details can be changed again (its crop stays as saved: the files are already in her gallery). */
     editSaved(id, on) { update(id, (x) => ({ ...x, editing: on, saveError: null })) },
+    /** Looks like one already in: add it anyway (`ok`), or put it in place of that one (`replace`, a slug), or neither. */
+    dupChoice(id, { ok = false, replace = null } = {}) { update(id, (x) => ({ ...x, dupOk: ok, replace })) },
     /** Saves a saved photo's details to its row; nothing else of it is touched. */
     async saveDetails(id) {
       const it = latest.current.find((x) => x.id === id)
       if (!it || !it.slug) return
-      const { error } = await supabase.from('paintings').update({
-        title: cleanTitle(it.title), named: Boolean(it.named), year: cleanYear(it.year, thisYear).year ?? null,
-        medium: cleanMedium(it.medium) || null, seasons: cleanSeasons(it.seasons),
-      }).eq('slug', it.slug)
+      const year = cleanYear(it.year, thisYear).year ?? null
+      const { error } = await writePainting((row) => supabase.from('paintings').update(row).eq('slug', it.slug), {
+        title: cleanTitle(it.title), named: Boolean(it.named), year, month: year ? cleanMonth(it.month) : null,
+        medium: cleanMedium(it.medium) || null, seasons: cleanSeasons(it.seasons), looks: cleanLooks(it.looks),
+      })
       if (error) { update(id, (x) => ({ ...x, saveError: error.message })); return }
       update(id, (x) => ({ ...x, editing: false, saveError: null, title: cleanTitle(x.title) }))
       onSaved()

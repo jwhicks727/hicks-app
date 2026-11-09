@@ -29,7 +29,7 @@ export default function Pets() {
           <li><b>Portia</b><span>a mostly black tuxedo cat</span></li>
           <li><b>Goldie</b><span>a calico cat</span></li>
         </ul>
-        <p className="muted small">The cats are in Anna’s drawing above. <Link to="/drawings">Anna’s Gallery</Link> keeps her drawings of all of them.</p>
+        <p className="muted small">The cats are in Anna’s drawing above. <Link to="/drawings">Anna’s Art</Link> keeps her drawings of all of them.</p>
       </Card>
     </>
   )
