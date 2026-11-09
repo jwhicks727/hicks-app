@@ -6,13 +6,38 @@
 import { readPrefs } from '../../lib/prefs.js'
 
 let ctx = null
-function audio() {
+function context() {
   if (readPrefs().listSounds === false) return null
   try {
     ctx = ctx || new (window.AudioContext || window.webkitAudioContext)()
-    if (ctx.state === 'suspended') ctx.resume()
     return ctx
   } catch { return null }
+}
+
+// iPhones and iPads keep audio shut until a tap has woken it, and put it back to
+// sleep ("suspended", or "interrupted" after the app was in the background). A note
+// scheduled while it sleeps is timed for a moment that has passed by the time it
+// wakes, so it is never heard. So: wake it on the first touch anywhere, and play
+// each sound only once it is running.
+function unlock() {
+  const c = context(); if (!c) return
+  const wake = () => { try { const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0) } catch { /* not allowed yet */ } }
+  if (c.state === 'running') return
+  try { const p = c.resume(); if (p && p.then) p.then(wake, () => {}); else wake() } catch { /* not allowed yet */ }
+}
+if (typeof window !== 'undefined') {
+  for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) window.addEventListener(ev, unlock, { passive: true })
+}
+
+/** Run `play(ctx)` once the audio is awake (at once if it already is). */
+function withAudio(play) {
+  const c = context(); if (!c) return
+  if (c.state === 'running') { play(c); return }
+  try {
+    const p = c.resume()
+    if (p && p.then) p.then(() => { if (c.state === 'running') play(c) }, () => {})
+    else if (c.state === 'running') play(c)
+  } catch { /* not allowed yet */ }
 }
 
 // C major pentatonic, two octaves: every step sounds right after the last
@@ -32,55 +57,62 @@ function note(c, freq, at, { dur = 0.45, vol = 0.12, type = 'triangle', glide = 
 
 /** A tick: the nth thing done today, one step up the scale. */
 export function tickSound(step = 0) {
-  const c = audio(); if (!c) return
-  const t = c.currentTime, f = SCALE[Math.min(step, SCALE.length - 1)]
-  note(c, f, t, { vol: 0.11 })
-  note(c, f * 2, t, { vol: 0.03, type: 'sine', dur: 0.25 })
+  withAudio((c) => {
+    const t = c.currentTime, f = SCALE[Math.min(step, SCALE.length - 1)]
+    note(c, f, t, { vol: 0.11 })
+    note(c, f * 2, t, { vol: 0.03, type: 'sine', dur: 0.25 })
+  })
 }
 
 /** Unticking: a soft step down. */
 export function untickSound() {
-  const c = audio(); if (!c) return
-  note(c, 392, c.currentTime, { vol: 0.06, dur: 0.25, glide: 0.8 })
+  withAudio((c) => {
+    note(c, 392, c.currentTime, { vol: 0.06, dur: 0.25, glide: 0.8 })
+  })
 }
 
 /** A list finished: a bright run for the morning, a soft hoot and a low chord for the night. */
 export function doneSound(part) {
-  const c = audio(); if (!c) return
-  const t = c.currentTime
-  if (part === 'evening') {
-    note(c, 392, t, { type: 'sine', vol: 0.12, dur: 0.5, glide: 0.94 }) // hoo
-    note(c, 392, t + 0.55, { type: 'sine', vol: 0.12, dur: 0.7, glide: 0.92 }) // hoo
-    ;[261.63, 329.63, 392, 523.25].forEach((f) => note(c, f, t + 1.2, { type: 'sine', vol: 0.05, dur: 1.6 }))
-    return
-  }
-  ;[523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f, i) => note(c, f, t + i * 0.09, { vol: 0.1, dur: 0.6 }))
+  withAudio((c) => {
+    const t = c.currentTime
+    if (part === 'evening') {
+      note(c, 392, t, { type: 'sine', vol: 0.12, dur: 0.5, glide: 0.94 }) // hoo
+      note(c, 392, t + 0.55, { type: 'sine', vol: 0.12, dur: 0.7, glide: 0.92 }) // hoo
+      ;[261.63, 329.63, 392, 523.25].forEach((f) => note(c, f, t + 1.2, { type: 'sine', vol: 0.05, dur: 1.6 }))
+      return
+    }
+    ;[523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f, i) => note(c, f, t + i * 0.09, { vol: 0.1, dur: 0.6 }))
+  })
 }
 
 /** A golden feather: a shimmer of high notes. */
 export function goldSound() {
-  const c = audio(); if (!c) return
-  const t = c.currentTime
-  ;[1567.98, 2093, 1760, 2349.32, 2637.02].forEach((f, i) => note(c, f, t + 0.06 + i * 0.05, { type: 'sine', vol: 0.05, dur: 0.5 }))
+  withAudio((c) => {
+    const t = c.currentTime
+    ;[1567.98, 2093, 1760, 2349.32, 2637.02].forEach((f, i) => note(c, f, t + 0.06 + i * 0.05, { type: 'sine', vol: 0.05, dur: 0.5 }))
+  })
 }
 
 /** A hummingbird zipping off: a quick rising chirp. */
 export function zipSound() {
-  const c = audio(); if (!c) return
-  note(c, 1800, c.currentTime, { type: 'sine', vol: 0.04, dur: 0.18, glide: 1.6 })
+  withAudio((c) => {
+    note(c, 1800, c.currentTime, { type: 'sine', vol: 0.04, dur: 0.18, glide: 1.6 })
+  })
 }
 
 /** The owl, tapped: one soft hoo. */
 export function hootSound() {
-  const c = audio(); if (!c) return
-  note(c, 370, c.currentTime, { type: 'sine', vol: 0.09, dur: 0.45, glide: 0.93 })
+  withAudio((c) => {
+    note(c, 370, c.currentTime, { type: 'sine', vol: 0.09, dur: 0.45, glide: 0.93 })
+  })
 }
 
 /** A family challenge won: a fanfare of three. */
 export function fanfare() {
-  const c = audio(); if (!c) return
-  const t = c.currentTime
-  ;[[523.25, 0], [659.25, 0.12], [783.99, 0.24], [1046.5, 0.42]].forEach(([f, d]) => note(c, f, t + d, { vol: 0.1, dur: d === 0.42 ? 1 : 0.3 }))
+  withAudio((c) => {
+    const t = c.currentTime
+    ;[[523.25, 0], [659.25, 0.12], [783.99, 0.24], [1046.5, 0.42]].forEach(([f, d]) => note(c, f, t + d, { vol: 0.1, dur: d === 0.42 ? 1 : 0.3 }))
+  })
 }
 
 /** A tiny buzz on phones that allow it (not iPhones). */

@@ -96,6 +96,8 @@ function ListsHome({ session, family, me, now, events = [] }) {
   const allDone = (p) => lists[p].entries.length > 0 && lists[p].entries.every((e) => tickFor(e, ticks))
   const auto = (() => { const p = partForHour(hour), o = p === 'morning' ? 'evening' : 'morning'; return !has(p) && has(o) ? o : p })()
   const part = choice || auto
+  // Moving to the other list puts the companion's speech bubble away: it was said for the list left behind
+  const pick = (p) => { setBubble(null); setChoice(p) }
   const other = part === 'morning' ? 'evening' : 'morning'
   const list = lists[part]
   const golden = goldenKey(memberId, today, part, list.entries)
@@ -246,7 +248,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
       <div className="dl-head">
         <div className="dl-tabs" role="group" aria-label="Which list">
           {['morning', 'evening'].map((p) => (
-            <button key={p} type="button" className={'dl-tab dl-tab-' + p} aria-pressed={p === part} onClick={() => setChoice(p)}>
+            <button key={p} type="button" className={'dl-tab dl-tab-' + p} aria-pressed={p === part} onClick={() => pick(p)}>
               <span className="dl-tab-i">{p === 'morning' ? <SunIcon /> : <MoonIcon />}</span>
               <span className="dl-tab-t"><b>{names[p]}</b>
                 <small>{lists[p].rest ? 'resting' : allDone(p) ? 'done ✓' : lists[p].entries.length ? `${lists[p].entries.length - lists[p].entries.filter((e) => tickFor(e, ticks)).length} left` : 'nothing today'}</small>
@@ -273,7 +275,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
                 <b className="dl-done-h">{part === 'evening' ? 'Sleep tight.' : 'Off you go!'}</b>
                 <span className="dl-fig">{dw.head}</span>
                 {dw.line && <span>{dw.line.replace(/^./, (c) => c.toUpperCase())}</span>}
-                {has(other) && !allDone(other) && !lists[other].rest && <button type="button" className="dl-link dl-next" onClick={() => setChoice(other)}>{names[other]}: {lists[other].entries.length - lists[other].entries.filter((e) => tickFor(e, ticks)).length} {other === 'evening' ? 'for tonight' : 'still to do'} ›</button>}
+                {has(other) && !allDone(other) && !lists[other].rest && <button type="button" className="dl-link dl-next" onClick={() => pick(other)}>{names[other]}: {lists[other].entries.length - lists[other].entries.filter((e) => tickFor(e, ticks)).length} {other === 'evening' ? 'for tonight' : 'still to do'} ›</button>}
               </div>
             ) : (
               <>
@@ -311,6 +313,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
           ? <RoutineList key={part} part={part} list={list} ticks={ticks} golden={golden} birthday={birthday} onTick={onTick} onUntick={onUntick} label={`${names[part]}: what’s left`} tools={tools} />
           : <div className="dl-pile-row">{tools}</div>
       })()}
+      {!list.rest && list.entries.length > 0 && <p className="dl-editlink"><Link to="/home/lists" className="dl-link">Change or remove things on this list</Link></p>}
       {note && <p className={'dl-note' + (note.gold ? ' gold' : '')} role="status">{note.text}</p>}
       {L.error && <p className="err" role="alert">Something didn’t save: {L.error} <button type="button" className="dl-link" onClick={() => { L.clearError(); L.reload() }}>Try again</button></p>}
 

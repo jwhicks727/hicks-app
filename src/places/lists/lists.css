@@ -367,3 +367,6 @@ html[data-motion="less"] .dl-wing { transform: scaleY(.6); }
 .state.lvl-medium { background: color-mix(in srgb, #E0A320 22%, var(--card)); }
 .state.lvl-hard { background: color-mix(in srgb, #E0662F 22%, var(--card)); color: inherit; }
 .dl-cform { padding: 4px 0; }
+
+.dl-editlink { margin: 6px 0 0; font-size: 14px; font-weight: 700; }
+@media (pointer: coarse) { .dl-editlink .dl-link { display: inline-block; padding: 10px 0; } }
