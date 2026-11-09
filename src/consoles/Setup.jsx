@@ -13,6 +13,7 @@ import { useSession } from '../lib/auth.js'
 import { useSources, todayAtHome } from '../lib/useSources.js'
 import { SOURCE_KINDS, guessKind, staleness } from '../lib/sources.js'
 import { REGISTRY } from '../registry.js'
+import MediaMove from './MediaMove.jsx'
 import { Card } from '../ui/Card.jsx'
 import { Confirm } from '../ui/Confirm.jsx'
 import { Link } from '../shell/Link.jsx'
@@ -117,6 +118,8 @@ export default function Setup() {
       </>
     )
   }
+  const email = session && session.user && session.user.email ? session.user.email.toLowerCase() : null
+  const me = email ? family.members.find((m) => (m.email || '').toLowerCase() === email) : null
   const counts = (rows || []).reduce((a, s) => { const st = staleness(s, today).state; a[st] = (a[st] || 0) + 1; return a }, {})
   return (
     <>
@@ -183,6 +186,8 @@ export default function Setup() {
       <AroundSetup />
 
       <YonderSetup />
+
+      <MediaMove parent={Boolean(me && me.role === 'parent')} />
 
       <Card tint="#C0824F" label="Laurie’s gallery: look it over again" glyph="star" className="span-6">
         <p>For the paintings added before months, canvas shapes, colours and fingerprints were kept: each painting’s colours and fingerprint are measured on this device, and Claude can look at each again for a month she wrote by her signature, the shape of its canvas, and a few words for what it shows and how it feels. Nothing of hers changes until you tick it and save.</p>

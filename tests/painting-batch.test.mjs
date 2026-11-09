@@ -292,7 +292,7 @@ test('a parent can take a painting out of her gallery: the files, then the row, 
   assert.match(ed, /Take it out of her gallery/)
   assert.match(ed, /<Confirm /, 'asked first')
   // Files first: if they can't go, the row stays
-  const files = ed.indexOf(".storage.from('paintings').remove(paths)"), row = ed.indexOf(".from('paintings').delete().eq('slug', p.slug)")
+  const files = ed.indexOf("media.from('paintings').remove(paths)"), row = ed.indexOf(".from('paintings').delete().eq('slug', p.slug)")
   assert.ok(files > 0 && row > files && ed.includes('if (fe) { setBusy(false); setGone(false); setErr(fe.message); return }'))
   assert.match(ed, /navigate\('\/lifelist\/paintings', \{ replace: true \}\)/)
 })

@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { supabase } from './supabase.js'
+import { media } from './media.js'
 import { askClaude, prepareUpload } from './claude.js'
 import { photoPaths, takenOn, suggestionRows, handTag, MAX_PER_BATCH } from './photos.js'
 
@@ -54,7 +55,7 @@ export async function signedUrls(paths) {
   const now = Date.now(), want = [...new Set((paths || []).filter(Boolean))], out = {}, missing = []
   for (const p of want) { const c = urls.get(p); if (c && c.until > now) out[p] = c.url; else missing.push(p) }
   if (missing.length && supabase) {
-    const { data } = await supabase.storage.from('trips').createSignedUrls(missing, 5 * 86400)
+    const { data } = await media.from('trips').createSignedUrls(missing, 5 * 86400)
     for (const d of data || []) if (d.signedUrl) { urls.set(d.path, { url: d.signedUrl, until: now + KEEP }); out[d.path] = d.signedUrl }
   }
   return out
@@ -89,12 +90,12 @@ export async function addPhotos(files, ctx, onStage = () => {}) {
       const thumb = await prepareUpload(f, { max: 420, quality: 0.8 })
       const id = crypto.randomUUID(), paths = photoPaths(id)
       onStage(`Sending it to the family’s storage${of}…`)
-      const up1 = await supabase.storage.from('trips').upload(paths.path, full.blob, { contentType: 'image/jpeg', upsert: false })
+      const up1 = await media.from('trips').upload(paths.path, full.blob, { contentType: 'image/jpeg', upsert: false })
       if (up1.error) throw new Error(up1.error.message)
-      const up2 = await supabase.storage.from('trips').upload(paths.thumb_path, thumb.blob, { contentType: 'image/jpeg', upsert: false })
+      const up2 = await media.from('trips').upload(paths.thumb_path, thumb.blob, { contentType: 'image/jpeg', upsert: false })
       const day = takenOn(f.lastModified, ctx.from, ctx.last)
       const { data: row, error } = await supabase.from('trip_photos').insert({ id, town: ctx.town, region: ctx.region || null, taken_on: day, path: paths.path, thumb_path: up2.error ? null : paths.thumb_path, width: full.width, height: full.height }).select('id').single()
-      if (error) { await supabase.storage.from('trips').remove([paths.path, paths.thumb_path]); throw new Error(error.message) }
+      if (error) { await media.from('trips').remove([paths.path, paths.thumb_path]); throw new Error(error.message) }
       added.push(row.id)
       await refreshPhotos()
       if (ctx.read) {
@@ -130,6 +131,6 @@ export async function addHandTag(photoId, spec) {
 export const setCaption = (id, caption) => done(supabase.from('trip_photos').update({ caption: caption ? String(caption).slice(0, 300) : null }).eq('id', id))
 /** Takes a photo away for good: its files, then its row (its tags go with it). */
 export async function deletePhoto(photo) {
-  await supabase.storage.from('trips').remove([photo.path, photo.thumb_path].filter(Boolean))
+  await media.from('trips').remove([photo.path, photo.thumb_path].filter(Boolean))
   return done(supabase.from('trip_photos').delete().eq('id', photo.id))
 }

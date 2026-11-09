@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { media } from '../lib/media.js'
 import { useSession } from '../lib/auth.js'
 import { PAINTINGS, fromRow, storedPaths } from '../lib/paintings.js'
 
@@ -22,7 +23,7 @@ export function PaintingsProvider({ children }) {
       if (!live) return
       if (error || !data || !data.length) { setState({ list: import.meta.env.DEV ? PAINTINGS : [], stored: false, loaded: true }); return }
       const paths = data.flatMap((r) => Object.values(storedPaths(r.slug, r)))
-      const { data: signed } = await supabase.storage.from('paintings').createSignedUrls(paths, 7 * 86400)
+      const { data: signed } = await media.from('paintings').createSignedUrls(paths, 7 * 86400)
       const urls = Object.fromEntries((signed || []).filter((x) => x.signedUrl).map((x) => [x.path, x.signedUrl]))
       if (live) setState({ list: data.map((r) => fromRow(r, urls)), stored: true, loaded: true })
     })

@@ -248,6 +248,41 @@ npx supabase secrets set ANTHROPIC_API_KEY=... --project-ref <project-ref>
 npx supabase functions deploy claude --no-verify-jwt --project-ref <project-ref>
 ```
 
+## Pictures (Cloudflare R2)
+
+Every picture lives in one private Cloudflare R2 bucket, `hicks-media`, with the
+old Supabase bucket names as its folders (`paintings/`, `drawings/`, `trips/`,
+`garden/`, `academy/`). Where a table below says a picture is in a private bucket,
+it's that folder. Setting it up, and moving what's already in Supabase: docs/R2-SETUP.md.
+
+- **The `media` Edge Function** (`supabase/functions/media/`) is the only way in. It
+  answers a signed-in family member with short-lived signed links (to see, an hour
+  by default and a week at most; to add, fifteen minutes), up to 200 in one ask.
+  Its rules (`supabase/functions/_shared/media.js`) are the old buckets' policies:
+  the family reads every area; paintings and academy pictures are added and taken
+  away by a parent; drawings by anyone in the family, taken away by whoever added
+  one (their `my_member_id()`, kept on the file as `x-amz-meta-owner`; the move keeps
+  each drawing's `added_by`) or a parent; trip and garden photos
+  by the family. Only paintings can be written over, and only when asked. Types and
+  sizes are the buckets' own. It checks the caller with `is_family()`,
+  `is_parent()` and `my_member_id()` as the caller, so it needs no service role key.
+- **R2's keys** are its secrets only (docs/SECRETS.md). The app asks it through
+  `src/lib/media.js`, which has the same shape as Supabase's storage client.
+- **Before R2 is set up** (no secrets, or the function not deployed) the app uses
+  the Supabase buckets as before. **While it moves**, a picture R2 doesn't have yet is
+  shown from Supabase's bucket, signed as the caller so the bucket's own policies
+  decide, and taking a picture away takes any copy left there too; `MEDIA_FALLBACK=off`
+  ends that once the move is done. The buckets and their policies stay, empty.
+
+Deploy (check the account first: `npx supabase projects list` must show "Hicks App"):
+
+```sh
+npx supabase functions deploy media --no-verify-jwt --project-ref <project-ref>
+```
+
+From a phone, `node scripts/one-file.mjs media` makes a single file to paste into
+the dashboard's editor (docs/R2-SETUP.md).
+
 ## Signing in
 
 For now, a sign-in link by email (Supabase's own, no setup needed). Once the

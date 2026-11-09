@@ -275,6 +275,14 @@ licence nobody wrote down.
   Church's day comes from `liturgicalDay()`; anything that only might be
   right (Islamic dates, unchecked Mass times) says so on screen. Family
   days are only ever read from the database. Tests pin known years.
+- **Pictures live in Cloudflare R2** (one private bucket, `hicks-media`, the old
+  Supabase bucket names as its folders, so "the `drawings` bucket" means that folder;
+  docs/R2-SETUP.md). Every screen reaches them through `media.from(area)`
+  (`src/lib/media.js`), never `supabase.storage` (only the Admin move,
+  `src/consoles/MediaMove.jsx`) and never R2 itself. The `media` function signs
+  short-lived links and holds each area's rules in `supabase/functions/_shared/media.js`:
+  a new bucket in a migration is a new area there too (`tests/media.test.mjs`). R2's keys
+  live only in that function's secrets, and the bucket is never made public.
 - **A place's stylesheet** sits beside its screens and is imported by them;
   `styles.css` loads first (`src/main.jsx`), so a place's rule wins a tie.
 - **A job that's waiting gets the shine** (`.shine`, the count on its face,
@@ -344,7 +352,9 @@ licence nobody wrote down.
   supabase.com/dashboard/account/tokens, never pasted into chat), or
   `npx supabase logout` then `login`. Give the branch switch too, since he
   works on several branches: `cd C:\Users\Admin\projects\hicks-app-clone; git checkout main; git pull`
-  before a deploy of merged work, and `git checkout <his branch>` after.
+  before a deploy of merged work, and `git checkout <his branch>` after. On his phone
+  there's no CLI: `node scripts/one-file.mjs <function>` makes a single file to paste
+  into the dashboard's editor (Edge Functions › Deploy a new function › Via Editor).
 - New tables are not exposed automatically: each migration grants its
   tables to `authenticated`, never to `anon`, and switches on row-level
   security. Never `using (true)`: a signed-in stranger must see nothing.

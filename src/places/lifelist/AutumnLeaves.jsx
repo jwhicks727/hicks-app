@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '../../ui/Card.jsx'
 import { Working } from '../../ui/Toast.jsx'
 import { supabase } from '../../lib/supabase.js'
+import { media } from '../../lib/media.js'
 import { todayAtHome } from '../../lib/useSources.js'
 import { FILES } from '../../lib/paintings.js'
 import { cutLeaves, leavesRow, LEAF_WORK } from '../../lib/leafCut.js'
@@ -62,7 +63,7 @@ export default function AutumnLeaves({ painting: p, onSaved }) {
   async function keep() {
     const { png, row } = st
     setSt((s) => ({ ...s, phase: 'saving' }))
-    const up = await supabase.storage.from('paintings').upload(`${p.slug}/${FILES.sheet}`, png, { contentType: 'image/png', upsert: true })
+    const up = await media.from('paintings').upload(`${p.slug}/${FILES.sheet}`, png, { contentType: 'image/png', upsert: true })
     if (up.error) { setSt((s) => ({ ...s, phase: 'preview', msg: up.error.message })); return }
     const { error } = await supabase.from('paintings').update({ leaves: row }).eq('slug', p.slug)
     if (error) { setSt((s) => ({ ...s, phase: 'preview', msg: error.message })); return }

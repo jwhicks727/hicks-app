@@ -72,6 +72,11 @@ Setting it all up, in order: `docs/MORNING.md`.
   password sign-in works without it).
 - **Laurie's paintings are never in the hosted files.** They live behind
   sign-in, in private storage (`docs/PAINTINGS-STORAGE.md`).
+- **Every picture the app keeps** (paintings, drawings, trip, garden and academy
+  photos) lives in one private Cloudflare R2 bucket, reached only through short-lived
+  links the `media` Edge Function signs; screens use `media.from(area)`
+  (`src/lib/media.js`). Until R2 is set up the app uses Supabase's storage
+  (`docs/R2-SETUP.md`).
 
 ## Where things are
 

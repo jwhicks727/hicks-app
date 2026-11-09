@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { media } from '../lib/media.js'
 import { fetchAll } from '../lib/useCalendar.js'
 
 // Everything at Anna's academy, read as the signed-in member (the family
@@ -49,12 +50,12 @@ export const removeCheer = (id) => supabase.from('academy_cheers').delete().eq('
 /** A picture the family adds: into the bucket, then its row with its licence. */
 export async function addAsset({ file, name, cat, licence, source }) {
   const id = crypto.randomUUID(), ext = file.type === 'image/webp' ? 'webp' : 'png', path = `${id}.${ext}`
-  const up = await supabase.storage.from('academy').upload(path, file, { contentType: file.type, upsert: false })
+  const up = await media.from('academy').upload(path, file, { contentType: file.type, upsert: false })
   if (up.error) return { error: up.error }
   return supabase.from('academy_assets').insert({ name, cat, path, licence, source: source || null }).select().single()
 }
 export async function removeAsset(a) {
-  await supabase.storage.from('academy').remove([a.path])
+  await media.from('academy').remove([a.path])
   return supabase.from('academy_assets').delete().eq('id', a.id)
 }
 
@@ -69,7 +70,7 @@ export function useAssetUrls(assets) {
     for (const p of want) { const c = cache.get(p); if (c && c.until > now) have[p] = c.url; else missing.push(p) }
     setUrls(have)
     if (!missing.length || !supabase) return undefined
-    supabase.storage.from('academy').createSignedUrls(missing, 5 * 86400).then(({ data }) => {
+    media.from('academy').createSignedUrls(missing, 5 * 86400).then(({ data }) => {
       for (const d of data || []) if (d.signedUrl) cache.set(d.path, { url: d.signedUrl, until: now + KEEP })
       if (live) setUrls((u) => ({ ...u, ...Object.fromEntries((data || []).filter((d) => d.signedUrl).map((d) => [d.path, d.signedUrl])) }))
     })

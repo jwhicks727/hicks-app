@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
+import { media } from './media.js'
 import { useSession } from './auth.js'
 import { sortDrawings, drawingFiles, migrationMissing } from './drawings.js'
 
@@ -34,7 +35,7 @@ export const saveDrawing = (id, fields) => supabase.from('annas_drawings').updat
 /** A drawing down: its row, then its files. */
 export async function removeDrawing(d) {
   const res = await supabase.from('annas_drawings').delete().eq('id', d.id)
-  if (!res.error) await supabase.storage.from('drawings').remove([d.path, d.thumb_path, d.original ? drawingFiles(d.id).original : null].filter(Boolean))
+  if (!res.error) await media.from('drawings').remove([d.path, d.thumb_path, d.original ? drawingFiles(d.id).original : null].filter(Boolean))
   return res
 }
 
@@ -50,7 +51,7 @@ export function useDrawingUrls(paths) {
     for (const p of want) { const c = cache.get(p); if (c && c.until > now) have[p] = c.url; else missing.push(p) }
     setUrls(have)
     if (!missing.length || !supabase) return undefined
-    supabase.storage.from('drawings').createSignedUrls(missing, 5 * 86400).then(({ data }) => {
+    media.from('drawings').createSignedUrls(missing, 5 * 86400).then(({ data }) => {
       for (const d of data || []) if (d.signedUrl) cache.set(d.path, { url: d.signedUrl, until: now + KEEP })
       if (live) setUrls((u) => ({ ...u, ...Object.fromEntries((data || []).filter((d) => d.signedUrl).map((d) => [d.path, d.signedUrl])) }))
     })
