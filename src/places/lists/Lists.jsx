@@ -20,6 +20,7 @@ import { DayTools } from './DayTools.jsx'
 import { ItemSheet } from './ItemSheet.jsx'
 import { Hummingbird, Owl } from './Birds.jsx'
 import { ItemIcon, SunIcon, MoonIcon, Flame } from './icons.jsx'
+import { skipHandlers } from './skip.js'
 import { tickSound, untickSound, doneSound } from './sounds.js'
 import Family from './Family.jsx'
 import './lists.css'
@@ -126,7 +127,7 @@ function PersonLists({ session, family, me, person, self, now }) {
                 return <p className="muted">Resting today{list.restNote ? `: ${list.restNote.toLowerCase()}` : ''}. The streak waits. {rest && <button type="button" className="dl-link" onClick={() => L.removeChange(rest.id)}>Back on</button>}</p>
               }
               const tools = <DayTools key={'tools' + part} L={L} memberId={person.id} part={part} name={names[part]} today={today} canSkip={total > 0 && done < total} onToast={setToast} />
-              return total ? <RoutineList part={part} list={list} ticks={ticks} golden={goldenKey(person.id, today, part, list.entries)} label={`${names[part]} today`} tools={tools}
+              return total ? <RoutineList part={part} list={list} {...skipHandlers(L, { part, today, onToast: setToast })} ticks={ticks} golden={goldenKey(person.id, today, part, list.entries)} label={`${names[part]} today`} tools={tools}
                 onTick={(e) => { tickSound(done); L.tick(e, part); if (done + 1 >= total) setTimeout(() => doneSound(part), 700) }}
                 onUntick={(e) => { untickSound(); L.untick(e, part) }} />
                 : <><p className="muted">Nothing on it today.</p><div className="dl-pile-row">{tools}</div></>

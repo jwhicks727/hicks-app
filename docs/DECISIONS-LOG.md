@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-10 — Skip one thing for a day without ticking it
+
+Jason asked that a list item can be dismissed on a night it will be skipped for cause (a
+play, a dose left out on purpose) without ticking it off, which would record something
+that didn't happen. Each open row on the Home card and the Lists page has a quiet Skip
+button: it adds the `skip` change the table already held for a day, with an Undo, and
+"skipped" in the pile lists what was skipped with Put back. A skipped item is neither
+done nor missed: the list is finished when the rest are, and a streak is not broken. No
+migration. Branch names describe the work (`fix/list-sounds-bubble-skip-items`), never a
+random session name.
+
+---
+
 ## 2026-11-08 — Hunt & gather before the fridge; ingredients picked out in cook mode; food pictures coloured properly
 
 Jason had two dishes in the fridge and had pressed "Done shopping" several times. He

@@ -17,6 +17,7 @@ import { Hummingbird, Owl, Feather, Trophy } from '../places/lists/Birds.jsx'
 import { Flight, TeamFlight, Joy } from '../places/lists/Moments.jsx'
 import { SunIcon, MoonIcon, Flame } from '../places/lists/icons.jsx'
 import { tickSound, untickSound, doneSound, goldSound, zipSound, hootSound, fanfare, buzz } from '../places/lists/sounds.js'
+import { skipHandlers } from '../places/lists/skip.js'
 import { seen, markSeen } from '../places/lists/seen.js'
 import '../places/lists/lists.css'
 
@@ -310,7 +311,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
       {!list.rest && (() => {
         const tools = <DayTools key={'tools' + part} L={L} memberId={memberId} part={part} name={names[part]} today={today} canSkip={list.entries.length > 0 && !allDone(part)} onToast={setToast} />
         return list.entries.length > 0
-          ? <RoutineList key={part} part={part} list={list} ticks={ticks} golden={golden} birthday={birthday} onTick={onTick} onUntick={onUntick} label={`${names[part]}: what’s left`} tools={tools} />
+          ? <RoutineList key={part} {...skipHandlers(L, { part, today, onToast: setToast })} part={part} list={list} ticks={ticks} golden={golden} birthday={birthday} onTick={onTick} onUntick={onUntick} label={`${names[part]}: what’s left`} tools={tools} />
           : <div className="dl-pile-row">{tools}</div>
       })()}
       {!list.rest && list.entries.length > 0 && <p className="dl-editlink"><Link to="/home/lists" className="dl-link">Change or remove things on this list</Link></p>}

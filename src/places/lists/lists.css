@@ -370,3 +370,12 @@ html[data-motion="less"] .dl-wing { transform: scaleY(.6); }
 
 .dl-editlink { margin: 6px 0 0; font-size: 14px; font-weight: 700; }
 @media (pointer: coarse) { .dl-editlink .dl-link { display: inline-block; padding: 10px 0; } }
+
+/* Skipping a thing for today: a quiet button beside the row, never a tick */
+.dl-list > li.dl-skippable { display: flex; align-items: stretch; gap: 6px; }
+.dl-list > li.dl-skippable > .dl-row { flex: 1 1 auto; width: auto; min-width: 0; }
+.dl-skipb { flex: none; align-self: center; min-height: 36px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.dl-skipb:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+@media (pointer: coarse) { .dl-skipb { min-height: 44px; padding: 6px 12px; } }
+.dl-row-skipped { cursor: default; opacity: .8; }
+.dl-row-skipped .dl-words { text-decoration: none; }

@@ -39,9 +39,11 @@ function sub(e) {
  * `list` is dayList()'s; `ticks` the day's. `onTick(entry)` and `onUntick(entry)`
  * do the work (and the sounds); `golden` is the key of the day's golden thing.
  */
-export function RoutineList({ part, list, ticks, golden, birthday = false, onTick, onUntick, label, tools = null }) {
+export function RoutineList({ part, list, ticks, golden, birthday = false, onTick, onUntick, onSkip = null, onUnskip = null, label, tools = null }) {
   const [going, setGoing] = useState({}) // key -> 'gold' | 'party' | part: rows still animating out
   const [pileOpen, setPileOpen] = useState(false)
+  const [skipOpen, setSkipOpen] = useState(false)
+  const skipped = list.skippedEntries || []
   const ul = useRef(null), tops = useRef(new Map())
   const done = list.entries.filter((e) => tickFor(e, ticks))
   const open = list.entries.filter((e) => !tickFor(e, ticks) || going[entryKey(e)])
@@ -77,7 +79,7 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
           {open.map((e) => {
             const k = entryKey(e), g = going[k]
             return (
-              <li key={k} data-key={k} className={(g ? 'dl-going' : '') + (k === golden && !g ? ' dl-golden' : '')}>
+              <li key={k} data-key={k} className={(g ? 'dl-going' : '') + (k === golden && !g ? ' dl-golden' : '') + (onSkip && e.kind === 'item' && !g ? ' dl-skippable' : '')}>
                 <button type="button" className="dl-row" aria-pressed={Boolean(g)} onClick={() => tap(e)}>
                   <span className="dl-box">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path className="dl-check" d="M5.5 12.5l4.2 4.2 8.8-9.4" /></svg>
@@ -90,12 +92,13 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
                   {k === golden && !g && <span className="dl-gold-tag" aria-label="today’s golden feather">✦</span>}
                   {e.icon && <ItemIcon name={e.icon} />}
                 </button>
+                {onSkip && e.kind === 'item' && !g && <button type="button" className="dl-skipb" aria-label={`Skip ${e.title} today`} title="Skip today, without ticking it" onClick={() => onSkip(e)}>Skip</button>}
               </li>
             )
           })}
         </ul>
       )}
-      {(done.length > 0 || tools) && (
+      {(done.length > 0 || skipped.length > 0 || tools) && (
         <div className="dl-pile">
           <div className="dl-pile-row">
             {done.length > 0 && (
@@ -103,8 +106,23 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
                 <span className="dl-pile-n" key={done.length}>✓ {done.length}</span> done{pileOpen ? '' : ': tap to see'}
               </button>
             )}
+            {skipped.length > 0 && (
+              <button type="button" className="dl-pile-b" aria-expanded={skipOpen} onClick={() => setSkipOpen((x) => !x)}>
+                <span className="dl-pile-n">{skipped.length}</span> skipped{skipOpen ? '' : ': tap to see'}
+              </button>
+            )}
             {tools}
           </div>
+          {skipOpen && skipped.length > 0 && (
+            <ul className="dl-list dl-done dl-skipped" aria-label="Skipped today">
+              {skipped.map((e) => (
+                <li key={'s' + e.id} className="dl-skippable">
+                  <span className="dl-row dl-row-skipped"><span className="dl-t"><span className="dl-words">{e.title}</span><small>skipped today, not ticked</small></span></span>
+                  {onUnskip && <button type="button" className="dl-skipb" aria-label={`Put ${e.title} back on today’s list`} onClick={() => onUnskip(e)}>Put back</button>}
+                </li>
+              ))}
+            </ul>
+          )}
           {pileOpen && done.length > 0 && (
             <ul className="dl-list dl-done">
               {done.map((e) => (
