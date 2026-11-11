@@ -130,7 +130,7 @@ export default function Campus({ rooms, n, colours = [], stars = 0, newStars = 0
         <g transform={a.wind.to < 0 ? 'scale(-1 1)' : undefined} style={{ '--f0': FLAG[a.wind.level][0], '--fs0': FLAG[a.wind.level][1], '--f1': FLAG[a.wind.level][2], '--fs1': FLAG[a.wind.level][3] }}>
           <g className="ac-flag" style={{ animationDuration: `${a.wind.flag}s` }}>
             <path d="M2 -90 h34 l-8 9 l8 9 h-34 Z" fill={tone(green)} stroke={tone(dark)} strokeWidth="1.5" />
-            <rect x="2" y="-80" width="34" height="3" fill={tone(gold)} />
+            <rect x="2" y="-82.5" width="26" height="3" fill={tone(gold)} />
           </g>
         </g>
       </g>
