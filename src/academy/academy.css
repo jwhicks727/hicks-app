@@ -269,3 +269,8 @@ html[data-motion="less"] .ac-spot, html[data-motion="less"] .btn.ac-gleam, html[
 .academy > * { animation: rise .55s cubic-bezier(.2, .8, .2, 1) both; }
 @media (min-width: 960px) { .academy > * { grid-column: span 6; } }
 @media (prefers-reduced-motion: reduce) { .academy > * { animation-name: fade-in; animation-duration: .4s; } }
+
+/* A prize on the Hall of Fame wall: tappable */
+.ac-prize { cursor: pointer; }
+.ac-prize:focus-visible { outline: 2px solid #F2C14E; outline-offset: 1px; }
+.ac-prize-sheet { display: grid; gap: 8px; justify-items: center; text-align: center; }

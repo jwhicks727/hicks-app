@@ -43,7 +43,7 @@ const light = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return ((
 const trunc = (s, n) => (s && s.length > n ? s.slice(0, n - 1) + '…' : s || '')
 const glowId = (id, c) => `${id}-glow-${c.slice(1)}`
 
-export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, assetOf, extras = {}, now = new Date(), atmos, id = 'r' }) {
+export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
   const svg = useRef(null), drag = useRef(null)
   const [hop, setHop] = useState(null)
   const a = atmos || atmosphereAt({ now })
@@ -94,7 +94,7 @@ export default function RoomScene({ room, kind, items, arranging = false, select
   const washes = outdoors ? a.washes : a.dark ? a.washesIn.map(([tint, k]) => [tint, Math.min(0.52, k * (lightsOn ? 0.8 : 1.3))]) : a.washesIn
   const panel = { x: box.x, y: box.y, w: box.w, h: box.h }
   const heavens = { x0: box.x + 16, x1: box.x + box.w - 16, horizon: -40, zenith: box.y + 14 }
-  const wallArgs = { detail, wall, id, night, now: a.now, a, extras, urlFor, seed }
+  const wallArgs = { detail, wall, id, night, now: a.now, a, extras, urlFor, seed, onPrize: arranging ? null : onPrize }
   const left = wall !== 'none' ? WallDetails({ side: 'left', ...wallArgs }) : null, right = wall !== 'none' ? WallDetails({ side: 'right', ...wallArgs }) : null
   const sunny = a.beam && !glassy && !outdoors
   const panes = detail === 'chapel' ? GLASS : ['stars', 'gym', 'pool', 'theater'].includes(detail) ? [] : PANES
@@ -361,7 +361,9 @@ const Base = ({ wall }) => <><rect x="0" y="-8" width={WL} height="8" fill={wall
 
 /** What's on a wall, by the kind of room. Left wall first, then right. */
 /** Returns { base, lit }: `base` is dimmed with the room by the hour's light; `lit` (the window, lamps, neon, screens) is drawn over it. */
-function WallDetails({ side, detail, wall, id, night, now, a, extras, urlFor, seed }) {
+function WallDetails({ side, detail, wall, id, night, now, a, extras, urlFor, seed, onPrize }) {
+  // A prize on the wall opens its story when tapped (or Enter / Space); it stays still while arranging
+  const tap = (p) => onPrize ? { role: 'button', tabIndex: 0, 'aria-label': p.title, className: 'ac-prize', onClick: (e) => { e.stopPropagation(); onPrize(p) }, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onPrize(p) } } } : {}
   const r = rng(seed + side)
   const ink = light(wall === 'glass' ? '#FFFFFF' : wall) ? '#2B2019' : '#FFF8EE'
   const L = side === 'left'
@@ -408,7 +410,7 @@ function WallDetails({ side, detail, wall, id, night, now, a, extras, urlFor, se
     } else if (detail === 'fame') {
       const prizes = (extras.fame || []).slice(0, 12)
       for (let row = 0; row < 2; row++) out.push(<rect key={'fs' + row} x={10} y={-92 + row * 46} width={WL - 20} height={5} fill="#C9A227" />)
-      prizes.slice(0, 12).forEach((p, k) => { const row = Math.floor(k / 6), x = 14 + (k % 6) * 29; out.push(<image key={'p' + k} href={p.prize.startsWith('a:') ? urlFor && urlFor(p.prize.slice(2)) : itemSrc(p.prize)} x={x} y={-92 + row * 46 - 26} width="26" height="26"><title>{p.title}</title></image>) })
+      prizes.slice(0, 12).forEach((p, k) => { const row = Math.floor(k / 6), x = 14 + (k % 6) * 29; out.push(<g key={'p' + k} {...tap(p)}><rect x={x - 1} y={-92 + row * 46 - 27} width="28" height="28" fill="transparent" /><image href={p.prize.startsWith('a:') ? urlFor && urlFor(p.prize.slice(2)) : itemSrc(p.prize)} x={x} y={-92 + row * 46 - 26} width="26" height="26"><title>{p.title}</title></image></g>) })
       if (!prizes.length) out.push(<text key="none" x={18} y={-60} className="plaque-t" fill="#F2C14E">Trophies land here</text>)
       return done()
     } else if (detail === 'lab') {
@@ -444,7 +446,7 @@ function WallDetails({ side, detail, wall, id, night, now, a, extras, urlFor, se
       lit.push(<Window key="win" {...WIN} id={id} frame={light(wall) ? '#FFFFFF' : '#FFF8EE'} a={a} />)
       if (detail === 'tasks') out.push(<g key="abc">{'ABCDEFGHIJ'.split('').map((c, k) => <text key={c} x={10 + k * 18} y={-H + 18} className="abc" fill={['#B3263A', '#2F5FA8', '#E0A320', '#3E7A4C', '#8A5BC4'][k % 5]}>{c}{c.toLowerCase()}</text>)}</g>)
       if (detail === 'fame') {
-        ;(extras.fame || []).filter((p) => p.kind === 'cheer').slice(0, 2).forEach((p, k) => out.push(<g key={'pl' + k}><rect x={124} y={-128 + k * 46} width={60} height={38} fill="#C9A227" /><rect x={127} y={-125 + k * 46} width={54} height={32} fill="#2B2019" /><text x={131} y={-112 + k * 46} className="plaque-t">{trunc(p.title, 12)}</text><text x={131} y={-101 + k * 46} className="plaque-s">{p.on}</text></g>))
+        ;(extras.fame || []).filter((p) => p.kind === 'cheer').slice(0, 2).forEach((p, k) => out.push(<g key={'pl' + k} {...tap(p)}><rect x={124} y={-128 + k * 46} width={60} height={38} fill="#C9A227" /><rect x={127} y={-125 + k * 46} width={54} height={32} fill="#2B2019" /><text x={131} y={-112 + k * 46} className="plaque-t">{trunc(p.title, 12)}</text><text x={131} y={-101 + k * 46} className="plaque-s">{p.on}</text></g>))
       }
     }
   }
