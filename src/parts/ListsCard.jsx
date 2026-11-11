@@ -5,7 +5,7 @@ import { Link } from '../shell/Link.jsx'
 import { Toast } from '../ui/Toast.jsx'
 import { useLists } from '../lib/useLists.js'
 import { reducedMotion } from '../lib/motion.js'
-import { diffDays, todayAt } from '../lib/cal/dates.js'
+import { addDays, diffDays, todayAt } from '../lib/cal/dates.js'
 import {
   listDay, partForHour, dayList, tickFor, dayMarks, streakFrom, runsFrom, recordsFrom, milestoneAt, perkAt, perksFor,
   mournWords, progressWords, doneWords, goldenKey, minutesAtHome, namesFor, noun, schoolDayFrom,
@@ -86,6 +86,8 @@ function ListsHome({ session, family, me, now, events = [] }) {
     evening: dayList({ items: L.items, changes: L.changes, date: today, part: 'evening', schoolDay }),
   }), [L.items, L.changes, today, schoolDay])
   const ticks = L.ticks.filter((t) => t.on_date === today)
+  // Last night's evening list is still open for a tick (the day turns over at 3am)
+  const lastLeft = (() => { const y = addDays(today, -1), tk = L.ticks.filter((t) => t.on_date === y); return dayList({ items: L.items, changes: L.changes, date: y, part: 'evening', schoolDay }).entries.filter((e) => !tickFor(e, tk)).length })()
   const marks = useMemo(() => ({
     morning: dayMarks({ rows: L.myRows, items: L.items, part: 'morning', today }),
     evening: dayMarks({ rows: L.myRows, items: L.items, part: 'evening', today }),
@@ -352,6 +354,7 @@ function ListsHome({ session, family, me, now, events = [] }) {
         )}
 
         <div className="dl-foot">
+          {lastLeft > 0 && <Link to="/home/lists" className="dl-more">Last night’s {names.evening}: {lastLeft} still to tick ›</Link>}
           <Link to="/home/lists" className="dl-more">Your lists, streaks and records ›</Link>
           {parentOfAnna && <Link to={`/home/lists/${parentOfAnna.id}`} className="dl-more">{parentOfAnna.name}’s ›</Link>}
         </div>

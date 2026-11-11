@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-11 — Last night's Night Owl list stays open for a tick the next day
+
+The day turns over at 3am, so by breakfast the evening list a person fell asleep on had
+vanished from Home and the Lists page. Yesterday's evening list now shows on `/home/lists`
+as "Last night's Night Owl" while anything on it is unticked (and stays up once ticking
+starts), and Home links to it. A tick there is written to yesterday's date and rewrites
+yesterday's `routine_days` row, so the streak counts it. No migration: the policies never
+limited ticks by date.
+
+---
+
 ## 2026-11-11 — The academy stands under home's real sky, and what's in it stirs
 
 Jason is buying furniture and pets (Unity Asset Store packs) to add as the family's own
