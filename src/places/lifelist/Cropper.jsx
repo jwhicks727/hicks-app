@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { viewOf, edgesOf, dragCrop, nearestCorner, fitInside, turnCrop, leanCrop, wholeCrop, turnedSize, fitsStage, sameCrop, LEAN } from '../../lib/paintingBatch.js'
+import { viewOf, edgesOf, dragCrop, nearestCorner, fitInside, reach, turnCrop, leanCrop, wholeCrop, turnedSize, fitsStage, sameCrop, LEAN } from '../../lib/paintingBatch.js'
 import { SHAPES, SHAPE_ORDER, outlineOf } from '../../lib/shapes.js'
 import './addpaintings.css'
 
@@ -198,7 +198,7 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
     change(next); adjusted(next)
   }
 
-  const turn = (by) => { const next = fitInside(turnCrop(crop, W, H, by), W, H); change(next); setFrame(next); if (autoZoom) setZoom(true) }
+  const turn = (by) => { const next = fitInside(turnCrop(crop, W, H, by), W, H, reach(W, H, crop.turn + by)); change(next); setFrame(next); if (autoZoom) setZoom(true) }
   // The straighten slider: one step in the history for each go at it, however many small moves it makes
   const lean = (e) => {
     const from = leanFrom.current || { crop, recorded: false }

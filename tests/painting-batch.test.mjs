@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { findPainting } from '../src/lib/autocrop.js'
 import {
-  turnedSize, wholeCrop, fromFound, turnCrop, cropCorners, insideImage, fitInside, leanCrop, drawTransform, viewOf, edgesOf, fromEdges,
+  turnedSize, reach, OVER, fitsStage, wholeCrop, fromFound, turnCrop, cropCorners, insideImage, fitInside, leanCrop, drawTransform, viewOf, edgesOf, fromEdges,
   dragCrop, nearestCorner, signatureCorners, yearFromReading, cleanYear, cleanTitle, cleanMedium, cleanSeasons, slugFor, readTurn,
   applyReading, tally, nextToCheck, takenSlugs, LEAN,
 } from '../src/lib/paintingBatch.js'
@@ -101,25 +101,34 @@ test('the crop screen’s box sits where the crop is, level, and its edges go ba
   near(a * px + c * py + ex, v.box.left + v.box.width / 2, 1e-6, 'centre across'); near(b * px + d * py + fy, v.box.top + v.box.height / 2, 1e-6, 'centre down')
 })
 
-test('a crop stays on the photo: fitted, leaned and dragged', () => {
-  const W = 4000, H = 3000
+test('a crop stays within the photo\u2019s reach: fitted, leaned and dragged', () => {
+  const W = 4000, H = 3000, R = reach(W, H, 0)
+  near(R, OVER * 3000, 1e-9, 'a third of the shorter side')
   const off = fitInside({ turn: 0, angle: 8, cx: 3900, cy: 200, w: 3000, h: 2000 }, W, H)
   assert.ok(insideImage(off, W, H))
   const whole = wholeCrop(W, H)
   assert.ok(insideImage(whole, W, H))
   const leaned = leanCrop(whole, 5, W, H)
-  assert.ok(insideImage(leaned, W, H) && leaned.w < W && leaned.angle === 5)
+  assert.ok(insideImage(leaned, W, H, R) && leaned.angle === 5)
   assert.equal(leanCrop(whole, 40, W, H).angle, LEAN)
-  // Dragging a corner far out stops at the photo's edge; a box can't be dragged inside out
+  // Dragging a corner far out stops at the photo's reach (hanging off it), not at its edge; a box can't be dragged inside out
   const c = { turn: 0, angle: 0, cx: 2000, cy: 1500, w: 2000, h: 1500 }
   const out = dragCrop(c, 'se', 5000, 5000, W, H)
-  assert.ok(insideImage(out, W, H)); near(out.cx + out.w / 2, W, 1, 'right edge at the photo’s'); near(out.cy + out.h / 2, H, 1, 'bottom at the photo’s')
+  assert.ok(insideImage(out, W, H, R + 1e-6)); assert.ok(!insideImage(out, W, H))
+  near(out.cx + out.w / 2, W + R, 1, 'right edge a reach past the photo’s'); near(out.cy + out.h / 2, H + R, 1, 'bottom a reach past the photo’s')
   const tiny = dragCrop(c, 'nw', 9000, 9000, W, H)
   assert.ok(tiny.w >= 3000 * 0.04 - 1e-9 && tiny.h >= 3000 * 0.04 - 1e-9, 'never smaller than a twenty-fifth')
-  // Moving against one edge still slides along it
+  // Moving against the reach still slides along it
   const slid = dragCrop(c, 'move', 5000, 300, W, H)
-  near(slid.cx + slid.w / 2, W, 1, 'against the right edge'); near(slid.cy, 1800, 1, 'and down as far as asked')
-  assert.ok(insideImage(dragCrop(fitInside({ ...c, angle: 6 }, W, H), 'move', -5000, -5000, W, H), W, H), 'leaning too')
+  near(slid.cx + slid.w / 2, W + R, 1, 'against the reach on the right'); near(slid.cy, 1800, 1, 'and down as far as asked')
+  assert.ok(insideImage(dragCrop(fitInside({ ...c, angle: 6 }, W, H), 'move', -5000, -5000, W, H), W, H, R + 1e-6), 'leaning too')
+  // A crop hanging off the photo is kept by fitInside given its reach, and pulled back onto the photo without
+  const hang = { turn: 0, angle: 0, cx: 2000, cy: 1500, w: 4800, h: 3600 }
+  assert.deepEqual(fitInside(hang, W, H, R), hang)
+  assert.ok(insideImage(fitInside(hang, W, H), W, H))
+  // The whole-photo view shows the box where it hangs off, so it can still be seen and dragged
+  const v = viewOf(hang, W, H, 600, 450)
+  assert.ok(fitsStage(v.box, 600, 450), 'the hanging box is on the stage')
   assert.equal(nearestCorner({ left: -10, top: -10, right: 10, bottom: 10 }, 7, -3), 'ne')
   assert.equal(nearestCorner({ left: -10, top: -10, right: 10, bottom: 10 }, -9, 9), 'sw')
   // The auto-crop's answer, from the little copy to the photo

@@ -266,7 +266,8 @@ licence nobody wrote down.
   picks it up, a tap inside the box only selects it (never moves a corner), the view never
   follows the box while it's dragged, it zooms in once when a change is let go of (Zoom out
   switches that off), every change can be undone (Ctrl or ⌘ Z, never while typing), and a crop from storage is
-  compared by value. A second photo of something already in is a question (leave it out,
+  compared by value. The box may hang off the photo by up to a third of its shorter side (`reach`,
+  `OVER`), the part off the photo coming out as plain paper under the shape; never clamp it to the photo again. A second photo of something already in is a question (leave it out,
   add it anyway, or replace the photo), never a silent duplicate.
 - **Anna's drawings are hers, and private** (Anna's Art, `src/places/Drawings.jsx`,
   at `/drawings`: drawings and paintings both): they live

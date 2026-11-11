@@ -5,7 +5,7 @@
 // picture is made from the photo by cropping, turning and shrinking: nothing
 // of hers is altered. One canvas job runs at a time (`oneAtATime`), since a
 // phone has little memory for big pictures, and each canvas is emptied after.
-import { SIZES, drawTransform, signatureCorners, paintingPoint } from '../../lib/paintingBatch.js'
+import { SIZES, OFF_PHOTO, drawTransform, signatureCorners, paintingPoint } from '../../lib/paintingBatch.js'
 import { paletteOf, fingerprintOf } from '../../lib/artColour.js'
 
 const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c }
@@ -85,6 +85,8 @@ function drawPainting(pic, crop, opts) {
   const t = drawTransform(crop, pic.width, pic.height, opts)
   const c = canvas(t.width, t.height), x = c.getContext('2d')
   x.imageSmoothingQuality = 'high'
+  x.fillStyle = OFF_PHOTO // where the box hangs off the photo
+  x.fillRect(0, 0, t.width, t.height)
   x.setTransform(t.a, t.b, t.c, t.d, t.e, t.f)
   x.drawImage(pic.img, 0, 0, pic.width, pic.height)
   return c

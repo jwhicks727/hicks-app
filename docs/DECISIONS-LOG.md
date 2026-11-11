@@ -6,6 +6,17 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-11 — The crop box may hang off the photo
+
+A hexagon, a round canvas or a triangle photographed close to the edge can't be framed if the box has to stay on
+the photo. The box may now reach past the photo's edge, as far as a third of its shorter side (`OVER`, `reach()` in
+`src/lib/paintingBatch.js`); beyond that it stops, as it used to at the edge. The part of the cut that falls off the
+photo comes out plain paper (`OFF_PHOTO`, #FFF8EE), and the canvas's shape (the frame) hides it. Straightening and turning keep a hanging
+box; crops made by the auto-crop and "its own crop" still sit on the photo. The whole-photo view is framed on the photo
+and the box together. Her pixels are still only cropped, turned and shrunk (`tests/painting-batch.test.mjs`). Asked for by Jason.
+
+---
+
 ## 2026-11-11 — A ticked item waits a few seconds before it goes
 
 On the Early Bird and Night Owl lists, a ticked row stays where it is, ticked, for about four and a half seconds

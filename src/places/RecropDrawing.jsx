@@ -3,7 +3,7 @@ import Cropper from './lifelist/Cropper.jsx'
 import { supabase } from '../lib/supabase.js'
 import { drawingFiles } from '../lib/drawings.js'
 import { DRAWING_KEPT, DRAWING_SAVED } from '../lib/drawingBatch.js'
-import { fitInside, wholeCrop } from '../lib/paintingBatch.js'
+import { fitInside, reach, wholeCrop } from '../lib/paintingBatch.js'
 import { preparePhoto, paintingFiles } from './lifelist/paintingPhotos.js'
 import { missingColumn } from './lifelist/usePaintingBatch.js'
 
@@ -26,7 +26,7 @@ export default function RecropDrawing({ drawing: d, onDone, onCancel }) {
         const pic = await preparePhoto(blob, DRAWING_KEPT)
         made = URL.createObjectURL(pic.view)
         const c = d.crop
-        const crop = c ? fitInside({ turn: c.turn, angle: c.angle, cx: c.cx, cy: c.cy, w: c.w, h: c.h }, pic.W, pic.H) : wholeCrop(pic.W, pic.H)
+        const crop = c ? fitInside({ turn: c.turn, angle: c.angle, cx: c.cx, cy: c.cy, w: c.w, h: c.h }, pic.W, pic.H, reach(pic.W, pic.H, c.turn)) : wholeCrop(pic.W, pic.H)
         if (live) setSt({ phase: 'ready', src: made, W: pic.W, H: pic.H, crop, blob })
       } catch (e) {
         if (live) setSt({ phase: 'error', msg: (e && e.message) || 'Its photo couldn’t be opened.' })

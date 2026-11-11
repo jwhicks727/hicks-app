@@ -61,29 +61,45 @@ export function cropCorners({ angle, cx, cy, w, h }) {
   return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sy]) => [cx + (sx * w * cos) / 2 - (sy * h * sin) / 2, cy + (sx * w * sin) / 2 + (sy * h * cos) / 2])
 }
 
-/** Is all of the box on the photo (to within `tol` pixels)? */
+/**
+ * How far past the photo's edge a box may reach, in pixels: a third of the photo's shorter side. A round or many-sided
+ * canvas can sit on its photo with its corners hanging off it; the part off the photo comes out as plain paper
+ * (OFF_PHOTO), and the shape is the frame that hides it.
+ */
+export const OVER = 0.33
+export const OFF_PHOTO = '#FFF8EE'
+export function reach(W, H, turn) {
+  const [tw, th] = turnedSize(W, H, turn)
+  return OVER * Math.min(tw, th)
+}
+
+/** Is all of the box on the photo (to within `tol` pixels; give `reach(W, H, turn)` to let it hang off)? */
 export function insideImage(crop, W, H, tol = 0.5) {
   const [tw, th] = turnedSize(W, H, crop.turn)
   return cropCorners(crop).every(([x, y]) => x >= -tol && y >= -tol && x <= tw + tol && y <= th + tol)
 }
 
-/** The box moved onto the photo and, if it must, shrunk round its centre until every corner is on it. */
-export function fitInside(crop, W, H) {
-  const [tw, th] = turnedSize(W, H, crop.turn)
-  const c = { ...crop, cx: Math.min(tw, Math.max(0, crop.cx)), cy: Math.min(th, Math.max(0, crop.cy)), w: Math.max(1, crop.w), h: Math.max(1, crop.h) }
+/**
+ * The box moved onto the photo and, if it must, shrunk round its centre until every corner is on it. With `over`
+ * (pixels, from `reach`) it may hang that far off the photo, so a crop that already does is kept as it is.
+ */
+export function fitInside(crop, W, H, over = 0) {
+  const [tw0, th0] = turnedSize(W, H, crop.turn)
+  const tw = tw0 + over, th = th0 + over, lo = -over
+  const c = { ...crop, cx: Math.min(tw, Math.max(lo, crop.cx)), cy: Math.min(th, Math.max(lo, crop.cy)), w: Math.max(1, crop.w), h: Math.max(1, crop.h) }
   const cos = Math.cos(rad(c.angle)), sin = Math.sin(rad(c.angle))
   let s = 1
   for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
     const dx = (sx * c.w * cos) / 2 - (sy * c.h * sin) / 2, dy = (sx * c.w * sin) / 2 + (sy * c.h * cos) / 2
-    if (dx > 0) s = Math.min(s, (tw - c.cx) / dx); else if (dx < 0) s = Math.min(s, c.cx / -dx)
-    if (dy > 0) s = Math.min(s, (th - c.cy) / dy); else if (dy < 0) s = Math.min(s, c.cy / -dy)
+    if (dx > 0) s = Math.min(s, (tw - c.cx) / dx); else if (dx < 0) s = Math.min(s, (c.cx - lo) / -dx)
+    if (dy > 0) s = Math.min(s, (th - c.cy) / dy); else if (dy < 0) s = Math.min(s, (c.cy - lo) / -dy)
   }
   s = Math.max(0.01, s)
   return s < 1 ? { ...c, w: c.w * s, h: c.h * s } : c
 }
 
-/** The same crop with a new lean, kept on the photo. */
-export const leanCrop = (crop, angle, W, H) => fitInside({ ...crop, angle: Math.max(-LEAN, Math.min(LEAN, Math.round(angle * 10) / 10)) }, W, H)
+/** The same crop with a new lean, kept within the photo's reach. */
+export const leanCrop = (crop, angle, W, H) => fitInside({ ...crop, angle: Math.max(-LEAN, Math.min(LEAN, Math.round(angle * 10) / 10)) }, W, H, reach(W, H, crop.turn))
 
 /**
  * How to draw the painting out of the photo on a canvas (ctx.setTransform(a, b, c, d, e, f), then
@@ -130,9 +146,11 @@ export function viewOf(crop, W, H, sw, sh, { zoom = false, frame = crop } = {}) 
   const fe = edgesOf(frame, W, H), ed = edgesOf(crop, W, H)
   // Whole photo: fit the photo's own bounds. Zoomed: fit the box (with a margin for its handles) and centre it.
   const bw = tw * Math.abs(cos) + th * Math.abs(sin), bh = tw * Math.abs(sin) + th * Math.abs(cos)
-  const k = zoom ? Math.min(sw / (fe.right - fe.left), sh / (fe.bottom - fe.top)) * 0.86 : Math.min(sw / bw, sh / bh)
-  // Where the frame's centre sits, in the level frame, from the photo's centre: zoomed, it's moved to the stage's centre
-  const bx = zoom ? (fe.left + fe.right) / 2 : 0, by = zoom ? (fe.top + fe.bottom) / 2 : 0
+  // Whole photo: the photo and, where the box hangs off it, the box too (the photo's own bounds, level, are +-bw/2 and +-bh/2)
+  const all = { left: Math.min(-bw / 2, fe.left), right: Math.max(bw / 2, fe.right), top: Math.min(-bh / 2, fe.top), bottom: Math.max(bh / 2, fe.bottom) }
+  const k = zoom ? Math.min(sw / (fe.right - fe.left), sh / (fe.bottom - fe.top)) * 0.86 : Math.min(sw / (all.right - all.left), sh / (all.bottom - all.top))
+  // Where the frame's centre sits, in the level frame, from the photo's centre: it's moved to the stage's centre
+  const bx = zoom ? (fe.left + fe.right) / 2 : (all.left + all.right) / 2, by = zoom ? (fe.top + fe.bottom) / 2 : (all.top + all.bottom) / 2
   const [a11, a12, a21, a22, t1, t2] = turnMatrix(W, H, frame.turn)
   const m11 = k * (cos * a11 + sin * a21), m12 = k * (cos * a12 + sin * a22)
   const m21 = k * (-sin * a11 + cos * a21), m22 = k * (-sin * a12 + cos * a22)
@@ -170,10 +188,11 @@ export function fromEdges({ left, top, right, bottom }, crop, W, H) {
 /**
  * The crop after a drag on the crop screen: `handle` is 'move' or the edges it holds ('n', 'se', ...),
  * dx and dy how far it went in the turned photo's pixels (the screen's own directions: the box is level
- * there). It stops at the photo's edge, and never gets smaller than a twenty-fifth of the photo.
+ * there). It stops at the photo's reach (a third of its shorter side past the edge, OVER), and never gets smaller
+ * than a twenty-fifth of the photo.
  */
 export function dragCrop(crop, handle, dx, dy, W, H) {
-  const [tw, th] = turnedSize(W, H, crop.turn), min = Math.min(tw, th) * 0.04
+  const [tw, th] = turnedSize(W, H, crop.turn), min = Math.min(tw, th) * 0.04, tol = reach(W, H, crop.turn)
   const moved = (base, t, ux, uy) => {
     const e = { ...base }
     if (handle === 'move') { e.left += ux * t; e.right += ux * t; e.top += uy * t; e.bottom += uy * t }
@@ -185,9 +204,9 @@ export function dragCrop(crop, handle, dx, dy, W, H) {
   }
   // As far along the drag as stays on the photo
   const furthest = (base, ux, uy) => {
-    if (insideImage(fromEdges(moved(base, 1, ux, uy), crop, W, H), W, H)) return moved(base, 1, ux, uy)
+    if (insideImage(fromEdges(moved(base, 1, ux, uy), crop, W, H), W, H, tol)) return moved(base, 1, ux, uy)
     let lo = 0, hi = 1
-    for (let k = 0; k < 14; k++) { const mid = (lo + hi) / 2; if (insideImage(fromEdges(moved(base, mid, ux, uy), crop, W, H), W, H)) lo = mid; else hi = mid }
+    for (let k = 0; k < 14; k++) { const mid = (lo + hi) / 2; if (insideImage(fromEdges(moved(base, mid, ux, uy), crop, W, H), W, H, tol)) lo = mid; else hi = mid }
     return moved(base, lo, ux, uy)
   }
   const start = edgesOf(crop, W, H)
