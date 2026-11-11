@@ -185,3 +185,13 @@ test('the lists are first on Home, above the weather, and the family sees only t
   }
   assert.doesNotMatch(readFileSync(new URL('../src/lib/useLists.js', import.meta.url), 'utf8').match(/const SELECT_DAY = '([^']+)'/)[1], /title|note/)
 })
+
+test('last night’s evening list is still there after the day turns over, and ticks for it count toward that night', () => {
+  const it = item({ id: 'e1', part: 'evening', title: 'Brush teeth', starts_on: '2026-11-01' })
+  const today = listDay(new Date('2026-11-11T16:00:00Z')) // 8 AM
+  assert.equal(today, '2026-11-11')
+  const last = dayList({ items: [it], changes: [], date: addDays(today, -1), part: 'evening' })
+  assert.equal(last.entries.length, 1)
+  const ticks = [{ item_id: 'e1', on_date: '2026-11-10', part: 'evening', done_at: '2026-11-11T16:01:00Z' }]
+  assert.equal(daySummary(last, ticks).status, 'done')
+})

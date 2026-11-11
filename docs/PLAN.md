@@ -158,6 +158,7 @@ Built in this order, each part in daily use before the next.
       birthday's party ticks and a day off; a Team Hicks day (everyone, every
       list) when all our hummingbirds fly by together; Anna's hummingbird says
       hello by name; tap the owl three times.
+- [x] Last night's evening list stays open the next day (Lists page, linked from Home) to tick what was forgotten.
 - [ ] Run `20261107180000_morning_evening_lists.sql` (docs/DATABASE.md), then
       each of us makes our lists. Unverified against the live database until then.
 - [ ] Push reminders on the phone for a list not done by a chosen time.
