@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { entryKey, tickFor } from '../../lib/routines.js'
 import { reducedMotion } from '../../lib/motion.js'
 import { ItemIcon } from './icons.jsx'
@@ -8,11 +8,13 @@ import { ItemIcon } from './icons.jsx'
 // feathers burst from it in the morning (stars at night; gold for the day's
 // golden feather; every colour on a birthday), a line strikes through the
 // words, and the row slips away into the pile while the rest glide up to
-// close the gap. Tapping a thing in the pile puts it back. `tools` (the
+// close the gap. A ticked row waits a few seconds first, still tappable to
+// undo a wrong tap (UNDO_MS). Tapping a thing in the pile puts it back. `tools` (the
 // quiet + and Skip, DayTools) share the pile's line. Transforms and opacity
 // only; under less motion, a plain fade.
 
-const GOING_MS = 720
+const UNDO_MS = 4500 // a ticked row stays, ticked, this long: tap it again to take the tick back
+const LEAVE_MS = 740 // then it slips away (the CSS animation, delay included)
 const rand = (i, n) => ((Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1 + 1) % 1
 const BIRTHDAY = ['#FF3B30', '#FF9500', '#FFCC00', '#34C759', '#00C7BE', '#007AFF', '#AF52DE', '#FF2D55']
 
@@ -40,7 +42,9 @@ function sub(e) {
  * do the work (and the sounds); `golden` is the key of the day's golden thing.
  */
 export function RoutineList({ part, list, ticks, golden, birthday = false, onTick, onUntick, label, tools = null }) {
-  const [going, setGoing] = useState({}) // key -> 'gold' | 'party' | part: rows still animating out
+  const [going, setGoing] = useState({}) // key -> 'gold' | 'party' | part: rows just ticked, still open to an undo
+  const [leaving, setLeaving] = useState({}) // key -> true: the undo time is up and the row is slipping away
+  const timers = useRef(new Map())
   const [pileOpen, setPileOpen] = useState(false)
   const ul = useRef(null), tops = useRef(new Map())
   const done = list.entries.filter((e) => tickFor(e, ticks))
@@ -61,12 +65,30 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
     tops.current = next
   })
 
+  useEffect(() => () => { for (const t of timers.current.values()) clearTimeout(t) }, [])
+
+  const without = (o, k) => { const x = { ...o }; delete x[k]; return x }
+  const clearTimer = (k) => { clearTimeout(timers.current.get(k)); timers.current.delete(k) }
+
   const tap = (e) => {
     const k = entryKey(e)
-    if (going[k]) return
+    if (leaving[k]) return
+    if (going[k]) { // a wrong tap: put it back while it's still here
+      clearTimer(k)
+      setGoing((g) => without(g, k))
+      onUntick(e)
+      return
+    }
     const kind = k === golden ? 'gold' : birthday ? 'party' : part
     setGoing((g) => ({ ...g, [k]: kind }))
-    setTimeout(() => setGoing((g) => { const x = { ...g }; delete x[k]; return x }), reducedMotion() ? 200 : GOING_MS)
+    timers.current.set(k, setTimeout(() => {
+      setLeaving((l) => ({ ...l, [k]: true }))
+      timers.current.set(k, setTimeout(() => {
+        timers.current.delete(k)
+        setGoing((g) => without(g, k))
+        setLeaving((l) => without(l, k))
+      }, reducedMotion() ? 300 : LEAVE_MS))
+    }, UNDO_MS))
     onTick(e, { golden: k === golden })
   }
 
@@ -77,8 +99,8 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
           {open.map((e) => {
             const k = entryKey(e), g = going[k]
             return (
-              <li key={k} data-key={k} className={(g ? 'dl-going' : '') + (k === golden && !g ? ' dl-golden' : '')}>
-                <button type="button" className="dl-row" aria-pressed={Boolean(g)} onClick={() => tap(e)}>
+              <li key={k} data-key={k} className={(g ? 'dl-going' : '') + (leaving[k] ? ' dl-leaving' : '') + (k === golden && !g ? ' dl-golden' : '')}>
+                <button type="button" className="dl-row" aria-pressed={Boolean(g)} onClick={() => tap(e)} aria-label={g ? `${e.title}: done. Tap to undo` : undefined}>
                   <span className="dl-box">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path className="dl-check" d="M5.5 12.5l4.2 4.2 8.8-9.4" /></svg>
                     {g && <Burst kind={g} n={g === 'gold' ? 16 : g === 'party' ? 18 : 11} />}
@@ -87,6 +109,7 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
                     <span className="dl-words">{e.title}</span>
                     {sub(e) && <small>{sub(e)}</small>}
                   </span>
+                  {g && !leaving[k] && <span className="dl-undo" aria-hidden="true">undo</span>}
                   {k === golden && !g && <span className="dl-gold-tag" aria-label="today’s golden feather">✦</span>}
                   {e.icon && <ItemIcon name={e.icon} />}
                 </button>

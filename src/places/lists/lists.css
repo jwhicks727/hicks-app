@@ -109,7 +109,8 @@
 @keyframes dl-strike { to { transform: scaleX(1); } }
 .dl-t small { font-size: 13px; font-weight: 700; color: var(--muted); }
 .dl-ico { flex: none; width: 22px; height: 22px; color: color-mix(in srgb, var(--pc) 70%, var(--muted)); }
-.dl-list > li.dl-going { animation: dl-away .3s .44s cubic-bezier(.5, 0, .75, 0) both; }
+.dl-list > li.dl-leaving { animation: dl-away .3s .44s cubic-bezier(.5, 0, .75, 0) both; }
+.dl-undo { flex: none; font-size: 13px; font-weight: 800; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 @keyframes dl-away { to { opacity: 0; transform: translateX(48px); } }
 /* The burst: feathers in the morning, stars at night, gold for the golden one, every colour on a birthday */
 .dl-burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
@@ -257,7 +258,7 @@
   .dl-wing { transform: scaleY(.6); }
   .dl-gleam { display: none; }
   .dl-owl.settle, .dl-buddy.zip .dl-hum, .dl-ribbon.unfurl, .dl-stamp, .dl-going .dl-box, .dl-pile-n, .dl-perk, .dl-bubble, .dl-tools-add, .dl-tools-skip { animation: none; }
-  .dl-list > li.dl-going { animation: dl-fade .3s .3s ease both reverse; }
+  .dl-list > li.dl-leaving { animation: dl-fade .3s .3s ease both reverse; }
 }
 html[data-motion="less"] .dl-hum, html[data-motion="less"] .dl-wing, html[data-motion="less"] .dl-owl, html[data-motion="less"] .dl-owl .dl-lids, html[data-motion="less"] .dl-owl .dl-pupil,
 html[data-motion="less"] .dl-perk-stars, html[data-motion="less"] .dl-night i, html[data-motion="less"] .dl-golden .dl-row::before, html[data-motion="less"] .dl-gold-tag,
