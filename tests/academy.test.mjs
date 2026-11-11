@@ -87,3 +87,21 @@ test('every kind of room has its own colour for its tile', async () => {
     for (const c of KIND_COLOURS[kind]) assert.match(c, /^#[0-9A-F]{6}$/i)
   }
 })
+
+test('the school can have several mascots, kept in the one column it has', async () => {
+  const { MASCOTS, MASCOT, MAX_MASCOTS, parseMascots, joinMascots, toggleMascot } = await import('../src/academy/mascots.js')
+  for (const m of MASCOTS) assert.ok(ITEM[m.art], `${m.k}: no picture ${m.art}`)
+  for (const k of ['panther', 'cheetah', 'eagle', 'lion-cub', 'tiger']) assert.ok(MASCOT[k], k)
+  assert.deepEqual(parseMascots('tiger'), ['tiger'], 'an old single mascot still reads')
+  assert.deepEqual(parseMascots('panther, cheetah,tiger,tiger,dodo'), ['panther', 'cheetah', 'tiger'])
+  assert.deepEqual(parseMascots(null), [])
+  assert.equal(joinMascots(['panther', 'cheetah', 'tiger']), 'panther,cheetah,tiger')
+  assert.equal(joinMascots([]), null)
+  let picked = []
+  for (const m of MASCOTS) picked = toggleMascot(picked, m.k)
+  assert.equal(picked.length, MAX_MASCOTS)
+  assert.ok(joinMascots(picked).length <= 60, 'the longest five still fit the column (60 characters)')
+  const longest = [...MASCOTS].sort((a, b) => b.k.length - a.k.length).slice(0, MAX_MASCOTS).map((m) => m.k)
+  assert.ok(longest.join(',').length <= 60)
+  assert.deepEqual(toggleMascot(['tiger', 'owl'], 'tiger'), ['owl'])
+})
