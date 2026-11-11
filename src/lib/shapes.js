@@ -18,6 +18,28 @@ const arch = () => {
   return [...pts, [1, 1], [0, 1]].map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000])
 }
 
+const bezier = (p0, p1, p2, p3, n) => Array.from({ length: n }, (_, i) => {
+  const t = (i + 1) / n, u = 1 - t
+  return [0, 1].map((k) => u * u * u * p0[k] + 3 * u * u * t * p1[k] + 3 * u * t * t * p2[k] + t * t * t * p3[k])
+})
+const heart = () => {
+  // Laurie's heart-shaped canvas, drawn from her photo of it: a tip at the bottom, sides that swell out to their widest
+  // a little over a third of the way down, two full round lobes, and a shallow dip between them (measured against her photo: about a fifteenth of the way down). Left half by four curves
+  // from the tip, up and over the lobe to the dip; the right half is its mirror, so it is level and the same both sides.
+  const left = [
+    ...bezier([0.5, 1], [0.42, 0.9], [0.1, 0.72], [0.01, 0.5], 8),
+    ...bezier([0.01, 0.5], [-0.03, 0.34], [0, 0.14], [0.12, 0.05], 6),
+    ...bezier([0.12, 0.05], [0.2, -0.04], [0.37, -0.03], [0.5, 0.07], 8),
+  ]
+  const pts = [...left.slice(0, -1), [0.5, 0.07], ...left.slice(0, -1).reverse().map(([x, y]) => [1 - x, y])]
+  // The outline starts at the tip and runs up the left side; the right half comes back down, so the tip is the last corner too
+  const ring = [[0.5, 1], ...pts.filter(([, y], i) => !(y === 1 && i === 0))]
+  const xs = ring.map(([x]) => x), ys = ring.map(([, y]) => y)
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys)
+  // Stretched so the heart touches all four sides of its box: a tight crop of it fits the frame exactly
+  return ring.map(([x, y]) => [Math.round(((x - x0) / (x1 - x0)) * 1000) / 1000, Math.round(((y - y0) / (y1 - y0)) * 1000) / 1000])
+}
+
 export const SHAPES = {
   rect: { label: 'Rectangle' },
   round: { label: 'Round' }, // a circle, or an oval in a box that isn't square
@@ -28,10 +50,11 @@ export const SHAPES = {
   'triangle-down': { label: 'Triangle, point down', points: [[0, 0], [1, 0], [0.5, 1]] },
   diamond: { label: 'Diamond', points: [[0.5, 0], [1, 0.5], [0.5, 1], [0, 0.5]] },
   arch: { label: 'Arch', points: arch() },
+  heart: { label: 'Heart', points: heart() },
   polygon: { label: 'Its own shape' }, // traced by hand: tap its corners
 }
 /** The order the crop screen offers them in. */
-export const SHAPE_ORDER = ['rect', 'round', 'hexagon', 'hexagon-up', 'octagon', 'triangle', 'triangle-down', 'diamond', 'arch', 'polygon']
+export const SHAPE_ORDER = ['rect', 'round', 'hexagon', 'hexagon-up', 'octagon', 'triangle', 'triangle-down', 'diamond', 'arch', 'heart', 'polygon']
 /** What Claude may say a painting's shape is (supabase/functions/_shared/claude.js keeps the same list). */
 export const READ_SHAPES = ['rectangle', 'round', 'hexagon', 'octagon', 'triangle', 'diamond', 'arch', 'other']
 

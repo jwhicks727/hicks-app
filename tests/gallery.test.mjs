@@ -4,7 +4,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
-import { SHAPES, SHAPE_ORDER, READ_SHAPES, cleanShape, isShaped, shapePoints, clipPathOf, outlineOf, shapeFamily, shapeFromReading } from '../src/lib/shapes.js'
+import { SHAPES, SHAPE_ORDER, READ_SHAPES, cleanShape, isShaped, shapePoints, clipPathOf, outlineOf, shapeFamily, shapeFromReading, shapeName } from '../src/lib/shapes.js'
 import { paletteOf, familiesOf, toneOf, rainbowKey, fingerprintOf, printDistance, looksAlike, lookAlikes, validPrint, cleanPalette, FAMILY_ORDER } from '../src/lib/artColour.js'
 import { monthFromReading, yearFromReading, cleanMonth, paintedWords, applyReading, lookProposals, paintingPoint, wholeCrop, turnCrop, viewOf, fitsStage, sameCrop, slugFor, SYNCED } from '../src/lib/paintingBatch.js'
 import { MOODS, STYLES, WEATHERS, cleanLooks, mediumWord, facetsOf, applyFilters, filterCount, sortPaintings, featureWindow, localFeatures, appFeature, claudeFeature, catalogOf, seasonsOn, weatherLine, comingFor } from '../src/lib/gallery.js'
@@ -60,6 +60,18 @@ test('a canvas’s shape: a rectangle is no shape at all, the rest are kept tidi
   assert.equal(shapePoints({ kind: 'triangle' }).length, 3)
   for (const k of SHAPE_ORDER) assert.ok(SHAPES[k], k)
   for (const [k, s] of Object.entries(SHAPES)) if (s.points) for (const [x, y] of s.points) assert.ok(x >= 0 && x <= 1 && y >= 0 && y <= 1, `${k} stays in its box`)
+})
+
+test('the heart is level, whole in its box and the same both sides', () => {
+  const pts = SHAPES.heart.points, xs = pts.map(([x]) => x), ys = pts.map(([, y]) => y)
+  assert.ok(SHAPE_ORDER.includes('heart') && SHAPE_ORDER.indexOf('heart') < SHAPE_ORDER.indexOf('polygon'))
+  assert.deepEqual([Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)], [0, 1, 0, 1], 'it touches all four sides, so a tight crop fits it')
+  const has = new Set(pts.map((p) => p.join()))
+  assert.ok(pts.every(([x, y]) => has.has([Math.round((1 - x) * 1000) / 1000, y].join())), 'the right half mirrors the left')
+  assert.ok(pts.some(([x, y]) => x === 0.5 && y === 1), 'a tip at the bottom')
+  assert.deepEqual(cleanShape({ kind: 'heart' }), { kind: 'heart' })
+  assert.match(clipPathOf({ kind: 'heart' }), /^polygon\(/)
+  assert.equal(shapeFamily({ kind: 'heart' }), 'heart'); assert.equal(shapeName({ kind: 'heart' }), 'Heart')
 })
 
 test('a shape is drawn as a clip for the frame and an outline for the crop screen', () => {

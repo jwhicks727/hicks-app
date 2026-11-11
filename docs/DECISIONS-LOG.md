@@ -71,6 +71,23 @@ invented: it is home's own sky. Decided:
 
 Not done, and why: sound (rain on the roof would need a switch and care on a phone at
 school); frames from a sprite sheet for the pets, until we see what the packs hold.
+## 2026-11-11 — The crop tool: a tap inside the box only selects it; the zoom comes back; a heart-shaped canvas
+
+Jason found the crop screen still moved the crop on a click meant only to select it, and missed the zoom that
+let him finish the edges close up.
+
+- **A tap inside the box never moves anything.** The first tap already only picked the tool up, but once picked
+  a tap inside the box brought the nearest corner to it, which shrank the crop. Now a tap inside only selects;
+  a tap outside the box, once picked, still brings the nearest corner there; a tap on a handle only takes hold
+  of it (judged where the finger went down, since the stage holds the pointer by the time it lifts). Tracing a
+  shape's corners is the exception: there a tap anywhere in the box adds a corner.
+- **The zoom comes back, once, on release.** This reverses the 2026-11-08 line "nothing zooms by itself", which
+  fixed the jumping: that came from framing on the box as it was dragged, not from zooming. Now the view zooms
+  in when a change is let go of (a drag released, a tap, a turn, a nudge, "Its own crop"), framed on the box then,
+  and holds still while a finger is down. "Zoom out" switches it off for that photo; "Zoom in" back on.
+- **A heart for a canvas.** Added to the shapes (`heart` in `src/lib/shapes.js`), drawn from Laurie's heart-shaped
+  painting by eye, level and the same both sides, touching all four sides of its box. Claude's reading of a
+  shape is unchanged (it still says "other" for one), so a heart is chosen by hand.
 
 ---
 
