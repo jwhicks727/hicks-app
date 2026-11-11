@@ -53,6 +53,8 @@ export async function addAsset({ file, name, cat, licence, source }) {
   if (up.error) return { error: up.error }
   return supabase.from('academy_assets').insert({ name, cat, path, licence, source: source || null }).select().single()
 }
+/** What one of the family's pictures does in a room (src/academy/life.js ASSET_WAYS), kept in its category. */
+export const saveAsset = (id, patch) => supabase.from('academy_assets').update(patch).eq('id', id)
 export async function removeAsset(a) {
   await supabase.storage.from('academy').remove([a.path])
   return supabase.from('academy_assets').delete().eq('id', a.id)

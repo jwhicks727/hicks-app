@@ -15,6 +15,11 @@ written down. Nothing is made by an image generator.
 - **The rooms themselves** (floors, walls, windows, clocks, shelves,
   curtains, stained glass) and the campus are drawn in code, in
   `src/academy/RoomScene.jsx` and `Campus.jsx`.
+- **The air** is drawn in code too, in `src/academy/Atmosphere.jsx`: the
+  sun, the moon in its phase, far hills, clouds, rain, snow, fog, a
+  storm's flash, birds, fireflies, smoke, steam, bubbles, notes and
+  sparkles. No picture files, and no image generator. What it shows is
+  home's real sky (`src/academy/atmosphere.js`; decisions log, 2026-11-11).
 
 ## Adding pictures of your own
 
@@ -30,6 +35,19 @@ added". Parents only. Each picture needs:
 It lands in the private `academy` bucket and appears in every room's "Add
 something", under "Ours", where it can be moved, sized, flipped and
 recoloured like anything else.
+
+Each picture is also filed by **what it does in a room** (chosen when it's
+added; a parent can change it after, on the same page):
+
+- **It stays put**: furniture, and anything else.
+- **It wanders**: a pet or an animal. It strolls a square or two from where
+  it was put, breathes, and sleeps at night. Only on screen: it is always
+  back on its own square when the room is arranged.
+- **It gives light**: a lamp, a lantern, a fire. It glows once it's dark.
+
+A pet reads best as one picture facing the front or three-quarters, cropped
+close, with a clear background. A sprite sheet's walking frames aren't used
+yet (docs/PLAN.md).
 
 ## Packs that fit
 

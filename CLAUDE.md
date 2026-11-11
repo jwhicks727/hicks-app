@@ -140,6 +140,23 @@ code, and pictures the family adds with their licence typed in
 (`docs/ACADEMY-ART.md`). Never an image generator, never a picture whose
 licence nobody wrote down.
 
+- **The academy stands under home's real sky** (`src/academy/atmosphere.js`,
+  `Atmosphere.jsx`, `tests/atmosphere.test.mjs`; decisions log, 2026-11-11): the
+  sun and moon where SunCalc puts them over the town, the forecast's clouds, rain
+  and wind (the one Home keeps), the hour's light, shadows away from the sun. We
+  look south: east is on the left, and a room's right-hand wall faces the
+  south-west. With no forecast there is no weather, and the campus says so; the
+  only pretend sky is "Try a sky", kept until the app closes and named as pretend
+  on screen. The stars over the campus are only ever her finished tasks: never a
+  decorative star there, and never a rainbow.
+- **What's in a room stirs by what it is** (`src/academy/life.js`): a wander is
+  only on screen, never saved, and arranging puts everything back on its square.
+  One of the family's pictures wanders or gives light by how a parent filed it
+  (`academy_assets.cat`), never by a word in its name.
+- The air is drawn in code and moves by transform and opacity only; every moving
+  class is stilled under less motion, and the test checks both. Weather is kept
+  inside the picture's own box (a wide screen's frame is wider than the drawing).
+
 ## The look
 
 - Phone first, with the desktop built to match. Test at 390px wide and at

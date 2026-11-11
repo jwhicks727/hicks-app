@@ -4,7 +4,8 @@ import { Crumb } from '../shell/Link.jsx'
 import { Sheet } from '../ui/Sheet.jsx'
 import Dropzone from '../ui/Dropzone.jsx'
 import { useDraft } from '../lib/useDraft.js'
-import { addCheer, removeCheer, addAsset, removeAsset, useAssetUrls } from './useAcademy.js'
+import { addCheer, removeCheer, addAsset, saveAsset, removeAsset, useAssetUrls } from './useAcademy.js'
+import { ASSET_WAYS } from './life.js'
 import { itemSrc } from './items.js'
 import { fame, CHEER_ICONS } from './school.js'
 
@@ -98,6 +99,10 @@ export function PicturesPage({ a, parent }) {
             <label>Its name<input maxLength={60} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Blue armchair" /></label>
             <label>Its licence<input maxLength={300} value={f.licence} onChange={(e) => setF({ ...f, licence: e.target.value })} placeholder="CC0 (Kenney), bought for personal use, or Drawn by Anna" /></label>
             <label>Where it came from<input maxLength={500} value={f.source} onChange={(e) => setF({ ...f, source: e.target.value })} placeholder="The pack’s page, or the artist" /></label>
+            <fieldset className="choice-row"><legend>What it does in a room</legend>
+              {ASSET_WAYS.map(([k, label, about]) => <button key={k} type="button" aria-pressed={(f.cat || 'Ours') === k} title={about} onClick={() => setF({ ...f, cat: k })}>{label}</button>)}
+            </fieldset>
+            <p className="muted small">{(ASSET_WAYS.find(([k]) => k === (f.cat || 'Ours')) || ASSET_WAYS[0])[2]}.</p>
             <div className="form-actions"><button type="button" className="btn" disabled={!file || !f.name.trim() || f.licence.trim().length < 3 || busy === 'Adding…' || file.size > 2097152} onClick={save}>Add it</button></div>
             {file && file.size > 2097152 && <p className="err">That one is over 2 MB.</p>}
             {busy && <p className="muted" role="status">{busy}</p>}
@@ -106,7 +111,11 @@ export function PicturesPage({ a, parent }) {
       )}
       <Card tint="#3FA34D" label={`${a.assets.length} of our own`} glyph="star" className={parent ? 'span-3' : 'span-6'}>
         {a.assets.length ? (
-          <ul className="ac-assets">{a.assets.map((x) => <li key={x.id}>{urls[x.path] ? <img src={urls[x.path]} alt="" width="56" height="56" /> : <span className="ac-blank" />}<span><b>{x.name}</b><small>{x.licence}</small>{x.source && <small>{x.source}</small>}</span>{parent && <button type="button" className="ac-x" aria-label={`Remove ${x.name}`} onClick={async () => { await removeAsset(x); a.reload() }}>✕</button>}</li>)}</ul>
+          <ul className="ac-assets">{a.assets.map((x) => <li key={x.id}>{urls[x.path] ? <img src={urls[x.path]} alt="" width="56" height="56" /> : <span className="ac-blank" />}<span><b>{x.name}</b><small>{x.licence}</small>{x.source && <small>{x.source}</small>}
+            {parent
+              ? <label className="ac-way"><span className="sr">What {x.name} does in a room</span><select value={ASSET_WAYS.some(([k]) => k === x.cat) ? x.cat : 'Ours'} onChange={async (e) => { const { error } = await saveAsset(x.id, { cat: e.target.value }); setBusy(error ? error.message : null); a.reload() }}>{ASSET_WAYS.map(([k, label]) => <option key={k} value={k}>{label}</option>)}</select></label>
+              : x.cat !== 'Ours' && ASSET_WAYS.some(([k]) => k === x.cat) && <small>{ASSET_WAYS.find(([k]) => k === x.cat)[1]}</small>}
+          </span>{parent && <button type="button" className="ac-x" aria-label={`Remove ${x.name}`} onClick={async () => { await removeAsset(x); a.reload() }}>✕</button>}</li>)}</ul>
         ) : <p className="muted">None yet. Everything in the rooms so far is from Fluent Emoji by Microsoft (MIT licence).</p>}
       </Card>
     </>

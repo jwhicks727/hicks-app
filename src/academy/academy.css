@@ -30,8 +30,8 @@
 .star.new path { fill: #FFFFFF; }
 .star.new { animation-duration: 1.1s; }
 @keyframes ac-twinkle { from { opacity: .55; } to { opacity: 1; } }
-.ac-flag { animation: ac-flag 2.4s ease-in-out infinite; transform-origin: 2px -84px; transform-box: view-box; }
-@keyframes ac-flag { 50% { transform: skewY(4deg) scaleX(.94); } }
+.ac-flag { transform: skewY(var(--f0, 0deg)) scaleX(var(--fs0, 1)); animation: ac-flag 2.4s ease-in-out infinite; transform-origin: 2px -84px; transform-box: view-box; }
+@keyframes ac-flag { 0%, 100% { transform: skewY(var(--f0, 0deg)) scaleX(var(--fs0, 1)); } 50% { transform: skewY(var(--f1, 4deg)) scaleX(var(--fs1, .94)); } }
 .room-grid { fill: none; stroke: rgba(255, 255, 255, .55); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
 .room-picked { fill: rgba(255, 255, 255, .28); stroke: #FFFFFF; stroke-width: 2.5; pointer-events: none; }
 .room-item { cursor: pointer; transform-box: view-box; }
@@ -49,6 +49,81 @@
 .plaque-t { font: 400 7.5px var(--font-display); fill: #F2C14E; }
 .plaque-s { font: 700 5.5px var(--font-ui); fill: #E8DCC6; }
 .abc { font: 400 10px var(--font-display); }
+
+/* The air of the academy (Atmosphere.jsx, atmosphere.js): home's real sky over the campus and in the rooms' windows.
+   Everything moves by transform and opacity only, and is still under less motion. */
+.ac-cloud { transform: translateX(var(--x0, 0px)); animation: ac-drift 80s linear infinite; }
+@keyframes ac-drift { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+.ac-sunglow { transform-box: fill-box; transform-origin: center; animation: ac-sunglow 7s ease-in-out infinite alternate; }
+@keyframes ac-sunglow { to { transform: scale(1.08); } }
+.ac-fall { animation: ac-rainfall .6s linear infinite; }
+@keyframes ac-rainfall { to { transform: translate(var(--fx), var(--fy)); } }
+.ac-splash { transform-box: fill-box; transform-origin: center; opacity: 0; animation: ac-splash 1.3s ease-out infinite; }
+@keyframes ac-splash { 0% { transform: scale(.15); opacity: .9; } 70%, 100% { transform: scale(1.1); opacity: 0; } }
+.ac-fogbank { animation: ac-fogbank 30s ease-in-out infinite alternate; }
+@keyframes ac-fogbank { to { transform: translateX(var(--fog)); } }
+.ac-bolt { opacity: 0; animation: ac-bolt 9s linear infinite; }
+@keyframes ac-bolt { 0%, 90%, 95%, 100% { opacity: 0; } 91% { opacity: 1; } 92% { opacity: .15; } 93.5% { opacity: .8; } }
+.ac-flock { transform: translateX(var(--x0)); animation: ac-fly 46s linear infinite; }
+@keyframes ac-fly { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+.ac-wing { transform-box: fill-box; transform-origin: center bottom; animation: ac-wing .5s ease-in-out infinite alternate; }
+@keyframes ac-wing { to { transform: scaleY(-.5); } }
+.ac-firefly { animation: ac-firefly 8s ease-in-out infinite alternate; }
+@keyframes ac-firefly { 0% { transform: translate(0, 0); } 33% { transform: translate(var(--fa), var(--fb)); } 66% { transform: translate(calc(var(--fa) * -.6), calc(var(--fb) * 1.6)); } 100% { transform: translate(calc(var(--fa) * .4), calc(var(--fb) * .3)); } }
+.ac-glimmer { animation: ac-glimmer 2.4s ease-in-out infinite; }
+@keyframes ac-glimmer { 0%, 100% { opacity: .1; } 45%, 60% { opacity: 1; } }
+.ac-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: ac-sway 3s ease-in-out infinite alternate; }
+@keyframes ac-sway { from { transform: rotate(calc(var(--sway, 1deg) * -.35)); } to { transform: rotate(var(--sway, 1deg)); } }
+.ac-candle { animation: ac-candle 2.7s ease-in-out infinite; }
+@keyframes ac-candle { 0%, 100% { opacity: 1; } 18% { opacity: .78; } 30% { opacity: .95; } 52% { opacity: .7; } 70% { opacity: .92; } 84% { opacity: .8; } }
+.ac-smoke { transform-box: fill-box; transform-origin: center; opacity: 0; animation: ac-smoke 3.9s ease-out infinite; }
+@keyframes ac-smoke { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 15% { opacity: .75; } 100% { transform: translate(var(--sx, 8px), -34px) scale(1.9); opacity: 0; } }
+.ac-mascot { cursor: pointer; transition: transform .9s cubic-bezier(.4, 0, .3, 1); }
+.ac-stride { animation: ac-stride .9s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes ac-stride { 25% { transform: translateY(-7px); } 50% { transform: translateY(0); } 75% { transform: translateY(-5px); } }
+.ac-zzz { font: 800 7px var(--font-ui); fill: #F4F1E6; stroke: #2B2019; stroke-width: 1.6px; paint-order: stroke; opacity: 0; animation: ac-zzz 2.7s ease-out infinite; }
+@keyframes ac-zzz { 0% { opacity: 0; transform: translate(0, 4px); } 30% { opacity: .9; } 100% { opacity: 0; transform: translate(3px, -6px); } }
+
+/* In the rooms: the sun going in and out of cloud, dust in its light, rain running down the glass, and what stirs */
+.ac-sunbeam { animation: ac-sunbeam 11s ease-in-out infinite alternate; }
+@keyframes ac-sunbeam { 0%, 30% { opacity: 1; } 55%, 75% { opacity: .45; } 100% { opacity: .9; } }
+.ac-mote { opacity: 0; animation: ac-mote 8s ease-in-out infinite alternate; }
+@keyframes ac-mote { 0% { transform: translate(0, 0); opacity: 0; } 25% { opacity: .9; } 75% { opacity: .7; } 100% { transform: translate(var(--mx), var(--my)); opacity: 0; } }
+.ac-drop { opacity: 0; animation: ac-drop 5s ease-in infinite; }
+@keyframes ac-drop { 0% { transform: translateY(0); opacity: 0; } 12%, 78% { opacity: .85; } 100% { transform: translateY(var(--drop)); opacity: 0; } }
+.ac-walker { transition: transform 1s cubic-bezier(.4, 0, .3, 1); }
+.ac-hover { animation: ac-hover 3.2s ease-in-out infinite; }
+@keyframes ac-hover { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(3px, -5px); } 50% { transform: translate(0, -8px); } 75% { transform: translate(-3px, -4px); } }
+.ac-breathe { transform-box: fill-box; transform-origin: 50% 100%; animation: ac-breathe 3.6s ease-in-out infinite; }
+@keyframes ac-breathe { 50% { transform: scale(1.025, 1.045); } }
+.ac-bounce { animation: ac-bounce 6.5s ease-in infinite; }
+@keyframes ac-bounce { 0%, 46%, 100% { transform: translateY(0); } 8% { transform: translateY(-13px); } 16% { transform: translateY(0); } 23% { transform: translateY(-7px); } 30% { transform: translateY(0); } 35% { transform: translateY(-3px); } 40% { transform: translateY(0); } }
+.ac-ring { transform-box: fill-box; transform-origin: 50% 85%; animation: ac-ring 7s ease-in-out infinite; }
+@keyframes ac-ring { 0%, 12%, 100% { transform: rotate(0); } 2% { transform: rotate(-7deg); } 4% { transform: rotate(7deg); } 6% { transform: rotate(-5deg); } 8% { transform: rotate(5deg); } 10% { transform: rotate(-2deg); } }
+.ac-steam { opacity: 0; animation: ac-steam 3s ease-out infinite; }
+@keyframes ac-steam { 0% { transform: translateY(4px); opacity: 0; } 25% { opacity: .75; } 100% { transform: translateY(-14px); opacity: 0; } }
+.ac-bubble { transform-box: fill-box; transform-origin: center; opacity: 0; animation: ac-bubble 3.2s ease-in infinite; }
+@keyframes ac-bubble { 0% { transform: translate(0, 0) scale(.4); opacity: 0; } 20% { opacity: .9; } 90% { opacity: .8; } 100% { transform: translate(var(--bx, 0px), -26px) scale(1.15); opacity: 0; } }
+.ac-note { font: 800 11px var(--font-ui); fill: #FFF8EE; stroke: #2B2019; stroke-width: 2.2px; paint-order: stroke; opacity: 0; animation: ac-note 4.4s ease-out infinite; }
+@keyframes ac-note { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(var(--nx, 8px), -30px); opacity: 0; } }
+.ac-glint { transform-box: fill-box; transform-origin: center; opacity: 0; animation: ac-glint 3.9s ease-in-out infinite; }
+@keyframes ac-glint { 0%, 55%, 100% { opacity: 0; transform: scale(.2); } 70% { opacity: 1; transform: scale(1); } 85% { opacity: 0; transform: scale(.5) rotate(45deg); } }
+.ac-meteor { opacity: 0; animation: ac-meteor 13s linear infinite; }
+@keyframes ac-meteor { 0%, 4% { transform: translate(0, 0); opacity: 0; } 5% { opacity: 1; } 9%, 100% { transform: translate(-34px, 20px); opacity: 0; } }
+.ac-neon { animation: ac-neon 7s linear infinite; }
+@keyframes ac-neon { 0%, 68%, 70%, 73%, 100% { opacity: 1; } 69% { opacity: .45; } 71.5% { opacity: .6; } }
+.ac-blink { animation: ac-blink 1.1s steps(1) infinite; }
+@keyframes ac-blink { 50% { opacity: 0; } }
+.ac-limelight { animation: ac-limelight 9s ease-in-out infinite alternate; }
+@keyframes ac-limelight { from { transform: translate(-34px, 8px); } to { transform: translate(34px, -8px); } }
+.ac-caustic { animation: ac-caustic 4.4s ease-in-out infinite alternate; }
+@keyframes ac-caustic { from { transform: translateX(-5px); opacity: .5; } to { transform: translateX(6px); opacity: 1; } }
+
+/* The line under the campus: what the sky is, and that it's home's own */
+.ac-sky { font-size: 13px; line-height: 1.4; color: var(--muted); }
+.ac-sky-b { display: inline-flex; align-items: center; min-height: 32px; padding: 0 4px; border: 0; background: none; color: var(--ink); font: inherit; font-weight: 800; text-decoration: underline; cursor: pointer; }
+.ac-way select { font: inherit; font-size: 13px; min-height: 36px; margin-top: 4px; padding: 4px 8px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); max-width: 100%; }
+@media (pointer: coarse) { .ac-sky-b, .ac-way select { min-height: 44px; } }
 
 .ac-tools, .ac-edit, .ac-edit-b { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .ac-edit { display: grid; gap: 10px; }
@@ -173,7 +248,11 @@ html[data-motion="less"] .ac-kind { transition: none; }
 @media (pointer: coarse) { .ac-cat-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); } }
 @media (prefers-reduced-motion: reduce) {
   .ac-spot, .btn.ac-gleam, .building .sign, .star, .ac-flag, .room-waves, .ac-twinkle, .room-item.hop, .ac-joy-card { animation: none; }
+  :is(.ac-cloud, .ac-sunglow, .ac-fall, .ac-splash, .ac-fogbank, .ac-bolt, .ac-flock, .ac-wing, .ac-firefly, .ac-glimmer, .ac-sway, .ac-candle, .ac-smoke, .ac-stride, .ac-zzz, .ac-sunbeam, .ac-mote, .ac-drop, .ac-hover, .ac-breathe, .ac-bounce, .ac-ring, .ac-steam, .ac-bubble, .ac-note, .ac-glint, .ac-meteor, .ac-neon, .ac-blink, .ac-limelight, .ac-caustic) { animation: none; }
+  .ac-mascot, .ac-walker { transition: none; }
 }
+html[data-motion="less"] :is(.ac-cloud, .ac-sunglow, .ac-fall, .ac-splash, .ac-fogbank, .ac-bolt, .ac-flock, .ac-wing, .ac-firefly, .ac-glimmer, .ac-sway, .ac-candle, .ac-smoke, .ac-stride, .ac-zzz, .ac-sunbeam, .ac-mote, .ac-drop, .ac-hover, .ac-breathe, .ac-bounce, .ac-ring, .ac-steam, .ac-bubble, .ac-note, .ac-glint, .ac-meteor, .ac-neon, .ac-blink, .ac-limelight, .ac-caustic) { animation: none; }
+html[data-motion="less"] :is(.ac-mascot, .ac-walker) { transition: none; }
 html[data-motion="less"] .ac-spot, html[data-motion="less"] .btn.ac-gleam, html[data-motion="less"] .building .sign, html[data-motion="less"] .star, html[data-motion="less"] .ac-flag, html[data-motion="less"] .room-waves, html[data-motion="less"] .ac-twinkle, html[data-motion="less"] .room-item.hop { animation: none; }
 
 /* The academy's screens sit in the page's grid like any other place's */

@@ -99,7 +99,9 @@ Setting it all up, in order: `docs/MORNING.md`.
 - `src/academy/` — Anna's academy: the campus and rooms (drawn in code,
   isometric), tasks, goals, grades and the Hall of Fame; its pictures are
   `src/academy/items.js` and `public/academy/` (`docs/ACADEMY-ART.md`). It
-  loads only when opened.
+  stands under home's real sky: `atmosphere.js` works out the sun, moon,
+  weather and light, `Atmosphere.jsx` draws them, and `life.js` says what
+  stirs in a room. It loads only when opened.
 - `src/shell/AppsSheet.jsx` and `src/ui/apps.jsx` — the Apps tab's sheet
   and its list. `src/places/journal/` is the journal (with
   `src/lib/journal.js`: each person's own, readable by them alone);
@@ -221,8 +223,10 @@ and added: `docs/ART-CAPTURE.md`.
 - **The academy:** its furniture, animals and prizes, and the pictures on its room buttons, are Fluent Emoji by
   Microsoft (MIT licence; https://github.com/microsoft/fluentui-emoji),
   drawn to WebP by `scripts/academy-art.mjs` with the licence beside them
-  in `public/academy/`. The rooms and campus are drawn in code. Pictures
-  the family adds carry their own licence (`docs/ACADEMY-ART.md`).
+  in `public/academy/`. The rooms and campus are drawn in code, and so is
+  their air (the sun and moon, hills, clouds, rain, snow, fog, steam and
+  the rest: `src/academy/Atmosphere.jsx`). Pictures the family adds carry
+  their own licence (`docs/ACADEMY-ART.md`).
 - **Indoor plants** are drawn in code (`src/places/garden/PlantArt.jsx`).
 - **The lists' hummingbird and owl** (an Anna's hummingbird on Anna's list, a
   western screech-owl in the evenings), their scarves, flowers and crowns, the
