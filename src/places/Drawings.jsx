@@ -14,6 +14,7 @@ import { tally } from '../lib/paintingBatch.js'
 import AddDrawings from './AddDrawings.jsx'
 import RecropDrawing from './RecropDrawing.jsx'
 import './drawings.css'
+import { ZoomArt } from '../ui/ZoomView.jsx'
 
 const TINT = '#D9739B'
 
@@ -152,7 +153,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
         <div className="ag-paper" data-tape={tapeOf(d.id)}>
           <span className="ag-tape" aria-hidden="true" />
           {src
-            ? <img src={src} alt={`${d.title}, by Anna`} width={d.width || undefined} height={d.height || undefined} style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} />
+            ? <ZoomArt src={src} title={d.title} alt={`${d.title}, by Anna`}><img src={src} alt={`${d.title}, by Anna`} width={d.width || undefined} height={d.height || undefined} style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} /></ZoomArt>
             : <span className="ag-blank" style={{ aspectRatio: d.width && d.height ? `${d.width} / ${d.height}` : '3 / 2' }} />}
         </div>
       </div>

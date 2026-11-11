@@ -12,6 +12,9 @@ written down. Nothing is made by an image generator.
   (nothing from the package runs). The licence is beside them, in
   `public/academy/LICENSE-fluent-emoji.txt`. To add one: put its name in
   `src/academy/items.js` and run the script again (its first lines say how).
+- **Mascots** (`src/academy/mascots.js`) wear catalog pictures. Fluent Emoji has no cheetah,
+  panther or lion cub, so those use the nearest picture (leopard, black cat, lion) under their
+  own names. Never an image generator.
 - **The rooms themselves** (floors, walls, windows, clocks, shelves,
   curtains, stained glass) and the campus are drawn in code, in
   `src/academy/RoomScene.jsx` and `Campus.jsx`.
