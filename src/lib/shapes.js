@@ -24,14 +24,14 @@ const bezier = (p0, p1, p2, p3, n) => Array.from({ length: n }, (_, i) => {
 })
 const heart = () => {
   // Laurie's heart-shaped canvas, drawn from her photo of it: a tip at the bottom, sides that swell out to their widest
-  // a little over a third of the way down, two full round lobes, and a shallow dip between them. Left half by four curves
+  // a little over a third of the way down, two full round lobes, and a shallow dip between them (measured against her photo: about a fifteenth of the way down). Left half by four curves
   // from the tip, up and over the lobe to the dip; the right half is its mirror, so it is level and the same both sides.
   const left = [
     ...bezier([0.5, 1], [0.42, 0.9], [0.1, 0.72], [0.01, 0.5], 8),
     ...bezier([0.01, 0.5], [-0.03, 0.34], [0, 0.14], [0.12, 0.05], 6),
-    ...bezier([0.12, 0.05], [0.24, -0.04], [0.38, -0.01], [0.5, 0.15], 8),
+    ...bezier([0.12, 0.05], [0.2, -0.04], [0.37, -0.03], [0.5, 0.07], 8),
   ]
-  const pts = [...left.slice(0, -1), [0.5, 0.15], ...left.slice(0, -1).reverse().map(([x, y]) => [1 - x, y])]
+  const pts = [...left.slice(0, -1), [0.5, 0.07], ...left.slice(0, -1).reverse().map(([x, y]) => [1 - x, y])]
   // The outline starts at the tip and runs up the left side; the right half comes back down, so the tip is the last corner too
   const ring = [[0.5, 1], ...pts.filter(([, y], i) => !(y === 1 && i === 0))]
   const xs = ring.map(([x]) => x), ys = ring.map(([, y]) => y)
