@@ -14,10 +14,14 @@ import './addpaintings.css'
 //   - The first tap only picks it: a tap moves a corner only once the crop screen is in
 //     use, so tapping into it from the form never throws the crop somewhere new. A tap
 //     anywhere else on the page puts it down again.
-//   - The view holds still. Zoomed in, it is framed on the box as it was when the zoom
-//     went on (or after a turn), never on the box as it's being dragged, so the photo
-//     doesn't slide away under a finger; it reframes only when the box leaves the stage.
-//     Nothing zooms by itself.
+//   - Selecting is not a click to move. A tap inside the box only selects it, and never moves
+//     a corner; a tap outside it, once the tool is picked, brings the nearest corner there.
+//   - The view holds still while a finger is down. Zoomed in, it is framed on the box as it
+//     was when the zoom went on (or after a turn), never on the box as it's being dragged, so
+//     the photo doesn't slide away under a finger; it reframes only when the box leaves the
+//     stage. The zoom itself comes on when a change is let go of (a drag released, a tap, a
+//     turn, a nudge), once, so the painting is close enough to finish; "Zoom out" switches
+//     that off for good, "Zoom in" back on.
 //   - Every change can be undone (Undo, or Ctrl/⌘ Z; Redo, or Ctrl/⌘ Shift Z or Ctrl Y).
 // A 3 x 3 grid sits in the box to line the painting's edges up against. With `onShape`,
 // the painting's shape is chosen here too (a round canvas, a hexagon, a triangle, or its
@@ -35,6 +39,7 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
   const [live, setLive] = useState(null) // the crop while a drag is under way
   const [livePts, setLivePts] = useState(null) // a traced shape's corners while one is dragged
   const [zoom, setZoom] = useState(false)
+  const [autoZoom, setAutoZoom] = useState(true) // zoom in on its own once a change is let go of; Zoom out turns it off
   const [frame, setFrame] = useState(crop) // what the zoomed view is framed on
   const [active, setActive] = useState(false) // picked: taps move corners now
   const [tracing, setTracing] = useState(false)
@@ -119,6 +124,10 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
     const nv = viewOf(next, W, H, sw, sh, { zoom, frame: framed })
     if (!fitsStage(nv.box, sw, sh, { zoom })) setFrame(next)
   }
+  // A change let go of: zoom in on the box, once, so the edges can be finished close up; already zoomed, only reframe if it left the stage
+  const adjusted = (next) => {
+    if (autoZoom && !zoom && size.w) { setFrame(next); setZoom(true) } else settle(next)
+  }
 
   // Pointer to the level edges' own space: the turned photo's pixels, round its centre
   const fe = zoom ? edgesOf(framed, W, H) : null
@@ -132,7 +141,7 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
     if (!v || (e.pointerType === 'mouse' && e.button !== 0)) return
     const p = at(e), ed = edgesOf(crop, W, H), handle = e.target.closest('[data-h]'), pt = e.target.closest('[data-pt]')
     const inside = p.x > ed.left && p.x < ed.right && p.y > ed.top && p.y < ed.bottom
-    drag.current = { id: e.pointerId, h: pt ? 'pt:' + pt.dataset.pt : handle ? handle.dataset.h : inside && !tracing ? 'move' : null, start: p, sx: e.clientX, sy: e.clientY, moved: false, picking: !active }
+    drag.current = { id: e.pointerId, h: pt ? 'pt:' + pt.dataset.pt : handle ? handle.dataset.h : inside && !tracing ? 'move' : null, start: p, sx: e.clientX, sy: e.clientY, moved: false, picking: !active, onHandle: Boolean(pt || handle) }
     setActive(true)
     stage.current.setPointerCapture(e.pointerId)
   }
@@ -156,9 +165,12 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
     if (!d || d.id !== e.pointerId) return
     drag.current = null
     if (!d.moved) {
-      // The first tap only picks the crop screen up; a tap on a handle or a corner only takes hold of it
-      if (d.picking || e.target.closest('[data-h]') || e.target.closest('[data-pt]')) return
+      // The first tap only picks the crop screen up; a tap on a handle or a corner only takes hold of it (judged where
+      // the finger went down: the stage holds the pointer, so by now the target is the stage itself)
+      if (d.picking || d.onHandle) return
       const p = at(e), ed = edgesOf(crop, W, H)
+      // A tap inside the box only selects it: it is never a click to move a corner (a traced shape's corners are the exception)
+      if (!tracing && p.x > ed.left && p.x < ed.right && p.y > ed.top && p.y < ed.bottom) return
       if (tracing) {
         const fx = (p.x - ed.left) / (ed.right - ed.left), fy = (p.y - ed.top) / (ed.bottom - ed.top)
         if (fx < -0.02 || fy < -0.02 || fx > 1.02 || fy > 1.02) return
@@ -167,13 +179,13 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
       }
       const h = nearestCorner(ed, p.x, p.y)
       const next = dragCrop(crop, h, p.x - (h.includes('w') ? ed.left : ed.right), p.y - (h.includes('n') ? ed.top : ed.bottom), W, H)
-      change(next); settle(next)
+      change(next); adjusted(next)
       return
     }
     if (livePts) { const pts = livePts; setLivePts(null); changeShape({ kind: 'polygon', points: pts.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]) }); return }
     const next = live
     setLive(null)
-    if (next) { change(next); settle(next) }
+    if (next) { change(next); adjusted(next) }
   }
   const cancel = () => { drag.current = null; setLive(null); setLivePts(null) }
   const keyOn = (h) => (e) => {
@@ -183,24 +195,25 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
     if (!d) return
     e.preventDefault()
     const next = dragCrop(crop, h, d[0], d[1], W, H)
-    change(next); settle(next)
+    change(next); adjusted(next)
   }
 
-  const turn = (by) => { const next = fitInside(turnCrop(crop, W, H, by), W, H); change(next); setFrame(next) }
+  const turn = (by) => { const next = fitInside(turnCrop(crop, W, H, by), W, H); change(next); setFrame(next); if (autoZoom) setZoom(true) }
   // The straighten slider: one step in the history for each go at it, however many small moves it makes
   const lean = (e) => {
     const from = leanFrom.current || { crop, recorded: false }
     if (!leanFrom.current) leanFrom.current = from
     if (!from.recorded) { record(); from.recorded = true }
     const next = leanCrop(from.crop, Number(e.target.value), W, H)
-    onChange(next); setFrame(next)
+    onChange(next); setFrame(next); if (autoZoom) setZoom(true)
   }
   const startLean = () => { leanFrom.current = { crop, recorded: false }; setActive(true); setLeaning(true) }
   const endLean = () => { leanFrom.current = null; setLeaning(false) }
   const own = auto ? fitInside(turnCrop(auto, W, H, crop.turn), W, H) : null
   const whole = wholeCrop(W, H, crop.turn)
-  const reset = (next) => { change(next); setFrame(next) }
-  const toggleZoom = () => { setFrame(crop); setZoom((z) => !z) }
+  const reset = (next) => { change(next); setFrame(next); if (autoZoom) setZoom(true) }
+  // Zoom out is a choice to stay out; Zoom in is a choice to come back to it
+  const toggleZoom = () => { setFrame(crop); setAutoZoom(!zoom); setZoom(!zoom) }
 
   const shapeKind = shape && SHAPES[shape.kind] ? shape.kind : 'rect'
   const outline = shape ? outlineOf(shape.kind === 'polygon' ? { kind: 'polygon', points } : shape) : ''
