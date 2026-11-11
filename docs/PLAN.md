@@ -254,7 +254,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 
 ## 1b. Anna's academy (an app)
 
-- [x] Her school, built room by room: name, motto, colours, mascot; any of
+- [x] Her school, built room by room: name, motto, colours (Wayne Ruble's among 18), up to five mascots that all
+      roam the lawn; any of
       21 kinds of room from the start; the campus and every room arranged
       with a tap and arrows, or a drag; detail galore (the real sky, time
       and moon in the rooms).

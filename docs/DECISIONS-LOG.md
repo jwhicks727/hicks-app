@@ -6,6 +6,24 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-11 — The school can have several mascots, and Wayne Ruble's own colours
+
+Wayne Ruble's Wildcats are a panther, a cheetah and a tiger, so Anna's school now takes up
+to five mascots, and they all roam the lawn (each starts on its own square, strolls on its
+own, sleeps by the flag at night). Decided:
+
+- They are kept as their keys joined by commas in the one `academy_settings.mascot` column
+  (`src/academy/mascots.js`; an old single mascot reads as a list of one). Five is the most, so
+  the longest five fit the column's 60 characters: no migration.
+- Fluent Emoji has an eagle (drawn to `public/academy/items/eagle.webp`) but no cheetah, panther
+  or lion cub. Those three wear the nearest human-made picture under their own name (cheetah:
+  the spotted leopard; panther: the black cat; lion cub: the lion), rather than an image
+  generator's picture. A real cheetah, if the family finds one with a licence, would replace it.
+- School colours gain **Wayne Ruble** (black, the green sampled from the school's logo,
+  `#509850`, and white) and eleven more.
+
+---
+
 ## 2026-11-11 — The academy stands under home's real sky, and what's in it stirs
 
 Jason is buying furniture and pets (Unity Asset Store packs) to add as the family's own

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { pt, mid, tile, floorShapes, byDepth, TW, TH } from './iso.js'
 import { ROOM_KINDS } from './rooms.js'
 import { ITEM, itemSrc } from './items.js'
+import { MASCOT } from './mascots.js'
 import { shade } from './RoomScene.jsx'
 import { atmosphereAt, mix, hull, lightOf, smokes, sceneryFor, roofLights, seeded, LIGHTS } from './atmosphere.js'
 import { SkyDefs, Sky, CloudShadows, Fall, Splashes, Fog, Storm, Birds, Fireflies } from './Atmosphere.jsx'
@@ -26,7 +27,7 @@ const LEAN = { calm: 0, breeze: 1, windy: 2, gale: 3 }
 const GLOW_COLOURS = [...new Set(Object.values(LIGHTS).map((l) => l.colour))]
 const glowId = (c) => `campus-glow-${c.slice(1)}`
 
-export default function Campus({ rooms, n, colours = [], stars = 0, newStars = 0, arranging = false, selected, onOpen, onSelect, name, now = new Date(), atmos, mascot }) {
+export default function Campus({ rooms, n, colours = [], stars = 0, newStars = 0, arranging = false, selected, onOpen, onSelect, name, now = new Date(), atmos, mascots = [] }) {
   const a = atmos || atmosphereAt({ now })
   const tone = a.tone
   const w = n * TW, top = -BH - 104, h = n * TH - top + 30
@@ -48,12 +49,18 @@ export default function Campus({ rooms, n, colours = [], stars = 0, newStars = 0
   // The mascot has the run of the lawn by day, and sleeps by the flag at night
   const asleep = a.hour >= 21.5 || a.hour < 6
   const front = (p) => p.i + p.j - Math.abs(p.i - p.j) * 0.6 // toward the front and the middle, where it can be seen
-  const home = mascot && ITEM[mascot] && free.length ? [...free].sort((p, q) => front(q) - front(p) || p.i - q.i)[Math.min(free.length - 1, 1)] : null
+  // Each mascot starts on its own square near the front, and they stroll apart
+  const byFront = [...free].sort((p, q) => front(q) - front(p) || p.i - q.i)
+  const homes = []
+  mascots.filter((k) => MASCOT[k] && ITEM[MASCOT[k].art]).forEach((k, idx) => {
+    const sq = byFront.length ? byFront[(1 + idx * 2) % byFront.length] : null
+    if (sq && !homes.some((h) => h.i === sq.i && h.j === sq.j)) homes.push({ k, ...sq })
+  })
   const taken = new Set([...used, ...scenery.map((s) => `${s.i},${s.j}`)])
-  const roam = useWander(home ? [{ id: 'mascot', i: home.i, j: home.j, reach: n }] : [], taken, n, !arranging && !asleep && !a.weather.wet, 4200)
-  const [hop, setHop] = useState(0)
-  const pet = home ? { ...(roam.mascot || home), mascot: true } : null
-  const things = [...rooms.map((r) => ({ ...r, i: r.cx, j: r.cy, room: true })), ...(arranging ? [] : scenery), ...(pet && !arranging ? [pet.from ? { ...pet, i: Math.max(pet.i, pet.from.i), j: Math.max(pet.j, pet.from.j), at: pet } : { ...pet, at: pet }] : [])].sort(byDepth)
+  const roam = useWander(homes.map((h) => ({ id: h.k, i: h.i, j: h.j, reach: n })), taken, n, !arranging && !asleep && !a.weather.wet, 4200)
+  const [hop, setHop] = useState({})
+  const pets = homes.map((h) => ({ ...(roam[h.k] || h), k: h.k, mascot: true }))
+  const things = [...rooms.map((r) => ({ ...r, i: r.cx, j: r.cy, room: true })), ...(arranging ? [] : scenery), ...(arranging ? [] : pets.map((pet) => (pet.from ? { ...pet, i: Math.max(pet.i, pet.from.i), j: Math.max(pet.j, pet.from.j), at: pet } : { ...pet, at: pet })))].sort(byDepth)
   const starPts = Array.from({ length: Math.min(stars, 120) }, (_, k) => { const p = Math.sin(k * 12.9898) * 43758.5453, q = Math.sin(k * 78.233) * 12345.678; return { x: -w / 2 + (p - Math.floor(p)) * w, y: top + 6 + (q - Math.floor(q)) * 84 } })
 
   // The ground, in the season's green and the hour's light
@@ -132,11 +139,11 @@ export default function Campus({ rooms, n, colours = [], stars = 0, newStars = 0
         if (x.mascot) {
           const c = mid(x.at.i, x.at.j)
           return (
-            <g key="mascot" className="ac-mascot" style={{ transform: `translate(${c.x}px, ${c.y}px)` }} onClick={() => setHop((v) => v + 1)}>
-              <title>{`The school’s mascot${asleep ? ', asleep' : ''}`}</title>
+            <g key={`mascot-${x.k}`} className="ac-mascot" style={{ transform: `translate(${c.x}px, ${c.y}px)` }} onClick={() => setHop((v) => ({ ...v, [x.k]: (v[x.k] || 0) + 1 }))}>
+              <title>{`The school’s ${MASCOT[x.k].label.toLowerCase()}${asleep ? ', asleep' : ''}`}</title>
               <ellipse cx="0" cy="2" rx="8" ry="3.2" fill="rgba(20, 30, 10, .24)" />
-              <g key={`${x.at.step || 0}-${hop}`} className={(x.at.step || hop) && !asleep ? 'ac-stride' : undefined}>
-                <image href={itemSrc(mascot)} x="-12" y={asleep ? -17 : -21} width="24" height="24" opacity={asleep ? dim * 0.9 : Math.max(dim, 0.8)} transform={x.at.from && x.at.i - x.at.j < x.at.from.i - x.at.from.j ? 'scale(-1 1)' : undefined} />
+              <g key={`${x.at.step || 0}-${hop[x.k] || 0}`} className={(x.at.step || hop[x.k]) && !asleep ? 'ac-stride' : undefined}>
+                <image href={itemSrc(MASCOT[x.k].art)} x="-12" y={asleep ? -17 : -21} width="24" height="24" opacity={asleep ? dim * 0.9 : Math.max(dim, 0.8)} transform={x.at.from && x.at.i - x.at.j < x.at.from.i - x.at.from.j ? 'scale(-1 1)' : undefined} />
               </g>
               {asleep && [0, 1, 2].map((z) => <text key={z} className="ac-zzz" x={8 + z * 4} y={-18 - z * 6} fontSize={6 + z * 1.5} style={{ animationDelay: `${z * 0.9}s` }}>z</text>)}
             </g>
