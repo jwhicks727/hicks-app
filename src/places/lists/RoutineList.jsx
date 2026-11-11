@@ -100,7 +100,7 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
             const k = entryKey(e), g = going[k]
             return (
               <li key={k} data-key={k} className={(g ? 'dl-going' : '') + (leaving[k] ? ' dl-leaving' : '') + (k === golden && !g ? ' dl-golden' : '')}>
-                <button type="button" className="dl-row" aria-pressed={Boolean(g)} onClick={() => tap(e)} aria-label={g ? `${e.title}: done. Tap to undo` : undefined}>
+                <button type="button" className="dl-row" aria-pressed={Boolean(g)} onClick={() => tap(e)} aria-label={g ? `${e.title}: done. Tap to uncheck` : undefined}>
                   <span className="dl-box">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path className="dl-check" d="M5.5 12.5l4.2 4.2 8.8-9.4" /></svg>
                     {g && <Burst kind={g} n={g === 'gold' ? 16 : g === 'party' ? 18 : 11} />}
@@ -109,7 +109,6 @@ export function RoutineList({ part, list, ticks, golden, birthday = false, onTic
                     <span className="dl-words">{e.title}</span>
                     {sub(e) && <small>{sub(e)}</small>}
                   </span>
-                  {g && !leaving[k] && <span className="dl-undo" aria-hidden="true">undo</span>}
                   {k === golden && !g && <span className="dl-gold-tag" aria-label="today’s golden feather">✦</span>}
                   {e.icon && <ItemIcon name={e.icon} />}
                 </button>
