@@ -260,7 +260,7 @@ function AddRoom({ a, n, onClose, celebrate }) {
   )
 }
 
-const SCHOOL_COLOURS = [['Wayne Ruble', '#111111', '#509850', '#FFFFFF'], ['Wildcats', '#1C2B22', '#3FA34D', '#F2C14E'], ['Isibindi', '#111111', '#2E7D32', '#C9A227'], ['Ocean', '#13315C', '#2EA7C9', '#F6D58E'], ['Sunset', '#4A1E3A', '#E8546B', '#F6B54E'], ['Lavender', '#2E2152', '#8A5BC4', '#F4C7E0'], ['Forest', '#1E2E1C', '#5F8A4A', '#E8C27A'], ['Royal', '#14213D', '#2F5DA8', '#FCA311'], ['Cardinal', '#2B0D12', '#B3243A', '#F1E3C8'], ['Orange crush', '#1F1A17', '#E8731A', '#FFF1DC'], ['Teal', '#0F2A2E', '#1F9C8F', '#F2D16B'], ['Maroon', '#2A0F1A', '#7A1F3D', '#E6B84C'], ['Navy', '#0B1D3A', '#3A6EA5', '#E0E6EE'], ['Purple', '#24123F', '#6B3FA0', '#F0C75E'], ['Silver', '#1E2429', '#8A97A3', '#F4F6F8'], ['Pink', '#3A1530', '#E0589A', '#FBE3EE'], ['Gold rush', '#2B2308', '#C9A227', '#FFF8E1'], ['Sky', '#17324D', '#5BB4E5', '#FFFFFF']]
+const SCHOOL_COLOURS = [['Wayne Ruble', '#111111', '#509850', '#FFFFFF'], ['Ocean', '#13315C', '#2EA7C9', '#F6D58E'], ['Sunset', '#4A1E3A', '#E8546B', '#F6B54E'], ['Lavender', '#2E2152', '#8A5BC4', '#F4C7E0'], ['Forest', '#1E2E1C', '#5F8A4A', '#E8C27A'], ['Royal', '#14213D', '#2F5DA8', '#FCA311'], ['Cardinal', '#2B0D12', '#B3243A', '#F1E3C8'], ['Orange crush', '#1F1A17', '#E8731A', '#FFF1DC'], ['Teal', '#0F2A2E', '#1F9C8F', '#F2D16B'], ['Maroon', '#2A0F1A', '#7A1F3D', '#E6B84C'], ['Navy', '#0B1D3A', '#3A6EA5', '#E0E6EE'], ['Purple', '#24123F', '#6B3FA0', '#F0C75E'], ['Silver', '#1E2429', '#8A97A3', '#F4F6F8'], ['Pink', '#3A1530', '#E0589A', '#FBE3EE'], ['Gold rush', '#2B2308', '#C9A227', '#FFF8E1'], ['Sky', '#17324D', '#5BB4E5', '#FFFFFF']]
 
 function SchoolSettings({ a, onClose }) {
   const s = a.settings || {}
