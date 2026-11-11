@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Cropper from './Cropper.jsx'
 import { supabase } from '../../lib/supabase.js'
 import { FILES } from '../../lib/paintings.js'
-import { fitInside, wholeCrop } from '../../lib/paintingBatch.js'
+import { fitInside, reach, wholeCrop } from '../../lib/paintingBatch.js'
 import { cleanShape } from '../../lib/shapes.js'
 import { writePainting } from './usePaintingBatch.js'
 import { preparePhoto, paintingFiles } from './paintingPhotos.js'
@@ -28,7 +28,7 @@ export default function RecropPainting({ painting: p, onDone, onCancel }) {
         const pic = await preparePhoto(blob)
         made = URL.createObjectURL(pic.view)
         const saved = p.crop
-        const crop = saved ? fitInside({ turn: saved.turn, angle: saved.angle, cx: saved.cx, cy: saved.cy, w: saved.w, h: saved.h }, pic.W, pic.H) : wholeCrop(pic.W, pic.H)
+        const crop = saved ? fitInside({ turn: saved.turn, angle: saved.angle, cx: saved.cx, cy: saved.cy, w: saved.w, h: saved.h }, pic.W, pic.H, reach(pic.W, pic.H, saved.turn)) : wholeCrop(pic.W, pic.H)
         if (live) setSt({ phase: 'ready', src: made, W: pic.W, H: pic.H, crop, blob, shape: cleanShape(p.shape) })
       } catch (e) {
         if (live) setSt({ phase: 'error', msg: (e && e.message) || 'Its photo couldn’t be opened.' })
