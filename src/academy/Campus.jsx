@@ -192,7 +192,7 @@ function Building({ r, a, picked, arranging, roof, trim, lights, onTap }) {
           {/* windows and a door */}
           <g className={flick}>
             {lit && <><ellipse cx={D.x + 10} cy={D.y - 16} rx="12" ry="11" fill={glow} opacity=".72" /><ellipse cx={C.x + 19} cy={C.y - 23} rx="11" ry="11" fill={glow} opacity=".72" /></>}
-            <polygon points={`${D.x + 6},${D.y - 1 - 18} ${D.x + 14},${D.y - 5 - 18} ${D.x + 14},${D.y - 5 - 8} ${D.x + 6},${D.y - 1 - 8}`} fill={glass} opacity={lit ? 1 : 0.9} />
+            <polygon points={`${D.x + 6},${D.y + 3 - 18} ${D.x + 14},${D.y + 7 - 18} ${D.x + 14},${D.y + 7 - 8} ${D.x + 6},${D.y + 3 - 8}`} fill={glass} opacity={lit ? 1 : 0.9} />
             <polygon points={`${C.x + 16},${C.y - 8 - 18} ${C.x + 22},${C.y - 11 - 18} ${C.x + 22},${C.y - 11 - 9} ${C.x + 16},${C.y - 8 - 9}`} fill={glass} opacity={lit ? 1 : 0.9} />
           </g>
           <polygon points={`${C.x + 5},${C.y - 3} ${C.x + 13},${C.y - 7} ${C.x + 13},${C.y - 7 - 16} ${C.x + 5},${C.y - 3 - 16}`} fill={tone(shade(base, -0.45))} />

@@ -19,6 +19,16 @@
 .campus-svg { border-radius: 6px; max-height: 72vh; }
 .room-svg { max-height: 74vh; overflow: visible; }
 .room-svg.arranging { touch-action: none; }
+/* Pinch zoom: two fingers (or ctrl + wheel) on the picture; once zoomed, one finger looks around */
+.ac-zoom { position: relative; }
+.ac-zoom-frame { touch-action: pan-y; }
+.ac-zoom-frame.zoomed { overflow: hidden; touch-action: none; border-radius: 6px; }
+.ac-zoom-inner { transform-origin: 0 0; }
+.ac-zoom-btns { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
+.ac-zoom-btns button { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 4px; background: color-mix(in srgb, var(--card) 88%, transparent); color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+.ac-zoom-btns button:disabled { opacity: .4; cursor: default; }
+@media (pointer: coarse) { .ac-zoom-btns button { min-width: 44px; height: 44px; } }
+.ac-zoom-frame:has(.room-svg.arranging) { touch-action: none; }
 .building { cursor: pointer; }
 .building:focus-visible { outline: none; }
 .building:focus-visible polygon:first-of-type, .building:hover .sign { filter: brightness(1.08); }
