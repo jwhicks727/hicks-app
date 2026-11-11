@@ -24,7 +24,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
   const [items, setItems] = useState(room ? room.items || [] : [])
   const [arranging, setArranging] = useState(false), [picked, setPicked] = useState(null)
   const [catalog, setCatalog] = useState(false), [look, setLook] = useState(false), [gone, setGone] = useState(false)
-  const [saved, setSaved] = useState(null)
+  const [saved, setSaved] = useState(null), [prize, setPrize] = useState(null)
   const timer = useRef(null), pending = useRef(null)
   const urls = useAssetUrls(a.assets)
   useEffect(() => { if (room) setItems(room.items || []) }, [room && room.id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -61,7 +61,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
         <h1 className="greet">{room.name}</h1>
       </header>
       <Card tint="#3FA34D" label={arranging ? 'Arranging' : 'Look around'} glyph="star" tag={saved || undefined} className="span-6 ac-room">
-        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
+        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
         {atmos && atmos.pretend && <p className="ac-sky">A pretend sky, just for now.</p>}
         {arranging ? (
           <div className="ac-edit">
@@ -105,6 +105,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
       )}
       {kind.detail === 'fame' && <Card tint="#C9A227" label="On the shelves" glyph="star" className="span-3"><p>{extras.fame.length ? `${extras.fame.length} trophies, ribbons and cheers so far.` : 'Nothing yet: the first goal reached puts a trophy here.'}</p><Link to="/academy/fame" className="ac-more">The whole Hall ›</Link></Card>}
       {kind.detail === 'menu' && <Card tint="#F2C14E" label="Today’s lunch" glyph="star" className="span-3"><p className="ac-menu">{menuFor(today)}</p></Card>}
+      {prize && <PrizeSheet p={prize} a={a} urlFor={urlFor} onClose={() => setPrize(null)} />}
       {catalog && <Catalog onPick={add} onClose={() => setCatalog(false)} assets={a.assets} urls={urls} />}
       {look && <RoomLook room={room} kind={kind} onClose={() => setLook(false)} onSave={async (patch) => { await saveRoom(room.id, patch); a.reload(); setLook(false) }} onRemove={() => { setLook(false); setGone(true) }} />}
       {gone && <Confirm title={`Take down ${room.name}?`} yes="Take it down" danger onNo={() => setGone(false)} onYes={async () => { await removeRoom(room.id); a.reload(); navigate('/academy', { replace: true }) }}>The room and everything in it leave the campus. The goals, tasks and trophies stay.</Confirm>}
@@ -157,6 +158,22 @@ function RoomLook({ room, kind, onClose, onSave, onRemove }) {
           <button type="button" className="btn" onClick={() => onSave({ name: f.name.trim() || kind.name, style: { ...st, wall: f.wall, floor: f.floor } })}>Save</button>
           <button type="button" className="btn ghost danger-t" onClick={onRemove}>Take down this room</button>
         </div>
+      </div>
+    </Sheet>
+  )
+}
+
+/** One prize from the wall: what it is for, when, and who cheered. */
+function PrizeSheet({ p, a, urlFor, onClose }) {
+  const cheer = p.kind === 'cheer' && (a.cheers || []).find((c) => 'c' + c.id === p.key)
+  return (
+    <Sheet title={p.title} onClose={onClose}>
+      <div className="ac-prize-sheet">
+        <img src={p.prize.startsWith('a:') ? urlFor(p.prize.slice(2)) || '' : itemSrc(p.prize)} alt="" width="96" height="96" />
+        <p><b>{p.kind === 'goal' ? 'Goal reached' : p.kind === 'grade' ? 'Report card' : 'A cheer'}</b>{p.on ? ` · ${p.on}` : ''}</p>
+        {p.from && <p className="muted">From {p.from}</p>}
+        {cheer && cheer.note && <p>{cheer.note}</p>}
+        <Link to="/academy/fame" className="ac-more">The whole Hall ›</Link>
       </div>
     </Sheet>
   )
