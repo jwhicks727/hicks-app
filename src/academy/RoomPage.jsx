@@ -10,6 +10,7 @@ import { ITEMS, ITEM, CATEGORIES, itemSrc } from './items.js'
 import { MOVES } from './iso.js'
 import { taskDay, goalProgress, fame, menuFor, dueWords } from './school.js'
 import RoomScene from './RoomScene.jsx'
+import ZoomView from './ZoomView.jsx'
 
 // A room of the academy: look around (tap a thing and it hops), arrange it
 // (tap a thing, then the arrows, size, flip and colour; or drag it), add
@@ -60,7 +61,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
         <h1 className="greet">{room.name}</h1>
       </header>
       <Card tint="#3FA34D" label={arranging ? 'Arranging' : 'Look around'} glyph="star" tag={saved || undefined} className="span-6 ac-room">
-        <RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} />
+        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
         {atmos && atmos.pretend && <p className="ac-sky">A pretend sky, just for now.</p>}
         {arranging ? (
           <div className="ac-edit">

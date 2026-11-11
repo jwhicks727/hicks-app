@@ -16,6 +16,7 @@ import { MASCOTS, MAX_MASCOTS, parseMascots, joinMascots, toggleMascot } from '.
 import { MOVES } from './iso.js'
 import { starsThisMonth, taskDay, dueWords, goalProgress, latestByClass, gradeCheer, fame, spotlight } from './school.js'
 import Campus from './Campus.jsx'
+import ZoomView from './ZoomView.jsx'
 import RoomPage from './RoomPage.jsx'
 import { TasksPage, GoalsPage, GoalPage, GradesPage } from './Work.jsx'
 import { FamePage, PicturesPage, CheerSheet } from './Fame.jsx'
@@ -154,7 +155,7 @@ function CampusHome({ a, anna, today, celebrate, me, atmos }) {
         </Link>
       )}
       <Card tint="#3FA34D" label="The campus" glyph="star" tag={`${stars} ★ this month`} className="span-4 ac-campus">
-        <Campus rooms={a.rooms} n={n} colours={s.colours} stars={stars} newStars={day.done.length} arranging={arranging} selected={picked} name={s.name || 'The academy'} onOpen={(id) => navigate(`/academy/room/${id}`)} onSelect={setPicked} atmos={atmos} mascots={parseMascots(s.mascot || 'tiger')} />
+        <ZoomView><Campus rooms={a.rooms} n={n} colours={s.colours} stars={stars} newStars={day.done.length} arranging={arranging} selected={picked} name={s.name || 'The academy'} onOpen={(id) => navigate(`/academy/room/${id}`)} onSelect={setPicked} atmos={atmos} mascots={parseMascots(s.mascot || 'tiger')} /></ZoomView>
         <p className="ac-sky">{skyWords(atmos)}{atmos.pretend && <> <button type="button" className="ac-sky-b" onClick={() => setSkyTry(null)}>Back to the real sky</button></>}</p>
         {arranging ? (
           <div className="ac-tools">
