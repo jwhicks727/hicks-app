@@ -1,0 +1,16 @@
+/* The close-up (src/ui/ZoomView.jsx): the picture alone on a dark ground, zoomed by pinch, wheel or button */
+.zv { position: fixed; inset: 0; z-index: 90; background: rgba(20, 13, 9, .94); overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; outline: none;
+  display: grid; place-items: center; overscroll-behavior: contain; }
+.zv-img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transform-origin: 50% 50%; will-change: transform; -webkit-user-drag: none; pointer-events: none; }
+.zv-bar { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); right: calc(env(safe-area-inset-right, 0px) + 10px); display: flex; gap: 8px; z-index: 1; }
+.zv-btn { width: 44px; height: 44px; border-radius: 4px; border: 1px solid rgba(255, 248, 238, .35); background: rgba(40, 28, 20, .72); color: var(--on-colour); font-size: 24px; line-height: 1; font-weight: 700; display: grid; place-items: center; cursor: pointer; }
+.zv-btn:disabled { opacity: .4; cursor: default; }
+.zv-btn:focus-visible { outline: 3px solid var(--on-colour); outline-offset: 2px; }
+.zv-x { font-size: 20px; }
+.zv-hint { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); text-align: center; color: rgba(255, 248, 238, .75); font-size: 14px; pointer-events: none; margin: 0; }
+/* the art on its page: a tap opens it close up */
+.zv-art { position: relative; display: block; width: 100%; cursor: zoom-in; -webkit-tap-highlight-color: transparent; }
+.zv-art:focus-visible { outline: 3px solid var(--sky-ink); outline-offset: 4px; }
+.zv-badge { position: absolute; right: 8px; bottom: 8px; width: 30px; height: 30px; border-radius: 4px; display: grid; place-items: center; background: rgba(40, 28, 20, .62); color: var(--on-colour); pointer-events: none; }
+.zv-badge svg { width: 20px; height: 20px; }
+@media (pointer: coarse) { .zv-badge { width: 36px; height: 36px; } }

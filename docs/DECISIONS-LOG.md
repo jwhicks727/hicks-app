@@ -6,6 +6,16 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-11 — Art can be pinched close in both galleries
+
+On a painting's page and a drawing's page, a tap on the art opens it close up (`src/ui/ZoomView.jsx`): pinch to
+zoom, drag to move once zoomed, double-tap to zoom in and out, the wheel on a computer, and + / − buttons. The
+page itself still never zooms (the viewport and `tests/no-zoom.test.mjs` are unchanged: that stops iOS jumping
+on fields); only the picture does. The art is only scaled, never altered or cropped. The maths is in
+`src/lib/zoom.js` (`tests/zoomview.test.mjs`).
+
+---
+
 ## 2026-11-11 — Last night's Night Owl list stays open for a tick the next day
 
 The day turns over at 3am, so by breakfast the evening list a person fell asleep on had

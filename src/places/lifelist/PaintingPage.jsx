@@ -14,6 +14,7 @@ import { paintingBySlug } from '../../lib/paintings.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { SEASONS, windowsOf } from '../../lib/seasons.js'
 import { showFor } from '../../lib/seasonShows.js'
+import { ZoomArt } from '../../ui/ZoomView.jsx'
 import PaintingSubjects from './PaintingSubjects.jsx'
 import '../../parts/paintings.css'
 
@@ -55,7 +56,9 @@ export default function PaintingPage({ slug }) {
       </header>
       <div className="painting-hang span-6">
         <Framed shape={p.shape}>
-          <PaintingFrame painting={p} label={`${p.title}, a painting by Laurie`} style={{ aspectRatio: `${p.w} / ${p.h}` }} />
+          <ZoomArt src={p.src} title={p.title} alt={`${p.title}, a painting by Laurie`}>
+            <PaintingFrame painting={p} label={`${p.title}, a painting by Laurie`} style={{ aspectRatio: `${p.w} / ${p.h}` }} />
+          </ZoomArt>
         </Framed>
       </div>
       <PaintingSubjects painting={p} />
