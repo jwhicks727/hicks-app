@@ -246,8 +246,9 @@ licence nobody wrote down.
   the `claude` function from the paintings' facts, never their pictures; until it can, the
   app hangs its own from those facts (`src/lib/gallery.js`).
 - **The crop tool holds still** (`src/places/lifelist/Cropper.jsx`): the first tap only
-  picks it up, the view never follows the box while it's dragged, nothing zooms by itself,
-  every change can be undone (Ctrl or ⌘ Z, never while typing), and a crop from storage is
+  picks it up, a tap inside the box only selects it (never moves a corner), the view never
+  follows the box while it's dragged, it zooms in once when a change is let go of (Zoom out
+  switches that off), every change can be undone (Ctrl or ⌘ Z, never while typing), and a crop from storage is
   compared by value. A second photo of something already in is a question (leave it out,
   add it anyway, or replace the photo), never a silent duplicate.
 - **Anna's drawings are hers, and private** (Anna's Art, `src/places/Drawings.jsx`,
