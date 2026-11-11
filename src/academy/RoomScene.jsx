@@ -5,7 +5,7 @@ import { itemSrc } from './items.js'
 import { menuFor } from './school.js'
 import { HOME_TOWN, moonLitPath } from '../lib/sky.js'
 import { atmosphereAt, beamOf, lightOf, ridge, seeded as rng } from './atmosphere.js'
-import { SkyDefs, Sky, Cloud, Moon, Fall, Splashes, Fog, Storm, CloudShadows, cloudCount, hillInk, sunInk } from './Atmosphere.jsx'
+import { SkyDefs, Sky, Cloud, Moon, Fall, Splashes, Fog, Storm, CloudShadows, cloudCount, hillInk, sunInk, moonShows } from './Atmosphere.jsx'
 import { gait, glowOf, risesFrom, idleOf } from './life.js'
 import { useWander } from './useWander.js'
 
@@ -321,7 +321,7 @@ function Window({ x, w = 64, h = 70, y = -112, id, frame = '#FFF8EE', a }) {
       <rect x={x} y={y} width={w} height={h} fill={`url(#${id}-sky)`} />
       <g clipPath={`url(#${clip})`} pointerEvents="none">
         {seen(a.sun) && <g opacity={1 - Math.min(0.92, a.weather.cover * 0.95)}><circle cx={sun.x} cy={sun.y} r="24" fill={`url(#${id}-sunglow)`} /><circle cx={sun.x} cy={sun.y} r="6.5" fill={sunInk(a)} /></g>}
-        {seen(a.moon) && a.daylight < 0.6 && a.moon.fraction > 0.02 && <Moon id={id} a={a} at={place(a.moon)} r={5.5} />}
+        {seen(a.moon) && a.daylight < 0.6 && moonShows(a) && <Moon id={id} a={a} at={place(a.moon)} r={5.5} />}
         {veil > 0 && <rect x={x} y={y} width={w} height={h} fill={a.sky.dark ? '#14141F' : '#8C95A2'} opacity={veil} />}
         <g opacity={foggy ? 0.25 : 1}>
           <path d={ridge('pane-far', x, x + w, y + h - 6, 5, y + h)} fill={hillInk(a, 0.3)} />

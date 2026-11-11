@@ -25,6 +25,9 @@ export const hillInk = (a, k) => mix(a.sky.g[Math.max(0, a.sky.g.length - 2)], H
 /** The sun's colour: redder the lower it stands. */
 export const sunInk = (a) => mix('#FF7A3D', '#FFF7DA', Math.max(0, Math.min(1, a.sun.alt / 14)))
 
+/** Whether the moon can be picked out: any sliver after dark, but by day only once it's a fair crescent (a thin one is lost beside the sun). */
+export const moonShows = (a) => a.moon.fraction > (a.daylight > 0.5 ? 0.15 : 0.02)
+
 /** How many clouds a sky this covered has. */
 export const cloudCount = (cover) => (cover < 0.1 ? 0 : cover < 0.25 ? 1 : Math.round(2 + cover * 5))
 
@@ -105,7 +108,7 @@ export function Sky({ id, a, panel, sky }) {
     <g pointerEvents="none">
       {ember > 0.02 && <ellipse cx={sun.x} cy={sky.horizon} rx={panel.w * 0.34} ry="34" fill={`url(#${id}-ember)`} opacity={Math.min(0.9, ember)} />}
       {a.sun.alt > -3 && <Sun id={id} a={a} at={sun} />}
-      {a.moon.alt > -3 && a.moon.fraction > 0.02 && <Moon id={id} a={a} at={moon} />}
+      {a.moon.alt > -3 && moonShows(a) && <Moon id={id} a={a} at={moon} />}
       <g opacity={foggy ? 0.3 : 1}>
         <path d={ridge('far-hills', x0, x1, sky.horizon + 6, 10, sky.horizon + 70)} fill={`url(#${id}-hill1)`} />
         <path d={ridge('near-hills', x0, x1, sky.horizon + 15, 7, sky.horizon + 84, 11)} fill={`url(#${id}-hill2)`} />
