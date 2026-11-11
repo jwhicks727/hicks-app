@@ -6,6 +6,15 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-11 — A ticked item waits a few seconds before it goes
+
+On the Early Bird and Night Owl lists, a ticked row stays where it is, ticked, for about four and a half seconds
+with a small "undo" on it; tapping it again takes the tick back (`RoutineList`, `UNDO_MS`). Only then does it slip
+into the "done" pile. The tick itself is saved at once, as before, and an undo removes it again, so nothing
+waits on the screen alone. Jason asked for it after tapping the wrong one.
+
+---
+
 ## 2026-11-11 — Art can be pinched close in both galleries
 
 On a painting's page and a drawing's page, a tap on the art opens it close up (`src/ui/ZoomView.jsx`): pinch to
