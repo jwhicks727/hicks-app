@@ -16,7 +16,7 @@ import { HOME_TOWN, SKIES, phaseOf, bearing } from '../lib/sky.js'
 import { windOf } from '../lib/wind.js'
 import { minutesOfDay, noonOf } from '../lib/skyYear.js'
 import { seasonFor } from '../lib/seasons.js'
-import { TW, TH } from './iso.js'
+import { TW } from './iso.js'
 
 const DEG = 180 / Math.PI
 const clamp = (x, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, x))
@@ -266,8 +266,9 @@ const homeDate = (now, tz) => new Intl.DateTimeFormat('en-CA', { timeZone: tz })
  * The air of the academy at `now`: the phase of the day and its sky, the sun and moon, the weather and wind at
  * home (from `forecast`, or none), the light and the shadows they make, and the season. `tryOn` is
  * { time, weather, wind } (any of them), someone's pretend sky for this visit: `pretend` says so.
+ * `waiting` is true while the forecast is still on its way (so the screen doesn't call it unreachable).
  */
-export function atmosphereAt({ now = new Date(), forecast = null, tryOn = null, at = HOME_TOWN } = {}) {
+export function atmosphereAt({ now = new Date(), forecast = null, tryOn = null, waiting = false, at = HOME_TOWN } = {}) {
   const today = homeDate(now, at.tz)
   const when = (tryOn && tryOn.time && momentOf(tryOn.time, today, at)) || now
   const phase = phaseOf(when, SunCalc.getTimes(when, at.lat, at.lng))
@@ -289,7 +290,7 @@ export function atmosphereAt({ now = new Date(), forecast = null, tryOn = null, 
     weather, wind, washes: outdoors, washesIn: indoors, tone: toneWith(outdoors),
     shadow: shadowOf(sun, moon, weather), beam: beam && beam.strength >= 0.05 ? beam : null,
     season: { ground: groundSeason(date), key: seasonFor(date).key },
-    pretend: Boolean(tryOn && (tryOn.time || tryOn.weather || tryOn.wind)),
+    pretend: Boolean(tryOn && (tryOn.time || tryOn.weather || tryOn.wind)), waiting: Boolean(waiting && !forecast),
   }
 }
 
@@ -297,11 +298,8 @@ export function atmosphereAt({ now = new Date(), forecast = null, tryOn = null, 
 export function skyWords(a) {
   if (a.pretend) return 'A pretend sky, just for now.'
   const w = a.weather
-  if (!w.known) return 'Home’s sun and moon, right now. The weather couldn’t be reached, so the sky is shown clear.'
+  if (!w.known) return a.waiting ? 'Home’s sun and moon, right now. Looking at the weather…' : 'Home’s sun and moon, right now. The weather couldn’t be reached, so the sky is shown clear.'
   const wind = a.wind.known && a.wind.level !== 'calm' ? `, ${{ breeze: 'a breeze', windy: 'windy', gale: 'very windy' }[a.wind.level]}` : ''
   const temp = w.temp == null ? '' : `, ${w.temp}°`
   return `Home’s sky, right now: ${(w.words || 'cloudy').toLowerCase()}${temp}${wind}.${w.puddles && !w.wet ? ' Puddles from the rain earlier.' : ''}`
 }
-
-// Kept beside the geometry it leans on, for the screens: half a square's width and height on screen
-export const HALF = { w: TW / 2, h: TH / 2 }

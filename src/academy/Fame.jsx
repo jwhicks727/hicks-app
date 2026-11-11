@@ -113,7 +113,7 @@ export function PicturesPage({ a, parent }) {
         {a.assets.length ? (
           <ul className="ac-assets">{a.assets.map((x) => <li key={x.id}>{urls[x.path] ? <img src={urls[x.path]} alt="" width="56" height="56" /> : <span className="ac-blank" />}<span><b>{x.name}</b><small>{x.licence}</small>{x.source && <small>{x.source}</small>}
             {parent
-              ? <label className="ac-way"><span className="sr">What {x.name} does in a room</span><select value={ASSET_WAYS.some(([k]) => k === x.cat) ? x.cat : 'Ours'} onChange={async (e) => { const { error } = await saveAsset(x.id, { cat: e.target.value }); setBusy(error ? error.message : null); a.reload() }}>{ASSET_WAYS.map(([k, label]) => <option key={k} value={k}>{label}</option>)}</select></label>
+              ? <label className="ac-way"><select aria-label={`What ${x.name} does in a room`} value={ASSET_WAYS.some(([k]) => k === x.cat) ? x.cat : 'Ours'} onChange={async (e) => { const { error } = await saveAsset(x.id, { cat: e.target.value }); setBusy(error ? error.message : null); a.reload() }}>{ASSET_WAYS.map(([k, label]) => <option key={k} value={k}>{label}</option>)}</select></label>
               : x.cat !== 'Ours' && ASSET_WAYS.some(([k]) => k === x.cat) && <small>{ASSET_WAYS.find(([k]) => k === x.cat)[1]}</small>}
           </span>{parent && <button type="button" className="ac-x" aria-label={`Remove ${x.name}`} onClick={async () => { await removeAsset(x); a.reload() }}>✕</button>}</li>)}</ul>
         ) : <p className="muted">None yet. Everything in the rooms so far is from Fluent Emoji by Microsoft (MIT licence).</p>}

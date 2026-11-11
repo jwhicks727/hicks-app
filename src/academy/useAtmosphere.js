@@ -12,7 +12,7 @@ import { useSkyTry } from './skyTry.js'
  */
 export function useAtmosphere() {
   const now = useNow()
-  const { forecast } = useWeather()
+  const { forecast, error } = useWeather()
   const [tryOn] = useSkyTry()
-  return useMemo(() => atmosphereAt({ now, forecast, tryOn }), [now, forecast, tryOn])
+  return useMemo(() => atmosphereAt({ now, forecast, tryOn, waiting: !error }), [now, forecast, tryOn, error])
 }

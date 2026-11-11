@@ -90,6 +90,7 @@ test('trying a sky on is marked pretend, and each time of day lands in its own p
   assert.equal(atmosphereAt({ now: at(12), tryOn: { weather: 'frogs' } }).weather.known, false, 'an unknown weather is no weather')
   for (const k of WEATHERS) assert.equal(pretendWeather(k).kind, k)
   assert.match(skyWords(atmosphereAt({ now: at(12) })), /couldn’t be reached/)
+  assert.match(skyWords(atmosphereAt({ now: at(12), waiting: true })), /Looking at the weather/, 'still on its way is not unreachable')
   assert.equal(skyWords(atmosphereAt({ now: at(12), forecast: forecast({ pic: 'partly', words: 'Partly cloudy', speed: 14, gusts: 20 }) })), 'Home’s sky, right now: partly cloudy, 64°, windy.')
 })
 

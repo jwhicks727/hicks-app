@@ -64,6 +64,11 @@ invented: it is home's own sky. Decided:
   stilled, and that no keyframes animate anything else). A storm's flash is a pale veil
   inside the picture, twice in nine seconds at most.
 
+- **A tap picks a thing up while arranging.** Found while testing: a tap on a thing in a
+  room picked it and let go of it in the same moment (the tap also counted as a tap on the
+  empty room), so only dragging worked. A tap on a thing now stays with the thing, and the
+  arrows, size, flip and colour follow, as the room's own words always said.
+
 Not done, and why: sound (rain on the roof would need a switch and care on a phone at
 school); frames from a sprite sheet for the pets, until we see what the packs hold.
 

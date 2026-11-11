@@ -211,6 +211,7 @@ function SkySheet({ onClose }) {
   const [t, setT] = useSkyTry()
   const v = t || {}
   const pick = (key, value) => setT({ ...v, [key]: value || undefined })
+  const done = () => window.history.back() // the sheet took a step of history when it opened: closing is going back over it (src/ui/Sheet.jsx)
   const row = (key, legend, real, list) => (
     <fieldset className="choice-row"><legend>{legend}</legend>
       <button type="button" aria-pressed={!v[key]} onClick={() => pick(key, null)}>{real}</button>
@@ -225,8 +226,8 @@ function SkySheet({ onClose }) {
         {row('weather', 'Weather', 'The real weather', TRY_WEATHER)}
         {row('wind', 'Wind', 'The real wind', TRY_WIND)}
         <div className="form-actions">
-          <button type="button" className="btn" onClick={onClose}>{t ? 'See it' : 'Done'}</button>
-          {t && <button type="button" className="btn ghost" onClick={() => { setT(null); onClose() }}>Back to the real sky</button>}
+          <button type="button" className="btn" onClick={done}>{t ? 'See it' : 'Done'}</button>
+          {t && <button type="button" className="btn ghost" onClick={() => { setT(null); done() }}>Back to the real sky</button>}
         </div>
       </div>
     </Sheet>

@@ -182,7 +182,7 @@ export default function RoomScene({ room, kind, items, arranging = false, select
         const href = it.k.startsWith('a:') ? urlFor && urlFor(it.k.slice(2)) : itemSrc(it.k)
         if (!href) return null
         const g = (a.dark || (glowOf(it.k, asset(it.k)) || {}).always) && glowOf(it.k, asset(it.k))
-        const way = gaits[it.id], idle = arranging ? null : way === 'hover' ? 'ac-hover' : way ? (asleep ? null : 'ac-breathe') : idleOf(it.k)
+        const way = gaits[it.id], idle = arranging ? null : way === 'hover' ? 'ac-hover' : way ? 'ac-breathe' : idleOf(it.k)
         const up2 = !arranging && rising < 9 ? risesFrom(it.k) : null
         if (up2) rising += 1
         const to = it.at ? mid(it.at.i, it.at.j) : c
@@ -190,7 +190,7 @@ export default function RoomScene({ room, kind, items, arranging = false, select
         return (
           <g key={it.id} className={way && !arranging ? 'ac-walker' : undefined} style={way && !arranging ? { transform: `translate(${to.x - c.x}px, ${to.y - c.y}px)` } : undefined}>
             {g && <ellipse cx={c.x} cy={c.y + 2} rx={g.reach * 36} ry={g.reach * 18} fill={`url(#${glowId(id, g.colour)})`} opacity=".8" className={g.flicker ? 'ac-candle' : undefined} pointerEvents="none" />}
-            <g className={'room-item' + (selected === it.id ? ' picked' : '') + (hop === it.id ? ' hop' : '')} onPointerDown={(e) => down(e, it)} style={{ transformOrigin: `${c.x}px ${c.y}px` }}>
+            <g className={'room-item' + (selected === it.id ? ' picked' : '') + (hop === it.id ? ' hop' : '')} onPointerDown={(e) => down(e, it)} onClick={(e) => e.stopPropagation() /* a tap on a thing isn't a tap on the empty room, which lets go of what's picked */} style={{ transformOrigin: `${c.x}px ${c.y}px` }}>
               <ellipse cx={c.x} cy={c.y + 2} rx={size * 0.34} ry={size * 0.13} fill="rgba(30, 15, 5, .2)" />
               {g && <circle cx={c.x} cy={c.y - size * 0.42} r={size * 0.62} fill={`url(#${glowId(id, g.colour)})`} opacity=".5" className={g.flicker ? 'ac-candle' : undefined} pointerEvents="none" />}
               <g key={it.at ? it.at.step : 0} className={it.at && it.at.step ? 'ac-stride' : undefined}>

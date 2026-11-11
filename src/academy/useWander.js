@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { stepFrom } from './life.js'
 import { reducedMotion } from '../lib/motion.js'
 
+// A step takes a second on screen (.ac-walker and .ac-mascot in academy.css)
+const ARRIVE = 1100
+
 /**
  * Things that stroll by themselves (a room's animals, the campus's mascot). `list` is where each was put
  * ([{ id, i, j, reach }]); `fixed` the squares taken by everything that stays ('i,j' strings). Every few
@@ -17,6 +20,7 @@ export function useWander(list, fixed, n, active, every = 2600) {
   useEffect(() => { setAt({}) }, [key, active])
   useEffect(() => {
     if (!active || !list.length || reducedMotion()) return undefined
+    let settle = null
     const t = setInterval(() => {
       if (document.hidden) return
       setAt((cur) => {
@@ -29,8 +33,11 @@ export function useWander(list, fixed, n, active, every = 2600) {
         const next = stepFrom(pos, w, blocked, n, Math.random, w.reach)
         return next ? { ...cur, [w.id]: { ...next, step: (pos.step || 0) + 1, from: { i: pos.i, j: pos.j } } } : cur
       })
-    }, every)
-    return () => clearInterval(t)
+      // Once it has arrived it stands on one square only (`from` is for drawing it in front while it crosses)
+      clearTimeout(settle)
+      settle = setTimeout(() => setAt((cur) => (Object.values(cur).some((p) => p.from) ? Object.fromEntries(Object.entries(cur).map(([id, p]) => [id, { i: p.i, j: p.j, step: p.step }])) : cur)), ARRIVE)
+    }, Math.max(every, ARRIVE + 300))
+    return () => { clearInterval(t); clearTimeout(settle) }
   }, [key, active, n, every]) // eslint-disable-line react-hooks/exhaustive-deps
   return at
 }
