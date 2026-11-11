@@ -12,6 +12,7 @@ import { useAcademy, saveSettings, addRooms, saveRoom, saveTask, addTask } from 
 import { ROOM_KINDS, KIND_ORDER, newRoom, campusSize, moveRoom, kindColours } from './rooms.js'
 import IconTile from '../ui/IconTile.jsx'
 import { itemSrc } from './items.js'
+import { MASCOTS, MAX_MASCOTS, parseMascots, joinMascots, toggleMascot } from './mascots.js'
 import { MOVES } from './iso.js'
 import { starsThisMonth, taskDay, dueWords, goalProgress, latestByClass, gradeCheer, fame, spotlight } from './school.js'
 import Campus from './Campus.jsx'
@@ -153,7 +154,7 @@ function CampusHome({ a, anna, today, celebrate, me, atmos }) {
         </Link>
       )}
       <Card tint="#3FA34D" label="The campus" glyph="star" tag={`${stars} ★ this month`} className="span-4 ac-campus">
-        <Campus rooms={a.rooms} n={n} colours={s.colours} stars={stars} newStars={day.done.length} arranging={arranging} selected={picked} name={s.name || 'The academy'} onOpen={(id) => navigate(`/academy/room/${id}`)} onSelect={setPicked} atmos={atmos} mascot={s.mascot || 'tiger'} />
+        <Campus rooms={a.rooms} n={n} colours={s.colours} stars={stars} newStars={day.done.length} arranging={arranging} selected={picked} name={s.name || 'The academy'} onOpen={(id) => navigate(`/academy/room/${id}`)} onSelect={setPicked} atmos={atmos} mascots={parseMascots(s.mascot || 'tiger')} />
         <p className="ac-sky">{skyWords(atmos)}{atmos.pretend && <> <button type="button" className="ac-sky-b" onClick={() => setSkyTry(null)}>Back to the real sky</button></>}</p>
         {arranging ? (
           <div className="ac-tools">
@@ -258,15 +259,14 @@ function AddRoom({ a, n, onClose, celebrate }) {
   )
 }
 
-const SCHOOL_COLOURS = [['Wildcats', '#1C2B22', '#3FA34D', '#F2C14E'], ['Isibindi', '#111111', '#2E7D32', '#C9A227'], ['Ocean', '#13315C', '#2EA7C9', '#F6D58E'], ['Sunset', '#4A1E3A', '#E8546B', '#F6B54E'], ['Lavender', '#2E2152', '#8A5BC4', '#F4C7E0'], ['Forest', '#1E2E1C', '#5F8A4A', '#E8C27A']]
-const MASCOTS = ['tiger', 'leopard', 'cat', 'black-cat', 'owl', 'dragon', 'unicorn', 'fox', 'panda', 'dolphin', 'lion', 'butterfly']
+const SCHOOL_COLOURS = [['Wayne Ruble', '#111111', '#509850', '#FFFFFF'], ['Wildcats', '#1C2B22', '#3FA34D', '#F2C14E'], ['Isibindi', '#111111', '#2E7D32', '#C9A227'], ['Ocean', '#13315C', '#2EA7C9', '#F6D58E'], ['Sunset', '#4A1E3A', '#E8546B', '#F6B54E'], ['Lavender', '#2E2152', '#8A5BC4', '#F4C7E0'], ['Forest', '#1E2E1C', '#5F8A4A', '#E8C27A'], ['Royal', '#14213D', '#2F5DA8', '#FCA311'], ['Cardinal', '#2B0D12', '#B3243A', '#F1E3C8'], ['Orange crush', '#1F1A17', '#E8731A', '#FFF1DC'], ['Teal', '#0F2A2E', '#1F9C8F', '#F2D16B'], ['Maroon', '#2A0F1A', '#7A1F3D', '#E6B84C'], ['Navy', '#0B1D3A', '#3A6EA5', '#E0E6EE'], ['Purple', '#24123F', '#6B3FA0', '#F0C75E'], ['Silver', '#1E2429', '#8A97A3', '#F4F6F8'], ['Pink', '#3A1530', '#E0589A', '#FBE3EE'], ['Gold rush', '#2B2308', '#C9A227', '#FFF8E1'], ['Sky', '#17324D', '#5BB4E5', '#FFFFFF']]
 
 function SchoolSettings({ a, onClose }) {
   const s = a.settings || {}
-  const [f, setF] = useState({ name: s.name || '', motto: s.motto || '', colours: s.colours || SCHOOL_COLOURS[0].slice(1), mascot: s.mascot || 'tiger' })
+  const [f, setF] = useState({ name: s.name || '', motto: s.motto || '', colours: s.colours || SCHOOL_COLOURS[0].slice(1), mascots: parseMascots(s.mascot || 'tiger') })
   const [msg, setMsg] = useState(null)
   async function save() {
-    const { error } = await saveSettings({ name: f.name.trim() || 'The Academy', motto: f.motto.trim() || null, colours: f.colours, mascot: f.mascot })
+    const { error } = await saveSettings({ name: f.name.trim() || 'The Academy', motto: f.motto.trim() || null, colours: f.colours, mascot: joinMascots(f.mascots) })
     if (error) { setMsg(error.message); return }
     a.reload(); onClose()
   }
@@ -278,9 +278,10 @@ function SchoolSettings({ a, onClose }) {
         <fieldset className="choice-row"><legend>School colours</legend>
           {SCHOOL_COLOURS.map(([label, ...c]) => <button key={label} type="button" aria-pressed={f.colours.join() === c.join()} onClick={() => setF({ ...f, colours: c })} className="ac-swatch-b"><span className="ac-swatches">{c.map((x) => <i key={x} style={{ background: x }} />)}</span>{label}</button>)}
         </fieldset>
-        <fieldset className="choice-row"><legend>Mascot</legend>
-          {MASCOTS.map((m) => <button key={m} type="button" aria-pressed={f.mascot === m} onClick={() => setF({ ...f, mascot: m })} aria-label={m}><img src={itemSrc(m)} alt="" width="28" height="28" /></button>)}
+        <fieldset className="choice-row"><legend>Mascots (up to {MAX_MASCOTS})</legend>
+          {MASCOTS.map((m) => <button key={m.k} type="button" aria-pressed={f.mascots.includes(m.k)} onClick={() => setF({ ...f, mascots: toggleMascot(f.mascots, m.k) })} className="ac-swatch-b"><img src={itemSrc(m.art)} alt="" width="28" height="28" />{m.label}</button>)}
         </fieldset>
+        <p className="muted">{f.mascots.length ? `${f.mascots.length} of ${MAX_MASCOTS} picked: they all roam the lawn.` : 'None picked: the lawn has no mascot.'}{f.mascots.length >= MAX_MASCOTS ? ' Put one back to pick another.' : ''}</p>
         <div className="form-actions"><button type="button" className="btn" onClick={save}>Save</button></div>
         {msg && <p className="err" role="alert">{msg}</p>}
         <p className="muted"><Link to="/academy/pictures">Pictures the family has added</Link></p>

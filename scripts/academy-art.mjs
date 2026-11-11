@@ -4,7 +4,8 @@
 // Usage, from the repository (needs Playwright's Chromium, as scripts/make-icons.mjs does):
 //   npm pack @iconify-json/fluent-emoji@1.2.7          (in a scratch folder: it's data, ~100 MB)
 //   tar -xzf iconify-json-fluent-emoji-1.2.7.tgz
-//   node scripts/academy-art.mjs <scratch folder>/package/icons.json
+//   node scripts/academy-art.mjs <scratch folder>/package/icons.json [key ...]
+// Name keys after the JSON to draw only those (the rest are left as they are).
 // Only the JSON is read; nothing from the package runs. The list of pictures is
 // src/academy/items.js, so adding an item there and running this again adds its picture.
 import fs from 'node:fs'
@@ -29,7 +30,9 @@ const svgOf = (k) => {
 const b = await chromium.launch()
 const p = await b.newPage()
 let n = 0
+const only = process.argv.slice(3)
 for (const { k } of ITEMS) {
+  if (only.length && !only.includes(k)) continue
   const svg = svgOf(k)
   if (!svg) { console.warn('not in the set:', k); continue }
   const data = await p.evaluate(async (s) => {
