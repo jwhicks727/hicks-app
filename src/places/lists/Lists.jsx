@@ -76,6 +76,7 @@ function PersonLists({ session, family, me, person, self, now }) {
   const [sheet, setSheet] = useState(null) // { item } or { part }
   const [toast, setToast] = useState(null)
   const [showOff, setShowOff] = useState(false)
+  const [showLast, setShowLast] = useState(false) // keeps last night's card up once you've started ticking it
   const school = SCHOOLS.find((s) => s.person.toLowerCase() === person.name.toLowerCase())
   const parentOfAnna = me.role === 'parent' ? family.people.find((p) => p.id !== family.canon(me.id) && family.members.some((m) => m.id === p.id && m.role === 'child')) : null
 
@@ -97,6 +98,11 @@ function PersonLists({ session, family, me, person, self, now }) {
 
   const items = L.items
   const ticks = L.ticks.filter((t) => t.on_date === today)
+  // The day turns over at 3am, so last night's evening list is yesterday's: it stays here, to tick what was done before falling asleep
+  const yesterday = addDays(today, -1)
+  const lastNight = dayList({ items, changes: L.changes, date: yesterday, part: 'evening', schoolDay })
+  const lastTicks = L.ticks.filter((t) => t.on_date === yesterday)
+  const lastLeft = lastNight.entries.filter((e) => !tickFor(e, lastTicks)).length
   const lists = { morning: dayList({ items, changes: L.changes, date: today, part: 'morning', schoolDay }), evening: dayList({ items, changes: L.changes, date: today, part: 'evening', schoolDay }) }
   const save = (id) => async (row) => L.saveItem(row, id)
   const takeOff = (it) => {
@@ -134,6 +140,21 @@ function PersonLists({ session, family, me, person, self, now }) {
           </Card>
         )
       })}
+
+      {/* Last night's, still open for a tick */}
+      {lastNight.entries.length > 0 && (lastLeft > 0 || showLast) && (
+        <Card tint="#4B5BA6" className="span-6 dl-page dl-today dl-evening dl-last">
+          <div className="dl-today-h">
+            <span className="dl-tab-i"><MoonIcon /></span>
+            <h2>Last night’s {names.evening}</h2>
+            <span className="dl-count">{lastLeft ? `${lastNight.entries.length - lastLeft} of ${lastNight.entries.length}` : 'done ✓'}</span>
+          </div>
+          <p className="muted small">{SHORT_DAY(yesterday)}. Fell asleep before ticking? Tick what you did.</p>
+          <RoutineList part="evening" list={lastNight} ticks={lastTicks} golden={null} label={`${names.evening}, last night`}
+            onTick={(e) => { setShowLast(true); tickSound(lastNight.entries.length - lastLeft); L.tick(e, 'evening', yesterday) }}
+            onUntick={(e) => { untickSound(); L.untick(e, 'evening', yesterday) }} />
+        </Card>
+      )}
 
       {/* The lists themselves */}
       {['morning', 'evening'].map((part) => {
