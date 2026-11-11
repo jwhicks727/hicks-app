@@ -6,6 +6,71 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-11 — The academy stands under home's real sky, and what's in it stirs
+
+Jason is buying furniture and pets (Unity Asset Store packs) to add as the family's own
+pictures, and asked for everything round them that makes the place feel alive: backgrounds,
+animation, lighting, weather. All of it is drawn in code, like the rooms, and none of it is
+invented: it is home's own sky. Decided:
+
+- **The sky over the school is home's, right now.** The sun and the moon stand where
+  SunCalc puts them over the town (worked out on the device), and the clouds, rain, fog,
+  storm, snow and wind are the forecast's "now", the one Home's weather card already keeps
+  (Open-Meteo, asked at most every quarter hour, the town's coordinates only). With no
+  forecast there is no weather at all, only the sun and moon, and the line under the campus
+  says so. Puddles stay on the lawn for six hours after rain fell.
+- **We look south.** East is on the left, so the sun and moon rise on the left and set on
+  the right, and at noon shadows fall toward the front. That makes a room's right-hand wall
+  face the south-west: its window takes the sun from late morning until sunset, and shows the
+  sun going down and the moon only when they are really on that side.
+- **The light is the hour's.** Outdoors the ground and the buildings are painted in it (a
+  warm wash at golden hour, deep blue at night, grey under rain); pictures can't be repainted,
+  so they dim. Shadows fall away from the sun, long at golden hour, and faintly from a bright
+  moon. In a room the evening only dims things a little while its lights are on.
+- **Windows are lit after dark while that kind of room is in use** (`LIGHTS`): the bakers
+  start at four, the classroom empties at six, the dorm sleeps at half past nine, the
+  observatory works by red light all night, the chapel's candles never go out. The same hours
+  decide how dim a room is inside. The bakery's chimney smokes before breakfast and the
+  cafeteria's at lunch.
+- **The patch of sun on a room's floor is where the sun throws it**: through the window's
+  four panes, short and near the wall at a summer noon, long across the floor in winter, up
+  the left-hand wall when the sun is low in the west, gold at golden hour, gone under cloud.
+  The chapel's falls in the colours of its glass. On a bright night the moon throws one too.
+- **What's in a room stirs by what it is** (`src/academy/life.js`): animals stroll a square
+  or two from where Anna put them and sleep at night, wings hover, fish swim only on a water
+  floor, a cup steams, a flask bubbles, an instrument lets a note go, a ball bounces now and
+  then, and whatever gives light glows once it's dark. A wander is only on screen: nothing is
+  saved, and arranging puts everything back on its own square.
+- **The family's own pictures join in by how they're filed.** A picture is filed as one that
+  stays put, one that wanders (a pet) or one that gives light (a lamp), chosen when it's added
+  and changeable after by a parent. It is kept in `academy_assets.cat`, which was always
+  there and unused, so there is no migration. Not guessed from the picture's name.
+- **The mascot has the run of the lawn** by day, stays in out of the rain and sleeps by
+  night. It was chosen in the school's settings and never shown before.
+- **The seasons show on the ground**: the lawn's green, leaves in fall and petals in spring,
+  what grows on the empty squares, a holiday's own things (pumpkins, a snowman without
+  snow), and string lights along the roofs through Advent and Christmas. Every picture is one
+  already in the catalog.
+- **Her stars stay her stars.** The stars over the campus are still only the tasks she has
+  finished: no decorative stars are added to that sky, by day or night. No rainbow either: a
+  rainbow in this app means something wonderful happened.
+- **Try a sky.** Rain is rare at home, so the campus has "Try a sky": a time of day, a
+  weather and a wind to pretend with, on the campus and in every room. It is kept only until
+  the app is closed (like trying a season on in Settings), the line under the campus says it's
+  pretend, and one tap goes back to the real sky.
+- **How it moves.** Transform and opacity only. Rain and snow are one repeated tile moved as a
+  sheet, so a downpour costs no more than a drizzle. Everything is still under Reduce Motion
+  and Settings › Less motion (`tests/atmosphere.test.mjs` checks every moving class is
+  stilled, and that no keyframes animate anything else). A storm's flash is a pale veil
+  inside the picture, twice in nine seconds at most.
+
+- **A tap picks a thing up while arranging.** Found while testing: a tap on a thing in a
+  room picked it and let go of it in the same moment (the tap also counted as a tap on the
+  empty room), so only dragging worked. A tap on a thing now stays with the thing, and the
+  arrows, size, flip and colour follow, as the room's own words always said.
+
+Not done, and why: sound (rain on the roof would need a switch and care on a phone at
+school); frames from a sprite sheet for the pets, until we see what the packs hold.
 ## 2026-11-11 — The crop tool: a tap inside the box only selects it; the zoom comes back; a heart-shaped canvas
 
 Jason found the crop screen still moved the crop on a click meant only to select it, and missed the zoom that

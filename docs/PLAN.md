@@ -263,6 +263,20 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       Fame; a fresh cheer on Home.
 - [x] Fluent Emoji (MIT) for the things in rooms; the family's own
       pictures with their licences.
+- [x] **Home's real sky over it all** (2026-11-11, `src/academy/atmosphere.js`): the
+      sun and moon where they are, the forecast's clouds, rain, fog, storms, snow and
+      wind; the light of the hour, shadows away from the sun, windows lit after dark
+      while each kind of room is in use; far hills, drifting clouds, puddles after rain,
+      the flag and trees in the wind; the seasons on the ground and string lights at
+      Christmas. In a room: a real view in the window, the patch of sun where the sun
+      throws it (the chapel's in the colours of its glass), lamps that glow at night.
+- [x] **What's in it stirs** (`src/academy/life.js`): animals stroll and sleep, steam,
+      bubbles, notes and sparkles rise, the mascot roams the lawn. The family's own
+      pictures are filed as staying put, wandering (a pet) or giving light (a lamp).
+- [x] **Try a sky**: a time of day, a weather and a wind to pretend with, until the app
+      is closed; the campus says when it's pretend.
+- [ ] Pets from a pack's sprite sheet (walking and sitting frames), once we see what
+      the packs hold. Sound, behind a switch.
 - [ ] Anna's grades from QParent (Fontana Unified's parent portal), and her
       school's announcements and events from ParentSquare, with flags,
       warnings and celebrations in the app: a missing assignment, a grade

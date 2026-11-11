@@ -327,7 +327,7 @@ sign-in link won't come back to the app.
 | `routine_settings` | The lists' names, and whether the family challenges run and how often (one row) | The family | Parents |
 | `family_challenges` | Admin's changes to the built-in challenges (`src/lib/challenges.js`) by key, and the family's own | The family | Parents |
 | `challenge_runs` | Each challenge the family takes on: what it asked as planned, its days, and whether it was won, got away or was cancelled | The family | Anyone's device plans the next or says how one ended (only while planned); parents start, change, cancel and remove |
-| `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source | The family | Parents |
+| `academy_assets` | Pictures the family adds for the rooms (in the private `academy` bucket), each with its licence and source, and what it does in a room (`cat`: `Ours` stays put, `Animals` wanders, `Lights` glows after dark; `src/academy/life.js`) | The family | Parents |
 
 Migration index:
 

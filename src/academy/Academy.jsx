@@ -19,6 +19,9 @@ import RoomPage from './RoomPage.jsx'
 import { TasksPage, GoalsPage, GoalPage, GradesPage } from './Work.jsx'
 import { FamePage, PicturesPage, CheerSheet } from './Fame.jsx'
 import Celebrate from './Celebrate.jsx'
+import { useAtmosphere } from './useAtmosphere.js'
+import { useSkyTry } from './skyTry.js'
+import { skyWords, TRY_TIMES } from './atmosphere.js'
 import './academy.css'
 
 // /academy                   the campus: her rooms, today's tasks, goals, grades, cheers
@@ -33,6 +36,7 @@ export default function Academy({ rest = [] }) {
   const session = useSession()
   const family = useFamily(session)
   const a = useAcademy(session)
+  const atmos = useAtmosphere()
   const [moment, setMoment] = useState(null)
   const done = useCallback(() => setMoment(null), [])
   const today = todayAt(HOME_TOWN.tz, new Date())
@@ -48,7 +52,7 @@ export default function Academy({ rest = [] }) {
     )
   }
   const colours = (a.settings && a.settings.colours) || []
-  const props = { a, me, anna, today, celebrate: setMoment, parent: Boolean(me && me.role === 'parent') }
+  const props = { a, me, anna, today, atmos, celebrate: setMoment, parent: Boolean(me && me.role === 'parent') }
   let screen
   if (!a.loaded) screen = <header className="hero span-6"><span className="kicker">Anna’s school</span><h1 className="greet">The Academy</h1><p className="sub">Opening the gates…</p></header>
   else if (!a.settings && !a.rooms.length) screen = <Welcome {...props} />
@@ -103,12 +107,13 @@ function Welcome({ a, anna, celebrate }) {
   )
 }
 
-function CampusHome({ a, anna, today, celebrate, me }) {
+function CampusHome({ a, anna, today, celebrate, me, atmos }) {
   const s = a.settings || {}
   const n = campusSize(a.rooms.length)
   const [arranging, setArranging] = useState(false), [picked, setPicked] = useState(null)
-  const [adding, setAdding] = useState(false), [editing, setEditing] = useState(false), [cheering, setCheering] = useState(false)
+  const [adding, setAdding] = useState(false), [editing, setEditing] = useState(false), [cheering, setCheering] = useState(false), [trying, setTrying] = useState(false)
   const [quick, setQuick] = useState('')
+  const [, setSkyTry] = useSkyTry()
   const stars = starsThisMonth(a.tasks, today)
   const day = taskDay(a.tasks, today)
   const goals = a.goals.filter((g) => !g.done_on).slice(0, 3)
@@ -148,7 +153,8 @@ function CampusHome({ a, anna, today, celebrate, me }) {
         </Link>
       )}
       <Card tint="#3FA34D" label="The campus" glyph="star" tag={`${stars} ★ this month`} className="span-4 ac-campus">
-        <Campus rooms={a.rooms} n={n} colours={s.colours} stars={stars} newStars={day.done.length} arranging={arranging} selected={picked} name={s.name || 'The academy'} onOpen={(id) => navigate(`/academy/room/${id}`)} onSelect={setPicked} />
+        <Campus rooms={a.rooms} n={n} colours={s.colours} stars={stars} newStars={day.done.length} arranging={arranging} selected={picked} name={s.name || 'The academy'} onOpen={(id) => navigate(`/academy/room/${id}`)} onSelect={setPicked} atmos={atmos} mascot={s.mascot || 'tiger'} />
+        <p className="ac-sky">{skyWords(atmos)}{atmos.pretend && <> <button type="button" className="ac-sky-b" onClick={() => setSkyTry(null)}>Back to the real sky</button></>}</p>
         {arranging ? (
           <div className="ac-tools">
             {room ? <span className="ac-tools-t">Moving <b>{room.name}</b></span> : <span className="ac-tools-t">Tap a building to move it</span>}
@@ -159,6 +165,7 @@ function CampusHome({ a, anna, today, celebrate, me }) {
           <div className="ac-tools">
             <button type="button" className="btn" onClick={() => setAdding(true)}>Add a room</button>
             {a.rooms.length > 1 && <button type="button" className="btn ghost" onClick={() => setArranging(true)}>Arrange</button>}
+            <button type="button" className="btn ghost" onClick={() => setTrying(true)}>Try a sky</button>
           </div>
         )}
         <nav className="ac-rooms" aria-label="Rooms">
@@ -191,7 +198,39 @@ function CampusHome({ a, anna, today, celebrate, me }) {
       {adding && <AddRoom a={a} n={n} onClose={() => setAdding(false)} celebrate={celebrate} />}
       {editing && <SchoolSettings a={a} onClose={() => setEditing(false)} />}
       {cheering && <CheerSheet a={a} me={me} anna={anna} today={today} celebrate={celebrate} onClose={() => setCheering(false)} />}
+      {trying && <SkySheet onClose={() => setTrying(false)} />}
     </>
+  )
+}
+
+const TRY_WEATHER = [['clear', 'Clear'], ['partly', 'Some clouds'], ['cloudy', 'Cloudy'], ['fog', 'Fog'], ['drizzle', 'Drizzle'], ['rain', 'Rain'], ['thunder', 'A thunderstorm'], ['snow', 'Snow']]
+const TRY_WIND = [['calm', 'Calm'], ['breeze', 'A breeze'], ['windy', 'Windy'], ['gale', 'A gale']]
+
+/** Trying a sky on: a time of day, a weather, a wind, in the academy only and only until the app is closed. */
+function SkySheet({ onClose }) {
+  const [t, setT] = useSkyTry()
+  const v = t || {}
+  const pick = (key, value) => setT({ ...v, [key]: value || undefined })
+  const done = () => window.history.back() // the sheet took a step of history when it opened: closing is going back over it (src/ui/Sheet.jsx)
+  const row = (key, legend, real, list) => (
+    <fieldset className="choice-row"><legend>{legend}</legend>
+      <button type="button" aria-pressed={!v[key]} onClick={() => pick(key, null)}>{real}</button>
+      {list.map(([k, label]) => <button key={k} type="button" aria-pressed={v[key] === k} onClick={() => pick(key, k)}>{label}</button>)}
+    </fieldset>
+  )
+  return (
+    <Sheet title="Try a sky" onClose={onClose}>
+      <div className="form">
+        <p className="muted">The sky over the school is home’s real one: the sun and the moon where they are right now (worked out on this device), and the clouds, rain and wind from the forecast at home (Open-Meteo). Here you can pretend for a while, on the campus and in every room. It goes back to the real sky by itself when the app is closed.</p>
+        {row('time', 'Time of day', 'Right now', TRY_TIMES)}
+        {row('weather', 'Weather', 'The real weather', TRY_WEATHER)}
+        {row('wind', 'Wind', 'The real wind', TRY_WIND)}
+        <div className="form-actions">
+          <button type="button" className="btn" onClick={done}>{t ? 'See it' : 'Done'}</button>
+          {t && <button type="button" className="btn ghost" onClick={() => { setT(null); done() }}>Back to the real sky</button>}
+        </div>
+      </div>
+    </Sheet>
   )
 }
 
