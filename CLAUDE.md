@@ -149,6 +149,9 @@ licence nobody wrote down.
   only pretend sky is "Try a sky", kept until the app closes and named as pretend
   on screen. The stars over the campus are only ever her finished tasks: never a
   decorative star there, and never a rainbow.
+- **Things hang on walls or stand on the floor** (`src/academy/walls.js`, `tests/walls.test.mjs`): a room's
+  item is either on a square (`i`, `j`) or on a wall (`w`, `x`, `y` in wall-space). Anna's drawings and Laurie's
+  paintings always hang, framed or taped round, never altered, and never on the floor; a tap opens their page.
 - **What's in a room stirs by what it is** (`src/academy/life.js`): a wander is
   only on screen, never saved, and arranging puts everything back on its square.
   One of the family's pictures wanders or gives light by how a parent filed it
