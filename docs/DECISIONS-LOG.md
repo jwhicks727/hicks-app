@@ -6,6 +6,20 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (after the preview) — The witch is not part of fall; a show waits for its painting
+
+Jason, on the preview: the witch should not be part of fall, and nothing played on Thanksgiving ("Play it" did nothing).
+- **Her witch never stands in for autumn or Thanksgiving.** Fall and Thanksgiving had her as their fallback while no
+  autumn painting had leaves cut (the new stream photo had none), so she took Home and her leaves played. The fallback
+  is gone (`SHOWS.fall`, `SHOWS.thanksgiving`): with no leaves cut, fall's wind hangs her newest fall painting and the
+  phone cuts the leaves from it as it plays (`show.cut`, `src/shell/CutWind.jsx`); with no painting of hers at all there is
+  no show. The witch keeps Halloween and the Day of the Dead. Whether she should join Thanksgiving's rotation is
+  Jason's to say (she is not tagged for it).
+- **A harvest show waits for its painting.** It used to start only if the painting happened to be on screen three seconds
+  after the page opened, and the Art card is often below the fold; and "Play it" in Settings has no painting at all. It now
+  starts when the painting comes into view (scroll, resize, once a second), and "Play it" goes Home first, then plays
+  (a wind show with a gust), and a replay scrolls the painting into view.
+
 ## 2026-11-13 (last) — Five more Thanksgiving shows, the mandala's wheel first
 
 Jason: a show for the mandala (its pieces arrive from every side and slot into place, then the wheel itself, the round

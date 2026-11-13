@@ -71,9 +71,13 @@ test('autumn’s leaves are her own paint, cut out at full size and drawn at the
   }
   // Her paintings say their titles are hers to give
   for (const slug of ['autumn-stream', 'autumn-pond']) { const p = paintingBySlug(slug); assert.equal(p.named, false); assert.equal(p.year, null); assert.equal(p.medium, null) }
-  // The witch's older sheet still works, drawn larger, and is the fallback until the new paintings are in
-  const old = paintingBySlug('witch-and-crow'), only = showFor('fall', [old])
-  assert.equal(only.painting.slug, 'witch-and-crow'); assert.equal(only.sheets[0].px, 1.25); assert.deepEqual(only.sheets[0].scale, [1.1, 1.9])
+  // The witch's older sheet still works, drawn larger, for her own Halloween; she never stands in for autumn or Thanksgiving
+  const old = paintingBySlug('witch-and-crow')
+  const own = showFor('halloween', [old]).sheets[0]
+  assert.equal(own.px, 1.25); assert.deepEqual(own.scale, [1.1, 1.9])
+  assert.equal(showFor('fall', [old]), null, 'the witch is not part of fall')
+  assert.equal(showFor('thanksgiving', [old], '2026-11-24'), null, 'nor of Thanksgiving, unless she is tagged for it')
+  assert.equal(showFor('halloween', [old]).painting.slug, 'witch-and-crow')
   assert.ok(existsSync(pub(paintingBySlug('witch-and-crow').leaves.sheet)))
   assert.equal(seasonByKey('halloween').key, 'halloween')
   assert.equal(seasonByKey('nope'), null)
@@ -122,7 +126,7 @@ test('a painting stored behind sign-in comes back in the same shape, its files b
   assert.equal(back.src, 'https://signed/witch-and-crow/full.jpg')
   assert.deepEqual(back.flyer.at, p.flyer.at); assert.equal(back.flyer.sprite, 'https://signed/witch-and-crow/flyer.png')
   assert.deepEqual(back.leaves.boxes, p.leaves.boxes)
-  assert.equal(showFor('fall', [back]).painting.slug, 'witch-and-crow')
+  assert.equal(showFor('halloween', [back]).painting.slug, 'witch-and-crow')
   assert.equal(showFor('fall', []), null, 'no paintings, no show')
   const plain = storedPaths('new-one', { flyer: null, leaves: null })
   assert.deepEqual(Object.keys(plain).sort(), ['small', 'src'])

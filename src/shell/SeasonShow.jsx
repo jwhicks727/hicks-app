@@ -10,6 +10,7 @@ import { usePath } from '../lib/router.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import WindShow from './WindShow.jsx'
 import HarvestShow from './HarvestShow.jsx'
+import CutWind from './CutWind.jsx'
 import './season-show.css'
 
 // The season's show, from one of Laurie's paintings: her painted leaves rest
@@ -77,6 +78,7 @@ export default function SeasonShow() {
     return () => { live = false; clearTimeout(timer); timers.forEach(clearTimeout); window.removeEventListener('hicks:show', onShow); away_.current = new Set(); setDrops([]); setAway([]) }
   }, [show, perches])
 
+  if (show && show.kind === 'wind' && show.cut) return <CutWind show={show} list={list} path={path} />
   if (show && show.kind === 'wind') return <WindShow show={show} list={list} path={path} />
   if (show && show.kind === 'harvest') return <HarvestShow show={show} list={list} path={path} day={showDay} />
   if (!show || !perches.length) return null

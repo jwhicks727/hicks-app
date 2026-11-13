@@ -29,6 +29,15 @@ export default function Settings() {
   const [shift, setShift] = useHarvestShift()
   const { list: paintings } = usePaintings()
   const here = useHere()
+  // A season's show plays from the painting on Home, so Play it goes there first, then plays it (a wind show with a gust)
+  const playIt = (key) => {
+    const show = showFor(key, paintings)
+    navigate('/')
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key } }))
+      if (show && show.kind === 'wind') window.dispatchEvent(new CustomEvent('hicks:wind-gust'))
+    }, 1400)
+  }
 
   return (
     <>
@@ -79,7 +88,7 @@ export default function Settings() {
                 {SEASON_ORDER.filter((k) => showFor(k, paintings)).map((k) => <option key={k} value={k}>{SEASONS[k].label}</option>)}
               </select>
               {(tryKey || seasonFor(todayAt()).key) === 'thanksgiving' && <button type="button" className="btn ghost" onClick={() => setShift(shift + BLOCK_DAYS)}>Next painting</button>}
-              <button type="button" className="btn ghost" disabled={!showFor(tryKey || seasonFor(todayAt()).key, paintings)} onClick={() => window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: tryKey || seasonFor(todayAt()).key } }))}>Play it</button>
+              <button type="button" className="btn ghost" disabled={!showFor(tryKey || seasonFor(todayAt()).key, paintings)} onClick={() => playIt(tryKey || seasonFor(todayAt()).key)}>Play it</button>
             </div>
           </div>
         )}

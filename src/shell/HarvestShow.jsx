@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { styleFor } from '../lib/harvest.js'
+import { reducedMotion } from '../lib/motion.js'
 import GarlandShow from './GarlandShow.jsx'
 import { findFrame, lookAt, sheetsFor } from './harvest/kit.js'
 import { playGolden } from './harvest/golden.js'
@@ -35,12 +36,9 @@ export default function HarvestShow({ show, list, path, day }) {
   }, [])
 
   useEffect(() => {
-    let live = true, stop = () => {}
+    let live = true, stop = () => {}, started = false, poll = 0
     setPlan(null)
-    const timer = setTimeout(async () => {
-      const found = findFrame(listRef.current, show.sheets.map((s) => s.slug))
-      if (!found || !live) return
-      const { el, p } = found
+    const begin = async ({ el, p }) => {
       const look = await lookAt(p)
       if (!live || !el.isConnected) return
       const style = styleFor(look || {}, p.slug, day)
@@ -51,8 +49,27 @@ export default function HarvestShow({ show, list, path, day }) {
       const ctx = { layer: layer.current, list: listRef.current, p, el, sheets, look }
       const play = { golden: playGolden, whirl: playWhirl, embers: playEmbers, wheel: playWheel, lake: playLake, tumble: playTumble, petals: playPetals, beam: playBeam }[style]
       stop = play ? play(ctx) : () => {}
+    }
+    // Starts once a painting hangs in view: now, or when the page is scrolled to one (the Art card is often below the fold)
+    const check = () => {
+      if (started || !live) return
+      const found = findFrame(listRef.current, show.sheets.map((x) => x.slug))
+      if (!found) return
+      started = true
+      window.removeEventListener('scroll', check); window.removeEventListener('resize', check); clearInterval(poll)
+      begin(found)
+    }
+    const timer = setTimeout(() => {
+      if (!live) return
+      // Asked for on purpose ("Play it", the Art card's button): bring the painting into view
+      if (again) {
+        const own = document.querySelector(`.pf[data-art-slug="${show.painting.slug}"]`)
+        if (own && !findFrame(listRef.current, [show.painting.slug])) own.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' })
+      }
+      check()
+      if (!started) { window.addEventListener('scroll', check, { passive: true }); window.addEventListener('resize', check); poll = setInterval(check, 1000) }
     }, (again ? 0.2 : WAIT_S) * 1000)
-    return () => { live = false; clearTimeout(timer); stop() }
+    return () => { live = false; clearTimeout(timer); clearInterval(poll); window.removeEventListener('scroll', check); window.removeEventListener('resize', check); stop() }
   }, [show, path, day, again])
 
   return (
