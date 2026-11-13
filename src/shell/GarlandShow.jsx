@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom'
 import { cropFor, paintingBySlug } from '../lib/paintings.js'
 import { originInFrame, paintedWidth } from '../lib/wind.js'
 import { garlandSlots, flightOf, arcAt, ease, closesAt, wholeness, GARLAND_LEAVES, REST_SECONDS, FADE_SECONDS } from '../lib/garland.js'
-import { findWaterway, along, rideOf, progressAt, WATER_WORK } from '../lib/waterway.js'
+import { along, rideOf, progressAt } from '../lib/waterway.js'
+import { lookAt } from './harvest/kit.js'
 
 // Thanksgiving's show, played from the painting on Home. Her leaves lift out of her autumn paintings from the
 // places she painted them (copies of her pixels: the painting stays whole) and sail over in arcs. Where the
@@ -11,39 +12,14 @@ import { findWaterway, along, rideOf, progressAt, WATER_WORK } from '../lib/wate
 // far end of her stream and float down it toward you, growing as they come, and slip out of the frame; where it
 // has none, they settle along the frame's edge one by one until it wears a garland (src/lib/garland.js), which
 // rests, each leaf breathing, then fades. Only where a painting hangs in view; elsewhere nothing stands in.
-// "Play it" and the Art card's button play it again ("hicks:show"). Transforms and opacity only, and it never
-// takes a tap; SeasonShow never starts it under less motion.
+// HarvestShow plays it again on "Play it" and the Art card's button ("hicks:show"). Transforms and opacity only, and
+// it never takes a tap; SeasonShow never starts it under less motion.
 const FIRST_S = 2.5 // seconds after the page opens until the first leaf sets off
 const STREAM_LEAVES = 14
 const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a }
 const clamp = (x) => Math.min(1, Math.max(0, x))
 
-// The stream in a painting, found once from a small copy of it (null where it has none)
-const ways = new Map()
-function wayOf(p) {
-  const url = p.small || p.src
-  if (!url) return Promise.resolve(null)
-  const key = `${p.slug}:${url}`
-  if (!ways.has(key)) {
-    ways.set(key, (async () => {
-      try {
-        const res = await fetch(url)
-        if (!res.ok) return null
-        const bmp = await createImageBitmap(await res.blob())
-        const s = WATER_WORK / Math.max(bmp.width, bmp.height), w = Math.max(1, Math.round(bmp.width * s)), h = Math.max(1, Math.round(bmp.height * s))
-        const c = document.createElement('canvas'); c.width = w; c.height = h
-        const g = c.getContext('2d'); g.drawImage(bmp, 0, 0, w, h)
-        const px = g.getImageData(0, 0, w, h)
-        if (bmp.close) bmp.close()
-        c.width = 0; c.height = 0
-        return findWaterway(px)
-      } catch { return null }
-    })())
-  }
-  return ways.get(key)
-}
-
-export default function GarlandShow({ show, list, path }) {
+export default function GarlandShow({ show, sheets: given, list, path, force = '', first = FIRST_S }) {
   const layer = useRef(null)
   const listRef = useRef(list)
   listRef.current = list
@@ -51,9 +27,9 @@ export default function GarlandShow({ show, list, path }) {
   useEffect(() => {
     const L = layer.current
     if (!L) return undefined
-    const sheets = show.sheets
+    const sheets = given || show.sheets
     const seed = Number(new Date().toISOString().slice(0, 10).replace(/-/g, '')) % 9973
-    let raf = 0, last = 0, t = 0, start = FIRST_S, started = false, stopped = false, gone = false
+    let raf = 0, last = 0, t = 0, start = first, started = false, stopped = false, gone = false
     let leaves = [], frame = null, end = 0, mode = 'garland'
 
     const clear = () => { for (const lf of leaves) lf.el.remove(); leaves = []; frame = null }
@@ -98,7 +74,7 @@ export default function GarlandShow({ show, list, path }) {
       const found = findFrame()
       if (!found) return false
       const el = found.el, painting = paintingBySlug(el.dataset.artSlug, listRef.current)
-      const way = painting ? await wayOf(painting) : null
+      const look = painting && force !== 'garland' ? await lookAt(painting) : null, way = look ? look.way : null
       if (gone || !el.isConnected) return false
       frame = el
       const W = frame.clientWidth, H = frame.clientHeight, r = frame.getBoundingClientRect()
@@ -188,17 +164,13 @@ export default function GarlandShow({ show, list, path }) {
       raf = requestAnimationFrame(step)
     }
     const wake = () => { if (!raf) { last = 0; raf = requestAnimationFrame(step) } }
-    // "Play it" or the Art card's button: play it again now
-    const onShow = () => { clear(); started = false; stopped = false; t = 0; start = 0.2; wake() }
-    window.addEventListener('hicks:show', onShow)
     wake()
     return () => {
       gone = true
       cancelAnimationFrame(raf)
-      window.removeEventListener('hicks:show', onShow)
       clear()
     }
-  }, [show, path])
+  }, [show, given, path])
 
   return createPortal(<div className="garland-show" ref={layer} aria-hidden="true" />, document.body)
 }

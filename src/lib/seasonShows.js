@@ -13,6 +13,8 @@
 import { paintingBySlug, paintingFor, PAINTINGS } from './paintings.js'
 import { LEAF_ORIGINS } from './leafOrigins.js'
 import { seeded } from './scenes.js'
+import { pickPainting } from './harvest.js'
+import { todayAt } from './cal/dates.js'
 
 export const SHOWS = {
   // Halloween's leaves are her witch's own, in flurries the wind carries and lets settle on the cards (the wind show, with
@@ -23,9 +25,10 @@ export const SHOWS = {
   // Autumn's leaves are pieces of her autumn paintings, cut out at full size: the two first cut by the script, and any
   // autumn painting a parent has cut leaves from on its page (src/places/lifelist/AutumnLeaves.jsx). Until one is in,
   // her witch's leaves stand in.
-  // Thanksgiving gathers where autumn scatters: her leaves lift out of her autumn paintings and settle, one by one, into a
-  // garland round the painting on Home (src/lib/garland.js, src/shell/GarlandShow.jsx).
-  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'garland', what: 'leaves lift out of her autumn paintings, sail over, and gather into a garland round the painting on Home' },
+  // Thanksgiving is several shows, each made for a painting: every two days Home hangs the next of her Thanksgiving
+  // paintings and the phone reads its pixels to choose the show (src/lib/harvest.js, src/shell/HarvestShow.jsx): a stream
+  // carries her leaves, a fire throws embers, a golden painting rains gold, the rest whirl or gather a garland.
+  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'harvest', what: 'a different painting of hers and a different show every two days: leaves float down a painted stream, embers rise from a painted fire, golden leaves rain, or a whirl or garland of leaves gathers, whichever suits the painting on Home' },
   fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her autumn paintings and blows them across the page, where they settle on the cards' },
 }
 /** The seasons whose paintings autumn's wind may take leaves from. */
@@ -50,19 +53,23 @@ const sheetOf = (p) => ({ slug: p.slug, sheet: p.leaves.sheet, size: p.leaves.si
  * yet falls back to another's (her witch's), and has no show only if neither
  * is there.
  */
-export function showFor(key, list = PAINTINGS) {
+export function showFor(key, list = PAINTINGS, day = todayAt()) {
   const s = SHOWS[key]
   if (!s) return null
   const has = (slug) => { const p = paintingBySlug(slug, list); return p && p.leaves && p.leaves.sheet ? p : null }
   let mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
   // The wind also takes leaves from any autumn painting that has had them cut (newest first, as the list comes)
-  if ((s.kind === 'wind' || s.kind === 'garland') && !s.own) {
+  if ((s.kind === 'wind' || s.kind === 'harvest') && !s.own) {
     const more = list.filter((p) => !mine.includes(p) && p.leaves && p.leaves.sheet && originsOf(p) && (p.seasons || []).some((k) => WIND_SEASONS.includes(k)))
     mine = [...mine, ...more].slice(0, WIND_SHEETS)
   }
   const use = mine.length ? mine : [s.fallback && has(s.fallback)].filter(Boolean)
-  if (!use.length) return null
-  return { key, ...s, painting: use[0], sheets: use.map(sheetOf) }
+  // A harvest show hangs its own painting of the day, with or without leaves cut from it (the phone cuts them when it plays)
+  const pick = s.kind === 'harvest' ? pickPainting(list, day) : null
+  if (!use.length && !pick) return null
+  const sheets = use.map(sheetOf)
+  if (pick && pick.leaves && pick.leaves.sheet && originsOf(pick)) { sheets.unshift(sheetOf(pick)); sheets.splice(WIND_SHEETS) }
+  return { key, ...s, painting: pick || use[0], sheets: sheets.filter((x, i) => sheets.findIndex((y) => y.slug === x.slug) === i) }
 }
 
 /**
@@ -70,8 +77,8 @@ export function showFor(key, list = PAINTINGS) {
  * starts in the art on Home, so a newer painting of the same season never takes its frame), else her
  * newest of that season, else her newest.
  */
-export function homePainting(key, list = PAINTINGS) {
-  const show = showFor(key, list)
+export function homePainting(key, list = PAINTINGS, day = todayAt()) {
+  const show = showFor(key, list, day)
   return (show && show.painting) || paintingFor(key, list)
 }
 

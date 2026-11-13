@@ -50,7 +50,7 @@ test('the garland rests whole, then fades away', () => {
 test('the garland is transforms and opacity only, never takes a tap, and never plays under less motion', () => {
   const show = read('src/shell/GarlandShow.jsx'), season = read('src/shell/SeasonShow.jsx'), css = read('src/shell/season-show.css')
   assert.match(season, /const still = reducedMotion\(\)/)
-  assert.match(season, /show\.kind === 'garland'\) return <GarlandShow/)
+  assert.match(season, /show\.kind === 'harvest'\) return <HarvestShow/)
   assert.doesNotMatch(show, /matchMedia/)
   assert.doesNotMatch(show, /style\.(left|top|width|height) = .*(\.x|\.y)/)
   assert.match(css, /\.garland-show \{[^}]*pointer-events: none/)

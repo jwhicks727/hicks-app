@@ -19,6 +19,10 @@
 /* Thanksgiving's garland (src/shell/GarlandShow.jsx): the same, leaves gathering round the painting's frame */
 .garland-show { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
 .gs-leaf { position: absolute; left: 0; top: 0; display: block; background-repeat: no-repeat; transform-origin: 50% 50%; will-change: transform, opacity; opacity: 0; }
+/* Thanksgiving week's other shows (src/shell/HarvestShow.jsx): golden rain, a whirl, embers; pieces of her paintings, moved by transform and opacity */
+.hv-layer { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
+.hv-piece { position: absolute; left: 0; top: 0; display: block; background-repeat: no-repeat; transform-origin: 50% 50%; will-change: transform, opacity; opacity: 0; }
+.hv-glow { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; will-change: transform, opacity; opacity: 0; }
 html[data-motion="less"] .season-show, html[data-motion="less"] .wind-show { display: none; }
-html[data-motion="less"] .garland-show { display: none; }
-@media (prefers-reduced-motion: reduce) { .season-show, .wind-show, .garland-show { display: none; } }
+html[data-motion="less"] .garland-show, html[data-motion="less"] .hv-layer { display: none; }
+@media (prefers-reduced-motion: reduce) { .season-show, .wind-show, .garland-show, .hv-layer { display: none; } }

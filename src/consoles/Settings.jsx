@@ -4,7 +4,8 @@ import { useSession, signOut } from '../lib/auth.js'
 import { Card } from '../ui/Card.jsx'
 import PasswordForm from './PasswordForm.jsx'
 import { Link } from '../shell/Link.jsx'
-import { usePrefs, useSeasonTry } from '../lib/prefs.js'
+import { usePrefs, useSeasonTry, useHarvestShift } from '../lib/prefs.js'
+import { BLOCK_DAYS } from '../lib/harvest.js'
 import { GROUPS } from '../lib/cal/observances.js'
 import { seasonFor, SEASONS, SEASON_ORDER } from '../lib/seasons.js'
 import { showFor } from '../lib/seasonShows.js'
@@ -25,6 +26,7 @@ export default function Settings() {
   const meHere = myEmail ? family.members.find((m) => (m.email || '').toLowerCase() === myEmail) : null
   const [prefs, update] = usePrefs()
   const [tryKey, setTry] = useSeasonTry()
+  const [shift, setShift] = useHarvestShift()
   const { list: paintings } = usePaintings()
   const here = useHere()
 
@@ -76,6 +78,7 @@ export default function Settings() {
                 <option value="">Today’s: {seasonFor(todayAt()).label}</option>
                 {SEASON_ORDER.filter((k) => showFor(k, paintings)).map((k) => <option key={k} value={k}>{SEASONS[k].label}</option>)}
               </select>
+              {(tryKey || seasonFor(todayAt()).key) === 'thanksgiving' && <button type="button" className="btn ghost" onClick={() => setShift(shift + BLOCK_DAYS)}>Next painting</button>}
               <button type="button" className="btn ghost" disabled={!showFor(tryKey || seasonFor(todayAt()).key, paintings)} onClick={() => window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: tryKey || seasonFor(todayAt()).key } }))}>Play it</button>
             </div>
           </div>

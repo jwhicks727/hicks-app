@@ -51,8 +51,9 @@ test('a leaf rides from the far end down to the near end, quickening, and its pa
 
 test('the show finds the stream from the painting’s own pixels, and plays without it as a garland', () => {
   const show = read('src/shell/GarlandShow.jsx')
-  assert.match(show, /findWaterway/)
+  assert.match(read('src/shell/harvest/kit.js'), /findWaterway/)
   assert.match(show, /mode = way && crop \? 'stream' : 'garland'/)
+  assert.match(show, /lookAt/)
   assert.doesNotMatch(show, /matchMedia/)
   assert.doesNotMatch(show, /style\.(left|top|width|height) = .*(\.x|\.y)/, 'moving leaves change only their transform and opacity')
 })

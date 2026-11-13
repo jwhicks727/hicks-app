@@ -26,9 +26,10 @@ Built in this order, each part in daily use before the next.
       leaves blow across and settle on the cards (the Day of the Dead's leaves
       still fall); in autumn the real wind at home lifts leaves out of her
       autumn paintings from where she painted them and settles them on the cards
-      (2026-11-05); at Thanksgiving they float down the stream in her painting
-      on Home, or gather into a garland round it where there is no stream
-      (2026-11-13). The sky keeps its own
+      (2026-11-05); at Thanksgiving a different painting hangs on Home every two days
+      and its own show plays: leaves float down a painted stream, embers rise
+      from a painted fire, golden leaves rain, or a whirl or garland of her
+      leaves (2026-11-13). The sky keeps its own
       colours. Settings can try another season's show.
 - [x] Home's **Art** card: Laurie's painting with Anna's newest drawing taped
       over a corner, each a tap from its gallery; "A gust" in autumn, and

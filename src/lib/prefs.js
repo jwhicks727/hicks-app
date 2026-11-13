@@ -62,3 +62,22 @@ export function useSeasonTry() {
   }
   return [key, set]
 }
+
+// Trying Thanksgiving: "Next painting" moves Home on by one block of days (src/lib/harvest.js), until the app closes
+const SHIFT = 'teamhicks.harvest-shift'
+export function readHarvestShift() { try { return Number(sessionStorage.getItem(SHIFT)) || 0 } catch { return 0 } }
+/** [days, set]: how many days ahead Thanksgiving's painting is being tried (0 on a real day). */
+export function useHarvestShift() {
+  const [n, setN] = useState(readHarvestShift)
+  useEffect(() => {
+    const on = () => setN(readHarvestShift())
+    window.addEventListener(EVENT, on)
+    return () => window.removeEventListener(EVENT, on)
+  }, [])
+  const set = (v) => {
+    try { if (v) sessionStorage.setItem(SHIFT, String(v)); else sessionStorage.removeItem(SHIFT) } catch { /* fine */ }
+    setN(v)
+    window.dispatchEvent(new Event(EVENT))
+  }
+  return [n, set]
+}

@@ -2,14 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { showFor, leafPerches, dropOf, dropGap, MAX_DROPS } from '../lib/seasonShows.js'
 import { seasonFor } from '../lib/seasons.js'
-import { usePrefs, useSeasonTry } from '../lib/prefs.js'
+import { usePrefs, useSeasonTry, useHarvestShift } from '../lib/prefs.js'
 import { reducedMotion } from '../lib/motion.js'
-import { todayAt } from '../lib/cal/dates.js'
+import { todayAt, addDays } from '../lib/cal/dates.js'
 import { HOME_TOWN } from '../lib/sky.js'
 import { usePath } from '../lib/router.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import WindShow from './WindShow.jsx'
-import GarlandShow from './GarlandShow.jsx'
+import HarvestShow from './HarvestShow.jsx'
 import './season-show.css'
 
 // The season's show, from one of Laurie's paintings: her painted leaves rest
@@ -32,15 +32,17 @@ const leafStyle = (sh, box, scale) => {
 export default function SeasonShow() {
   const [prefs] = usePrefs()
   const [tryKey] = useSeasonTry()
+  const [shift] = useHarvestShift()
   const day = todayAt(HOME_TOWN.tz, new Date())
+  const showDay = shift ? addDays(day, shift) : day // Thanksgiving's painting, when being tried a block ahead
   const key = tryKey || seasonFor(day).key
   const { list } = usePaintings()
   const path = usePath()
   const quiet = QUIET.test(path)
   const still = reducedMotion() || prefs.seasonal === false || quiet
-  const show = useMemo(() => (still ? null : showFor(key, list)), [still, key, list])
+  const show = useMemo(() => (still ? null : showFor(key, list, showDay)), [still, key, list, showDay])
   const seed = Number(day.replace(/-/g, '')) % 9973
-  // Autumn and Halloween blow rather than fall (WindShow); Thanksgiving gathers (GarlandShow); only the Day of the Dead's leaves fall
+  // Autumn and Halloween blow rather than fall (WindShow); Thanksgiving is the harvest (HarvestShow: a stream, embers, golden rain, a whirl or a garland); only the Day of the Dead's leaves fall
   const perches = useMemo(() => (show && show.kind === 'leaves' ? leafPerches(show, seed) : []), [show, seed])
   const [drops, setDrops] = useState([]) // leaves falling now: { id, i, plan }
   const [away, setAway] = useState([]) // perches whose leaf has let go, and whose new one has not yet arrived
@@ -76,7 +78,7 @@ export default function SeasonShow() {
   }, [show, perches])
 
   if (show && show.kind === 'wind') return <WindShow show={show} list={list} path={path} />
-  if (show && show.kind === 'garland') return <GarlandShow show={show} list={list} path={path} />
+  if (show && show.kind === 'harvest') return <HarvestShow show={show} list={list} path={path} day={showDay} />
   if (!show || !perches.length) return null
   return createPortal(
     <div className="season-show" aria-hidden="true">

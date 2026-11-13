@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (later) — Thanksgiving is five shows, a new painting every two days
+
+Jason: "make a few too, maybe rotate every few days. Really go for it." Decided:
+
+- **Every two days Home hangs the next of her Thanksgiving paintings** (`src/lib/harvest.js`: `pickPainting`, by the
+  date, the same on every phone, in a fixed order by slug so adding a painting never reorders the rest), and the show
+  is chosen from that painting's own pixels, read on the phone from a small copy (`styleFor`): a **stream** she
+  painted carries her leaves down it (`waterway.js`); a **fire** throws embers cut from her own flame, with a faint
+  glow of its own colour (`findFire`); a painting that is mostly gold has its **golden rain**, the leaves shimmering
+  where she painted them like aspens and then falling; anything else is a **whirl** (leaves lifted into a spinning
+  column that climbs the page and scatters) or a **garland**, by its slug and the day. Nothing is told to the phone
+  from outside and nothing is generated: the leaves are cut on the phone from the painting in view
+  (`leafOrigins` untouched; `leafCut.js`, kept only until the app closes), and fall back to the season's other cut
+  leaves when a painting has too little foliage.
+- Settings › Try another season › Thanksgiving gets **Next painting**, moving Home on a block of days so each can be
+  tried before the week. The Art card's button and "Play it" play the day's show again.
+- Unverified on the live app: all five were run on the new stream photo and crops of the other nine Thanksgiving
+  paintings taken from screenshots, in a test page; none yet on a phone with the real signed links.
+
 ## 2026-11-13 — Halloween blows in flurries; Thanksgiving gathers a garland
 
 Jason missed two things from the first autumn: the forest stream's show, and the flurries of leaves that settle

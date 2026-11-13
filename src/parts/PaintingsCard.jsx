@@ -4,7 +4,8 @@ import { Link } from '../shell/Link.jsx'
 import PaintingFrame from './PaintingFrame.jsx'
 import { usePaintings } from './PaintingsProvider.jsx'
 import { showFor, homePainting, originsOf } from '../lib/seasonShows.js'
-import { usePrefs } from '../lib/prefs.js'
+import { usePrefs, useHarvestShift } from '../lib/prefs.js'
+import { todayAt, addDays } from '../lib/cal/dates.js'
 import { reducedMotion } from '../lib/motion.js'
 import { tilt } from '../lib/drawings.js'
 import { useDrawings, useDrawingUrls } from '../lib/useDrawings.js'
@@ -20,6 +21,8 @@ import { useDrawings, useDrawingUrls } from '../lib/useDrawings.js'
 export default function PaintingsCard({ season, auto = false, className = 'span-3' }) {
   const { list, loaded } = usePaintings()
   const [prefs] = usePrefs()
+  const [shift] = useHarvestShift()
+  const day = shift ? addDays(todayAt(), shift) : todayAt() // Thanksgiving's painting of the day, or a block ahead when being tried
   const drawings = useDrawings()
   const anna = drawings.list[0] || null
   const annaUrls = useDrawingUrls(anna ? [anna.thumb_path || anna.path] : [])
@@ -31,7 +34,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
     window.addEventListener('hicks:gust', on)
     return () => window.removeEventListener('hicks:gust', on)
   }, [])
-  const p = homePainting(season, list)
+  const p = homePainting(season, list, day)
   const annaLink = <Link to="/drawings">Anna’s Art{drawings.list.length > 1 ? ` · ${drawings.list.length}` : ''} ›</Link>
   // Never silently gone: with nothing to show, the card says why (the hosted app carries none of her paintings until a parent has moved them into private storage)
   if (!p || !p.src) {
@@ -44,10 +47,10 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
     )
   }
   const n = list.length
-  const show = prefs.seasonal === false ? null : showFor(season, list)
+  const show = prefs.seasonal === false ? null : showFor(season, list, day)
   const wind = Boolean(show && show.kind === 'wind' && !reducedMotion())
   const leaves = Boolean(show && show.kind === 'leaves' && show.painting.slug === p.slug)
-  const garland = Boolean(show && show.kind === 'garland' && !reducedMotion())
+  const garland = Boolean(show && show.kind === 'harvest' && !reducedMotion())
   const canPlay = Boolean(p.flyer || leaves || wind || garland)
   const play = () => {
     if (p.flyer) window.dispatchEvent(new CustomEvent('hicks:fly', { detail: { slug: p.slug } }))
@@ -55,7 +58,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
     if (wind) window.dispatchEvent(new CustomEvent('hicks:wind-gust'))
     if (garland) window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: season } }))
   }
-  const playWords = [p.flyer && `${p.flyer.name} flies`, leaves && 'the leaves fall', wind && 'a gust of wind blows the leaves', garland && 'the leaves gather round the painting'].filter(Boolean).join(' and ')
+  const playWords = [p.flyer && `${p.flyer.name} flies`, leaves && 'the leaves fall', wind && 'a gust of wind blows the leaves', garland && 'the harvest show plays'].filter(Boolean).join(' and ')
   const corner = paperCorner(p)
   return (
     <Card className={'paint-card ' + className} tint="#C0824F" label="Art" glyph="star">
