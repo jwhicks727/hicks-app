@@ -6,6 +6,33 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (evening) — Every show has the witch's shape; the mandala is put together from its own pieces
+
+Jason: every animation should match the witch's structure: it starts at the top of the page, something gorgeous carries you
+down to the painting (like the crow), and something subtle stays throughout the app (like the falling leaves). "It's about
+bringing the paintings INTO the app, not just animating them." And the mandala's pieces are its own painted things, not cuts
+across it: they come in onto an empty frame, then the circle appears, then the spin.
+- **Three parts, every show** (`src/shell/HarvestShow.jsx`): (1) **the lead** (`src/lib/leads.js`, `src/shell/harvest/lead.js`):
+  from the top of Home, pieces of the painting travel down the page, the page following them as it follows the crow (never
+  above where it started; a scroll, touch or key lets it go), and land where the painting's show begins; once a day on each
+  device (`teamhicks.shows`, which Settings' "Play it again" clears), and again on Play it or the Art card's button. (2) **the
+  painting's own show**, from where the lead landed. (3) **what stays** (`src/shell/harvest/linger.js`): something subtle made of
+  the painting on every screen all day, with a most per sitting and a pause while the app is in the background.
+- Each its own: the stream's leaf rocks down like a leaf let go, a leaf floats past along the bottom afterwards; the fire's spark
+  falls like a shooting star with a trail, embers rise from the bottom; the lake's leaf skips down like a stone leaving ripples on
+  the cards, ripples come and go; a pumpkin bounces down from card edge to card edge, one rolls by now and then; a petal flutters
+  down like a butterfly, petals drift down; a golden leaf spins down like a maple seed, gold leaves rest along the top and let go
+  one at a time (the witch's own way); the wind's flock sweeps in from upwind, the wind stays; a band of sunlight slides down,
+  soft light sweeps across now and then; a little whirl wanders down, a leaf spirals down; a ribbon of leaves swoops to the frame,
+  a garland sways along the top edge; the mandala's pieces swirl down, a small copy of the wheel turns in the corner.
+- **The mandala's pieces are traced** (`tracePieces`, `src/lib/harvestFind.js`): the disc's ground colours are found (the tan,
+  and the white plate as a second ground because it is one large area), everything clearly not the ground near it is a painted
+  thing, sorted by colour family (green, red, orange pumpkins, the corn and husks) and parted where two only touch; each is cut
+  whole with a soft edge. The frame empties (her painting hidden for a moment, never changed), the plate and then each piece slot
+  in, the circle (97% of the disc, no corners) appears beneath them, lifts, turns once and settles, and her painting comes back.
+- Tried on a Home-shaped test page with the new stream photo and crops of the other Thanksgiving paintings from screenshots:
+  each lead starts at the top and the page follows it to the painting. Not yet seen on a phone with the real paintings.
+
 ## 2026-11-13 (then) — The witch is Halloween's alone, and every other season is a rotation
 
 Jason: "She should only be on Halloween. Fall should be a rotation same as Thanksgiving and every other season."

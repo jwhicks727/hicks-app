@@ -58,7 +58,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
     if (wind) window.dispatchEvent(new CustomEvent('hicks:wind-gust'))
     if (garland) window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: season } }))
   }
-  const playWords = [p.flyer && `${p.flyer.name} flies`, leaves && 'the leaves fall', wind && 'a gust of wind blows the leaves', garland && 'the harvest show plays'].filter(Boolean).join(' and ')
+  const playWords = [p.flyer && `${p.flyer.name} flies`, leaves && 'the leaves fall', wind && 'a gust of wind blows the leaves', garland && 'the season’s show plays again'].filter(Boolean).join(' and ')
   const corner = paperCorner(p)
   return (
     <Card className={'paint-card ' + className} tint="#C0824F" label="Art" glyph="star">

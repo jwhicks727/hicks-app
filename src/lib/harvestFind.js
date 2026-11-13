@@ -193,14 +193,14 @@ export function findFruit(px) {
 }
 
 /** A copy of her pixels under a soft mask: { w, h, rgba, x, y } (its top-left in the picture), the mask made whole and a little grown. */
-function piece(px, idx, grow = 1) {
+function piece(px, idx, grow = 1, fill = true) {
   const { data, width: W, height: H } = px
   let x0 = W, x1 = 0, y0 = H, y1 = 0
   for (const i of idx) { const x = i % W, y = (i - x) / W; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y }
   const pad = grow + 3, bw = x1 - x0 + 1 + pad * 2, bh = y1 - y0 + 1 + pad * 2
   let m = new Uint8Array(bw * bh)
   for (const i of idx) { const x = i % W, y = (i - x) / W; m[(y - y0 + pad) * bw + (x - x0 + pad)] = 1 }
-  m = fillHoles(m, bw, bh)
+  if (fill) m = fillHoles(m, bw, bh)
   for (let g = 0; g < grow; g++) m = morph(m, bw, bh, true) // takes in the painted outline
   // A soft edge: the mask averaged over three by three
   const rgba = new Uint8ClampedArray(bw * bh * 4)
@@ -254,4 +254,118 @@ export function findBlossom(px, { minA = 0.02, maxA = 0.16 } = {}) {
     return { ...p, ax: sx / g.length - p.x, ay: sy / g.length - p.y }
   })
   return pieces.length >= 3 ? { cx: round(top.cx / W), cy: round(top.cy / H), pieces } : null
+}
+
+// ---- The painted things on a disc, traced -----------------------------------------------------------------
+
+/** Each pixel's local mean of the pixels a mask marks (a box of radius r), by summed tables: [r, g, b] per pixel, or null where none is near. */
+function localMean(px, mask, r) {
+  const { data, width: W, height: H } = px, S = (W + 1) * (H + 1)
+  const t = [new Float64Array(S), new Float64Array(S), new Float64Array(S), new Float64Array(S)]
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, o = (y + 1) * (W + 1) + x + 1, on = mask[i] ? 1 : 0
+    for (let c = 0; c < 3; c++) t[c][o] = t[c][o - 1] + t[c][o - W - 1] - t[c][o - W - 2] + (on ? data[i * 4 + c] : 0)
+    t[3][o] = t[3][o - 1] + t[3][o - W - 1] - t[3][o - W - 2] + on
+  }
+  const sum = (k, x0, y0, x1, y1) => t[k][y1 * (W + 1) + x1] - t[k][y0 * (W + 1) + x1] - t[k][y1 * (W + 1) + x0] + t[k][y0 * (W + 1) + x0]
+  return (x, y) => {
+    const x0 = Math.max(0, x - r), y0 = Math.max(0, y - r), x1 = Math.min(W, x + r + 1), y1 = Math.min(H, y + r + 1), n = sum(3, x0, y0, x1, y1)
+    return n > 4 ? [sum(0, x0, y0, x1, y1) / n, sum(1, x0, y0, x1, y1) / n, sum(2, x0, y0, x1, y1) / n] : null
+  }
+}
+
+/** Split shapes that only touch: shrink the mask until they part, label the cores, then let each core grow back over its own pixels. */
+function splitTouching(m, W, H, shrink) {
+  let core = m
+  for (let k = 0; k < shrink; k++) core = morph(core, W, H, false)
+  const label = new Int32Array(W * H).fill(-1), q = []
+  clusters(core, W, H).forEach((c, li) => { for (const i of c.idx) { label[i] = li; q.push(i) } })
+  for (let h = 0; h < q.length; h++) {
+    const i = q[h], x = i % W
+    for (const j of [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, i - W, i + W]) if (j >= 0 && j < W * H && m[j] && label[j] < 0) { label[j] = label[i]; q.push(j) }
+  }
+  const groups = new Map()
+  for (let i = 0; i < W * H; i++) if (label[i] >= 0) { if (!groups.has(label[i])) groups.set(label[i], []); groups.get(label[i]).push(i) }
+  return [...groups.values()]
+}
+
+/**
+ * The things painted on a disc (a mandala's pumpkins, ears of corn, red petals, leaves, and the plate they sit on), each
+ * traced from the painting: the disc's ground colours are found (the colour most of it is, and a second one if a good share
+ * of it is that: a white plate in the middle), everything clearly not the ground near it is a painted thing, and each one is
+ * cut out whole with a soft edge, as a copy of her pixels; things that only touch are parted. A plate is a piece too, with
+ * holes where the things on it are. Nothing is cut by a line drawn across the picture. `disc` is { x, y, r } as findDisc
+ * gives it. [{ cx, cy, n, plate, piece }] in the picture's pixels, plates first, then biggest first, at most `max`.
+ */
+export function tracePieces(px, disc, { max = 48, fit = 0.95, apart = 44 } = {}) {
+  const { data, width: W, height: H } = px
+  const cx = disc.x * W, cy = disc.y * H, R = disc.r * W * fit
+  const inDisc = (x, y) => (x - cx) * (x - cx) + (y - cy) * (y - cy) <= R * R
+  const at = (i) => [data[i * 4], data[i * 4 + 1], data[i * 4 + 2]]
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
+  // The ground colours, by a coarse count
+  const bins = new Map()
+  let total = 0
+  for (let y = Math.max(0, Math.floor(cy - R)); y < Math.min(H, Math.ceil(cy + R)); y += 2) for (let x = Math.max(0, Math.floor(cx - R)); x < Math.min(W, Math.ceil(cx + R)); x += 2) {
+    if (!inDisc(x, y)) continue
+    const c = at(y * W + x), k = (c[0] >> 4) * 256 + (c[1] >> 4) * 16 + (c[2] >> 4)
+    bins.set(k, (bins.get(k) || 0) + 1); total++
+  }
+  const centre = (k) => [((k >> 8) & 15) * 16 + 8, ((k >> 4) & 15) * 16 + 8, (k & 15) * 16 + 8]
+  const ranked = [...bins.entries()].sort((a, b) => b[1] - a[1])
+  // A ground is a colour and everything near it; the first is the most common, a second must be far from it and common too
+  const share = (g) => { let n = 0; for (const [k, v] of bins) if (dist(centre(k), g) < 60) n += v; return n / total }
+  const grounds = [centre(ranked[0][0])]
+  // A second ground is one large single area (a plate), not a colour scattered in many small things (eight husks)
+  const oneArea = (g) => {
+    const mk = new Uint8Array(W * H)
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (inDisc(x, y) && dist(at(y * W + x), g) < 60) mk[y * W + x] = 1
+    const big = clusters(morph(mk, W, H, true), W, H).reduce((a, c) => Math.max(a, c.n), 0)
+    return big >= Math.PI * R * R * 0.05
+  }
+  for (const [k] of ranked.slice(1, 60)) { const g = centre(k); if (grounds.every((h) => dist(g, h) > 90) && share(g) > 0.05 && oneArea(g)) { grounds.push(g); break } }
+  // Each ground, measured where it is (paint shades lighter and darker across a canvas)
+  const near = grounds.map((g) => { const mk = new Uint8Array(W * H); for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (inDisc(x, y) && dist(at(y * W + x), g) < 60) mk[y * W + x] = 1; return { mk, mean: localMean(px, mk, Math.max(6, Math.round(R * 0.16))) } })
+  let figure = new Uint8Array(W * H)
+  const plates = grounds.slice(1).map(() => new Uint8Array(W * H))
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (!inDisc(x, y)) continue
+    const i = y * W + x, c = at(i)
+    const off = near.every((g, gi) => { const loc = g.mean(x, y) || grounds[gi]; return dist(c, loc) > apart })
+    if (off) figure[i] = 1
+    else for (let gi = 1; gi < grounds.length; gi++) if (near[gi].mk[i]) plates[gi - 1][i] = 1
+  }
+  // The painted things, by colour family first (a pumpkin against the red petals and the green ring it touches), then
+  // parted where two of one family only touch (two pumpkins side by side)
+  const family = (c) => {
+    const [h, sat, v] = hsv(c[0], c[1], c[2])
+    if (h >= 65 && h <= 170 && sat > 0.3) return 1 // green: leaves, stems, the plate's rim
+    if ((h < 16 || h > 340) && sat > 0.55) return 2 // red
+    if (h >= 16 && h <= 34 && sat > 0.66 && v > 0.62) return 3 // orange: pumpkins
+    return 4 // everything else: corn, husks, kernels
+  }
+  const minN = Math.PI * R * R * 0.002
+  let things = []
+  for (const f of [1, 2, 3, 4]) {
+    let m = new Uint8Array(W * H)
+    for (let i = 0; i < W * H; i++) if (figure[i] && family(at(i)) === f) m[i] = 1
+    for (let k = 0; k < 2; k++) m = morph(m, W, H, true)
+    for (let k = 0; k < 2; k++) m = morph(m, W, H, false)
+    things.push(...splitTouching(m, W, H, Math.max(2, Math.round(R * (f === 4 ? 0.012 : 0.02)))))
+  }
+  things = things.filter((g) => g.length >= minN).sort((a, b) => b.length - a.length).slice(0, max)
+  const out = []
+  for (const pm of plates) {
+    let m = pm
+    for (let k = 0; k < 2; k++) m = morph(m, W, H, true)
+    for (let k = 0; k < 2; k++) m = morph(m, W, H, false)
+    const big = clusters(m, W, H).filter((c) => c.n >= Math.PI * R * R * 0.02).sort((a, b) => b.n - a.n)[0]
+    if (big) out.push({ cx: big.cx, cy: big.cy, n: big.n, plate: true, piece: piece(px, big.idx, 1, false) })
+  }
+  for (const g of things) {
+    let sx = 0, sy = 0
+    for (const i of g) { sx += i % W; sy += Math.floor(i / W) }
+    out.push({ cx: sx / g.length, cy: sy / g.length, n: g.length, plate: false, piece: piece(px, g, 1) })
+  }
+  return out
 }

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { findDisc, findMirror, findFruit, cutFruit, findBlossom } from '../src/lib/harvestFind.js'
+import { findDisc, findMirror, findFruit, cutFruit, findBlossom, tracePieces } from '../src/lib/harvestFind.js'
 import { cutLeaves, colourMask } from '../src/lib/leafCut.js'
 
 const px = (W, H, fn) => { const data = new Uint8ClampedArray(W * H * 4); for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) data.set([...fn(x, y), 255], (y * W + x) * 4); return { data, width: W, height: H } }
@@ -59,4 +59,26 @@ test('a painting with no autumn colour still gives pieces of its own colour, and
   assert.ok(out.boxes.length >= 6, `its own colour gives pieces: ${out.boxes.length}`)
   const flat = px(600, 600, () => [30, 140, 160])
   assert.equal(cutLeaves(flat, { mask: colourMask(flat) }).boxes.length, 0, 'flat paint is left out')
+})
+
+test('a disc’s painted things are traced whole on its ground, a plate among them, nothing cut across', () => {
+  // A tan disc; a white plate in the middle with an orange "pumpkin" on it; four brown "ears" round it, one touching another
+  const W = 200, H = 200
+  const img = px(W, H, (x, y) => {
+    const r = Math.hypot(x - 100, y - 100)
+    if (r > 92) return [200, 85, 78]
+    if (Math.hypot(x - 100, y - 100) < 10) return [235, 120, 30]
+    if (r < 30) return [246, 244, 238]
+    for (const [cx, cy] of [[100, 50], [150, 100], [100, 150], [62, 120], [52, 104]]) if (Math.hypot((x - cx) * 1.6, y - cy) < 12) return [150 - noise(x, y) * 30, 95, 40]
+    return [212 - noise(y, x) * 10, 165, 112]
+  })
+  const disc = { x: 0.5, y: 0.5, r: 0.46 }
+  const out = tracePieces(img, disc)
+  const plates = out.filter((t) => t.plate), things = out.filter((t) => !t.plate)
+  assert.equal(plates.length, 1, 'the white plate is a piece')
+  assert.ok(things.some((t) => Math.hypot(t.cx - 100, t.cy - 100) < 4), 'the pumpkin on it is its own piece')
+  assert.ok(things.length >= 5, `each ear is its own piece, the touching two parted: ${things.length}`)
+  for (const t of out) assert.equal(t.piece.rgba.length, t.piece.w * t.piece.h * 4)
+  const plate = plates[0].piece, mid = ((Math.round(100 - plate.y)) * plate.w + Math.round(100 - plate.x)) * 4
+  assert.equal(plate.rgba[mid + 3], 0, 'the plate has a hole where the pumpkin sits, so it is not in two pieces')
 })

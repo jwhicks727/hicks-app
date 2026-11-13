@@ -25,8 +25,11 @@ Built in this order, each part in daily use before the next.
       flies out of the painting and home again, and flurries of her witch's
       leaves blow across and settle on the cards; the witch is in no other
       season. Every other season is a rotation: a different painting of hers
-      tagged for it hangs on Home every two days and its own show plays, chosen
-      from the painting's pixels: a painted wheel assembles and spins, leaves
+      tagged for it hangs on Home every two days, and its show has the witch's
+      shape: from the top of Home something made of the painting carries you
+      down to it, the page following; its own show plays there; and something
+      subtle made of it stays on every screen. The show is chosen from the
+      painting's pixels: a painted wheel assembles and spins, leaves
       float down a painted stream, embers rise from a painted fire, a lake
       ripples, pumpkins tumble, a blossom's petals flutter, golden leaves rain,
       or the real wind at home, a sunbeam, a whirl or a garland of its own
