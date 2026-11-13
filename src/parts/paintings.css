@@ -66,7 +66,9 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 /* Settings: trying another season */
 .season-try { display: grid; gap: 8px; }
 .season-try > label { display: grid; } .season-try > label span { font-size: 14px; color: var(--muted); font-weight: 500; }
-.season-try-row { display: flex; gap: 10px; align-items: center; } .season-try-row select { flex: 1; min-width: 0; } .season-try-row .btn { flex: none; }
+.season-try-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; } .season-try-row select { flex: 1 1 180px; min-width: 0; } .season-try-row .btn { flex: none; }
+.season-try-now { margin: 0; font-size: 15px; } .season-try-now b { font-weight: 800; }
+.season-try-count { display: inline-block; margin-left: 8px; color: var(--muted); font-size: 14px; white-space: nowrap; }
 
 /* The Art card: Anna's newest drawing taped over a corner of Laurie's frame (src/parts/PaintingsCard.jsx).
    It hinges at its tape, and each gust of autumn's wind makes it flutter that way (transform only). */

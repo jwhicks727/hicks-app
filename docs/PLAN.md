@@ -34,7 +34,9 @@ Built in this order, each part in daily use before the next.
       ripples, pumpkins tumble, a blossom's petals flutter, golden leaves rain,
       or the real wind at home, a sunbeam, a whirl or a garland of its own
       pieces (2026-11-13; the wind first, 2026-11-05). The sky keeps its own
-      colours. Settings can try another season's show.
+      colours. Settings can try another season's show, names the painting on Home
+      for it with its place in the rotation ("3 of 10"), and Next painting
+      moves on to the next one.
 - [x] Home's **Art** card: Laurie's painting with Anna's newest drawing taped
       over a corner, each a tap from its gallery; "A gust" in autumn, and
       Anna's paper flutters in every gust (2026-11-05).

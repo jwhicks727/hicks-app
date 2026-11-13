@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { BLOCK_DAYS, STYLES, WHAT, dayNumber, blockOf, candidates, pickPainting, styleFor, hsv, goldShare, findFire } from '../src/lib/harvest.js'
 import { showFor, homePainting } from '../src/lib/seasonShows.js'
+import { addDays } from '../src/lib/cal/dates.js'
 
 const read = (f) => readFileSync(new URL('../' + f, import.meta.url), 'utf8')
 const P = (slug, seasons = ['thanksgiving']) => ({ slug, seasons, w: 100, h: 100, focus: [0, 0, 1, 1] })
@@ -87,4 +88,16 @@ test('every season rotates through its own paintings, two days each, and never b
   assert.equal(showFor('fall', list, '2026-10-01').painting.slug, 'leaf')
   assert.equal(showFor('lent', list, '2026-03-01'), null, 'no Lent painting, no show')
   assert.equal(showFor('easter', list, '2026-04-05'), null)
+})
+
+test('Settings names the painting on Home for the season being tried, and Next painting moves it to the next one', () => {
+  const list = [P('barn'), P('kabocha'), P('maple'), P('pumpkins')]
+  const day = '2026-11-24', next = addDays(day, BLOCK_DAYS)
+  const a = homePainting('thanksgiving', list, day), b = homePainting('thanksgiving', list, next), order = candidates(list, 'thanksgiving').map((p) => p.slug)
+  assert.notEqual(a.slug, b.slug, 'a different painting after Next painting')
+  assert.equal((order.indexOf(a.slug) + 1) % order.length, order.indexOf(b.slug), 'the next one in the rotation, round again after the last')
+  const settings = read('src/consoles/Settings.jsx')
+  assert.match(settings, /homePainting\(key, paintings, day\)/, 'the same painting Home hangs, on the day being tried')
+  assert.match(settings, /shift \? addDays\(todayAt\(\), shift\) : todayAt\(\)/)
+  assert.match(settings, /aria-live="polite"/, 'and a screen reader hears it change')
 })

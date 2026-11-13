@@ -5,12 +5,12 @@ import { Card } from '../ui/Card.jsx'
 import PasswordForm from './PasswordForm.jsx'
 import { Link } from '../shell/Link.jsx'
 import { usePrefs, useSeasonTry, useHarvestShift } from '../lib/prefs.js'
-import { BLOCK_DAYS } from '../lib/harvest.js'
+import { BLOCK_DAYS, candidates } from '../lib/harvest.js'
 import { GROUPS } from '../lib/cal/observances.js'
 import { seasonFor, SEASONS, SEASON_ORDER } from '../lib/seasons.js'
-import { showFor } from '../lib/seasonShows.js'
+import { showFor, homePainting } from '../lib/seasonShows.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
-import { todayAt } from '../lib/cal/dates.js'
+import { todayAt, addDays } from '../lib/cal/dates.js'
 import { navigate } from '../lib/router.js'
 import { useFamily } from '../lib/useCalendar.js'
 import { reminderOn } from '../lib/sitReminder.js'
@@ -90,6 +90,14 @@ export default function Settings() {
               {(showFor(tryKey || seasonFor(todayAt()).key, paintings) || {}).kind === 'harvest' && <button type="button" className="btn ghost" onClick={() => setShift(shift + BLOCK_DAYS)}>Next painting</button>}
               <button type="button" className="btn ghost" disabled={!showFor(tryKey || seasonFor(todayAt()).key, paintings)} onClick={() => playIt(tryKey || seasonFor(todayAt()).key)}>Play it</button>
             </div>
+            {(() => {
+              // The painting on Home for the season being tried, on the day being tried (Next painting moves it on)
+              const key = tryKey || seasonFor(todayAt()).key, day = shift ? addDays(todayAt(), shift) : todayAt()
+              const sh = showFor(key, paintings, day)
+              if (!sh || sh.kind !== 'harvest') return null
+              const p = homePainting(key, paintings, day), all = candidates(paintings, key), at = all.findIndex((x) => x.slug === p.slug)
+              return <p className="season-try-now" aria-live="polite">On Home: <b>{p.title}</b>{p.year ? ` (${p.year})` : ''}<span className="season-try-count">{at + 1} of {all.length}</span></p>
+            })()}
           </div>
         )}
         <div className="switch-row">
