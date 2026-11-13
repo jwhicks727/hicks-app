@@ -21,11 +21,13 @@ Built in this order, each part in daily use before the next.
       West US (North California); new tables not exposed automatically;
       automatic row-level security on.
 - [x] The season's show: something from one of Laurie's paintings moves
-      across the screen, starting in her painting on Home. At Halloween her
-      painted leaves fall and the crow flies out of the painting and home again;
-      in autumn and Thanksgiving the real wind at home lifts leaves out of her
-      autumn paintings from where she painted them, blows them across the page,
-      and lets them settle on the cards (2026-11-05). The sky keeps its own
+      across the screen, starting in her painting on Home. At Halloween the crow
+      flies out of the painting and home again, and flurries of her witch's
+      leaves blow across and settle on the cards (the Day of the Dead's leaves
+      still fall); in autumn the real wind at home lifts leaves out of her
+      autumn paintings from where she painted them and settles them on the cards
+      (2026-11-05); at Thanksgiving they gather into a garland round the
+      painting on Home (2026-11-13). The sky keeps its own
       colours. Settings can try another season's show.
 - [x] Home's **Art** card: Laurie's painting with Anna's newest drawing taped
       over a corner, each a tap from its gallery; "A gust" in autumn, and

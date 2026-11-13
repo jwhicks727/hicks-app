@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 — Halloween blows in flurries; Thanksgiving gathers a garland
+
+Jason missed two things from the first autumn: the forest stream's show, and the flurries of leaves that settle
+on the cards instead of one leaf at a time. Decided:
+
+- **Halloween is the wind, with her witch's own leaves** (`SHOWS.halloween`, kind `wind`, `own`: never an autumn
+  painting's leaves). Her witch's leaves have no measured places in the painting, so they blow in from upwind
+  rather than lifting out of it. The Day of the Dead keeps the slow falling leaves, the one show that still does.
+  This reverses 2026-11-05's "Halloween keeps its falling leaves", for Halloween only.
+- **Thanksgiving gathers where autumn scatters** (`src/lib/garland.js`, `src/shell/GarlandShow.jsx`, kind
+  `garland`). Leaves lift out of her autumn paintings from the places she painted them, sail over in arcs and
+  settle along the edge of the painting on Home, from the top both ways, closing at the bottom, until it wears a
+  garland of her own brushwork. It rests, each leaf breathing, then fades. Only where a painting hangs in view
+  (none elsewhere, nothing stands in), never under Anna's taped paper, transforms and opacity only, still under
+  less motion; "Play it" and the Art card's button gather it again.
+- **The stream's show comes back with its new photo**: the wind (and the garland) take leaves from any autumn
+  painting that has had them cut, so a parent taps "cut leaves" on the new photo's page
+  (`AutumnLeaves.jsx`). The old photo's sheet went with it.
+
 ## 2026-11-11 — The crop box may hang off the photo
 
 A hexagon, a round canvas or a triangle photographed close to the edge can't be framed if the box has to stay on

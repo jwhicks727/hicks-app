@@ -4,7 +4,7 @@
 // The sky keeps its own colours all year (decisions log, 2026-11-01). A
 // season instead plays a short animation across the screen, made from what
 // she painted: at Halloween the leaves round her witch rest along the top edge
-// of the screen, just out of sight, and let go one at a time; in autumn the wind
+// of the screen, just out of sight, and let go one at a time (now only the Day of the Dead's); in autumn and at Halloween the wind
 // at home lifts leaves out of her autumn paintings and blows them across the
 // page (kind 'wind': src/lib/wind.js, src/shell/WindShow.jsx).
 // A season with none of her paintings yet has no show; it waits for one.
@@ -15,12 +15,17 @@ import { LEAF_ORIGINS } from './leafOrigins.js'
 import { seeded } from './scenes.js'
 
 export const SHOWS = {
-  halloween: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top of the screen and drift down one at a time, and the crow flies on Home' },
+  // Halloween's leaves are her witch's own, in flurries the wind carries and lets settle on the cards (the wind show, with
+  // `own`: only this painting's leaves, never an autumn painting's); the crow flies on Home. Her witch's leaves have no
+  // measured places in the painting, so they are blown in from upwind rather than lifted out of it.
+  halloween: { painting: 'witch-and-crow', own: true, kind: 'wind', what: 'flurries of her witch’s leaves blow across the page and settle on the cards, and the crow flies on Home' },
   muertos: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top and drift down one at a time, slow, like marigold petals', slow: true },
   // Autumn's leaves are pieces of her autumn paintings, cut out at full size: the two first cut by the script, and any
   // autumn painting a parent has cut leaves from on its page (src/places/lifelist/AutumnLeaves.jsx). Until one is in,
   // her witch's leaves stand in.
-  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her autumn paintings and blows them across the page, where they settle on the cards' },
+  // Thanksgiving gathers where autumn scatters: her leaves lift out of her autumn paintings and settle, one by one, into a
+  // garland round the painting on Home (src/lib/garland.js, src/shell/GarlandShow.jsx).
+  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'garland', what: 'leaves lift out of her autumn paintings, sail over, and gather into a garland round the painting on Home' },
   fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], fallback: 'witch-and-crow', kind: 'wind', what: 'the wind at home lifts leaves out of her autumn paintings and blows them across the page, where they settle on the cards' },
 }
 /** The seasons whose paintings autumn's wind may take leaves from. */
@@ -51,7 +56,7 @@ export function showFor(key, list = PAINTINGS) {
   const has = (slug) => { const p = paintingBySlug(slug, list); return p && p.leaves && p.leaves.sheet ? p : null }
   let mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
   // The wind also takes leaves from any autumn painting that has had them cut (newest first, as the list comes)
-  if (s.kind === 'wind') {
+  if ((s.kind === 'wind' || s.kind === 'garland') && !s.own) {
     const more = list.filter((p) => !mine.includes(p) && p.leaves && p.leaves.sheet && originsOf(p) && (p.seasons || []).some((k) => WIND_SEASONS.includes(k)))
     mine = [...mine, ...more].slice(0, WIND_SHEETS)
   }

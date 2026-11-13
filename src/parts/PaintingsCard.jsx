@@ -46,14 +46,16 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
   const n = list.length
   const show = prefs.seasonal === false ? null : showFor(season, list)
   const wind = Boolean(show && show.kind === 'wind' && !reducedMotion())
-  const leaves = Boolean(show && show.kind !== 'wind' && show.painting.slug === p.slug)
-  const canPlay = Boolean(p.flyer || leaves || wind)
+  const leaves = Boolean(show && show.kind === 'leaves' && show.painting.slug === p.slug)
+  const garland = Boolean(show && show.kind === 'garland' && !reducedMotion())
+  const canPlay = Boolean(p.flyer || leaves || wind || garland)
   const play = () => {
     if (p.flyer) window.dispatchEvent(new CustomEvent('hicks:fly', { detail: { slug: p.slug } }))
     if (leaves) window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: season } }))
     if (wind) window.dispatchEvent(new CustomEvent('hicks:wind-gust'))
+    if (garland) window.dispatchEvent(new CustomEvent('hicks:show', { detail: { key: season } }))
   }
-  const playWords = [p.flyer && `${p.flyer.name} flies`, leaves && 'the leaves fall', wind && 'a gust of wind blows the leaves'].filter(Boolean).join(' and ')
+  const playWords = [p.flyer && `${p.flyer.name} flies`, leaves && 'the leaves fall', wind && 'a gust of wind blows the leaves', garland && 'the leaves gather round the painting'].filter(Boolean).join(' and ')
   const corner = paperCorner(p)
   return (
     <Card className={'paint-card ' + className} tint="#C0824F" label="Art" glyph="star">

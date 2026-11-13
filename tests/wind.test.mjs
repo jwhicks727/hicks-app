@@ -96,10 +96,14 @@ test('a quick scroll stirs the resting leaves, a slow one leaves them be', () =>
   assert.ok(stirOf(99999, 1).across <= 220)
 })
 
-test('autumn and Thanksgiving are the wind; Halloween and the Day of the Dead keep their falling leaves', () => {
-  assert.equal(SHOWS.fall.kind, 'wind'); assert.equal(SHOWS.thanksgiving.kind, 'wind')
-  assert.equal(SHOWS.halloween.kind, 'leaves'); assert.equal(SHOWS.muertos.kind, 'leaves')
+test('autumn and Halloween are the wind, Thanksgiving gathers a garland, only the Day of the Dead’s leaves fall', () => {
+  assert.equal(SHOWS.fall.kind, 'wind'); assert.equal(SHOWS.halloween.kind, 'wind')
+  assert.equal(SHOWS.thanksgiving.kind, 'garland'); assert.equal(SHOWS.muertos.kind, 'leaves')
   assert.equal(showFor('fall').kind, 'wind')
+  // Halloween's flurries are her witch's leaves alone, never an autumn painting's
+  const h = showFor('halloween')
+  assert.deepEqual(h.sheets.map((x) => x.slug), ['witch-and-crow'])
+  assert.equal(showFor('thanksgiving').kind, 'garland')
 })
 
 test('the wind is transforms only, never takes a tap, and never plays under less motion', () => {

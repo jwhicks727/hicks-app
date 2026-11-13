@@ -9,6 +9,7 @@ import { HOME_TOWN } from '../lib/sky.js'
 import { usePath } from '../lib/router.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
 import WindShow from './WindShow.jsx'
+import GarlandShow from './GarlandShow.jsx'
 import './season-show.css'
 
 // The season's show, from one of Laurie's paintings: her painted leaves rest
@@ -39,8 +40,8 @@ export default function SeasonShow() {
   const still = reducedMotion() || prefs.seasonal === false || quiet
   const show = useMemo(() => (still ? null : showFor(key, list)), [still, key, list])
   const seed = Number(day.replace(/-/g, '')) % 9973
-  // Autumn blows rather than falls: its show is the wind (WindShow); the falling leaves are Halloween's and the Day of the Dead's
-  const perches = useMemo(() => (show && show.kind !== 'wind' ? leafPerches(show, seed) : []), [show, seed])
+  // Autumn and Halloween blow rather than fall (WindShow); Thanksgiving gathers (GarlandShow); only the Day of the Dead's leaves fall
+  const perches = useMemo(() => (show && show.kind === 'leaves' ? leafPerches(show, seed) : []), [show, seed])
   const [drops, setDrops] = useState([]) // leaves falling now: { id, i, plan }
   const [away, setAway] = useState([]) // perches whose leaf has let go, and whose new one has not yet arrived
   const [arrivals, setArrivals] = useState({}) // how many leaves have arrived at each perch (a new one fades in)
@@ -75,6 +76,7 @@ export default function SeasonShow() {
   }, [show, perches])
 
   if (show && show.kind === 'wind') return <WindShow show={show} list={list} path={path} />
+  if (show && show.kind === 'garland') return <GarlandShow show={show} list={list} path={path} />
   if (!show || !perches.length) return null
   return createPortal(
     <div className="season-show" aria-hidden="true">
