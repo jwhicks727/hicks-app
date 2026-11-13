@@ -255,6 +255,7 @@ html[data-motion="less"] *, html[data-motion="less"] *::before, html[data-motion
 .wx-alerts summary span { font-size: 14px; color: var(--muted); }
 .wx-alerts p { margin-top: 6px; font-size: 14px; }
 .wx-credit { font-size: 12px; color: var(--muted); }
+.wx-source { font-size: 13px; margin: 8px 0 0; }
 .wx-week { list-style: none; margin: 0; padding: 0; display: grid; }
 .wx-week li { display: grid; grid-template-columns: 46px 30px 38px minmax(40px, 1fr) 38px; grid-template-areas: "d i lo bar hi" ". . note note note"; align-items: center; gap: 0 8px; padding: 7px 0; border-top: 1px solid var(--line); }
 .wx-week li:first-child { border-top: 0; }

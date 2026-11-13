@@ -20,6 +20,26 @@ replaces the floor placement in the entry below; tapping a piece still opens its
 
 ---
 
+## 2026-11-13 — The weather never waits forever, and has a backup
+
+Home's weather card sat on "Looking at the sky…" because it waited on two requests at once (Open-Meteo and the
+Weather Service's alerts) with no time limit: one that hung held the whole card. Now every weather request gives up
+after eight seconds (`getJson`, `src/lib/forecastSource.js`), and alerts arrive on their own, a bonus that never holds
+the forecast up. The forecast has a ladder (`loadForecast`): Open-Meteo, then, if it doesn't answer in time or sends
+something that isn't a forecast, the National Weather Service's hourly forecast (`src/lib/nws.js`; free, no key, the
+United States only), turned into Open-Meteo's shape so every screen reads it unchanged. The backup carries a week, not
+three weeks back and sixteen ahead, and has no UV, cloud layers, rain amounts or gusts: those stay empty rather than
+guessed, "today will be… than yesterday" and the year-ago line quietly go, and the card says "Open-Meteo isn't
+answering" in words, with the credit changing to the Weather Service. If neither answers, the last good home forecast
+(kept on the device, six hours at most, `teamhicks.weather.last.v1`) shows with how old it is, and the card tries again
+every minute; only with nothing kept does it say it couldn't be reached. The academy's sky and the autumn wind ignore
+an old forecast (no weather rather than last hour's). Away from home the same ladder serves the weather where we are,
+but a position is still never kept. Whether Open-Meteo itself changed could not be checked from the build machine
+(its network refused the host), so the hang is the cause found in the code, unconfirmed against the live service.
+
+
+---
+
 ## 2026-11-13 — Anna's drawings and Laurie's paintings can be placed in the academy
 
 Every drawing in Anna's Art and every painting in Laurie's Gallery is in a room's "Add something", under "Anna's

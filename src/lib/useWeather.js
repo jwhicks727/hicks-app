@@ -1,33 +1,64 @@
 import { useEffect, useState } from 'react'
 import { forecastUrl, alertsUrl, shapeForecast, shapeAlerts, placeNowUrl, shapePlaceNow, placesNowUrl, shapePlacesNow, shapeTimeline, archiveUrl, airUrl, shapeAir, PAST_DAYS, AHEAD_DAYS } from './weather.js'
 import { HOME_TOWN } from './sky.js'
+import { loadForecast, getJson } from './forecastSource.js'
 
 const KEEP_MS = 15 * 60 * 1000 // the forecast changes hourly; asking every quarter hour is plenty
 const KEY = 'teamhicks.weather.v2' // v2: three weeks back and sixteen days ahead, with rain, inches and wind on every hour
 const localIso = () => new Intl.DateTimeFormat('sv-SE', { timeZone: HOME_TOWN.tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date()).replace(' ', 'T')
 
+const LAST_KEY = 'teamhicks.weather.last.v1' // the last good home forecast, kept on the device for a few hours
+const STALE_MS = 6 * 60 * 60 * 1000
+const RETRY_MS = 60 * 1000 // after a failure, try again in a minute rather than waiting a quarter hour
+
+const readLast = () => { try { const k = JSON.parse(localStorage.getItem(LAST_KEY)); return k && k.json && Date.now() - k.at < STALE_MS ? k : null } catch { return null } }
+
+/** The home forecast: { json, source, at }, from this tab's keeping, else Open-Meteo, else the Weather Service. Throws if neither answers. */
 async function load() {
-  try { const kept = JSON.parse(sessionStorage.getItem(KEY)); if (kept && Date.now() - kept.at < KEEP_MS) return kept } catch { /* nothing kept */ }
-  const [f, a] = await Promise.allSettled([
-    fetch(forecastUrl({ ...HOME_TOWN, past: PAST_DAYS, days: AHEAD_DAYS })).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status))))),
-    fetch(alertsUrl(), { headers: { Accept: 'application/geo+json' } }).then((r) => (r.ok ? r.json() : null)),
-  ])
-  if (f.status !== 'fulfilled') throw new Error('The forecast couldn’t be reached just now.')
-  const out = { at: Date.now(), forecast: f.value, alerts: a.status === 'fulfilled' ? a.value : null }
+  try { const kept = JSON.parse(sessionStorage.getItem(KEY)); if (kept && kept.json && Date.now() - kept.at < KEEP_MS) return kept } catch { /* nothing kept */ }
+  const got = await loadForecast(HOME_TOWN, { past: PAST_DAYS, days: AHEAD_DAYS })
+  const out = { at: Date.now(), json: got.json, source: got.source }
   try { sessionStorage.setItem(KEY, JSON.stringify(out)) } catch { /* fine */ }
+  try { localStorage.setItem(LAST_KEY, JSON.stringify(out)) } catch { /* fine */ }
   return out
 }
 
-/** The forecast and alerts at home: { forecast, alerts, error }, refreshed every quarter hour. */
+/** The Weather Service's alerts at home, kept for a quarter hour. They never hold the forecast up: null if they can't be had. */
+async function loadAlerts() {
+  const key = KEY + '.alerts.home'
+  try { const k = JSON.parse(sessionStorage.getItem(key)); if (k && Date.now() - k.at < KEEP_MS) return k.json } catch { /* nothing kept */ }
+  const json = await getJson(alertsUrl(), { headers: { Accept: 'application/geo+json' } })
+  try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), json })) } catch { /* fine */ }
+  return json
+}
+
+/**
+ * The forecast and alerts at home: { forecast, alerts, error, stale }, refreshed every quarter hour.
+ * `forecast.source` says where it came from ('open-meteo', or 'nws' as the backup). When neither
+ * source answers, the last good forecast shows for up to six hours with `stale` set to when it
+ * was taken (a time in ms); only with none kept is it an `error`.
+ */
 export function useWeather() {
-  const [state, setState] = useState({ forecast: null, alerts: [], error: null })
+  const [state, setState] = useState({ forecast: null, alerts: [], error: null, stale: null })
   useEffect(() => {
-    let live = true
-    const run = () => load().then((d) => { if (live) setState({ forecast: shapeForecast(d.forecast, localIso()), alerts: shapeAlerts(d.alerts), error: null }) })
-      .catch((e) => { if (live) setState((s) => ({ ...s, error: e.message })) })
+    let live = true, timer = null
+    const showLast = () => {
+      const last = readLast()
+      if (last && live) setState((s) => ({ ...s, forecast: shapeForecast(last.json, localIso()), error: null, stale: last.at }))
+      return Boolean(last)
+    }
+    const run = () => {
+      load().then((d) => { if (live) setState((s) => ({ ...s, forecast: shapeForecast(d.json, localIso()), error: null, stale: null })); schedule(KEEP_MS) })
+        .catch(() => {
+          if (!live) return
+          if (!showLast()) setState((s) => ({ ...s, error: 'The forecast couldn’t be reached just now. Trying again in a minute.' }))
+          schedule(RETRY_MS)
+        })
+      loadAlerts().then((a) => { if (live) setState((s) => ({ ...s, alerts: shapeAlerts(a) })) }).catch(() => { /* alerts are a bonus */ })
+    }
+    const schedule = (ms) => { if (live) { clearTimeout(timer); timer = setTimeout(run, ms) } }
     run()
-    const t = setInterval(run, KEEP_MS)
-    return () => { live = false; clearInterval(t) }
+    return () => { live = false; clearTimeout(timer) }
   }, [])
   return state
 }
@@ -45,9 +76,7 @@ export function usePlaceWeather(place) {
         let kept = null
         try { kept = JSON.parse(sessionStorage.getItem(key)) } catch { /* nothing kept */ }
         if (!kept || Date.now() - kept.at > KEEP_MS) {
-          const r = await fetch(placeNowUrl(place))
-          if (!r.ok) throw new Error(String(r.status))
-          kept = { at: Date.now(), json: await r.json() }
+          kept = { at: Date.now(), json: await getJson(placeNowUrl(place)) }
           try { sessionStorage.setItem(key, JSON.stringify(kept)) } catch { /* fine */ }
         }
         if (live) setState({ now: shapePlaceNow(kept.json), error: null })
@@ -80,9 +109,7 @@ export function usePlacesWeather(places) {
         let kept = null
         try { kept = JSON.parse(sessionStorage.getItem(key)) } catch { /* nothing kept */ }
         if (!kept || Date.now() - kept.at > KEEP_MS) {
-          const r = await fetch(placesNowUrl(points))
-          if (!r.ok) throw new Error(String(r.status))
-          kept = { at: Date.now(), json: await r.json() }
+          kept = { at: Date.now(), json: await getJson(placesNowUrl(points)) }
           try { sessionStorage.setItem(key, JSON.stringify(kept)) } catch { /* fine */ }
         }
         const byPoint = shapePlacesNow(kept.json, points)
@@ -113,9 +140,8 @@ export function usePlaceForecast(place) {
         let kept = null
         try { kept = JSON.parse(sessionStorage.getItem(key)) } catch { /* nothing kept */ }
         if (!kept || Date.now() - kept.at > KEEP_MS) {
-          const r = await fetch(forecastUrl({ lat: place.lat, lng: place.lng, tz: place.tz, past: 2, days: 7 }))
-          if (!r.ok) throw new Error(String(r.status))
-          kept = { at: Date.now(), json: await r.json() }
+          const got = await loadForecast({ lat: place.lat, lng: place.lng, tz: place.tz }, { past: 2, days: 7 })
+          kept = { at: Date.now(), json: got.json.source ? got.json : { ...got.json, source: got.source } }
           try { sessionStorage.setItem(key, JSON.stringify(kept)) } catch { /* fine */ }
         }
         if (live) setState({ forecast: shapeForecast(kept.json, wallIso(place.tz)), error: null })
@@ -132,9 +158,16 @@ export function usePlaceForecast(place) {
 const ago = (date, n) => { const [y, m, d] = date.split('-').map(Number); const t = new Date(Date.UTC(y, m - 1, d + n)); return t.toISOString().slice(0, 10) }
 const getKept = async (key, url, ttl = KEEP_MS) => {
   try { const k = JSON.parse(sessionStorage.getItem(key)); if (k && Date.now() - k.at < ttl) return k.json } catch { /* nothing kept */ }
-  const r = await fetch(url)
-  if (!r.ok) throw new Error(String(r.status))
-  const json = await r.json()
+  const json = await getJson(url)
+  try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), json })) } catch { /* fine */ }
+  return json
+}
+
+/** A forecast (Open-Meteo, else the Weather Service) kept for a quarter hour in this tab; the answer carries its `source`. */
+async function keptForecast(key, point, opts) {
+  try { const k = JSON.parse(sessionStorage.getItem(key)); if (k && k.json && Date.now() - k.at < KEEP_MS) return k.json } catch { /* nothing kept */ }
+  const got = await loadForecast(point, opts)
+  const json = got.json.source ? got.json : { ...got.json, source: got.source }
   try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), json })) } catch { /* fine */ }
   return json
 }
@@ -218,7 +251,7 @@ export function useHereForecast(point) {
   useEffect(() => {
     if (!point) { setState({ forecast: null, tz: null, elevation: null, error: null }); return undefined }
     let live = true
-    const run = () => getKept(`${KEY}.here.${at}`, forecastUrl({ lat: point.lat, lng: point.lng, tz: 'auto', past: 1, days: 7 }))
+    const run = () => keptForecast(`${KEY}.here2.${at}`, { lat: point.lat, lng: point.lng, tz: 'auto' }, { past: 1, days: 7 })
       .then((json) => {
         if (!live) return
         const tz = typeof json.timezone === 'string' && /^[A-Za-z_]+(\/[A-Za-z0-9_+-]+)+$|^UTC$/.test(json.timezone) ? json.timezone : HOME_TOWN.tz

@@ -32,7 +32,19 @@ export function Alerts({ alerts }) {
   )
 }
 
-export const Credit = () => <p className="wx-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · alerts from the <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer">National Weather Service</a></p>
+export const Credit = ({ source = 'open-meteo' }) => (source === 'nws'
+  ? <p className="wx-credit">Forecast and alerts from the <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer">National Weather Service</a></p>
+  : <p className="wx-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · alerts from the <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer">National Weather Service</a></p>)
+
+/** Says so when the forecast isn't Open-Meteo's live answer: the backup source, or an older copy kept on this phone. */
+export function SourceNote({ forecast, stale }) {
+  if (stale) {
+    const mins = Math.max(1, Math.round((Date.now() - stale) / 60000))
+    return <p className="wx-source muted" role="status">No forecast could be reached just now, so this is the last one we had, from {mins < 90 ? `${mins} minutes` : `${Math.round(mins / 60)} hours`} ago. It tries again every minute.</p>
+  }
+  if (forecast && forecast.source === 'nws') return <p className="wx-source muted" role="status">Open-Meteo isn’t answering, so this is the National Weather Service’s forecast: a week ahead, without UV, rain amounts or the days gone by.</p>
+  return null
+}
 
 /** The next twelve hours at a place, a strip to scroll, each with its rain and wind. */
 export function HoursList({ hours }) {
@@ -72,7 +84,7 @@ export function WeekList({ days, linkDays = false }) {
 
 /** The weather at home now, the schools beside it, and the next twelve hours. `extra` is a line for where we are when out and about. */
 export function WeatherNow({ className = 'span-3', more = true, schools = true, extra = null }) {
-  const { forecast: f, alerts, error } = useWeather()
+  const { forecast: f, alerts, error, stale } = useWeather()
   const now = useNow()
   const air = useAir()
   const sinceYest = f ? sinceYesterday(f.allDays) : null
@@ -96,6 +108,7 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true, 
           {extra}
           <p className="wx-windline"><WindArrow dir={f.now.dir} size={14} /> {f.now.wind.line}{f.now.speed != null ? ` (${Math.round(f.now.speed)} mph)` : ''}.{f.today && f.today.rain != null && <> {f.today.rain}% chance of rain today{f.today.inches ? `, ${inchWords(f.today.inches)} expected` : ''}.</>}{f.now.wind.santaAna && <b> Santa Ana winds: dry and gusty. Hold on to the patio umbrella.</b>}</p>
           <Alerts alerts={alerts} />
+          <SourceNote forecast={f} stale={stale} />
           {treats.length > 0 && (
             <ul className="wx-treats">
               {treats.map((t) => <li key={t.key} style={{ '--c': t.colour }}>{t.to ? <Link to={t.to}><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></Link> : <div><span aria-hidden="true">{t.icon}</span><b>{t.title}</b><small>{t.words}</small></div>}</li>)}
@@ -112,7 +125,7 @@ export function WeatherNow({ className = 'span-3', more = true, schools = true, 
           <DayStrip days={f.allDays} timeline={f.timeline} />
           <HourStrip timeline={f.timeline} nowIndex={f.nowIndex} />
           {more && <Link className="btn ghost" to="/world">The week ›</Link>}
-          <Credit />
+          <Credit source={f.source} />
         </>
       )}
     </Card>
