@@ -154,6 +154,7 @@ export function shapeForecast(json, nowIso) {
   return {
     now: { temp: Math.round(c.temperature_2m), feels: Math.round(c.apparent_temperature), humidity: Math.round(c.relative_humidity_2m), speed: num(c.wind_speed_10m), gusts: num(c.wind_gusts_10m), dir: num(c.wind_direction_10m), wind, ...conditions(c.weather_code, c.is_day) },
     hours, days, today: days[0] || null, timeline, allDays, nowIndex: start,
+    source: json.source === 'nws' ? 'nws' : 'open-meteo', // 'nws' is the backup (src/lib/nws.js): no UV, rain amounts or past days
   }
 }
 

@@ -12,7 +12,8 @@ import { useSkyTry } from './skyTry.js'
  */
 export function useAtmosphere() {
   const now = useNow()
-  const { forecast, error } = useWeather()
+  const { forecast: kept, error, stale } = useWeather()
+  const forecast = stale ? null : kept // an old forecast kept for Home's card is not the sky now
   const [tryOn] = useSkyTry()
-  return useMemo(() => atmosphereAt({ now, forecast, tryOn, waiting: !error }), [now, forecast, tryOn, error])
+  return useMemo(() => atmosphereAt({ now, forecast, tryOn, waiting: !error && !stale }), [now, forecast, tryOn, error, stale])
 }

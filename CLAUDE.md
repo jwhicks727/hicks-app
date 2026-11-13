@@ -427,6 +427,7 @@ licence nobody wrote down.
   instructions, and only the family's own entries are kept. Personal data
   goes to an AI service only when the app says so and its owner said yes
   (Laurie's food rules are the one exception: see above).
+- **Every outside request has a timeout** (`getJson`, `src/lib/forecastSource.js`), and a card that waits on one thing never waits on another: the weather's alerts never hold its forecast up. The forecast falls back from Open-Meteo to the Weather Service (`src/lib/nws.js`) and then to the last good copy, each said on screen (`tests/weather-backup.test.mjs`); a backup leaves empty what it doesn't know.
 - Each reading of an outside source is kept as a version: a new version never
   silently deletes the old one's data.
 - An outside service the app shows (the parish's website, our weather

@@ -488,7 +488,9 @@ and the phases are in issue #19; what's built is ticked here.
 - [x] The forecast at home (Open-Meteo: now, the next twelve hours, the
       week) and the National Weather Service's alerts, on Home and World,
       with a word when the Santa Anas blow. Only the town's coordinates are
-      sent.
+      sent. A request gives up after 8 s; if Open-Meteo doesn't answer, the Weather
+      Service's hourly forecast (`src/lib/nws.js`) stands in, then the last good
+      forecast with its age (decisions log, 2026-11-13).
 - [x] All our places on one map, at three sizes (around home, SoCal, the
       world), with a page for each: its skyline in its own sky, the time and
       weather there, how far, and Open in Maps / Directions in the phone's

@@ -18,9 +18,9 @@ const REST_SINK = 0.18 // how far a resting leaf sits down over a card's top edg
 const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a }
 
 export default function WindShow({ show, list, path }) {
-  const { forecast } = useWeather()
+  const { forecast, stale } = useWeather()
   const layer = useRef(null)
-  const now = forecast ? forecast.now : null
+  const now = forecast && !stale ? forecast.now : null // never an old wind
   const nowRef = useRef(now), listRef = useRef(list)
   nowRef.current = now
   listRef.current = list
