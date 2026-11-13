@@ -118,7 +118,7 @@ export default function Cropper({ src, W, H, crop, auto, onChange, what = 'paint
   const sw = Math.max(1, size.w - 2 * PAD), sh = Math.max(1, size.h - 2 * PAD)
   const framed = frame.turn === c.turn && frame.angle === c.angle ? frame : c
   const v = size.w ? viewOf(c, W, H, sw, sh, { zoom, frame: framed }) : null
-  // After a change, zoomed in: reframe only if the box has left the stage or is lost in it
+  // After a change, zoomed in: reframe whenever the box has left the stage or no longer fills most of it, so each shrink zooms in again
   const settle = (next) => {
     if (!zoom || !size.w) return
     const nv = viewOf(next, W, H, sw, sh, { zoom, frame: framed })

@@ -159,10 +159,10 @@ export function viewOf(crop, W, H, sw, sh, { zoom = false, frame = crop } = {}) 
   return { k, zoom, matrix: [m11, m21, m12, m22, e, f], box: { left: sw / 2 + (ed.left - bx) * k, top: sh / 2 + (ed.top - by) * k, width: (ed.right - ed.left) * k, height: (ed.bottom - ed.top) * k } }
 }
 
-/** Does the box sit comfortably on the stage as it's framed: wholly on it, and not lost in the middle of a zoomed view? */
+/** Does the box sit comfortably on the stage as it's framed: wholly on it, and, zoomed, still filling most of it (the view refits whenever the box has shrunk away from that)? */
 export function fitsStage(box, sw, sh, { zoom = false } = {}) {
   const on = box.left >= -1 && box.top >= -1 && box.left + box.width <= sw + 1 && box.top + box.height <= sh + 1
-  return on && (!zoom || Math.max(box.width / sw, box.height / sh) > 0.3)
+  return on && (!zoom || Math.max(box.width / sw, box.height / sh) > 0.84)
 }
 
 /** Two crops the same, to half a pixel (a copy brought back from the family's storage is the same crop). */
