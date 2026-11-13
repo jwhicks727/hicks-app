@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react'
-import { pt, mid, tile, floorShapes, wallShapes, wallMatrix, wallLength, cellAt, byDepth, roomBox } from './iso.js'
+import { pt, mid, tile, floorShapes, wallShapes, wallMatrix, wallLength, cellAt, wallAt, byDepth, roomBox } from './iso.js'
 import { ROOM_N } from './rooms.js'
 import { itemSrc } from './items.js'
-import { isOwnArt, artPath } from './ownArt.js'
+import { isOwnArt, artPath, parseArtKey } from './ownArt.js'
+import { onWall, onFloor, hungSize, clampWall } from './walls.js'
+import { tilt } from '../lib/drawings.js'
 import { menuFor } from './school.js'
 import { HOME_TOWN, moonLitPath } from '../lib/sky.js'
 import { atmosphereAt, beamOf, lightOf, ridge, seeded as rng } from './atmosphere.js'
@@ -44,7 +46,7 @@ const light = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return ((
 const trunc = (s, n) => (s && s.length > n ? s.slice(0, n - 1) + '…' : s || '')
 const glowId = (id, c) => `${id}-glow-${c.slice(1)}`
 
-export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, artUrl, artLabel, onOpen, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
+export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, artUrl, artLabel, artRatio, onOpen, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
   const svg = useRef(null), drag = useRef(null)
   const [hop, setHop] = useState(null)
   const a = atmos || atmosphereAt({ now })
@@ -61,10 +63,12 @@ export default function RoomScene({ room, kind, items, arranging = false, select
   // What stirs: animals stroll from the square they were put on (never while arranging, and they sleep at night)
   const asset = (k) => (k.startsWith('a:') && assetOf ? assetOf(k.slice(2)) : null)
   const asleep = a.hour >= 21.5 || a.hour < 6
-  const gaits = Object.fromEntries(items.map((it) => [it.id, gait(it.k, asset(it.k), floor)]))
-  const walkers = items.filter((it) => gaits[it.id] === 'walk' || gaits[it.id] === 'swim')
-  const roam = useWander(walkers.map((it) => ({ id: it.id, i: it.i, j: it.j })), new Set(items.filter((it) => !walkers.includes(it)).map((it) => `${it.i},${it.j}`)), N, !arranging && !asleep, 2400)
-  const placed = items.map((it) => { const at = (!arranging && roam[it.id]) || null; return at ? { ...it, at, di: Math.max(at.i, at.from ? at.from.i : at.i), dj: Math.max(at.j, at.from ? at.from.j : at.j) } : { ...it, di: it.i, dj: it.j } })
+  const floorItems = items.filter(onFloor), hung = wallItemsOf(items, wall)
+  const sizeOf = (it) => hungSize(artRatio ? artRatio(it.k) : 0.8, it.s || 1)
+  const gaits = Object.fromEntries(floorItems.map((it) => [it.id, gait(it.k, asset(it.k), floor)]))
+  const walkers = floorItems.filter((it) => gaits[it.id] === 'walk' || gaits[it.id] === 'swim')
+  const roam = useWander(walkers.map((it) => ({ id: it.id, i: it.i, j: it.j })), new Set(floorItems.filter((it) => !walkers.includes(it)).map((it) => `${it.i},${it.j}`)), N, !arranging && !asleep, 2400)
+  const placed = floorItems.map((it) => { const at = (!arranging && roam[it.id]) || null; return at ? { ...it, at, di: Math.max(at.i, at.from ? at.from.i : at.i), dj: Math.max(at.j, at.from ? at.from.j : at.j) } : { ...it, di: it.i, dj: it.j } })
   const sorted = placed.sort((p, q) => byDepth({ i: p.di, j: p.dj }, { i: q.di, j: q.dj }))
   const glows = sorted.map((it) => [it, glowOf(it.k, asset(it.k))]).filter(([, g]) => g && (a.dark || g.always))
   const glowColours = [...new Set([...glows.map(([, g]) => g.colour), '#FFD98A'])]
@@ -75,15 +79,21 @@ export default function RoomScene({ room, kind, items, arranging = false, select
     const q = p.matrixTransform(svg.current.getScreenCTM().inverse())
     return cellAt(q.x, q.y, N)
   }
+  const toWall = (e) => {
+    const p = svg.current.createSVGPoint(); p.x = e.clientX; p.y = e.clientY
+    const q = p.matrixTransform(svg.current.getScreenCTM().inverse())
+    return wallAt(q.x, q.y, N, H)
+  }
   const down = (e, it) => {
     e.stopPropagation()
     if (!arranging) { setHop(it.id); setTimeout(() => setHop(null), 700); return }
     onSelect(it.id)
-    drag.current = { id: it.id, moved: false }
+    drag.current = { id: it.id, moved: false, hung: onWall(it) ? sizeOf(it) : null }
     e.currentTarget.setPointerCapture?.(e.pointerId)
   }
   const move = (e) => {
     if (!drag.current) return
+    if (drag.current.hung) { const spot = toWall(e); if (spot) { drag.current.moved = true; onDrop(drag.current.id, clampWall({ w: spot.side, x: spot.x, y: spot.y }, drag.current.hung, N, H), false) } return }
     const c = toCell(e)
     if (c) { drag.current.moved = true; onDrop(drag.current.id, c, false) }
   }
@@ -158,6 +168,18 @@ export default function RoomScene({ room, kind, items, arranging = false, select
           <g transform={wallMatrix('right', N)}>{right.lit}</g>
         </>
       )}
+      {hung.length > 0 && (
+        <>
+          {['left', 'right'].map((side) => (
+            <g key={side} transform={wallMatrix(side, N)}>
+              {hung.filter((it) => it.w === side).map((it) => (
+                <WallPiece key={it.id} it={it} size={sizeOf(it)} href={artUrl ? artUrl(it.k) : null} label={artLabel ? artLabel(it.k) : 'A picture'} picked={selected === it.id} arranging={arranging}
+                  washes={glassy ? [] : washes} onDown={(e) => down(e, it)} onOpen={onOpen && isOwnArt(it.k) ? () => onOpen(artPath(it.k)) : null} />
+              ))}
+            </g>
+          ))}
+        </>
+      )}
       {beams.some(Boolean) && (
         <g pointerEvents="none" className={a.weather.kind === 'partly' ? 'ac-sunbeam' : undefined}>
           {beams.map((b, k) => b && (
@@ -175,7 +197,7 @@ export default function RoomScene({ room, kind, items, arranging = false, select
 
       {/* A faint grid while arranging, and the picked square */}
       {arranging && Array.from({ length: N * N }, (_, k) => <polygon key={k} points={tile(k % N, Math.floor(k / N), 0.03)} className="room-grid" />)}
-      {arranging && selected && (() => { const it = items.find((x) => x.id === selected); return it ? <polygon points={tile(it.i, it.j, 0.02)} className="room-picked" /> : null })()}
+      {arranging && selected && (() => { const it = floorItems.find((x) => x.id === selected); return it ? <polygon points={tile(it.i, it.j, 0.02)} className="room-picked" /> : null })()}
 
       {/* The things in the room, back to front */}
       {sorted.map((it, n) => {
@@ -214,6 +236,37 @@ export default function RoomScene({ room, kind, items, arranging = false, select
         <g className="ac-bolt" style={{ animationDuration: '9s' }} fill="#F4F1FF" opacity=".14" pointerEvents="none"><polygon points={f.top} /><polygon points={w.left} /><polygon points={w.right} /></g>
       )}
     </svg>
+  )
+}
+
+/** What hangs on the walls: nothing in a room with no walls (it's kept, and hangs again if the walls come back). */
+function wallItemsOf(items, wall) {
+  return wall === 'none' ? [] : items.filter(onWall)
+}
+
+/**
+ * One picture on a wall, drawn in wall-space: Laurie's paintings in a wooden frame with a mat, Anna's drawings as paper
+ * taped up, a little crooked as on her own wall. The picture itself is shown whole, as it was made: framed, never
+ * altered. The hour's light falls over it like the rest of the wall. A tap opens its page; while arranging it's picked up.
+ */
+function WallPiece({ it, size, href, label, picked, arranging, washes, onDown, onOpen }) {
+  const art = parseArtKey(it.k), painting = art && art.kind === 'painting'
+  const x = it.x - size.w / 2, y = it.y - size.h / 2, rim = painting ? Math.max(2.5, size.w * 0.07) : 1.6
+  const open = !arranging && onOpen
+  const keys = open ? { role: 'link', tabIndex: 0, 'aria-label': `Open ${label}`, onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); onOpen() } } } : {}
+  return (
+    <g className={'room-item room-hung' + (picked ? ' picked' : '')} onPointerDown={onDown} onClick={(e) => { e.stopPropagation(); if (open) onOpen() }} {...keys}
+      transform={painting ? undefined : `rotate(${tilt(it.k)} ${it.x} ${it.y})`}>
+      <title>{label}</title>
+      <rect x={x - rim + 1.6} y={y - rim + 2.2} width={size.w + rim * 2} height={size.h + rim * 2} fill="rgba(30, 15, 5, .22)" />
+      {painting
+        ? <><rect x={x - rim} y={y - rim} width={size.w + rim * 2} height={size.h + rim * 2} fill="#6B4426" /><rect x={x - rim * 0.45} y={y - rim * 0.45} width={size.w + rim * 0.9} height={size.h + rim * 0.9} fill="#C9A227" opacity=".55" /><rect x={x - 1} y={y - 1} width={size.w + 2} height={size.h + 2} fill="#FFF8EE" /></>
+        : <rect x={x - rim} y={y - rim} width={size.w + rim * 2} height={size.h + rim * 2} fill="#FFF8EE" />}
+      {href ? <image href={href} x={x} y={y} width={size.w} height={size.h} preserveAspectRatio="xMidYMid meet" /> : <rect x={x} y={y} width={size.w} height={size.h} fill="#EFE6D6" />}
+      {!painting && [[x + size.w * 0.12, -12], [x + size.w * 0.88, 12]].map(([cx, deg], k) => <rect key={k} x={cx - 6} y={y - rim - 3} width="12" height="6" fill="#F7E7A1" opacity=".85" transform={`rotate(${deg} ${cx} ${y - rim})`} />)}
+      {washes.map(([tint, k], n) => <rect key={n} x={x - rim} y={y - rim} width={size.w + rim * 2} height={size.h + rim * 2} fill={tint} opacity={k} pointerEvents="none" />)}
+      {picked && <rect x={x - rim - 3} y={y - rim - 3} width={size.w + rim * 2 + 6} height={size.h + rim * 2 + 6} fill="none" stroke="#FFFFFF" strokeWidth="2" strokeDasharray="4 3" pointerEvents="none" />}
+    </g>
   )
 }
 

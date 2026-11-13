@@ -54,9 +54,11 @@ yet (docs/PLAN.md).
 
 ## Anna's drawings and Laurie's paintings
 
-Every drawing in Anna's Art and every painting in Laurie's Gallery can be placed in a room (Add something › Anna's
-drawings, Laurie's paintings). They are not copied: a room keeps only their key and reads the picture from its private
-bucket through a signed link. They're shown as made, so they can't be flipped or recoloured.
+Every drawing in Anna's Art and every painting in Laurie's Gallery can be hung on a room's walls (Add something ›
+Anna's drawings, Laurie's paintings). They are not copied: a room keeps only their key and where they hang, and reads
+the picture from its private bucket through a signed link. Paintings get a wooden frame drawn round them, drawings a
+strip of tape at each corner; the picture inside is shown as made, so it can't be flipped or recoloured. A tap on one
+opens its page.
 
 ## Packs that fit
 

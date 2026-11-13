@@ -6,6 +6,20 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 — Drawings and paintings hang on the academy's walls, not the floor
+
+Jason: Anna's drawings and Laurie's paintings belong on walls. Rooms now have a second way to hold a thing: hung on one
+of its two back walls (`{ w: 'left' | 'right', x, y }` in wall-space, `src/academy/walls.js`), beside the floor's
+squares (`{ i, j }`), in the same list of the room's items. A drawing or painting always hangs: it goes up on the first
+clear spot (eye height first, clear of the window, the board, the clock and the other pictures, by `wallFeatures`), is
+dragged anywhere on either wall or moved with arrows, sized, and sent to the other wall. Paintings hang in a wooden frame
+with a mat; drawings are taped up a little crooked, as on her own wall. The picture is shown whole and unaltered, and the
+hour's light falls on it like the rest of the wall. One put on the floor before this goes up on a wall when its room
+opens. A room with no walls (the courtyard) keeps its hung pieces but doesn't show them, and its catalog says why. This
+replaces the floor placement in the entry below; tapping a piece still opens its page.
+
+---
+
 ## 2026-11-13 — Anna's drawings and Laurie's paintings can be placed in the academy
 
 Every drawing in Anna's Art and every painting in Laurie's Gallery is in a room's "Add something", under "Anna's

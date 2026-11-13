@@ -64,3 +64,12 @@ export function artPath(k) {
   if (!a) return null
   return a.kind === 'drawing' ? '/drawings/' + a.id : '/lifelist/paintings/' + a.id
 }
+
+/** A piece's shape, width ÷ height, from what's kept about it (0.8 until it's known). */
+export function artRatio(k, { drawings = [], paintings = [] } = {}) {
+  const a = parseArtKey(k)
+  if (!a) return 0.8
+  const f = a.kind === 'drawing' ? drawings.find((x) => x.id === a.id) : paintings.find((x) => x.slug === a.id)
+  const w = f && (a.kind === 'drawing' ? f.width : f.w), h = f && (a.kind === 'drawing' ? f.height : f.h)
+  return w > 0 && h > 0 ? w / h : 0.8
+}
