@@ -58,3 +58,13 @@ export function useDrawingUrls(paths) {
   }, [key])
   return urls
 }
+
+/** One drawing's picture as it was kept, a signed link asked for when someone chooses to save or share it. */
+export async function drawingUrl(path) {
+  const c = cache.get(path)
+  if (c && c.until > Date.now()) return c.url
+  const { data } = await supabase.storage.from('drawings').createSignedUrl(path, 5 * 86400)
+  if (!data || !data.signedUrl) return null
+  cache.set(path, { url: data.signedUrl, until: Date.now() + KEEP })
+  return data.signedUrl
+}

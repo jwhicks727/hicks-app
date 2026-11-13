@@ -6,6 +6,19 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 — Hold a piece of art to save, copy or share it
+
+Holding a piece on Anna's wall, Laurie's gallery or its featured wall (half a second, or a right-click) opens a menu
+instead of the page: save the picture, copy it, share it, or copy its link (`src/ui/PieceMenu.jsx`,
+`src/lib/pieceMenu.js`, `tests/piece-menu.test.mjs`). A plain tap still opens the piece. A hold is no one's only way in:
+each piece's own page has a "Save, copy or share" button for the same menu. The picture handed on is the one as it was
+kept, only its file name is made (title and whose it is); a copy to the clipboard is redrawn as PNG, pixel for pixel.
+The link copied is the app's own page for the piece, which needs sign-in, never the signed link to the file (anyone
+holding that could open the picture for days). Only the choices the device can do are shown. Anna's full-size signed
+link is asked for only when a choice is made.
+
+---
+
 ## 2026-11-11 — The crop box may hang off the photo
 
 A hexagon, a round canvas or a triangle photographed close to the edge can't be framed if the box has to stay on

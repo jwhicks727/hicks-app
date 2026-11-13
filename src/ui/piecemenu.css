@@ -1,0 +1,5 @@
+/* The hold-tap menu on art (src/ui/PieceMenu.jsx) */
+[data-hold] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+[data-hold] img { -webkit-touch-callout: none; -webkit-user-drag: none; }
+.pm-do { display: grid; gap: 2px; justify-items: start; text-align: left; width: 100%; min-height: 56px; }
+.pm-do small { font-weight: 600; color: var(--muted); }
