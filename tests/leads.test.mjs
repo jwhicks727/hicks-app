@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { LEAD_SECONDS, leadSeconds, cameraTo, rocking, samara, skipping, skipTouches, SKIPS, bouncePath, bouncing, flutter, comet, gust, beamDown, devil, ribbon, swarm, LINGER, lingerGap } from '../src/lib/leads.js'
+import { LEAD_SECONDS, leadSeconds, cameraTo, samara, skipping, skipTouches, SKIPS, alongLine, fusePath, plinkoPath, plinkoAt, hopStops, hopAt, murmur, rosette, swag, buntingAnchors, LINGER, lingerGap } from '../src/lib/leads.js'
 import { STYLES } from '../src/lib/harvest.js'
 
 const read = (f) => readFileSync(new URL('../' + f, import.meta.url), 'utf8')
@@ -15,15 +15,50 @@ test('every show has a lead down to its painting and a subtle part that stays', 
 })
 
 test('each lead starts at the top of the page and lands exactly on its place in the painting', () => {
-  for (const [name, f] of [['rocking', rocking], ['samara', samara], ['skipping', skipping], ['flutter', flutter], ['comet', comet], ['beamDown', beamDown]]) {
+  for (const [name, f] of [['samara', samara], ['skipping', skipping]]) {
     assert.ok(near(f(0, S, E, o), S, 3), `${name} starts at the top`)
     assert.ok(near(f(1, S, E, o), E, 3), `${name} lands on the painting`)
-    // and travels downward on the whole: never far above where it started
     for (let t = 0; t <= 1; t += 0.05) assert.ok(f(t, S, E, o).y > S.y - 140, `${name} stays on its way down`)
   }
-  for (const [name, f] of [['gust', gust], ['ribbon', ribbon]]) { assert.ok(near(f(1, S, E, { ...o, i: 0 }), E, 3), `${name}'s lead lands`); assert.equal(f(0.02, S, E, { ...o, i: 5 }).k, 0, `${name}: the later ones follow on`) }
-  const d = devil(1, S, E, { ...o, i: 0 }); assert.ok(Math.abs(d.x - E.x) < 40 && Math.abs(d.y - E.y) < 40, 'the whirl arrives round its place')
-  const sw = swarm(1, S, E, { ...o, i: 3 }); assert.ok(near(sw, E, 3), 'each wheel piece reaches its place round the frame')
+  const m = murmur(1, S, E, { ...o, vh: 800, i: 3, n: 20 }); assert.ok(Math.abs(m.x - E.x) < 30 && Math.abs(m.y - E.y) < 30, 'the murmuration pours into the painting')
+  assert.ok(murmur(0.2, S, E, { ...o, vh: 800, i: 0 }).y < S.y + 300, 'after looping at the top first')
+  const to = { x: 300, y: 1450 }, ro = rosette(1, S, E, { i: 2, n: 12, R: 120, to }); assert.ok(near(ro, to, 1), 'each kaleidoscope piece opens to its place round the frame')
+  assert.ok(Math.hypot(rosette(0.4, S, E, { i: 2, n: 12, R: 120 }).x - rosette(0.4, S, E, { i: 8, n: 12, R: 120 }).x, 1) > 10, 'and turns as a rosette on the way')
+})
+
+test('the fire’s fuse runs down the outside of the cards, one side then the other, into the fire', () => {
+  const cards = [{ x0: 16, x1: 374, y0: 300, y1: 520 }, { x0: 16, x1: 374, y0: 540, y1: 760 }]
+  const path = fusePath(S, E, cards)
+  assert.deepEqual(path[0], S); assert.deepEqual(path.at(-1), E)
+  assert.ok(path[1].x < 16 && path[3].x > 374, 'left of the first card, right of the next: never across what is written on them')
+  const a = alongLine(path, 0), b = alongLine(path, 1), m = alongLine(path, 0.5)
+  assert.ok(near(a, S, 0.01) && near(b, E, 0.01) && m.length > 1000)
+})
+
+test('the pumpkin rolls along each card and drops off its end onto the next', () => {
+  const cards = [{ x0: 16, x1: 374, y0: 300, y1: 520 }, { x0: 16, x1: 374, y0: 540, y1: 760 }]
+  const segs = plinkoPath(S, E, cards, { vw: 390, r: 20 })
+  assert.deepEqual(segs.map((s) => s.kind), ['drop', 'roll', 'drop', 'roll', 'drop'])
+  assert.equal(segs[1].a.y, 280, 'rolling on the first card’s top edge'); assert.ok(segs[1].b.x < 16 || segs[1].b.x > 374, 'to its end and off')
+  assert.ok(near(plinkoAt(segs, 0, { r: 20 }), S, 0.5) && near(plinkoAt(segs, 1, { r: 20 }), E, 0.5))
+  assert.ok(Math.abs(plinkoAt(segs, 0.99, { r: 20 }).rot) > 90, 'turning as it rolls')
+})
+
+test('the butterflies rest on each card on the way, wings slow, and fly between them', () => {
+  const cards = [{ x0: 16, x1: 374, y0: 300, y1: 520 }, { x0: 16, x1: 374, y0: 540, y1: 760 }]
+  const stops = hopStops(S, E, cards, { r: () => 0.5 })
+  assert.equal(stops.length, 4); assert.equal(stops[1].y, 300); assert.equal(stops[2].y, 540)
+  const resting = hopAt(stops, 1 / 3 + 0.05, { i: 0 }), flying = hopAt(stops, 1 / 3 + 0.25, { i: 0 })
+  assert.equal(resting.resting, true); assert.ok(Math.abs(resting.y - 296) < 6, 'sitting on the card’s edge')
+  assert.equal(flying.resting, false)
+  assert.ok(near(hopAt(stops, 1, { i: 1 }), E, 4), 'and into the blossom')
+})
+
+test('the bunting drapes down the page in swags, side to side, to the frame', () => {
+  const anchors = buntingAnchors(S, E, { vw: 390 })
+  assert.ok(anchors.length >= 4); assert.deepEqual(anchors.at(-1), E)
+  assert.ok(anchors[1].x > 300 && anchors[2].x < 90, 'side to side')
+  const mid = swag(anchors[0], anchors[1], 0.5, 70); assert.ok(mid.y > (anchors[0].y + anchors[1].y) / 2 + 60, 'sagging in the middle')
 })
 
 test('the skipping leaf touches down five times, the last on the water', () => {
@@ -31,17 +66,6 @@ test('the skipping leaf touches down five times, the last on the water', () => {
   assert.equal(touches.length, SKIPS)
   assert.ok(near(touches.at(-1), E, 3))
   for (let i = 1; i < touches.length; i++) assert.ok(touches[i].y > touches[i - 1].y && touches[i].t > touches[i - 1].t)
-})
-
-test('the pumpkin bounces on the cards between the top and the painting, and rolls as it goes', () => {
-  const ledges = [{ y: 300, x0: 16, x1: 374 }, { y: 600, x0: 16, x1: 374 }, { y: 900, x0: 16, x1: 374 }, { y: 1700, x0: 16, x1: 374 }]
-  const path = bouncePath(S, E, ledges, o)
-  assert.deepEqual(path[0], S); assert.deepEqual(path.at(-1), E)
-  assert.deepEqual(path.slice(1, -1).map((p) => p.y), [300, 600, 900], 'only the cards above the painting')
-  for (const p of path.slice(1, -1)) assert.ok(p.x >= 36 && p.x <= 354, 'landing on the card, not beside it')
-  assert.ok(near(bouncing(0, path, { r: 20 }), S, 1) && near(bouncing(1, path, { r: 20 }), E, 1))
-  assert.ok(Math.abs(bouncing(0.9, path, { r: 20 }).rot) > 90, 'rolling')
-  assert.equal(bouncePath(S, E, [], o).length, 5, 'with no cards in the way it still bounces down')
 })
 
 test('the page follows a piece down, a little above the middle, never past either end', () => {

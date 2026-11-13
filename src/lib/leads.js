@@ -14,7 +14,7 @@ const clamp = (x, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, x))
 const TAU = Math.PI * 2
 
 /** How long each lead takes for a short trip (seconds); a longer page adds a little, never more than half again. */
-export const LEAD_SECONDS = { wheel: 6.5, stream: 8, embers: 5.5, lake: 7.5, tumble: 6.5, petals: 8.5, golden: 7.5, wind: 6, beam: 6.5, whirl: 7, garland: 7.5 }
+export const LEAD_SECONDS = { wheel: 7, stream: 7.5, embers: 7, lake: 7.5, tumble: 7.5, petals: 10, golden: 7.5, wind: 8, beam: 7.5, whirl: 7.5, garland: 8 }
 export function leadSeconds(style, distance, vh = 800) {
   const base = LEAD_SECONDS[style] || 7
   return Math.round(clamp(base + (Math.max(0, distance - vh) / vh) * 1.6, base, base * 1.5) * 100) / 100
@@ -22,12 +22,6 @@ export function leadSeconds(style, distance, vh = 800) {
 
 /** Where the page should be to keep a piece at `pageY` a little above the middle of the screen (never past either end). */
 export const cameraTo = (pageY, vh, maxScroll) => Math.round(clamp(pageY - vh * 0.42, 0, Math.max(0, maxScroll)))
-
-/** The stream's leaf: it rocks down the page like a real leaf let go, wide swings narrowing as it nears the water. */
-export function rocking(t, S, E, { vw = 390 } = {}) {
-  const e = smooth(t), ph = t * 3 * TAU, damp = Math.pow(1 - t, 0.8)
-  return { x: lerp(S.x, E.x, e) + Math.sin(ph) * vw * 0.2 * damp, y: lerp(S.y, E.y, 0.15 * t + 0.85 * e) - Math.abs(Math.sin(ph)) * 22 * (1 - t), rot: 40 * Math.cos(ph) * damp, tilt: 25 + 20 * Math.sin(ph) * damp, k: 1 }
-}
 
 /** A golden leaf spinning down like a maple seed: a steady fall, turning fast, its helix tightening as it lands. */
 export function samara(t, S, E, { vw = 390, sec = 7.5 } = {}) {
@@ -48,70 +42,113 @@ export function skipTouches(S, E, o = {}) {
   return Array.from({ length: SKIPS }, (_, j) => { const t = (j + 1) / SKIPS, p = skipping(t - 1e-9, S, E, o); return { t, x: p.x, y: p.y } })
 }
 
-/**
- * The pumpkin bounces down the page from one card's top edge to the next (`ledges`: [{ y, x0, x1 }] in page coordinates,
- * the cards between the top and the painting), then into the painting. The path through those ledges: [{ x, y }].
- */
-export function bouncePath(S, E, ledges = [], { vw = 390 } = {}) {
-  const between = ledges.filter((l) => l.y > S.y + 60 && l.y < E.y - 60).sort((a, b) => a.y - b.y)
-  const steps = between.length ? between.slice(0, 6) : [1, 2, 3].map((j) => ({ y: lerp(S.y, E.y, j / 4), x0: vw * 0.15, x1: vw * 0.85 }))
+// ---- Paths that use the page itself: the cards between the top and the painting ------------------------------
+// `cards` are [{ x0, x1, y0, y1 }] in page coordinates, top to bottom, only those between the start and the painting.
+
+/** A point a share u (0-1) of the way along a polyline, by its length, and the way it runs there (degrees). */
+export function alongLine(pts, u) {
+  const segs = []
+  let total = 0
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segs.push(d); total += d }
+  let want = clamp(u) * total
+  for (let i = 0; i < segs.length; i++) {
+    if (want <= segs[i] || i === segs.length - 1) { const f = segs[i] ? clamp(want / segs[i]) : 1, a = pts[i], b = pts[i + 1]; return { x: lerp(a.x, b.x, f), y: lerp(a.y, b.y, f), run: (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI, length: total } }
+    want -= segs[i]
+  }
+  return { ...pts[pts.length - 1], run: 90, length: total }
+}
+
+/** The fire's fuse: down the outside of each card, one side then the other, across the gaps between them, and into the fire. */
+export function fusePath(S, E, cards, { pad = 7 } = {}) {
   const pts = [{ x: S.x, y: S.y }]
-  steps.forEach((l, j) => { const want = lerp(S.x, E.x, (j + 1) / (steps.length + 1)) + (j % 2 ? -1 : 1) * vw * 0.18; pts.push({ x: clamp(want, l.x0 + 20, l.x1 - 20), y: l.y }) })
+  cards.forEach((c, i) => {
+    const x = i % 2 ? c.x1 + pad : c.x0 - pad
+    pts.push({ x, y: c.y0 - pad }, { x, y: c.y1 + pad })
+  })
   pts.push({ x: E.x, y: E.y })
   return pts
 }
-/** The pumpkin on its bounces at t (0-1): each hop a parabola from one ledge up and over to the next, rolling as it goes. */
-export function bouncing(t, path, { r = 20 } = {}) {
-  const n = path.length - 1, f = clamp(t) * n, i = Math.min(n - 1, Math.floor(f)), l = f - i
-  const a = path[i], b = path[i + 1], h = 34 + Math.max(0, 110 - i * 22)
-  let travelled = 0
-  for (let j = 0; j < i; j++) travelled += Math.abs(path[j + 1].x - path[j].x)
-  travelled += Math.abs(b.x - a.x) * l
-  return { x: lerp(a.x, b.x, l), y: lerp(a.y, b.y, l * l) - h * 4 * l * (1 - l), rot: ((travelled / r) * 180) / Math.PI * Math.sign(b.x - a.x || 1), k: 1 }
+
+/**
+ * The pumpkin's plinko: it drops onto each card's top edge, rolls along it to the nearer end, rolls off and drops onto the
+ * next, then into the painting. Segments [{ kind: 'drop'|'roll', a, b, s }] with `s` the seconds each takes at that speed.
+ */
+export function plinkoPath(S, E, cards, { vw = 390, r = 20 } = {}) {
+  const segs = []
+  let at = { x: S.x, y: S.y }
+  cards.slice(0, 5).forEach((c, i) => {
+    const land = { x: clamp(at.x, c.x0 + r, c.x1 - r), y: c.y0 - r }
+    segs.push({ kind: 'drop', a: at, b: land, s: Math.sqrt(Math.max(30, land.y - at.y) / 600) })
+    const leftNear = land.x - c.x0 < c.x1 - land.x, off = { x: (i % 2 ? !leftNear : leftNear) ? c.x0 - r * 0.2 : c.x1 + r * 0.2, y: c.y0 - r }
+    segs.push({ kind: 'roll', a: land, b: off, s: Math.abs(off.x - land.x) / 260 })
+    at = off
+  })
+  segs.push({ kind: 'drop', a: at, b: { x: E.x, y: E.y }, s: Math.sqrt(Math.max(30, E.y - at.y) / 600) })
+  return segs
+}
+/** Where the pumpkin is at t (0-1) on its plinko, and how far it has rolled (degrees of turn for its radius). */
+export function plinkoAt(segs, t, { r = 20 } = {}) {
+  const total = segs.reduce((a, s) => a + s.s, 0)
+  let want = clamp(t) * total, rolled = 0
+  for (const sg of segs) {
+    const f = sg.s ? clamp(want / sg.s) : 1
+    if (want <= sg.s || sg === segs[segs.length - 1]) {
+      if (sg.kind === 'roll') { const x = lerp(sg.a.x, sg.b.x, f); rolled += x - sg.a.x; return { x, y: sg.a.y, rot: (rolled / r) * 57.3, k: 1 } }
+      // a drop: forward a little as it falls, and down faster and faster
+      return { x: lerp(sg.a.x, sg.b.x, f), y: lerp(sg.a.y, sg.b.y, f * f), rot: ((rolled + (sg.b.x - sg.a.x) * f) / r) * 57.3, k: 1 }
+    }
+    if (sg.kind === 'roll') rolled += sg.b.x - sg.a.x
+    want -= sg.s
+  }
+  return { ...segs[segs.length - 1].b, rot: (rolled / r) * 57.3, k: 1 }
 }
 
-/** A petal flutters down like a butterfly: figure-eights across the page, wings beating, settling into the blossom. */
-export function flutter(t, S, E, { vw = 390, sec = 8.5 } = {}) {
-  const e = smooth(t)
-  return { x: lerp(S.x, E.x, e) + vw * 0.22 * Math.sin(TAU * 1.25 * t) * Math.pow(1 - t, 0.6), y: lerp(S.y, E.y, e) + 46 * Math.sin(TAU * 2.5 * t) * (1 - t), rot: 18 * Math.sin(TAU * 1.25 * t) * (1 - t), yaw: 72 * Math.sin(t * sec * 16) * (1 - t * t), k: 1 }
+/** The butterflies' stops: a place on the top edge of each card on the way, then the blossom. [{ x, y }] */
+export function hopStops(S, E, cards, { r = Math.random } = {}) {
+  return [{ x: S.x, y: S.y }, ...cards.slice(0, 4).map((c) => ({ x: lerp(c.x0 + 30, c.x1 - 30, 0.2 + r() * 0.6), y: c.y0 })), { x: E.x, y: E.y }]
+}
+/** A butterfly at t (0-1): it flies from stop to stop in an arc, fluttering, and rests a moment on each card, wings slow. */
+export function hopAt(stops, t, { i = 0, sec = 9 } = {}) {
+  const n = stops.length - 1, rest = 0.35 // a share of each leg spent resting at its start (not at the top)
+  const f = clamp(t) * n, k = Math.min(n - 1, Math.floor(f)), l = f - k
+  const resting = k > 0 && l < rest
+  const fly = k > 0 ? clamp((l - rest) / (1 - rest)) : l
+  const a = stops[k], b = stops[k + 1], e = smooth(fly), off = (i - 1) * 16
+  const x = lerp(a.x, b.x, e) + off * (resting ? 0.4 : 1) + Math.sin(fly * Math.PI * 2 + i) * 18 * (1 - Math.abs(2 * fly - 1))
+  const y = lerp(a.y, b.y, e) - Math.sin(fly * Math.PI) * (40 + 30 * (i % 2)) + (resting ? -4 : 0)
+  const beat = resting ? 30 + 30 * Math.sin(t * sec * 3 + i) : 72 * Math.sin(t * sec * 17 + i)
+  return { x, y, yaw: beat, rot: resting ? 0 : 12 * Math.sin(fly * Math.PI * 4 + i), k: 1, resting }
 }
 
-/** An ember falls like a shooting star from a top corner, curving down into the fire, quickening, a trail behind it. */
-export function comet(t, S, E, { vw = 390 } = {}) {
-  const u = Math.pow(clamp(t), 1.35), c = { x: vw * 0.12, y: lerp(S.y, E.y, 0.55) }
-  const x = (1 - u) * (1 - u) * S.x + 2 * u * (1 - u) * c.x + u * u * E.x, y = (1 - u) * (1 - u) * S.y + 2 * u * (1 - u) * c.y + u * u * E.y
-  return { x, y, rot: 0, k: 1.5 - 0.5 * t }
+/** A murmuration: a cloud of leaves loops across the top like starlings, then pours down to the painting. One leaf, i of n. */
+export function murmur(t, S, E, { vw = 390, vh = 800, i = 0, n = 20 } = {}) {
+  const loop = clamp(t / 0.45), dive = smooth(clamp((t - 0.38) / 0.62))
+  const a = loop * TAU * 1.1
+  const top = { x: vw / 2 + Math.sin(a) * vw * 0.3, y: S.y + vh * 0.16 + Math.sin(a * 2) * vh * 0.07 }
+  const c = { x: lerp(top.x, E.x, dive), y: lerp(top.y, E.y, dive) }
+  const spread = (1 - dive * 0.88) * (58 + 30 * Math.sin(t * 7 + i))
+  const ph = (i / n) * TAU
+  return { x: c.x + Math.cos(ph + t * 9) * spread + Math.sin(t * 13 + i * 2.1) * 10, y: c.y + Math.sin(ph * 1.7 + t * 8) * spread * 0.6, rot: t * 700 + i * 31, tilt: 60 * Math.sin(t * 11 + i), k: 1 }
 }
 
-/** The wind's flock: leaves sweep in from the side the wind comes from, across the top and down the page in an S. */
-export function gust(t, S, E, { vw = 390, side = 1, i = 0 } = {}) {
-  const tt = clamp(t - i * 0.045), e = smooth(tt)
-  return { x: lerp(S.x, E.x, e) + side * vw * 0.38 * Math.sin(Math.PI * 1.5 * tt) * (1 - tt) + Math.sin(i * 1.7) * 26 * (1 - tt), y: lerp(S.y, E.y, e) + Math.cos(i * 2.3) * 20 * (1 - tt), rot: (tt * 540 + i * 47) * side, tilt: 60 * Math.sin(tt * 14 + i), k: tt > 0 ? 1 : 0 }
+/** The mandala's kaleidoscope: its pieces turn in a rosette round a centre that floats down the page, opening into a ring at the frame. */
+export function rosette(t, S, E, { i = 0, n = 12, R = 120, to = null } = {}) {
+  const e = smooth(t), c = { x: lerp(S.x, E.x, e), y: lerp(S.y, E.y, e) }
+  const a = (i / n) * TAU + t * 5.2, rr = R * (0.32 + 0.12 * Math.sin(t * 6 + i)) * (1 - 0.3 * Math.sin(t * Math.PI))
+  const spot = { x: c.x + Math.cos(a) * rr, y: c.y + Math.sin(a) * rr }
+  const open = smooth(clamp((t - 0.8) / 0.2))
+  return to ? { x: lerp(spot.x, to.x, open), y: lerp(spot.y, to.y, open), rot: (a * 180) / Math.PI * (1 - open), k: 0.7 + 0.3 * open } : { ...spot, rot: (a * 180) / Math.PI, k: 0.7 }
 }
 
-/** The sunbeam: a band of light that slides down the page from the top to the painting (its middle, in page coordinates). */
-export function beamDown(t, S, E) {
-  const e = smooth(t)
-  return { x: lerp(S.x, E.x, e), y: lerp(S.y, E.y, e), k: 1 }
-}
-
-/** A little whirl of leaves travels down the page, wandering, each leaf on its own orbit round the moving column. */
-export function devil(t, S, E, { vw = 390, sec = 7, i = 0, n = 7 } = {}) {
-  const e = smooth(t), cx = lerp(S.x, E.x, e) + vw * 0.18 * Math.sin(3 * Math.PI * t) * (1 - t), cy = lerp(S.y, E.y, e)
-  const a = (i / n) * TAU + t * sec * 5.5, r = 18 + i * 5
-  return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.36 - i * 7, rot: a * 57.3, tilt: 50 * Math.sin(a), k: 0.8 + 0.25 * (Math.sin(a) + 1) / 2 }
-}
-
-/** A ribbon of leaves, each following the one before, swoops down the page to the top of the frame. */
-export function ribbon(t, S, E, { vw = 390, i = 0 } = {}) {
-  const tt = clamp(t - i * 0.035), e = smooth(tt)
-  return { x: lerp(S.x, E.x, e) + vw * 0.3 * Math.sin(TAU * 1.2 * tt) * (1 - tt), y: lerp(S.y, E.y, e), rot: 30 * Math.cos(TAU * 1.2 * tt) + i * 13, tilt: 30 * Math.sin(tt * 10 + i), k: tt > 0 ? 1 : 0 }
-}
-
-/** The wheel's pieces fall from the top in a swirl, each to its own place in a ring round the frame, ready to slot in. */
-export function swarm(t, from, to, { vw = 390, i = 0 } = {}) {
-  const tt = clamp((t - (i % 9) * 0.025) / 0.92), e = smooth(tt)
-  return { x: lerp(from.x, to.x, e) + Math.sin(tt * TAU + i) * vw * 0.12 * (1 - tt), y: lerp(from.y, to.y, Math.pow(e, 1.1)), rot: (1 - e) * (i % 2 ? 1 : -1) * (120 + (i * 37) % 200), k: 0.7 + 0.3 * e }
+/** A swag of bunting from a to b, sagging in the middle: a point a share u along it. */
+export function swag(a, b, u, sag = 60) { return { x: lerp(a.x, b.x, u), y: lerp(a.y, b.y, u) + sag * 4 * u * (1 - u) } }
+/** The garland's anchors down the page: the outer edges, one side then the other, a swag between each, then the frame. */
+export function buntingAnchors(S, E, { vw = 390, step = 260 } = {}) {
+  const pts = [{ x: vw * 0.06, y: S.y }]
+  let y = S.y, i = 1
+  while (y + step < E.y - 40) { y += step; pts.push({ x: i % 2 ? vw * 0.94 : vw * 0.06, y }); i++ }
+  pts.push({ x: E.x, y: E.y })
+  return pts
 }
 
 // ---- What stays: how often the subtle part comes back ---------------------------------------------------------

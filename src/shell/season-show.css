@@ -31,7 +31,10 @@
 .hv-ring-page { border-color: rgba(74, 118, 158, .75); border-width: 2px; }
 .hv-beam { position: absolute; left: 0; top: 0; display: block; will-change: transform, opacity; }
 .hv-glint { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; background: radial-gradient(circle, rgba(255, 244, 206, .95) 0, rgba(255, 236, 180, .4) 40%, rgba(255, 230, 170, 0) 70%); will-change: transform, opacity; }
-.hv-corner { position: absolute; top: calc(env(safe-area-inset-top, 0px) - 30px); right: -30px; border-radius: 50%; background-repeat: no-repeat; opacity: .95; will-change: transform; animation: hv-turn 140s linear infinite; }
+.hv-corner { position: absolute; top: calc(env(safe-area-inset-top, 0px) - 30px); right: -30px; border-radius: 50%; opacity: .95; will-change: transform; animation: hv-turn 140s linear infinite; }
+.hv-corner-disc { display: block; border-radius: 50%; background-repeat: no-repeat; will-change: transform; }
+.hv-hearth { position: absolute; left: -10%; right: -10%; bottom: -40px; height: 34vh; opacity: .8; will-change: opacity; animation: hv-hearth 6s ease-in-out infinite alternate; }
+@keyframes hv-hearth { from { opacity: .45; } to { opacity: 1; } }
 .hv-swag { position: absolute; display: block; width: 0; height: 0; margin-top: env(safe-area-inset-top, 0px); transform: rotate(var(--tilt)); animation: hv-sway 5s ease-in-out infinite alternate; transition: opacity 1.2s ease; }
 .hv-swag .hv-piece { left: 0; top: 0; }
 @keyframes hv-turn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

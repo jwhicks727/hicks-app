@@ -1,11 +1,12 @@
 // The wheel (a round painting: her corn and pumpkin mandala). Its own painted things, each traced from the painting (the
 // pumpkins, the ears of corn with their husks, the red petals, the leaves, the white plate: src/lib/harvestFind.js
-// tracePieces), swirl down from the top of the page, the page following, and gather round the frame; the painting steps
+// tracePieces), turn in a kaleidoscope at the top of the page that floats down it, the page following, and open into a ring
+// round the frame; the painting steps
 // aside, leaving the frame empty, and the pieces slot into their places on it one by one, the plate first. Then the circle
 // itself (the round part only, none of the corners) appears beneath them, lifts, turns once slowly and settles, and her
 // painting comes back. Every piece is a copy of her pixels; her painting is only hidden for a moment, never changed.
 import { tracePieces } from '../../lib/harvestFind.js'
-import { leadSeconds, swarm } from '../../lib/leads.js'
+import { leadSeconds, rosette } from '../../lib/leads.js'
 import { frameGeometry, stage, boxOf, clamp, ease, shuffle } from './kit.js'
 import { camera } from './lead.js'
 
@@ -61,12 +62,14 @@ export function playWheel({ layer, p, el, look, lead = true }) {
     if (t < SLOT) {
       const u = LEAD ? clamp(t / LEAD) : 1
       let sumY = 0
+      // A kaleidoscope of her pieces, turning as it floats down the page, opening into a ring round the frame
+      const Sc = { x: vw / 2, y: startScroll + window.innerHeight * 0.24 }, Ec = { x: r.left + fx, y: r.top + window.scrollY + fy }
       for (const pc of pieces) {
         const to = { x: r.left + pc.ox, y: r.top + window.scrollY + pc.oy }
-        const q = swarm(u, { x: pc.sx, y: pc.sy }, to, { vw, i: pc.i })
+        const q = rosette(u, Sc, Ec, { i: pc.i, n: pieces.length, R: Math.min(R, vw * 0.42), to })
         sumY += q.y
         pc.el.style.opacity = Math.min(1, t * 3).toFixed(2)
-        pc.el.style.transform = `translate3d(${(q.x - pc.w / 2).toFixed(1)}px, ${(q.y - window.scrollY - pc.h / 2).toFixed(1)}px, 0) rotate(${(q.rot + pc.spin).toFixed(1)}deg) scale(${q.k.toFixed(3)})`
+        pc.el.style.transform = `translate3d(${(q.x - pc.w / 2).toFixed(1)}px, ${(q.y - window.scrollY - pc.h / 2).toFixed(1)}px, 0) rotate(${(q.rot + pc.spin * (1 - u)).toFixed(1)}deg) scale(${q.k.toFixed(3)})`
       }
       if (cam && u < 1) cam.follow(dt, sumY / pieces.length)
       return true

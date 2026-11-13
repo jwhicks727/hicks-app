@@ -6,6 +6,30 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (late) — Each show its own, and fun: many play with Home itself
+
+Jason: "Get creative here, we want each one to feel unique and fun." The first leads were too alike (five leaves falling in
+different ways). Each is now its own kind of motion, and several use the page itself (`src/lib/leads.js`,
+`src/shell/harvest/lead.js`, `linger.js`):
+- **Mandala**: its traced pieces turn in a kaleidoscope rosette that floats down the page, open into a ring round the frame,
+  slot in; afterwards the little wheel in the corner rolls as you scroll.
+- **Stream**: a river of her own painted water (soft pieces of the stream cut from the painting) winds down the page in S-bends,
+  her leaves riding it, and pours into the painting; a leaf floats along the bottom now and then.
+- **Fire**: a lit fuse runs down the outside of the cards, one side then the other, across the gaps, sparking and leaving a
+  glowing trail, and flares in the fire; a hearth glow of the fire's colour breathes at the bottom of the screen, an ember rising.
+- **Lake**: a leaf skips down like a flat stone, a ripple on the cards at each touch; ripples come and go.
+- **Pumpkins**: plinko: a pumpkin rolls along each card's top edge, drops off its end onto the next, and falls into the painting;
+  afterwards one peeks in from the side of the screen, wiggles, and ducks away.
+- **Blossom**: its petals become butterflies that hop from card to card, resting on each with wings slowly beating; one lands on
+  a card now and then, rests, and flies off.
+- **Golden**: two seeds spin down like maple keys, crossing like dancers; gold leaves rest along the top and let go.
+- **Wind**: a murmuration of her leaves loops across the top like starlings, then pours down; the wind stays.
+- **Sunbeam**: dappled sunlight (soft light with the shadows of her leaves in it) moves down the page; it drifts by again later.
+- **Whirl**: a whirl that grows, picking up two of her leaves from each card it passes; a tiny one spins up in a corner later.
+- **Garland**: bunting of her leaves drapes down the page in swags, side to side; a garland sways along the top edge.
+The cards are only read (their edges), never moved or changed. Tried on a Home-shaped test page with the paintings' crops; not
+yet on a phone.
+
 ## 2026-11-13 (evening) — Every show has the witch's shape; the mandala is put together from its own pieces
 
 Jason: every animation should match the witch's structure: it starts at the top of the page, something gorgeous carries you

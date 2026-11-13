@@ -199,7 +199,9 @@ licence nobody wrote down.
   `linger.js`): it starts at the top of Home, something gorgeous made of the painting carries you down to it with the page
   following (never above where it started; a scroll, touch or key lets go), the painting's own show plays where it lands, and
   something subtle made of it stays on every screen all day. The first two play once a day on each device (`teamhicks.shows`).
-  It is about bringing the paintings into the app, not only animating them: a new show brings all three.
+  It is about bringing the paintings into the app, not only animating them: a new show brings all three, each its own kind of
+  motion (never another's leaf falling again), and may play with Home itself (the cards' edges) but only reads the page,
+  never moves or changes it.
 - **A painting's pieces are its own painted things** (`tracePieces`): traced from the painting by colour, never cut by a line
   across it; her painting may be hidden for a moment while its pieces come together, and is always shown again.
 - **The swirling light** (`GlowWrap` in `src/ui/Glow.jsx`) is for

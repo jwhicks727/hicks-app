@@ -8,6 +8,7 @@
 import { lingerGap, LINGER } from '../../lib/leads.js'
 import { leafPerches, dropOf, dropGap, MAX_DROPS } from '../../lib/seasonShows.js'
 import { makeLeaf, baseSize, clamp, ease } from './kit.js'
+import { dab, shadowLeaf } from './lead.js'
 
 const canvasOf = (layer, pc, s) => {
   const c = document.createElement('canvas'); c.width = pc.w; c.height = pc.h
@@ -51,14 +52,19 @@ export function runLinger(style, { layer, p, look, parts }) {
     }
     later(tick, first)
   }
-  const keep = [] // pieces that stay (the corner wheel, the garland, the perches)
+  const keep = [] // pieces that stay (the corner wheel, the garland, the perches, the hearth)
+  const unhook = []
 
   if (style === 'wheel' && look.disc) {
-    // A small copy of the wheel, mostly out of sight in the top corner, turning very slowly
-    const D = 88, d = document.createElement('div'), bgW = D / (2 * look.disc.r * 0.97), bgH = bgW * (p.h / p.w)
-    d.className = 'hv-corner'
+    // A small copy of the wheel, mostly out of sight in the top corner, turning very slowly, and rolling as the page scrolls
+    const D = 88, ring = document.createElement('div'), d = document.createElement('div'), bgW = D / (2 * look.disc.r * 0.97), bgH = bgW * (p.h / p.w)
+    ring.className = 'hv-corner'; d.className = 'hv-corner-disc'
+    Object.assign(ring.style, { width: `${D}px`, height: `${D}px` })
     Object.assign(d.style, { width: `${D}px`, height: `${D}px`, backgroundImage: `url(${p.small || p.src})`, backgroundSize: `${bgW}px ${bgH}px`, backgroundPosition: `${D / 2 - look.disc.x * bgW}px ${D / 2 - look.disc.y * bgH}px` })
-    layer.appendChild(d); keep.push(d)
+    ring.appendChild(d); layer.appendChild(ring); keep.push(ring)
+    const roll = () => { d.style.transform = `rotate(${(window.scrollY * 0.45).toFixed(1)}deg)` }
+    roll(); window.addEventListener('scroll', roll, { passive: true })
+    unhook.push(() => window.removeEventListener('scroll', roll))
   } else if (style === 'garland' && own) {
     // A garland of her leaves strung along the top edge, each swaying a little; now and then one lets go and grows back
     const n = 11, leaves = []
@@ -113,10 +119,14 @@ export function runLinger(style, { layer, p, look, parts }) {
       add({ nodes: [node], life: 17, step: (a) => { const f = a / 17, x = dir > 0 ? -40 + (vw() + 80) * f : vw() + 40 - (vw() + 80) * f; put(node, x, y + Math.sin(a * 1.4) * 3, { rot: a * 8 * dir, tilt: 62, op: Math.min(1, a, (17 - a)) }) } })
     })
   } else if (style === 'embers' && look.fire && look.bmp) {
-    // Every so often an ember of her fire rises from the bottom of the screen and fades
-    const spark = () => { const c = document.createElement('canvas'), bmp = look.bmp, fire = look.fire, sz = Math.max(6, fire.r * bmp.width * 0.3); c.width = c.height = 24; const g = c.getContext('2d'); g.drawImage(bmp, (fire.x + (Math.random() - 0.5) * fire.r * 0.6) * bmp.width - sz / 2, fire.y * bmp.height - sz / 2, sz, sz, 0, 0, 24, 24); g.globalCompositeOperation = 'destination-in'; const gr = g.createRadialGradient(12, 12, 0, 12, 12, 12); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.55, 'rgba(0,0,0,.9)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 24, 24); c.className = 'hv-piece'; const d = 7 + Math.random() * 7; c.style.width = c.style.height = `${d}px`; layer.appendChild(c); return { el: c, w: d, h: d } }
+    // A hearth: a glow of her fire's own colour breathes along the bottom of the screen, and now and then an ember rises
+    const [r, g, b] = look.fire.colour, hearth = document.createElement('div')
+    hearth.className = 'hv-hearth'
+    hearth.style.background = `radial-gradient(ellipse at 50% 100%, rgba(${r},${g},${b},.2) 0, rgba(${r},${g},${b},.07) 45%, rgba(${r},${g},${b},0) 72%)`
+    layer.appendChild(hearth); keep.push(hearth)
     every(() => {
-      const node = spark(), x0 = vw() * (0.1 + Math.random() * 0.8), life = 4 + Math.random() * 3, vy = 40 + Math.random() * 40, ph = Math.random() * 6.3
+      const fire = look.fire, node = dab(layer, look.bmp, fire.x + (Math.random() - 0.5) * fire.r * 0.6, fire.y, Math.max(6, fire.r * look.bmp.width * 0.3), 7 + Math.random() * 7)
+      const x0 = vw() * (0.1 + Math.random() * 0.8), life = 4 + Math.random() * 3, vy = 40 + Math.random() * 40, ph = Math.random() * 6.3
       add({ nodes: [node], life, step: (a) => { const f = a / life; put(node, x0 + Math.sin(a * 1.8 + ph) * (8 + a * 5), vh() + 10 - vy * a, { op: Math.pow(Math.sin(f * Math.PI), 0.7) * (0.55 + 0.45 * Math.sin(a * 14 + ph)), k: 1.1 - 0.5 * f }) } })
     }, 3)
   } else if (style === 'lake') {
@@ -127,33 +137,42 @@ export function runLinger(style, { layer, p, look, parts }) {
       add({ nodes: rings, life: 3.2, step: (a) => rings.forEach((r, k) => { const f = clamp((a - k * 0.25) / 2.6), sx = 0.5 + 4 * ease(f); r.el.style.opacity = f > 0 && f < 1 ? (0.45 * (1 - f)).toFixed(3) : '0'; r.el.style.transform = `translate3d(${(x - 8).toFixed(1)}px, ${(y - 8).toFixed(1)}px, 0) scale(${sx.toFixed(2)}, ${(sx * 0.34).toFixed(2)})` }) })
     }, 5)
   } else if (style === 'tumble' && parts.fruit && parts.fruit.length) {
-    // Now and then one of her pumpkins rolls past along the bottom of the screen, with a hop on the way
+    // Peekaboo: one of her pumpkins peeks in from the side of the screen, has a little wiggle, and ducks away again
     every(() => {
-      const f = parts.fruit[Math.floor(Math.random() * parts.fruit.length)], node = canvasOf(layer, f.piece, 0.55), dir = Math.random() < 0.5 ? 1 : -1, r = Math.max(node.w, node.h) / 2, y = vh() - 116 - r
-      add({ nodes: [node], life: 10, step: (a) => { const f2 = a / 10, x = dir > 0 ? -r + (vw() + 2 * r) * f2 : vw() + r - (vw() + 2 * r) * f2, hop = Math.max(0, Math.sin((f2 - 0.45) * Math.PI / 0.15)) * (f2 > 0.45 && f2 < 0.6 ? 26 : 0); put(node, x, y - hop, { rot: ((x / r) * 180) / Math.PI, op: Math.min(1, a * 2, (10 - a) * 2) }) } })
+      const f = parts.fruit[Math.floor(Math.random() * parts.fruit.length)], node = canvasOf(layer, f.piece, 0.75), side = Math.random() < 0.5 ? -1 : 1
+      const y = vh() * (0.3 + Math.random() * 0.4), hidden = side < 0 ? -node.w / 2 : vw() + node.w / 2, peek = side < 0 ? node.w * 0.12 : vw() - node.w * 0.12
+      add({ nodes: [node], life: 5, step: (a) => { const inn = ease(clamp(a / 0.7)) * (1 - ease(clamp((a - 4.1) / 0.7))), x = hidden + (peek - hidden) * inn, wig = a > 0.9 && a < 3.6 ? Math.sin((a - 0.9) * 9) * 12 * Math.sin(((a - 0.9) / 2.7) * Math.PI) : 0; put(node, x, y, { rot: side * -18 * inn + wig }) } })
     }, 10)
   } else if (style === 'petals' && look.bloom) {
-    // One of her petals flutters down the screen like a butterfly
+    // A butterfly (one of her petals) flies in, lands on the top edge of a card on the screen, rests a while with its wings
+    // slowly opening and closing, then flies off
     every(() => {
-      const pc = look.bloom.pieces[Math.floor(Math.random() * look.bloom.pieces.length)], node = canvasOf(layer, pc, 0.45), x0 = vw() * (0.15 + Math.random() * 0.7), ph = Math.random() * 6.3
-      add({ nodes: [node], life: 13, step: (a) => { const f = a / 13; put(node, x0 + Math.sin(a * 0.9 + ph) * 46, -30 + (vh() + 60) * f + Math.sin(a * 1.8 + ph) * 14, { rot: Math.sin(a * 0.9 + ph) * 20, yaw: Math.sin(a * 15) * 65, op: Math.min(1, a, 13 - a) }) } })
+      const pc = look.bloom.pieces[Math.floor(Math.random() * look.bloom.pieces.length)], node = canvasOf(layer, pc, 0.55)
+      const cards = [...document.querySelectorAll('main .card')].map((c) => c.getBoundingClientRect()).filter((r) => r.width > 120 && r.top > vh() * 0.12 && r.top < vh() * 0.8)
+      const c = cards[Math.floor(Math.random() * cards.length)]
+      const rest = c ? { x: c.left + 30 + Math.random() * (c.width - 60), y: c.top - node.h * 0.3 } : { x: vw() * 0.5, y: vh() * 0.4 }
+      const from = { x: Math.random() < 0.5 ? -30 : vw() + 30, y: vh() * 0.15 }, to = { x: from.x < 0 ? vw() + 30 : -30, y: -30 }, ph = Math.random() * 6.3
+      add({ nodes: [node], life: 10, step: (a) => {
+        const fin = clamp(a / 2.5), fout = clamp((a - 6.5) / 3), sitting = a >= 2.5 && a < 6.5
+        const q = a < 2.5 ? { x: from.x + (rest.x - from.x) * ease(fin) + Math.sin(a * 5 + ph) * 16 * (1 - fin), y: from.y + (rest.y - from.y) * ease(fin) - Math.sin(fin * Math.PI) * 40 } : sitting ? rest : { x: rest.x + (to.x - rest.x) * ease(fout) + Math.sin(a * 5 + ph) * 16, y: rest.y + (to.y - rest.y) * ease(fout) }
+        put(node, q.x, q.y, { yaw: sitting ? 25 + 30 * Math.sin(a * 2.4) : 70 * Math.sin(a * 16), op: Math.min(1, a * 2, (10 - a) * 2) })
+      } })
     }, 8)
   } else if (style === 'beam') {
-    // A soft sweep of light crosses the screen now and then, catching a little of her leaf-dust
+    // Dappled light drifts across the screen now and then: soft patches of sun with the shadows of her leaves in them
     every(() => {
-      const b = document.createElement('div'), L = 2 * (vw() + vh()), bw = vw() * 0.28
-      b.className = 'hv-beam'; b.style.width = `${bw}px`; b.style.height = `${L}px`
-      b.style.background = 'linear-gradient(90deg, rgba(255,232,178,0) 0%, rgba(255,232,178,.15) 50%, rgba(255,232,178,0) 100%)'
-      layer.appendChild(b)
-      const motes = own ? Array.from({ length: 6 }, (_, i) => ({ n: makeLeaf(layer, own, i % own.boxes.length, baseSize(own) * 0.2), dy: Math.random(), ph: Math.random() * 6.3 })) : []
-      add({ nodes: [{ el: b }, ...motes.map((m) => m.n)], life: 11, step: (a) => { const f = a / 11, x = -bw + (vw() + 2 * bw) * ease(f), env = Math.sin(f * Math.PI); b.style.opacity = env.toFixed(3); b.style.transform = `translate3d(${(x - bw / 2).toFixed(1)}px, ${(-L / 2 + vh() / 2).toFixed(1)}px, 0) rotate(-22deg)`; motes.forEach((m) => put(m.n, x + Math.sin(a + m.ph) * 20 + (m.dy - 0.5) * vh() * 0.4, vh() * m.dy, { rot: a * 40, op: env * (0.5 + 0.5 * Math.sin(a * 6 + m.ph)) })) } })
+      const spots = [0, 1, 2].map((i) => { const e = document.createElement('i'), d = 120 + i * 30; e.className = 'hv-glow'; e.style.width = `${d}px`; e.style.height = `${d * 0.7}px`; e.style.background = 'radial-gradient(ellipse, rgba(255,238,190,.32) 0, rgba(255,232,178,.1) 45%, rgba(255,232,178,0) 70%)'; layer.appendChild(e); return { el: e, w: d, h: d * 0.7, ph: i * 2 } })
+      const shades = own ? [0, 1, 2].map((i) => ({ ...shadowLeaf(layer, own, i * 3, baseSize(own) * 1.5), ph: i * 1.7 })) : []
+      const y0 = vh() * (0.25 + Math.random() * 0.5), dir = Math.random() < 0.5 ? 1 : -1
+      add({ nodes: [...spots, ...shades], life: 14, step: (a) => { const f = a / 14, env = Math.sin(f * Math.PI), cx = dir > 0 ? -120 + (vw() + 240) * f : vw() + 120 - (vw() + 240) * f; spots.forEach((s2) => put(s2, cx + Math.cos(a * 0.6 + s2.ph) * 60, y0 + Math.sin(a * 0.7 + s2.ph) * 40, { op: env })); shades.forEach((s2, i) => put(s2, cx + Math.cos(a * 0.4 + s2.ph) * 70 + (i - 1) * 20, y0 + Math.sin(a * 0.5 + s2.ph) * 46, { rot: a * 20 + i * 60, op: env * 0.9 })) } })
     }, 12)
   } else if (style === 'whirl' && own) {
-    // A single leaf of hers spirals down the screen
+    // A tiny whirl of her leaves spins up near a bottom corner, rises a little, and fizzles out
     every(() => {
-      const node = makeLeaf(layer, own, Math.floor(Math.random() * own.boxes.length), baseSize(own) * 0.75), x0 = vw() * (0.15 + Math.random() * 0.7), ph = Math.random() * 6.3
-      add({ nodes: [node], life: 10, step: (a) => { const f = a / 10; put(node, x0 + Math.sin(a * 3.2 + ph) * 34, -30 + (vh() + 60) * f, { rot: a * 240, tilt: 60 * Math.sin(a * 3.2 + ph), op: Math.min(1, a, 10 - a) }) } })
+      const n = 5, leaves = Array.from({ length: n }, (_, i) => makeLeaf(layer, own, (i * 3 + Math.floor(Math.random() * 9)) % own.boxes.length, baseSize(own) * 0.55))
+      const x0 = Math.random() < 0.5 ? vw() * 0.14 : vw() * 0.86, y0 = vh() - 140
+      add({ nodes: leaves, life: 5, step: (a) => { const f = a / 5, env = Math.sin(f * Math.PI); leaves.forEach((nd, i) => { const ang = (i / n) * 6.283 + a * 7, r = 10 + 22 * env; put(nd, x0 + Math.cos(ang) * r, y0 - 90 * ease(f) + Math.sin(ang) * r * 0.38 - i * 6, { rot: ang * 57.3, tilt: 50 * Math.sin(ang), op: env }) }) } })
     }, 9)
   }
-  return () => { dead = true; cancelAnimationFrame(raf); timers.forEach(clearTimeout); live.forEach((it) => it.nodes.forEach((n) => n.el.remove())); keep.forEach((n) => n.remove()) }
+  return () => { dead = true; cancelAnimationFrame(raf); timers.forEach(clearTimeout); unhook.forEach((f) => f()); live.forEach((it) => it.nodes.forEach((n) => n.el.remove())); keep.forEach((n) => n.remove()) }
 }
