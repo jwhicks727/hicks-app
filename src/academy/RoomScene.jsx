@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { pt, mid, tile, floorShapes, wallShapes, wallMatrix, wallLength, cellAt, byDepth, roomBox } from './iso.js'
 import { ROOM_N } from './rooms.js'
 import { itemSrc } from './items.js'
+import { isOwnArt } from './ownArt.js'
 import { menuFor } from './school.js'
 import { HOME_TOWN, moonLitPath } from '../lib/sky.js'
 import { atmosphereAt, beamOf, lightOf, ridge, seeded as rng } from './atmosphere.js'
@@ -43,7 +44,7 @@ const light = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return ((
 const trunc = (s, n) => (s && s.length > n ? s.slice(0, n - 1) + '…' : s || '')
 const glowId = (id, c) => `${id}-glow-${c.slice(1)}`
 
-export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
+export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, artUrl, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
   const svg = useRef(null), drag = useRef(null)
   const [hop, setHop] = useState(null)
   const a = atmos || atmosphereAt({ now })
@@ -179,7 +180,8 @@ export default function RoomScene({ room, kind, items, arranging = false, select
       {/* The things in the room, back to front */}
       {sorted.map((it, n) => {
         const size = BASE * (it.s || 1), c = mid(it.i, it.j)
-        const href = it.k.startsWith('a:') ? urlFor && urlFor(it.k.slice(2)) : itemSrc(it.k)
+        const art = isOwnArt(it.k)
+        const href = art ? artUrl && artUrl(it.k) : it.k.startsWith('a:') ? urlFor && urlFor(it.k.slice(2)) : itemSrc(it.k)
         if (!href) return null
         const g = (a.dark || (glowOf(it.k, asset(it.k)) || {}).always) && glowOf(it.k, asset(it.k))
         const way = gaits[it.id], idle = arranging ? null : way === 'hover' ? 'ac-hover' : way ? 'ac-breathe' : idleOf(it.k)
@@ -195,7 +197,7 @@ export default function RoomScene({ room, kind, items, arranging = false, select
               {g && <circle cx={c.x} cy={c.y - size * 0.42} r={size * 0.62} fill={`url(#${glowId(id, g.colour)})`} opacity=".5" className={g.flicker ? 'ac-candle' : undefined} pointerEvents="none" />}
               <g key={it.at ? it.at.step : 0} className={it.at && it.at.step ? 'ac-stride' : undefined}>
                 <g className={idle || undefined} style={idle ? { animationDelay: `${-(n % 5) * 0.83}s` } : undefined}>
-                  <image href={href} x={c.x - size / 2} y={c.y - size * 0.86} width={size} height={size} opacity={outdoors ? 1 - 0.34 * (1 - a.daylight) : undefined} transform={it.f ? `translate(${2 * c.x} 0) scale(-1 1)` : undefined} style={it.h ? { filter: `hue-rotate(${it.h}deg)` } : undefined} />
+                  <image href={href} x={c.x - size / 2} y={c.y - size * 0.86} width={size} height={size} opacity={outdoors ? 1 - 0.34 * (1 - a.daylight) : undefined} transform={it.f && !art ? `translate(${2 * c.x} 0) scale(-1 1)` : undefined} style={it.h && !art ? { filter: `hue-rotate(${it.h}deg)` } : undefined} />
                 </g>
               </g>
             </g>

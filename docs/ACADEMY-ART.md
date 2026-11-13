@@ -52,6 +52,12 @@ A pet reads best as one picture facing the front or three-quarters, cropped
 close, with a clear background. A sprite sheet's walking frames aren't used
 yet (docs/PLAN.md).
 
+## Anna's drawings and Laurie's paintings
+
+Every drawing in Anna's Art and every painting in Laurie's Gallery can be placed in a room (Add something › Anna's
+drawings, Laurie's paintings). They are not copied: a room keeps only their key and reads the picture from its private
+bucket through a signed link. They're shown as made, so they can't be flipped or recoloured.
+
 ## Packs that fit
 
 The rooms are drawn at the common 2:1 isometric angle. Packs rendered at
