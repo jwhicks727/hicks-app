@@ -21,6 +21,12 @@ on the cards instead of one leaf at a time. Decided:
   garland of her own brushwork. It rests, each leaf breathing, then fades. Only where a painting hangs in view
   (none elsewhere, nothing stands in), never under Anna's taped paper, transforms and opacity only, still under
   less motion; "Play it" and the Art card's button gather it again.
+- **Where a painting has a stream, Thanksgiving's leaves float down it** (`src/lib/waterway.js`, "surprise me",
+  2026-11-13). The phone looks at a small copy of the painting and finds a band of pale or blue-grey paint running
+  up from the bottom edge and narrowing toward the horizon (nothing traced by hand, nothing generated); the leaves
+  land on its far end, ride its curve growing as they come, and slip out of the frame. A lake that fills the
+  picture, a path or a sky is not a stream, so those paintings get the garland. Found once per painting and kept
+  until the app closes. Unverified on the live app: tried on the new forest-stream photo and one lake painting.
 - **The stream's show comes back with its new photo**: the wind (and the garland) take leaves from any autumn
   painting that has had them cut, so a parent taps "cut leaves" on the new photo's page
   (`AutumnLeaves.jsx`). The old photo's sheet went with it.
