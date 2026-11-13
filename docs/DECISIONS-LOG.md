@@ -6,6 +6,18 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 — Anna's drawings and Laurie's paintings can be placed in the academy
+
+Every drawing in Anna's Art and every painting in Laurie's Gallery is in a room's "Add something", under "Anna's
+drawings" and "Laurie's paintings" (and found by the search). A placed one is only a key in the room (`d:<drawing id>`,
+`p:<slug>`, `src/academy/ownArt.js`): nothing is copied, the picture stays in its private bucket and is read through a
+signed link, and a piece taken down just leaves its square empty. They are shown whole, as made: they can be moved and
+sized, but never flipped or recoloured, and they stay put and give no light (`tests/own-art.test.mjs`). A room signs
+only the thumbnails it shows; the catalog signs every drawing's thumbnail only while it is open. No migration.
+A tap on a placed one (not while arranging) opens its own page in Anna's Art or Laurie's Gallery, a normal step in the history, so Back returns to the room.
+
+---
+
 ## 2026-11-13 — Hold a piece of art to save, copy or share it
 
 Holding a piece on Anna's wall, Laurie's gallery or its featured wall (half a second, or a right-click) opens a menu

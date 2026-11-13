@@ -9,6 +9,8 @@ import { ROOM_KINDS, FLOORS, WALLS, ROOM_N, moveItem } from './rooms.js'
 import { ITEMS, ITEM, CATEGORIES, itemSrc } from './items.js'
 import { MOVES } from './iso.js'
 import { taskDay, goalProgress, fame, menuFor, dueWords } from './school.js'
+import { isOwnArt } from './ownArt.js'
+import { useOwnArt } from './useOwnArt.js'
 import RoomScene from './RoomScene.jsx'
 import ZoomView from './ZoomView.jsx'
 
@@ -16,6 +18,7 @@ import ZoomView from './ZoomView.jsx'
 // (tap a thing, then the arrows, size, flip and colour; or drag it), add
 // anything from the catalog or the family's own pictures, and change the
 // room's walls, floor and name. Changes save as they're made.
+const DRAWINGS = 'Anna’s drawings', PAINTINGS = 'Laurie’s paintings'
 const HUES = [0, 45, 90, 150, 210, 280]
 
 export default function RoomPage({ id, a, today, celebrate, atmos }) {
@@ -27,6 +30,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
   const [saved, setSaved] = useState(null), [prize, setPrize] = useState(null)
   const timer = useRef(null), pending = useRef(null)
   const urls = useAssetUrls(a.assets)
+  const art = useOwnArt(items, catalog)
   useEffect(() => { if (room) setItems(room.items || []) }, [room && room.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // Save a moment after the last change, and on the way out
   const flush = () => { if (pending.current) { const p = pending.current; pending.current = null; saveRoom(p.id, { items: p.items }).then(({ error }) => setSaved(error ? error.message : 'Saved')) } }
@@ -61,19 +65,19 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
         <h1 className="greet">{room.name}</h1>
       </header>
       <Card tint="#3FA34D" label={arranging ? 'Arranging' : 'Look around'} glyph="star" tag={saved || undefined} className="span-6 ac-room">
-        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
+        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} artUrl={art.urlOf} artLabel={art.nameOf} onOpen={(to) => navigate(to)} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
         {atmos && atmos.pretend && <p className="ac-sky">A pretend sky, just for now.</p>}
         {arranging ? (
           <div className="ac-edit">
             {it ? (
               <>
-                <span className="ac-tools-t"><img src={it.k.startsWith('a:') ? urlFor(it.k.slice(2)) || '' : itemSrc(it.k)} alt="" width="26" height="26" /><b>{(ITEM[it.k] || a.assets.find((x) => `a:${x.id}` === it.k) || { name: 'Picture' }).name}</b></span>
+                <span className="ac-tools-t"><img src={isOwnArt(it.k) ? art.urlOf(it.k) || '' : it.k.startsWith('a:') ? urlFor(it.k.slice(2)) || '' : itemSrc(it.k)} alt="" width="26" height="26" /><b>{isOwnArt(it.k) ? art.nameOf(it.k) : (ITEM[it.k] || a.assets.find((x) => `a:${x.id}` === it.k) || { name: 'Picture' }).name}</b></span>
                 <div className="ac-arrows" role="group" aria-label="Move it">{MOVES.map(([k, glyph, label, di, dj]) => <button key={k} type="button" aria-label={label} onClick={() => set(moveItem(it, di, dj))}>{glyph}</button>)}</div>
                 <div className="ac-edit-b">
                   <button type="button" className="btn ghost" onClick={() => set({ s: Math.max(0.5, Math.round(((it.s || 1) - 0.15) * 100) / 100) })} aria-label="Smaller">−</button>
                   <button type="button" className="btn ghost" onClick={() => set({ s: Math.min(2.2, Math.round(((it.s || 1) + 0.15) * 100) / 100) })} aria-label="Bigger">+</button>
-                  <button type="button" className="btn ghost" onClick={() => set({ f: !it.f })}>Flip</button>
-                  <button type="button" className="btn ghost" onClick={() => set({ h: HUES[(HUES.indexOf(it.h || 0) + 1) % HUES.length] || undefined })}>Colour</button>
+                  {!isOwnArt(it.k) && <button type="button" className="btn ghost" onClick={() => set({ f: !it.f })}>Flip</button>}
+                  {!isOwnArt(it.k) && <button type="button" className="btn ghost" onClick={() => set({ h: HUES[(HUES.indexOf(it.h || 0) + 1) % HUES.length] || undefined })}>Colour</button>}
                   <button type="button" className="btn ghost danger-t" onClick={() => { change(items.filter((x) => x.id !== it.id)); setPicked(null) }}>Take out</button>
                 </div>
               </>
@@ -106,7 +110,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
       {kind.detail === 'fame' && <Card tint="#C9A227" label="On the shelves" glyph="star" className="span-3"><p>{extras.fame.length ? `${extras.fame.length} trophies, ribbons and cheers so far.` : 'Nothing yet: the first goal reached puts a trophy here.'}</p><Link to="/academy/fame" className="ac-more">The whole Hall ›</Link></Card>}
       {kind.detail === 'menu' && <Card tint="#F2C14E" label="Today’s lunch" glyph="star" className="span-3"><p className="ac-menu">{menuFor(today)}</p></Card>}
       {prize && <PrizeSheet p={prize} a={a} urlFor={urlFor} onClose={() => setPrize(null)} />}
-      {catalog && <Catalog onPick={add} onClose={() => setCatalog(false)} assets={a.assets} urls={urls} />}
+      {catalog && <Catalog onPick={add} onClose={() => setCatalog(false)} assets={a.assets} urls={urls} art={art.list} artUrls={art.urls} paintings={art.paintings} />}
       {look && <RoomLook room={room} kind={kind} onClose={() => setLook(false)} onSave={async (patch) => { await saveRoom(room.id, patch); a.reload(); setLook(false) }} onRemove={() => { setLook(false); setGone(true) }} />}
       {gone && <Confirm title={`Take down ${room.name}?`} yes="Take it down" danger onNo={() => setGone(false)} onYes={async () => { await removeRoom(room.id); a.reload(); navigate('/academy', { replace: true }) }}>The room and everything in it leave the campus. The goals, tasks and trophies stay.</Confirm>}
     </>
@@ -114,14 +118,14 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
 }
 
 /** Everything that can go in a room, by kind, and the family's own pictures. */
-function Catalog({ onPick, onClose, assets, urls }) {
+function Catalog({ onPick, onClose, assets, urls, art = [], artUrls = {}, paintings = [] }) {
   const [cat, setCat] = useState('School')
   const [q, setQ] = useState('')
-  const cats = [...CATEGORIES.filter((c) => c !== 'Prizes'), ...(assets.length ? ['Ours'] : [])]
+  const cats = [...CATEGORIES.filter((c) => c !== 'Prizes'), ...(assets.length ? ['Ours'] : []), ...(art.some((x) => x.kind === 'drawing') ? [DRAWINGS] : []), ...(art.some((x) => x.kind === 'painting') ? [PAINTINGS] : [])]
   const list = useMemo(() => {
     const t = q.trim().toLowerCase()
     if (t) return ITEMS.filter((x) => !x.earned && x.name.toLowerCase().includes(t))
-    return cat === 'Ours' ? [] : ITEMS.filter((x) => x.cat === cat && !x.earned)
+    return cat === 'Ours' || cat === DRAWINGS || cat === PAINTINGS ? [] : ITEMS.filter((x) => x.cat === cat && !x.earned)
   }, [cat, q])
   return (
     <Sheet title="Add something" onClose={onClose}>
@@ -131,9 +135,10 @@ function Catalog({ onPick, onClose, assets, urls }) {
         <div className="ac-cat-grid">
           {list.map((x) => <button key={x.k} type="button" onClick={() => onPick(x.k)}><img src={itemSrc(x.k)} alt="" width="48" height="48" loading="lazy" /><span>{x.name}</span></button>)}
           {cat === 'Ours' && !q && assets.map((x) => <button key={x.id} type="button" onClick={() => onPick(`a:${x.id}`)}>{urls[x.path] ? <img src={urls[x.path]} alt="" width="48" height="48" /> : <span className="ac-blank" />}<span>{x.name}</span></button>)}
+          {(q || cat === DRAWINGS || cat === PAINTINGS) && art.filter((x) => (q ? x.name.toLowerCase().includes(q.trim().toLowerCase()) : x.kind === (cat === DRAWINGS ? 'drawing' : 'painting'))).slice(0, 200).map((x) => { const u = x.kind === 'drawing' ? artUrls[x.file] : x.url; return <button key={x.k} type="button" onClick={() => onPick(x.k)}>{u ? <img src={u} alt="" width="48" height="48" loading="lazy" /> : <span className="ac-blank" />}<span>{x.name}</span></button> })}
         </div>
-        {q && !list.length && <p className="muted">Nothing called that yet.</p>}
-        <p className="muted small">Pictures: Fluent Emoji by Microsoft (MIT licence), and the family’s own.</p>
+        {q && !list.length && !art.some((x) => x.name.toLowerCase().includes(q.trim().toLowerCase())) && <p className="muted">Nothing called that yet.</p>}
+        <p className="muted small">Pictures: Fluent Emoji by Microsoft (MIT licence), and the family’s own. Anna’s drawings and Laurie’s paintings are shown just as they were made.</p>
       </div>
     </Sheet>
   )
