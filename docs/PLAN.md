@@ -275,8 +275,9 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [x] **What's in it stirs** (`src/academy/life.js`): animals stroll and sleep, steam,
       bubbles, notes and sparkles rise, the mascot roams the lawn. The family's own
       pictures are filed as staying put, wandering (a pet) or giving light (a lamp).
-- [x] **Her drawings and Laurie's paintings in the rooms** (`src/academy/ownArt.js`): every one
-      is in "Add something", placed by key and shown as made (moved and sized, never flipped or recoloured).
+- [x] **Her drawings and Laurie's paintings on the walls** (`src/academy/ownArt.js`, `walls.js`): every
+      one is in "Add something" and hangs on a wall, framed or taped up, shown as made; dragged or moved with
+      arrows along either wall, sized, and a tap opens its page.
 - [x] **Try a sky**: a time of day, a weather and a wind to pretend with, until the app
       is closed; the campus says when it's pretend.
 - [ ] Pets from a pack's sprite sheet (walking and sitting frames), once we see what

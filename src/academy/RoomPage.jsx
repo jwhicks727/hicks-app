@@ -9,7 +9,8 @@ import { ROOM_KINDS, FLOORS, WALLS, ROOM_N, moveItem } from './rooms.js'
 import { ITEMS, ITEM, CATEGORIES, itemSrc } from './items.js'
 import { MOVES } from './iso.js'
 import { taskDay, goalProgress, fame, menuFor, dueWords } from './school.js'
-import { isOwnArt } from './ownArt.js'
+import { isOwnArt, artPath } from './ownArt.js'
+import { onWall, hungSize, hangSpot, hangArt, nudge, otherWall, clampWall, wallFeatures, WALL_H } from './walls.js'
 import { useOwnArt } from './useOwnArt.js'
 import RoomScene from './RoomScene.jsx'
 import ZoomView from './ZoomView.jsx'
@@ -19,6 +20,8 @@ import ZoomView from './ZoomView.jsx'
 // anything from the catalog or the family's own pictures, and change the
 // room's walls, floor and name. Changes save as they're made.
 const DRAWINGS = 'Anna’s drawings', PAINTINGS = 'Laurie’s paintings'
+// The arrows for something on a wall: along it and up and down it, as it looks
+const WALL_MOVES = [['l', '←', 'Left', -1, 0], ['u', '↑', 'Up', 0, -1], ['d', '↓', 'Down', 0, 1], ['r', '→', 'Right', 1, 0]]
 const HUES = [0, 45, 90, 150, 210, 280]
 
 export default function RoomPage({ id, a, today, celebrate, atmos }) {
@@ -31,7 +34,9 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
   const timer = useRef(null), pending = useRef(null)
   const urls = useAssetUrls(a.assets)
   const art = useOwnArt(items, catalog)
-  useEffect(() => { if (room) setItems(room.items || []) }, [room && room.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const sizeOf = (x) => hungSize(art.ratioOf(x.k), x.s || 1)
+  // A drawing or painting put on the floor before pictures hung goes up on a wall (saved with the next change)
+  useEffect(() => { if (room) setItems(hangArt(room.items || [], sizeOf, ROOM_N, WALL_H, wallFeatures(kind.detail, (room.style || {}).wall || kind.wall))) }, [room && room.id]) // eslint-disable-line react-hooks/exhaustive-deps
   // Save a moment after the last change, and on the way out
   const flush = () => { if (pending.current) { const p = pending.current; pending.current = null; saveRoom(p.id, { items: p.items }).then(({ error }) => setSaved(error ? error.message : 'Saved')) } }
   useEffect(() => () => { clearTimeout(timer.current); flush() }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -41,6 +46,9 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
 
   const it = picked && items.find((x) => x.id === picked)
   const set = (patch) => it && change(items.map((x) => (x.id === it.id ? { ...x, ...patch } : x)))
+  // A hung picture's new size keeps it on its wall
+  const resize = (s) => set(onWall(it) ? { s, ...clampWall(it, sizeOf({ ...it, s }), ROOM_N) } : { s })
+  const walls = ((room.style || {}).wall || kind.wall) !== 'none'
   const urlFor = (assetId) => { const as = a.assets.find((x) => x.id === assetId); return as ? urls[as.path] : null }
   const extras = {
     today,
@@ -53,7 +61,9 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
     const free = []
     for (let i = 0; i < ROOM_N; i++) for (let j = 0; j < ROOM_N; j++) if (!items.some((x) => x.i === i && x.j === j)) free.push({ i, j })
     const spot = free.sort((p, q) => Math.abs(p.i - 2.5) + Math.abs(p.j - 2.5) - (Math.abs(q.i - 2.5) + Math.abs(q.j - 2.5)))[0] || { i: 3, j: 3 }
-    const next = { id: `${k.replace(/[^a-z0-9]/gi, '').slice(0, 12)}-${Date.now().toString(36)}`, k, i: spot.i, j: spot.j, s: 1 }
+    const id = `${k.replace(/[^a-z0-9]/gi, '').slice(0, 12)}-${Date.now().toString(36)}`
+    // Anna's drawings and Laurie's paintings hang on a wall; everything else stands on the floor
+    const next = isOwnArt(k) ? { id, k, s: 1, ...hangSpot(items, sizeOf({ k, s: 1 }), sizeOf, ROOM_N, WALL_H, wallFeatures(kind.detail, (room.style || {}).wall || kind.wall)) } : { id, k, i: spot.i, j: spot.j, s: 1 }
     change([...items, next].slice(0, 120)); setPicked(next.id); setArranging(true); setCatalog(false)
   }
   const day = taskDay(a.tasks, today)
@@ -65,17 +75,21 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
         <h1 className="greet">{room.name}</h1>
       </header>
       <Card tint="#3FA34D" label={arranging ? 'Arranging' : 'Look around'} glyph="star" tag={saved || undefined} className="span-6 ac-room">
-        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} artUrl={art.urlOf} artLabel={art.nameOf} onOpen={(to) => navigate(to)} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
+        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} artUrl={art.urlOf} artLabel={art.nameOf} artRatio={art.ratioOf} onOpen={(to) => navigate(to)} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
         {atmos && atmos.pretend && <p className="ac-sky">A pretend sky, just for now.</p>}
         {arranging ? (
           <div className="ac-edit">
             {it ? (
               <>
                 <span className="ac-tools-t"><img src={isOwnArt(it.k) ? art.urlOf(it.k) || '' : it.k.startsWith('a:') ? urlFor(it.k.slice(2)) || '' : itemSrc(it.k)} alt="" width="26" height="26" /><b>{isOwnArt(it.k) ? art.nameOf(it.k) : (ITEM[it.k] || a.assets.find((x) => `a:${x.id}` === it.k) || { name: 'Picture' }).name}</b></span>
-                <div className="ac-arrows" role="group" aria-label="Move it">{MOVES.map(([k, glyph, label, di, dj]) => <button key={k} type="button" aria-label={label} onClick={() => set(moveItem(it, di, dj))}>{glyph}</button>)}</div>
+                {onWall(it)
+                  ? <div className="ac-arrows" role="group" aria-label="Move it along the wall">{WALL_MOVES.map(([k, glyph, label, dx, dy]) => <button key={k} type="button" aria-label={label} onClick={() => set(nudge(it, dx, dy, sizeOf(it), ROOM_N))}>{glyph}</button>)}</div>
+                  : <div className="ac-arrows" role="group" aria-label="Move it">{MOVES.map(([k, glyph, label, di, dj]) => <button key={k} type="button" aria-label={label} onClick={() => set(moveItem(it, di, dj))}>{glyph}</button>)}</div>}
                 <div className="ac-edit-b">
-                  <button type="button" className="btn ghost" onClick={() => set({ s: Math.max(0.5, Math.round(((it.s || 1) - 0.15) * 100) / 100) })} aria-label="Smaller">−</button>
-                  <button type="button" className="btn ghost" onClick={() => set({ s: Math.min(2.2, Math.round(((it.s || 1) + 0.15) * 100) / 100) })} aria-label="Bigger">+</button>
+                  <button type="button" className="btn ghost" onClick={() => resize(Math.max(0.5, Math.round(((it.s || 1) - 0.15) * 100) / 100))} aria-label="Smaller">−</button>
+                  <button type="button" className="btn ghost" onClick={() => resize(Math.min(2.2, Math.round(((it.s || 1) + 0.15) * 100) / 100))} aria-label="Bigger">+</button>
+                  {onWall(it) && <button type="button" className="btn ghost" onClick={() => set(otherWall(it, sizeOf(it), ROOM_N))}>Other wall</button>}
+                  {isOwnArt(it.k) && <Link to={artPath(it.k)} className="btn ghost">See it</Link>}
                   {!isOwnArt(it.k) && <button type="button" className="btn ghost" onClick={() => set({ f: !it.f })}>Flip</button>}
                   {!isOwnArt(it.k) && <button type="button" className="btn ghost" onClick={() => set({ h: HUES[(HUES.indexOf(it.h || 0) + 1) % HUES.length] || undefined })}>Colour</button>}
                   <button type="button" className="btn ghost danger-t" onClick={() => { change(items.filter((x) => x.id !== it.id)); setPicked(null) }}>Take out</button>
@@ -110,7 +124,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
       {kind.detail === 'fame' && <Card tint="#C9A227" label="On the shelves" glyph="star" className="span-3"><p>{extras.fame.length ? `${extras.fame.length} trophies, ribbons and cheers so far.` : 'Nothing yet: the first goal reached puts a trophy here.'}</p><Link to="/academy/fame" className="ac-more">The whole Hall ›</Link></Card>}
       {kind.detail === 'menu' && <Card tint="#F2C14E" label="Today’s lunch" glyph="star" className="span-3"><p className="ac-menu">{menuFor(today)}</p></Card>}
       {prize && <PrizeSheet p={prize} a={a} urlFor={urlFor} onClose={() => setPrize(null)} />}
-      {catalog && <Catalog onPick={add} onClose={() => setCatalog(false)} assets={a.assets} urls={urls} art={art.list} artUrls={art.urls} paintings={art.paintings} />}
+      {catalog && <Catalog onPick={add} onClose={() => setCatalog(false)} assets={a.assets} urls={urls} art={art.list} artUrls={art.urls} walls={walls} />}
       {look && <RoomLook room={room} kind={kind} onClose={() => setLook(false)} onSave={async (patch) => { await saveRoom(room.id, patch); a.reload(); setLook(false) }} onRemove={() => { setLook(false); setGone(true) }} />}
       {gone && <Confirm title={`Take down ${room.name}?`} yes="Take it down" danger onNo={() => setGone(false)} onYes={async () => { await removeRoom(room.id); a.reload(); navigate('/academy', { replace: true }) }}>The room and everything in it leave the campus. The goals, tasks and trophies stay.</Confirm>}
     </>
@@ -118,7 +132,8 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
 }
 
 /** Everything that can go in a room, by kind, and the family's own pictures. */
-function Catalog({ onPick, onClose, assets, urls, art = [], artUrls = {}, paintings = [] }) {
+function Catalog({ onPick, onClose, assets, urls, art: allArt = [], artUrls = {}, walls = true }) {
+  const art = walls ? allArt : []
   const [cat, setCat] = useState('School')
   const [q, setQ] = useState('')
   const cats = [...CATEGORIES.filter((c) => c !== 'Prizes'), ...(assets.length ? ['Ours'] : []), ...(art.some((x) => x.kind === 'drawing') ? [DRAWINGS] : []), ...(art.some((x) => x.kind === 'painting') ? [PAINTINGS] : [])]
@@ -137,8 +152,9 @@ function Catalog({ onPick, onClose, assets, urls, art = [], artUrls = {}, painti
           {cat === 'Ours' && !q && assets.map((x) => <button key={x.id} type="button" onClick={() => onPick(`a:${x.id}`)}>{urls[x.path] ? <img src={urls[x.path]} alt="" width="48" height="48" /> : <span className="ac-blank" />}<span>{x.name}</span></button>)}
           {(q || cat === DRAWINGS || cat === PAINTINGS) && art.filter((x) => (q ? x.name.toLowerCase().includes(q.trim().toLowerCase()) : x.kind === (cat === DRAWINGS ? 'drawing' : 'painting'))).slice(0, 200).map((x) => { const u = x.kind === 'drawing' ? artUrls[x.file] : x.url; return <button key={x.k} type="button" onClick={() => onPick(x.k)}>{u ? <img src={u} alt="" width="48" height="48" loading="lazy" /> : <span className="ac-blank" />}<span>{x.name}</span></button> })}
         </div>
+        {!walls && allArt.length > 0 && <p className="muted small">Anna’s drawings and Laurie’s paintings hang on walls, and this room has none.</p>}
         {q && !list.length && !art.some((x) => x.name.toLowerCase().includes(q.trim().toLowerCase())) && <p className="muted">Nothing called that yet.</p>}
-        <p className="muted small">Pictures: Fluent Emoji by Microsoft (MIT licence), and the family’s own. Anna’s drawings and Laurie’s paintings are shown just as they were made.</p>
+        <p className="muted small">Pictures: Fluent Emoji by Microsoft (MIT licence), and the family’s own. Anna’s drawings and Laurie’s paintings hang on the walls, just as they were made.</p>
       </div>
     </Sheet>
   )
