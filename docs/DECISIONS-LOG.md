@@ -71,6 +71,65 @@ on the cards instead of one leaf at a time. Decided:
   painting that has had them cut, so a parent taps "cut leaves" on the new photo's page
   (`AutumnLeaves.jsx`). The old photo's sheet went with it.
 
+## 2026-11-13 — Drawings and paintings hang on the academy's walls, not the floor
+
+Jason: Anna's drawings and Laurie's paintings belong on walls. Rooms now have a second way to hold a thing: hung on one
+of its two back walls (`{ w: 'left' | 'right', x, y }` in wall-space, `src/academy/walls.js`), beside the floor's
+squares (`{ i, j }`), in the same list of the room's items. A drawing or painting always hangs: it goes up on the first
+clear spot (eye height first, clear of the window, the board, the clock and the other pictures, by `wallFeatures`), is
+dragged anywhere on either wall or moved with arrows, sized, and sent to the other wall. Paintings hang in a wooden frame
+with a mat; drawings are taped up a little crooked, as on her own wall. The picture is shown whole and unaltered, and the
+hour's light falls on it like the rest of the wall. One put on the floor before this goes up on a wall when its room
+opens. A room with no walls (the courtyard) keeps its hung pieces but doesn't show them, and its catalog says why. This
+replaces the floor placement in the entry below; tapping a piece still opens its page.
+
+---
+
+## 2026-11-13 — The weather never waits forever, and has a backup
+
+Home's weather card sat on "Looking at the sky…" because it waited on two requests at once (Open-Meteo and the
+Weather Service's alerts) with no time limit: one that hung held the whole card. Now every weather request gives up
+after eight seconds (`getJson`, `src/lib/forecastSource.js`), and alerts arrive on their own, a bonus that never holds
+the forecast up. The forecast has a ladder (`loadForecast`): Open-Meteo, then, if it doesn't answer in time or sends
+something that isn't a forecast, the National Weather Service's hourly forecast (`src/lib/nws.js`; free, no key, the
+United States only), turned into Open-Meteo's shape so every screen reads it unchanged. The backup carries a week, not
+three weeks back and sixteen ahead, and has no UV, cloud layers, rain amounts or gusts: those stay empty rather than
+guessed, "today will be… than yesterday" and the year-ago line quietly go, and the card says "Open-Meteo isn't
+answering" in words, with the credit changing to the Weather Service. If neither answers, the last good home forecast
+(kept on the device, six hours at most, `teamhicks.weather.last.v1`) shows with how old it is, and the card tries again
+every minute; only with nothing kept does it say it couldn't be reached. The academy's sky and the autumn wind ignore
+an old forecast (no weather rather than last hour's). Away from home the same ladder serves the weather where we are,
+but a position is still never kept. Whether Open-Meteo itself changed could not be checked from the build machine
+(its network refused the host), so the hang is the cause found in the code, unconfirmed against the live service.
+
+
+---
+
+## 2026-11-13 — Anna's drawings and Laurie's paintings can be placed in the academy
+
+Every drawing in Anna's Art and every painting in Laurie's Gallery is in a room's "Add something", under "Anna's
+drawings" and "Laurie's paintings" (and found by the search). A placed one is only a key in the room (`d:<drawing id>`,
+`p:<slug>`, `src/academy/ownArt.js`): nothing is copied, the picture stays in its private bucket and is read through a
+signed link, and a piece taken down just leaves its square empty. They are shown whole, as made: they can be moved and
+sized, but never flipped or recoloured, and they stay put and give no light (`tests/own-art.test.mjs`). A room signs
+only the thumbnails it shows; the catalog signs every drawing's thumbnail only while it is open. No migration.
+A tap on a placed one (not while arranging) opens its own page in Anna's Art or Laurie's Gallery, a normal step in the history, so Back returns to the room.
+
+---
+
+## 2026-11-13 — Hold a piece of art to save, copy or share it
+
+Holding a piece on Anna's wall, Laurie's gallery or its featured wall (half a second, or a right-click) opens a menu
+instead of the page: save the picture, copy it, share it, or copy its link (`src/ui/PieceMenu.jsx`,
+`src/lib/pieceMenu.js`, `tests/piece-menu.test.mjs`). A plain tap still opens the piece. A hold is no one's only way in:
+each piece's own page has a "Save, copy or share" button for the same menu. The picture handed on is the one as it was
+kept, only its file name is made (title and whose it is); a copy to the clipboard is redrawn as PNG, pixel for pixel.
+The link copied is the app's own page for the piece, which needs sign-in, never the signed link to the file (anyone
+holding that could open the picture for days). Only the choices the device can do are shown. Anna's full-size signed
+link is asked for only when a choice is made.
+
+---
+
 ## 2026-11-11 — The crop box may hang off the photo
 
 A hexagon, a round canvas or a triangle photographed close to the edge can't be framed if the box has to stay on

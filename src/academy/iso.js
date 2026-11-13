@@ -68,3 +68,14 @@ export const MOVES = [
   ['nw', '↖', 'Back left', -1, 0], ['ne', '↗', 'Back right', 0, -1],
   ['sw', '↙', 'Front left', 0, 1], ['se', '↘', 'Front right', 1, 0],
 ]
+
+/**
+ * The spot on a back wall under a point on screen (in the drawing's own units), in wall-space (see wallMatrix):
+ * { side, x, y }, or null off both walls. The inverse of wallMatrix: the right wall stands over x ≥ 0, the left over x < 0.
+ */
+export function wallAt(X, Y, n, h) {
+  const right = X >= 0
+  const x = right ? X : X + n * (TW / 2)
+  const y = right ? Y - X / 2 : Y + x / 2 - n * (TH / 2)
+  return x >= 0 && x <= wallLength(n) && y >= -h && y <= 0 ? { side: right ? 'right' : 'left', x, y } : null
+}

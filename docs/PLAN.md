@@ -280,6 +280,9 @@ Catholic line art, the St. Nicholas Center's CC0 images.
 - [x] **What's in it stirs** (`src/academy/life.js`): animals stroll and sleep, steam,
       bubbles, notes and sparkles rise, the mascot roams the lawn. The family's own
       pictures are filed as staying put, wandering (a pet) or giving light (a lamp).
+- [x] **Her drawings and Laurie's paintings on the walls** (`src/academy/ownArt.js`, `walls.js`): every
+      one is in "Add something" and hangs on a wall, framed or taped up, shown as made; dragged or moved with
+      arrows along either wall, sized, and a tap opens its page.
 - [x] **Try a sky**: a time of day, a weather and a wind to pretend with, until the app
       is closed; the campus says when it's pretend.
 - [ ] Pets from a pack's sprite sheet (walking and sitting frames), once we see what
@@ -342,6 +345,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       original, so it can be cropped again from its page.
 - [x] Called **Anna's Art** (2026-11-08), since she paints too; its address stays
       `/drawings`. A photo that looks like one already on her wall is flagged as it's added.
+- [x] Hold a piece of Anna's or Laurie's art (or right-click it) to save, copy or share it, or copy its app link; each piece's page has
+      the same menu behind a button (`src/ui/PieceMenu.jsx`, `src/lib/pieceMenu.js`, decisions log 2026-11-13).
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)
@@ -489,7 +494,9 @@ and the phases are in issue #19; what's built is ticked here.
 - [x] The forecast at home (Open-Meteo: now, the next twelve hours, the
       week) and the National Weather Service's alerts, on Home and World,
       with a word when the Santa Anas blow. Only the town's coordinates are
-      sent.
+      sent. A request gives up after 8 s; if Open-Meteo doesn't answer, the Weather
+      Service's hourly forecast (`src/lib/nws.js`) stands in, then the last good
+      forecast with its age (decisions log, 2026-11-13).
 - [x] All our places on one map, at three sizes (around home, SoCal, the
       world), with a page for each: its skyline in its own sky, the time and
       weather there, how far, and Open in Maps / Directions in the phone's

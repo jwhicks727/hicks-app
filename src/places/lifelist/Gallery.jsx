@@ -16,6 +16,7 @@ import { FAMILIES } from '../../lib/artColour.js'
 import { SEASONS } from '../../lib/seasons.js'
 import { FACETS, SORTS, facetsOf, applyFilters, filterCount, sortPaintings, appFeature, claudeFeature, catalogOf, seasonsOn, weatherLine, comingFor } from '../../lib/gallery.js'
 import { usePaintings } from '../../parts/PaintingsProvider.jsx'
+import { HeldLink } from '../../ui/PieceMenu.jsx'
 import { Framed } from '../../parts/PaintingFrame.jsx'
 import '../../parts/paintings.css'
 
@@ -65,11 +66,11 @@ export default function Gallery() {
       {list.length > 1 && <Finder list={list} view={view} setView={setView} count={shown.length} />}
       <section className="gallery-wall span-6" aria-label="Laurie’s paintings">
         {shown.map((p) => (
-          <Link key={p.slug} className="gallery-piece" to={'/lifelist/paintings/' + p.slug}>
+          <HeldLink key={p.slug} className="gallery-piece" to={'/lifelist/paintings/' + p.slug} title={p.title} by="Laurie" url={() => p.src}>
             <Framed shape={p.shape}>{p.small ? <img src={p.small} alt={`${p.title}, a painting by Laurie`} width={p.w} height={p.h} loading="lazy" /> : <span className="gallery-blank" />}</Framed>
             <b>{p.title}</b>
             <small>{[paintedWords(p.year, p.month), p.medium].filter(Boolean).join(' · ') || (p.named ? 'By Laurie' : 'A working title, until Laurie names it')}</small>
-          </Link>
+          </HeldLink>
         ))}
       </section>
       {list.length > 0 && !shown.length && (
@@ -153,10 +154,10 @@ function Featured({ list, parent }) {
       {f.line && <p className="gf-line">{f.line}</p>}
       <div className="gf-row" role="list">
         {ps.map((p) => (
-          <Link key={p.slug} role="listitem" className="gf-piece" to={'/lifelist/paintings/' + p.slug}>
+          <HeldLink key={p.slug} role="listitem" className="gf-piece" to={'/lifelist/paintings/' + p.slug} title={p.title} by="Laurie" url={() => p.src}>
             <Framed shape={p.shape}>{p.small ? <img src={p.small} alt={`${p.title}, a painting by Laurie`} width={p.w} height={p.h} loading="lazy" /> : <span className="gallery-blank" />}</Framed>
             <b>{p.title}</b>
-          </Link>
+          </HeldLink>
         ))}
       </div>
       <p className="muted small gf-by">
