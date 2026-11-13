@@ -27,9 +27,10 @@ Built in this order, each part in daily use before the next.
       still fall); in autumn the real wind at home lifts leaves out of her
       autumn paintings from where she painted them and settles them on the cards
       (2026-11-05); at Thanksgiving a different painting hangs on Home every two days
-      and its own show plays: leaves float down a painted stream, embers rise
-      from a painted fire, golden leaves rain, or a whirl or garland of her
-      leaves (2026-11-13). The sky keeps its own
+      and its own show plays: a painted wheel assembles and spins, leaves float
+      down a painted stream, embers rise from a painted fire, a lake ripples,
+      pumpkins tumble, a blossom's petals flutter, golden leaves rain, or a
+      sunbeam, whirl or garland of her leaves (2026-11-13). The sky keeps its own
       colours. Settings can try another season's show.
 - [x] Home's **Art** card: Laurie's painting with Anna's newest drawing taped
       over a corner, each a tap from its gallery; "A gust" in autumn, and

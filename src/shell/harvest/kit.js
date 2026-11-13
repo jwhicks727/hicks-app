@@ -6,6 +6,7 @@
 import { cropFor, paintingBySlug } from '../../lib/paintings.js'
 import { findWaterway, WATER_WORK } from '../../lib/waterway.js'
 import { findFire, goldShare } from '../../lib/harvest.js'
+import { findDisc, findMirror, findFruit, findBlossom } from '../../lib/harvestFind.js'
 import { cutLeaves, leavesRow, LEAF_WORK } from '../../lib/leafCut.js'
 import { originInFrame, paintedWidth } from '../../lib/wind.js'
 
@@ -44,10 +45,15 @@ export function lookAt(p) {
         const bmp = await createImageBitmap(await res.blob())
         const s = WATER_WORK / Math.max(bmp.width, bmp.height), w = Math.max(1, Math.round(bmp.width * s)), h = Math.max(1, Math.round(bmp.height * s))
         const c = document.createElement('canvas'); c.width = w; c.height = h
-        const g = c.getContext('2d'); g.drawImage(bmp, 0, 0, w, h)
+        const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(bmp, 0, 0, w, h)
         const px = g.getImageData(0, 0, w, h)
+        // A larger copy, for cutting fruit and petals whole
+        const s2 = 480 / Math.max(bmp.width, bmp.height), w2 = Math.max(1, Math.round(bmp.width * s2)), h2 = Math.max(1, Math.round(bmp.height * s2))
+        c.width = w2; c.height = h2
+        const g2 = c.getContext('2d', { willReadFrequently: true }); g2.drawImage(bmp, 0, 0, w2, h2)
+        const px480 = g2.getImageData(0, 0, w2, h2)
         c.width = 0; c.height = 0
-        return { bmp, way: findWaterway(px), fire: findFire(px), gold: goldShare(px) }
+        return { bmp, px480, way: findWaterway(px), fire: findFire(px), gold: goldShare(px), disc: findDisc(px), mirror: findMirror(px), fruit: findFruit(px).length, bloom: findBlossom(px480) }
       } catch { return null }
     })())
   }

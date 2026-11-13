@@ -6,6 +6,27 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (last) — Five more Thanksgiving shows, the mandala's wheel first
+
+Jason: a show for the mandala (its pieces arrive from every side and slot into place, then the wheel itself, the round
+part only, lifts, spins slowly and settles back down still turning), "and 3-4 others that will surprise me". Each is again
+read from the painting's own pixels (`src/lib/harvestFind.js`, `src/shell/harvest/`), in the order a painting is checked:
+- **The wheel**: a disc painted on the canvas is found from its edge (walking out from the middle to where the colour
+  changes most, then fitting a circle), cut by ring and wedge into 17 pieces that fly in from every direction; the wheel
+  (97% of the disc, so no corner is taken in) lifts with a shadow, makes one slow turn and lands at its own angle.
+- **The lake wakes**: a reflection is a row below which the colours of each column match those above (against the same
+  with one side turned left to right, so a painted symmetry is no reflection) with a shoreline there; her water is
+  copied in bands that slide sideways and settle, her leaves land and send ripples.
+- **Pumpkin tumble**: round orange shapes are cut whole with their painted outline; they hop out one by one, grow a third,
+  and tumble into a pile at the painting's foot (circles, gravity, rolling).
+- **Petal butterflies**: one star of gold is cut into its petals by where its outline narrows; they lift, flutter round the
+  page with their wings beating, and fly home to fit exactly where they were.
+- **Sunbeam**: a shaft of light (a gradient, clipped to the frame) crosses the painting, lighting dust made of her own
+  leaves and glinting on the leaves she painted; for woodland paintings with nothing more specific in them.
+Tuned and tested on the new stream photo and crops of the other nine Thanksgiving paintings from screenshots, in a test page:
+each is found in its own painting and in none of the others (the lake finder in particular has been tuned on one lake).
+Not yet seen on the real app.
+
 ## 2026-11-13 (later) — Thanksgiving is five shows, a new painting every two days
 
 Jason: "make a few too, maybe rotate every few days. Really go for it." Decided:

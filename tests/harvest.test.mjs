@@ -31,13 +31,17 @@ test('Thanksgiving’s show hangs the painting of the day, and its painting is t
   assert.equal(showFor('thanksgiving', [P('barn', ['summer'])], '2026-11-24'), null, 'none of hers for it, no show')
 })
 
-test('what a painting gets is read from it: a fire embers, a stream its leaves, gold its rain, the rest whirl or garland', () => {
-  assert.equal(styleFor({ fire: { x: 0.5 }, way: {}, gold: 0.5 }, 'a', '2026-11-24'), 'embers')
-  assert.equal(styleFor({ way: {}, gold: 0.5 }, 'a', '2026-11-24'), 'stream')
-  assert.equal(styleFor({ gold: 0.3 }, 'a', '2026-11-24'), 'golden')
+test('what a painting gets is read from it: a fire embers, a wheel assembles, a stream carries, a lake ripples, a blossom flies, fruit tumbles, gold rains', () => {
+  assert.equal(styleFor({ fire: { x: 0.5 }, disc: {}, way: {}, gold: 0.5 }, 'a', '2026-11-24'), 'embers')
+  assert.equal(styleFor({ disc: {}, way: {}, mirror: {}, gold: 0.5 }, 'a', '2026-11-24'), 'wheel')
+  assert.equal(styleFor({ way: {}, mirror: {}, gold: 0.5 }, 'a', '2026-11-24'), 'stream')
+  assert.equal(styleFor({ mirror: {}, bloom: {}, fruit: 5 }, 'a', '2026-11-24'), 'lake')
+  assert.equal(styleFor({ bloom: {}, fruit: 5 }, 'a', '2026-11-24'), 'petals')
+  assert.equal(styleFor({ fruit: 3, gold: 0.5 }, 'a', '2026-11-24'), 'tumble')
+  assert.equal(styleFor({ fruit: 2, gold: 0.3 }, 'a', '2026-11-24'), 'golden')
   for (const slug of ['a', 'bb', 'ccc']) for (const d of ['2026-11-22', '2026-11-24', '2026-11-26']) {
-    assert.ok(['whirl', 'garland'].includes(styleFor({ gold: 0.02 }, slug, d)))
-    assert.ok(['golden', 'whirl', 'garland'].includes(styleFor({ gold: 0.15 }, slug, d)))
+    assert.ok(['beam', 'whirl', 'garland'].includes(styleFor({ gold: 0.02 }, slug, d)))
+    assert.ok(['golden', 'beam', 'whirl', 'garland'].includes(styleFor({ gold: 0.15 }, slug, d)))
   }
   assert.equal(styleFor({ gold: 0.02 }, 'a', '2026-11-24'), styleFor({ gold: 0.02 }, 'a', '2026-11-24'), 'the same on every phone')
   assert.deepEqual(Object.keys(WHAT).sort(), [...STYLES].sort(), 'every show says what it is')
@@ -59,7 +63,7 @@ test('gold is measured, and a fire is a small hot patch ringed by dark, not a bi
 
 test('the harvest shows move by transform and opacity, never take a tap, sleep with the app and still under less motion', () => {
   const css = read('src/shell/season-show.css'), kit = read('src/shell/harvest/kit.js'), harvest = read('src/shell/HarvestShow.jsx'), season = read('src/shell/SeasonShow.jsx')
-  for (const f of ['golden', 'whirl', 'embers']) {
+  for (const f of ['golden', 'whirl', 'embers', 'wheel', 'lake', 'tumble', 'petals', 'beam']) {
     const src = read(`src/shell/harvest/${f}.js`)
     assert.doesNotMatch(src, /matchMedia/); assert.doesNotMatch(src, /style\.(left|top|width|height) = .*(\.x|\.y)/)
     assert.doesNotMatch(src, /style\.filter|filter:|blur\(/)

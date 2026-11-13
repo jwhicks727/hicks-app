@@ -185,9 +185,10 @@ licence nobody wrote down.
   her pixels, over a painting that stays whole (`tests/wind.test.mjs`). Home
   hangs the painting the season's show plays from (`homePainting`), so a newer
   painting of the same season never takes its frame.
-- **Thanksgiving week is five shows, one per painting** (`src/lib/harvest.js`, `src/shell/HarvestShow.jsx`,
+- **Thanksgiving week is ten shows, one chosen per painting** (`src/lib/harvest.js`, `src/shell/HarvestShow.jsx`,
   `src/shell/harvest/`; decisions log 2026-11-13): every two days Home hangs the next Thanksgiving painting and the
-  phone reads its own pixels to choose the show (a stream, a fire, gold, else a whirl or garland). A new show finds
+  phone reads its own pixels to choose the show (a wheel, a stream, a fire, a lake, fruit, a blossom, gold, else a
+  sunbeam, whirl or garland). A new show finds
   its own motion and its own thing in the painting, uses only pieces cut from that painting on the phone, never
   alters it, and plays only where a painting hangs in view. Home's painting always comes from `pickPainting`.
 - **The swirling light** (`GlowWrap` in `src/ui/Glow.jsx`) is for

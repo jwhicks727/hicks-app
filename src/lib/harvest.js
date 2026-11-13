@@ -12,10 +12,15 @@
 export const BLOCK_DAYS = 2
 
 /** The shows, in the order a painting with no clear character takes them. */
-export const STYLES = ['stream', 'embers', 'golden', 'whirl', 'garland']
+export const STYLES = ['wheel', 'stream', 'embers', 'lake', 'tumble', 'petals', 'beam', 'golden', 'whirl', 'garland']
 
 /** What each says it is, for Settings and the painting's page. */
 export const WHAT = {
+  wheel: 'pieces of the round painting fly in from every side and slot into place, then the wheel itself lifts, spins slowly and settles back down',
+  lake: 'her leaves land on the lake she painted, ripples spread, and her reflection shimmers',
+  tumble: 'her pumpkins and gourds hop out of the painting and tumble into a pile at its foot',
+  petals: 'the petals of her blossom lift off, flutter round the page like butterflies and come home',
+  beam: 'a sunbeam crosses her painting, lighting up dust of her leaves and glinting on the ones she painted',
   stream: 'her leaves lift out of the trees, land on the stream she painted and float down it toward you',
   embers: 'sparks and embers rise from the fire she painted and drift up across the page',
   golden: 'her golden leaves shimmer along the top of the painting, then fall like rain',
@@ -41,15 +46,21 @@ export function pickPainting(list, day) {
 const hash = (s) => { let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h }
 
 /**
- * Which show a painting gets on a day, from how it looks (`look`: { way: a stream was found, fire: a fire was
- * found, gold: the share of it that is gold, 0 to 1 }): a fire has embers, a stream carries leaves, a golden painting
- * has its golden rain, anything else whirls or gathers a garland, whichever its slug and the day say.
+ * Which show a painting gets on a day, from how it looks (`look`: what its pixels held: fire, disc, way, mirror, bloom,
+ * how many pieces of fruit, and the share that is gold): a fire throws embers, a painted wheel assembles and spins, a
+ * stream carries leaves, a reflection is a lake, a blossom's petals fly, three or more pumpkins tumble, a golden
+ * painting rains gold; anything else gets a sunbeam, a whirl or a garland, whichever its slug and the day say.
  */
 export function styleFor(look, slug, day) {
-  if (look && look.fire) return 'embers'
-  if (look && look.way) return 'stream'
-  if (look && look.gold > 0.25) return 'golden'
-  const pool = look && look.gold > 0.12 ? ['golden', 'whirl', 'garland'] : ['whirl', 'garland']
+  const l = look || {}
+  if (l.fire) return 'embers'
+  if (l.disc) return 'wheel'
+  if (l.way) return 'stream'
+  if (l.mirror) return 'lake'
+  if (l.bloom) return 'petals'
+  if (l.fruit >= 3) return 'tumble'
+  if (l.gold > 0.25) return 'golden'
+  const pool = l.gold > 0.12 ? ['golden', 'beam', 'whirl', 'garland'] : ['beam', 'whirl', 'garland']
   return pool[(hash(slug) + blockOf(day)) % pool.length]
 }
 

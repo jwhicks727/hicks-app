@@ -22,6 +22,14 @@
 /* Thanksgiving week's other shows (src/shell/HarvestShow.jsx): golden rain, a whirl, embers; pieces of her paintings, moved by transform and opacity */
 .hv-layer { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
 .hv-piece { position: absolute; left: 0; top: 0; display: block; background-repeat: no-repeat; transform-origin: 50% 50%; will-change: transform, opacity; opacity: 0; }
+.hv-chip { position: absolute; left: 0; top: 0; display: block; background-repeat: no-repeat; transform-origin: 50% 50%; will-change: transform, opacity; opacity: 0; }
+.hv-shadow { border-radius: 50%; background: radial-gradient(circle, rgba(20, 12, 8, .55) 62%, rgba(20, 12, 8, 0) 74%); }
+.hv-ring-pulse { border-radius: 50%; border: 3px solid rgba(255, 238, 200, .85); box-sizing: border-box; }
+.hv-wrap { position: absolute; left: 0; top: 0; overflow: hidden; will-change: transform; }
+.hv-strip { position: absolute; left: 0; display: block; background-repeat: no-repeat; will-change: transform; }
+.hv-ring { position: absolute; left: 0; top: 0; display: block; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid rgba(255, 246, 230, .8); box-sizing: border-box; opacity: 0; will-change: transform, opacity; }
+.hv-beam { position: absolute; left: 0; top: 0; display: block; will-change: transform, opacity; }
+.hv-glint { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; background: radial-gradient(circle, rgba(255, 244, 206, .95) 0, rgba(255, 236, 180, .4) 40%, rgba(255, 230, 170, 0) 70%); will-change: transform, opacity; }
 .hv-glow { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; will-change: transform, opacity; opacity: 0; }
 html[data-motion="less"] .season-show, html[data-motion="less"] .wind-show { display: none; }
 html[data-motion="less"] .garland-show, html[data-motion="less"] .hv-layer { display: none; }
