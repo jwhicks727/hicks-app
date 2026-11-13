@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { isOwnArt, parseArtKey, drawingKey, paintingKey, artList, artUrl, artName, drawingFilesFor } from '../src/academy/ownArt.js'
+import { isOwnArt, parseArtKey, drawingKey, paintingKey, artList, artUrl, artName, drawingFilesFor, artPath } from '../src/academy/ownArt.js'
 import { gait, glowOf } from '../src/academy/life.js'
 
 const drawings = [{ id: 'd1', title: 'Cats', path: 'd1.jpg', thumb_path: 'd1.thumb.jpg' }, { id: 'd2', title: 'Sun', path: 'd2.jpg', thumb_path: null }]
@@ -34,4 +34,8 @@ test('they sit still and give no light, and are never recoloured or flipped', ()
   const scene = fs.readFileSync('src/academy/RoomScene.jsx', 'utf8')
   assert.match(scene, /it\.h && !art/); assert.match(scene, /it\.f && !art/)
   assert.match(fs.readFileSync('src/academy/RoomPage.jsx', 'utf8'), /!isOwnArt\(it\.k\) && <button[\s\S]*?>Colour<\/button>/)
+})
+
+test('a placed piece opens its own page, and only art does', () => {
+  assert.equal(artPath('d:d1'), '/drawings/d1'); assert.equal(artPath('p:crow'), '/lifelist/paintings/crow'); assert.equal(artPath('cat'), null)
 })

@@ -57,3 +57,10 @@ export function artName(k, { drawings = [], paintings = [] } = {}) {
   const f = a.kind === 'drawing' ? drawings.find((x) => x.id === a.id) : paintings.find((x) => x.slug === a.id)
   return f ? f.title : a.kind === 'drawing' ? 'A drawing' : 'A painting'
 }
+
+/** The address of the piece's own page in Anna's Art or Laurie's Gallery (where Back comes home to the room), or null. */
+export function artPath(k) {
+  const a = parseArtKey(k)
+  if (!a) return null
+  return a.kind === 'drawing' ? '/drawings/' + a.id : '/lifelist/paintings/' + a.id
+}

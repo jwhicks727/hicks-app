@@ -14,6 +14,7 @@ drawings" and "Laurie's paintings" (and found by the search). A placed one is on
 signed link, and a piece taken down just leaves its square empty. They are shown whole, as made: they can be moved and
 sized, but never flipped or recoloured, and they stay put and give no light (`tests/own-art.test.mjs`). A room signs
 only the thumbnails it shows; the catalog signs every drawing's thumbnail only while it is open. No migration.
+A tap on a placed one (not while arranging) opens its own page in Anna's Art or Laurie's Gallery, a normal step in the history, so Back returns to the room.
 
 ---
 

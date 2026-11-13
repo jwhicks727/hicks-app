@@ -65,7 +65,7 @@ export default function RoomPage({ id, a, today, celebrate, atmos }) {
         <h1 className="greet">{room.name}</h1>
       </header>
       <Card tint="#3FA34D" label={arranging ? 'Arranging' : 'Look around'} glyph="star" tag={saved || undefined} className="span-6 ac-room">
-        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} artUrl={art.urlOf} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
+        <ZoomView pan={!arranging}><RoomScene room={room} kind={kind} items={items} arranging={arranging} selected={picked} onSelect={setPicked} onDrop={drop} urlFor={urlFor} artUrl={art.urlOf} artLabel={art.nameOf} onOpen={(to) => navigate(to)} onPrize={setPrize} extras={extras} id={'r' + room.id.slice(0, 6)} atmos={atmos} assetOf={(assetId) => a.assets.find((x) => x.id === assetId) || null} /></ZoomView>
         {atmos && atmos.pretend && <p className="ac-sky">A pretend sky, just for now.</p>}
         {arranging ? (
           <div className="ac-edit">
