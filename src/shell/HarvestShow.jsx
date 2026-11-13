@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { styleFor } from '../lib/harvest.js'
 import { reducedMotion } from '../lib/motion.js'
 import GarlandShow from './GarlandShow.jsx'
+import WindShow from './WindShow.jsx'
 import { findFrame, lookAt, sheetsFor } from './harvest/kit.js'
 import { playGolden } from './harvest/golden.js'
 import { playWhirl } from './harvest/whirl.js'
@@ -19,7 +20,7 @@ import { playBeam } from './harvest/beam.js'
 // rain, and the rest whirl or gather into a garland. Each is a copy of her pixels over a painting that stays whole;
 // where no painting hangs in view nothing plays and nothing stands in. "Play it" and the Art card's button play it again
 // ("hicks:show"). Transforms and opacity only; it never takes a tap, and SeasonShow never starts it under less motion.
-const NEEDS_LEAVES = ['stream', 'garland', 'golden', 'whirl', 'lake', 'beam']
+const NEEDS_LEAVES = ['stream', 'garland', 'wind', 'golden', 'whirl', 'lake', 'beam']
 const WAIT_S = 2.5 // seconds after the page opens until the show begins
 
 export default function HarvestShow({ show, list, path, day }) {
@@ -45,7 +46,7 @@ export default function HarvestShow({ show, list, path, day }) {
       // The shows that cut their pieces from the painting itself need no leaves; the others take leaves cut from it (or the season's)
       const sheets = NEEDS_LEAVES.includes(style) ? await sheetsFor(p, show) : []
       if (!live || !el.isConnected || (NEEDS_LEAVES.includes(style) && !sheets.length)) return
-      if (style === 'stream' || style === 'garland') { setPlan({ style, sheets }); return }
+      if (style === 'stream' || style === 'garland' || style === 'wind') { setPlan({ style, sheets }); return }
       const ctx = { layer: layer.current, list: listRef.current, p, el, sheets, look }
       const play = { golden: playGolden, whirl: playWhirl, embers: playEmbers, wheel: playWheel, lake: playLake, tumble: playTumble, petals: playPetals, beam: playBeam }[style]
       stop = play ? play(ctx) : () => {}
@@ -53,7 +54,7 @@ export default function HarvestShow({ show, list, path, day }) {
     // Starts once a painting hangs in view: now, or when the page is scrolled to one (the Art card is often below the fold)
     const check = () => {
       if (started || !live) return
-      const found = findFrame(listRef.current, show.sheets.map((x) => x.slug))
+      const found = findFrame(listRef.current, [show.painting.slug])
       if (!found) return
       started = true
       window.removeEventListener('scroll', check); window.removeEventListener('resize', check); clearInterval(poll)
@@ -72,10 +73,13 @@ export default function HarvestShow({ show, list, path, day }) {
     return () => { live = false; clearTimeout(timer); clearInterval(poll); window.removeEventListener('scroll', check); window.removeEventListener('resize', check); stop() }
   }, [show, path, day, again])
 
+  // The wind plays as its own show, from the leaves cut from the painting in view
+  const windShow = useMemo(() => (plan && plan.style === 'wind' ? { ...show, sheets: plan.sheets } : null), [plan, show])
   return (
     <>
       {createPortal(<div className="hv-layer" ref={layer} aria-hidden="true" />, document.body)}
-      {plan && <GarlandShow key={`${plan.style}-${again}`} show={show} sheets={plan.sheets} list={list} path={path} force={plan.style} first={0.1} />}
+      {windShow && <WindShow key={`wind-${again}`} show={windShow} list={list} path={path} />}
+      {plan && plan.style !== 'wind' && <GarlandShow key={`${plan.style}-${again}`} show={show} sheets={plan.sheets} list={list} path={path} force={plan.style} first={0.1} />}
     </>
   )
 }

@@ -30,13 +30,14 @@ test('every painting is here with its files, and nothing about it is guessed', (
 })
 
 test('her painting hangs in its season, and a season without one falls back to her newest', () => {
-  // Her leaves fall in fall; a season with none of her paintings has no show
-  assert.equal(showFor('fall').painting.slug, 'autumn-stream')
+  // Fall hangs one of her fall paintings (the next every two days); a season with none of her paintings has no show
+  assert.ok(['autumn-stream', 'autumn-pond'].includes(showFor('fall').painting.slug))
   assert.deepEqual(showFor('fall').sheets.map((x) => x.slug), ['autumn-stream', 'autumn-pond'], 'both of her autumn paintings give leaves')
   assert.equal(showFor('halloween').painting.slug, 'witch-and-crow')
-  assert.equal(showFor('christmas'), null)
+  assert.equal(showFor('christmas'), null, 'no Christmas painting, no show')
+  assert.equal(showFor('muertos'), null, 'the witch is Halloween’s alone: the Day of the Dead has none of hers')
   // The leaves rest along the top edge and let go one at a time, slowly
-  const show = showFor('halloween'), perches = leafPerches(show, 7)
+  const show = showFor('halloween'), perches = leafPerches(show, 7)  // the falling-leaves machinery no season uses now, kept and tested
   assert.equal(perches.length, PERCHES)
   assert.deepEqual(perches, leafPerches(show, 7), 'the same leaves for the same day')
   for (const p of perches) assert.ok(p.leaf.length === 4 && p.x >= 5 && p.x <= 93 && Math.abs(p.tilt) <= 45)
@@ -46,7 +47,7 @@ test('her painting hangs in its season, and a season without one falls back to h
   for (const r of [() => 0, () => 0.5, () => 0.999]) {
     const d = dropOf(show, perches[0], r)
     assert.ok(d.dur >= 20 && d.dur <= 28, 'a slow fall: twenty to twenty-eight seconds')
-    assert.ok(dropOf(showFor('muertos'), perches[0], r).dur >= 26, 'slower still for the Day of the Dead')
+    assert.ok(dropOf({ ...show, slow: true }, perches[0], r).dur >= 26, 'slower still when asked')
     assert.ok(dropGap(show, r) >= 9 && dropGap(show, r) <= 17, 'one every nine to seventeen seconds')
   }
   assert.ok(MAX_DROPS >= 12 && MAX_DROPS <= 60)

@@ -43,6 +43,22 @@ export function warmMask({ data, width: W, height: H }) {
   return m
 }
 
+/**
+ * Her brushy colour, whatever the season: any strong colour that is not dark (hue and warmth no longer matter), closed up
+ * and trimmed as `warmMask` is. For a painting with no autumn foliage (spring's blossom, the summer sea, winter's light):
+ * the pieces cut from it are still her own pixels, and flat paint is still left out of them.
+ */
+export function colourMask({ data, width: W, height: H }) {
+  let m = new Uint8Array(W * H)
+  for (let i = 0, j = 0; i < W * H; i++, j += 4) {
+    const r = data[j], g = data[j + 1], b = data[j + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b)
+    m[i] = mx - mn > 42 && mx > 90 ? 1 : 0
+  }
+  m = morph(morph(m, W, H, true), W, H, true)
+  m = morph(morph(morph(m, W, H, false), W, H, false), W, H, false)
+  return m
+}
+
 const blur1 = (m, n, sigma = 1.1) => {
   const r = 3, k = Array.from({ length: 2 * r + 1 }, (_, i) => Math.exp(-((i - r) ** 2) / (2 * sigma * sigma)))
   const sum = k.reduce((a, b) => a + b, 0)

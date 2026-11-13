@@ -1,12 +1,11 @@
 // ============================================
 // seasonShows.js -- each season shows itself in motion, from Laurie's paintings
 // ============================================
-// The sky keeps its own colours all year (decisions log, 2026-11-01). A
-// season instead plays a short animation across the screen, made from what
-// she painted: at Halloween the leaves round her witch rest along the top edge
-// of the screen, just out of sight, and let go one at a time (now only the Day of the Dead's); in autumn and at Halloween the wind
-// at home lifts leaves out of her autumn paintings and blows them across the
-// page (kind 'wind': src/lib/wind.js, src/shell/WindShow.jsx).
+// The sky keeps its own colours all year (decisions log, 2026-11-01). A season instead plays a
+// short animation, made from what she painted and starting in the painting on Home: every
+// season but Halloween is a rotation of her paintings tagged for it, each with the show its own
+// pixels suggest (src/lib/harvest.js, src/shell/HarvestShow.jsx); Halloween alone is her witch's
+// (flurries of her leaves in the wind, kind 'wind': src/lib/wind.js, src/shell/WindShow.jsx).
 // A season with none of her paintings yet has no show; it waits for one.
 // Pure, so tests run it in Node.
 
@@ -15,22 +14,21 @@ import { LEAF_ORIGINS } from './leafOrigins.js'
 import { seeded } from './scenes.js'
 import { pickPainting } from './harvest.js'
 import { todayAt } from './cal/dates.js'
+import { SEASON_ORDER } from './seasons.js'
 
+// Every season but Halloween is the same thing: a rotation. Every two days Home hangs the next of her paintings tagged for
+// the season, and the phone reads that painting's own pixels to choose the show it suits (src/lib/harvest.js,
+// src/shell/HarvestShow.jsx): a wheel assembles, a stream carries her leaves, a fire throws embers, a lake ripples, fruit
+// tumbles, petals flutter, gold rains, or the wind, a sunbeam, a whirl or a garland. A season with none of her paintings
+// yet has no show. Halloween alone is her witch's (her flurries and the crow): she belongs to no other season, and none of
+// her leaves ever stands in for another's (decisions log, 2026-11-13).
+const ROTATION = 'a different painting of hers every two days, and a show made for it: a wheel that assembles and spins, leaves down a painted stream, embers from a painted fire, a lake that ripples, pumpkins that tumble, petals that flutter, golden rain, the wind, a sunbeam, a whirl or a garland of its own leaves, whichever suits the painting on Home'
 export const SHOWS = {
   // Halloween's leaves are her witch's own, in flurries the wind carries and lets settle on the cards (the wind show, with
-  // `own`: only this painting's leaves, never an autumn painting's); the crow flies on Home. Her witch's leaves have no
-  // measured places in the painting, so they are blown in from upwind rather than lifted out of it.
+  // `own`: only this painting's leaves); the crow flies on Home. Her witch's leaves have no measured places in the painting,
+  // so they are blown in from upwind rather than lifted out of it.
   halloween: { painting: 'witch-and-crow', own: true, kind: 'wind', what: 'flurries of her witch’s leaves blow across the page and settle on the cards, and the crow flies on Home' },
-  muertos: { painting: 'witch-and-crow', kind: 'leaves', what: 'her painted leaves rest along the top and drift down one at a time, slow, like marigold petals', slow: true },
-  // Autumn's leaves are pieces of her autumn paintings, cut out at full size: the two first cut by the script, and any
-  // autumn painting a parent has cut leaves from on its page (src/places/lifelist/AutumnLeaves.jsx). Where none has been
-  // cut, the phone cuts them from the autumn painting itself when the show plays. Her witch's leaves never stand in
-  // for autumn's or Thanksgiving's: she belongs to Halloween and the Day of the Dead (decisions log, 2026-11-13).
-  // Thanksgiving is several shows, each made for a painting: every two days Home hangs the next of her Thanksgiving
-  // paintings and the phone reads its pixels to choose the show (src/lib/harvest.js, src/shell/HarvestShow.jsx): a stream
-  // carries her leaves, a fire throws embers, a golden painting rains gold, the rest whirl or gather a garland.
-  thanksgiving: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], kind: 'harvest', what: 'a different painting of hers and a different show every two days: leaves float down a painted stream, embers rise from a painted fire, golden leaves rain, or a whirl or garland of leaves gathers, whichever suits the painting on Home' },
-  fall: { painting: 'autumn-stream', paintings: ['autumn-stream', 'autumn-pond'], kind: 'wind', what: 'the wind at home lifts leaves out of her autumn paintings and blows them across the page, where they settle on the cards' },
+  ...Object.fromEntries(SEASON_ORDER.filter((k) => k !== 'halloween').map((k) => [k, { kind: 'harvest', what: ROTATION }])),
 }
 /** The seasons whose paintings autumn's wind may take leaves from. */
 export const WIND_SEASONS = ['fall', 'thanksgiving']
@@ -48,33 +46,27 @@ export function originsOf(p) {
 const sheetOf = (p) => ({ slug: p.slug, sheet: p.leaves.sheet, size: p.leaves.size, boxes: p.leaves.boxes, px: p.leaves.px || 1.25, scale: p.leaves.scale || [1.1, 1.9], origins: originsOf(p) })
 
 /**
- * The show for a season with its painting(s) (from `list`, the paintings the
- * app has): { key, kind, what, painting, sheets, ... }, or null. A season may
- * draw its leaves from several of her paintings. With none cut yet, autumn's wind still plays (`cut`: the phone cuts
- * the leaves from her autumn painting), and a season with no painting of hers has no show; her witch never stands in.
+ * The show for a season on a day, with its painting (from `list`, the paintings the app has): { key, kind, what,
+ * painting, sheets, ... }, or null. A rotation season (all but Halloween) hangs the painting of the day, the next of those
+ * tagged for the season every two days; `sheets` are leaves already cut from it, and from other paintings of the same
+ * season (Fall and Thanksgiving share their leaves), and the phone cuts more from the painting itself as it plays. A season
+ * with no painting of hers has no show; her witch never stands in for another's.
  */
 export function showFor(key, list = PAINTINGS, day = todayAt()) {
   const s = SHOWS[key]
   if (!s) return null
+  if (s.kind === 'harvest') {
+    const pick = pickPainting(list, day, key)
+    if (!pick) return null
+    const tags = WIND_SEASONS.includes(key) ? WIND_SEASONS : [key]
+    const cut = (p) => p.leaves && p.leaves.sheet && originsOf(p) && (p.seasons || []).some((k) => tags.includes(k))
+    const sheets = [pick, ...list.filter((p) => p !== pick)].filter(cut).slice(0, WIND_SHEETS).map(sheetOf)
+    return { key, ...s, painting: pick, sheets }
+  }
   const has = (slug) => { const p = paintingBySlug(slug, list); return p && p.leaves && p.leaves.sheet ? p : null }
-  let mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
-  // The wind also takes leaves from any autumn painting that has had them cut (newest first, as the list comes)
-  if ((s.kind === 'wind' || s.kind === 'harvest') && !s.own) {
-    const more = list.filter((p) => !mine.includes(p) && p.leaves && p.leaves.sheet && originsOf(p) && (p.seasons || []).some((k) => WIND_SEASONS.includes(k)))
-    mine = [...mine, ...more].slice(0, WIND_SHEETS)
-  }
-  const use = mine
-  // A harvest show hangs its own painting of the day, with or without leaves cut from it (the phone cuts them when it plays)
-  const pick = s.kind === 'harvest' ? pickPainting(list, day) : null
-  // The wind with no leaves cut yet: it hangs her newest autumn painting and the phone cuts the leaves from it as it plays
-  if (!use.length && !pick && s.kind === 'wind' && !s.own) {
-    const autumn = list.find((p) => (p.seasons || []).some((k) => WIND_SEASONS.includes(k)))
-    return autumn ? { key, ...s, painting: autumn, sheets: [], cut: true } : null
-  }
-  if (!use.length && !pick) return null
-  const sheets = use.map(sheetOf)
-  if (pick && pick.leaves && pick.leaves.sheet && originsOf(pick)) { sheets.unshift(sheetOf(pick)); sheets.splice(WIND_SHEETS) }
-  return { key, ...s, painting: pick || use[0], sheets: sheets.filter((x, i) => sheets.findIndex((y) => y.slug === x.slug) === i) }
+  const mine = (s.paintings || [s.painting]).map(has).filter(Boolean)
+  if (!mine.length) return null
+  return { key, ...s, painting: mine[0], sheets: mine.map(sheetOf) }
 }
 
 /**

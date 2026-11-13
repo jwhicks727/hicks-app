@@ -7,7 +7,7 @@ import { cropFor, paintingBySlug } from '../../lib/paintings.js'
 import { findWaterway, WATER_WORK } from '../../lib/waterway.js'
 import { findFire, goldShare } from '../../lib/harvest.js'
 import { findDisc, findMirror, findFruit, findBlossom } from '../../lib/harvestFind.js'
-import { cutLeaves, leavesRow, LEAF_WORK } from '../../lib/leafCut.js'
+import { cutLeaves, colourMask, leavesRow } from '../../lib/leafCut.js'
 import { originInFrame, paintedWidth } from '../../lib/wind.js'
 
 export const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a }
@@ -78,7 +78,9 @@ export function leavesOf(p) {
         const px = c.getContext('2d').getImageData(0, 0, w, h)
         c.width = 0; c.height = 0
         await new Promise((ok) => setTimeout(ok, 30))
-        const out = cutLeaves(px, { count: 36, seed: 5 })
+        // Autumn's warm foliage first; a painting without any (spring, summer, winter...) gives pieces of its own colour
+        let out = cutLeaves(px, { count: 36, seed: 5 })
+        if (out.boxes.length < 6) out = cutLeaves(px, { count: 36, seed: 5, mask: colourMask(px) })
         if (out.boxes.length < 6) return null
         const sheet = document.createElement('canvas'); sheet.width = out.sheet.width; sheet.height = out.sheet.height
         sheet.getContext('2d').putImageData(new ImageData(out.sheet.data, out.sheet.width, out.sheet.height), 0, 0)

@@ -1,8 +1,9 @@
 // ============================================
 // harvest.js -- Thanksgiving week: a different painting and a different show every two days
 // ============================================
-// Thanksgiving is not one show but several, each made for a painting. Every two days Home hangs the next of her
-// Thanksgiving paintings (the same on every phone, by the date), and the phone looks at that painting's own pixels
+// Every season (Fall, Thanksgiving, Christmas, Lent, the Fourth, summer, every one of them but Halloween, which is her
+// witch's alone) is not one show but several, each made for a painting. Every two days Home hangs the next of her paintings
+// tagged for that season (the same on every phone, by the date), and the phone looks at that painting's own pixels
 // to decide what it is good for: a stream she painted carries her leaves down it; a fire she painted throws
 // embers; a painting that is mostly gold takes a golden rain; the rest whirl or gather into a garland. Nothing is
 // drawn or generated and nothing is told to the phone from outside: the show is read from her painting.
@@ -12,7 +13,7 @@
 export const BLOCK_DAYS = 2
 
 /** The shows, in the order a painting with no clear character takes them. */
-export const STYLES = ['wheel', 'stream', 'embers', 'lake', 'tumble', 'petals', 'beam', 'golden', 'whirl', 'garland']
+export const STYLES = ['wheel', 'stream', 'embers', 'lake', 'tumble', 'petals', 'beam', 'golden', 'wind', 'whirl', 'garland']
 
 /** What each says it is, for Settings and the painting's page. */
 export const WHAT = {
@@ -23,6 +24,7 @@ export const WHAT = {
   beam: 'a sunbeam crosses her painting, lighting up dust of her leaves and glinting on the ones she painted',
   stream: 'her leaves lift out of the trees, land on the stream she painted and float down it toward you',
   embers: 'sparks and embers rise from the fire she painted and drift up across the page',
+  wind: 'the wind at home lifts pieces of the painting and blows them across the page, where they settle on the cards',
   golden: 'her golden leaves shimmer along the top of the painting, then fall like rain',
   whirl: 'a whirl of her leaves lifts out of the painting, spins up the page and scatters',
   garland: 'her leaves sail over and gather into a garland round the painting',
@@ -34,12 +36,12 @@ export const dayNumber = (day) => { const [y, m, d] = day.split('-').map(Number)
 /** Which block of days a day is in: the same on every phone. */
 export const blockOf = (day) => Math.floor(dayNumber(day) / BLOCK_DAYS)
 
-/** Her Thanksgiving paintings, in a fixed order (by slug), so the order never moves when one is added. */
-export const candidates = (list) => list.filter((p) => (p.seasons || []).includes('thanksgiving')).sort((a, b) => (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0))
+/** Her paintings tagged for a season, in a fixed order (by slug), so the order never moves when one is added. */
+export const candidates = (list, key = 'thanksgiving') => list.filter((p) => (p.seasons || []).includes(key)).sort((a, b) => (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0))
 
-/** The painting Home hangs for a day: the next of them every BLOCK_DAYS days, or null with none. */
-export function pickPainting(list, day) {
-  const c = candidates(list)
+/** The painting Home hangs for a day in a season: the next of them every BLOCK_DAYS days, or null with none. */
+export function pickPainting(list, day, key = 'thanksgiving') {
+  const c = candidates(list, key)
   return c.length ? c[blockOf(day) % c.length] : null
 }
 
@@ -49,7 +51,7 @@ const hash = (s) => { let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 
  * Which show a painting gets on a day, from how it looks (`look`: what its pixels held: fire, disc, way, mirror, bloom,
  * how many pieces of fruit, and the share that is gold): a fire throws embers, a painted wheel assembles and spins, a
  * stream carries leaves, a reflection is a lake, a blossom's petals fly, three or more pumpkins tumble, a golden
- * painting rains gold; anything else gets a sunbeam, a whirl or a garland, whichever its slug and the day say.
+ * painting rains gold; anything else gets the wind, a sunbeam, a whirl or a garland, whichever its slug and the day say.
  */
 export function styleFor(look, slug, day) {
   const l = look || {}
@@ -60,7 +62,7 @@ export function styleFor(look, slug, day) {
   if (l.bloom) return 'petals'
   if (l.fruit >= 3) return 'tumble'
   if (l.gold > 0.25) return 'golden'
-  const pool = l.gold > 0.12 ? ['golden', 'beam', 'whirl', 'garland'] : ['beam', 'whirl', 'garland']
+  const pool = l.gold > 0.12 ? ['golden', 'wind', 'beam', 'whirl', 'garland'] : ['wind', 'beam', 'whirl', 'garland']
   return pool[(hash(slug) + blockOf(day)) % pool.length]
 }
 

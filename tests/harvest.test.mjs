@@ -40,8 +40,8 @@ test('what a painting gets is read from it: a fire embers, a wheel assembles, a 
   assert.equal(styleFor({ fruit: 3, gold: 0.5 }, 'a', '2026-11-24'), 'tumble')
   assert.equal(styleFor({ fruit: 2, gold: 0.3 }, 'a', '2026-11-24'), 'golden')
   for (const slug of ['a', 'bb', 'ccc']) for (const d of ['2026-11-22', '2026-11-24', '2026-11-26']) {
-    assert.ok(['beam', 'whirl', 'garland'].includes(styleFor({ gold: 0.02 }, slug, d)))
-    assert.ok(['golden', 'beam', 'whirl', 'garland'].includes(styleFor({ gold: 0.15 }, slug, d)))
+    assert.ok(['wind', 'beam', 'whirl', 'garland'].includes(styleFor({ gold: 0.02 }, slug, d)))
+    assert.ok(['golden', 'wind', 'beam', 'whirl', 'garland'].includes(styleFor({ gold: 0.15 }, slug, d)))
   }
   assert.equal(styleFor({ gold: 0.02 }, 'a', '2026-11-24'), styleFor({ gold: 0.02 }, 'a', '2026-11-24'), 'the same on every phone')
   assert.deepEqual(Object.keys(WHAT).sort(), [...STYLES].sort(), 'every show says what it is')
@@ -76,4 +76,15 @@ test('the harvest shows move by transform and opacity, never take a tap, sleep w
   assert.match(season, /show\.kind === 'harvest'\) return <HarvestShow/)
   assert.match(harvest, /hicks:show/)
   assert.match(kit, /cutLeaves/, 'leaves are cut from the painting’s own pixels')
+})
+
+test('every season rotates through its own paintings, two days each, and never borrows another season’s', () => {
+  const list = [P('snow', ['christmas']), P('star', ['christmas']), P('crib', ['christmas']), P('sea', ['summer']), P('leaf', ['fall'])]
+  const seen = new Set(['2026-12-20', '2026-12-22', '2026-12-24'].map((d) => showFor('christmas', list, d).painting.slug))
+  assert.equal(seen.size, 3, 'three blocks, three different Christmas paintings')
+  for (const d of ['2026-12-20', '2026-12-22', '2026-12-24']) assert.ok(['snow', 'star', 'crib'].includes(showFor('christmas', list, d).painting.slug))
+  assert.equal(showFor('summer', list, '2026-07-01').painting.slug, 'sea')
+  assert.equal(showFor('fall', list, '2026-10-01').painting.slug, 'leaf')
+  assert.equal(showFor('lent', list, '2026-03-01'), null, 'no Lent painting, no show')
+  assert.equal(showFor('easter', list, '2026-04-05'), null)
 })

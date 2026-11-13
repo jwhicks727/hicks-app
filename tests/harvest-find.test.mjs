@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { findDisc, findMirror, findFruit, cutFruit, findBlossom } from '../src/lib/harvestFind.js'
+import { cutLeaves, colourMask } from '../src/lib/leafCut.js'
 
 const px = (W, H, fn) => { const data = new Uint8ClampedArray(W * H * 4); for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) data.set([...fn(x, y), 255], (y * W + x) * 4); return { data, width: W, height: H } }
 // Pseudo-random but fixed, so a test never flickers
@@ -48,4 +49,14 @@ test('a blossom is one gold star cut into its petals, and a patch or a field of 
   for (const p of b.pieces) assert.ok(p.rgba.length === p.w * p.h * 4 && p.ax > 0 && p.ax < p.w && p.ay > 0 && p.ay < p.h)
   assert.equal(findBlossom(px(120, 120, () => [240, 190, 40])), null, 'a field of gold')
   assert.equal(findBlossom(px(120, 120, (x, y) => (Math.hypot(x - 60, y - 60) < 26 ? [240, 190, 40] : [235, 215, 170]))), null, 'a plain round patch has no petals')
+})
+
+test('a painting with no autumn colour still gives pieces of its own colour, and never a flat patch', () => {
+  // Brushy teal and green, like a sea or a summer field: no warm foliage at all
+  const brushy = px(600, 600, (x, y) => (((x >> 5) + (y >> 5)) % 2 ? [30 + noise(x, y) * 45, 130 + noise(y, x) * 50, 150 + noise(x + 7, y) * 40] : [40 + noise(y, y) * 40, 150 + noise(x, x) * 45, 90 + noise(x, y + 3) * 40]))
+  assert.equal(cutLeaves(brushy).boxes.length, 0, 'the warm mask finds none')
+  const out = cutLeaves(brushy, { mask: colourMask(brushy) })
+  assert.ok(out.boxes.length >= 6, `its own colour gives pieces: ${out.boxes.length}`)
+  const flat = px(600, 600, () => [30, 140, 160])
+  assert.equal(cutLeaves(flat, { mask: colourMask(flat) }).boxes.length, 0, 'flat paint is left out')
 })

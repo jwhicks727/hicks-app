@@ -87,7 +87,7 @@ export default function Settings() {
                 <option value="">Today’s: {seasonFor(todayAt()).label}</option>
                 {SEASON_ORDER.filter((k) => showFor(k, paintings)).map((k) => <option key={k} value={k}>{SEASONS[k].label}</option>)}
               </select>
-              {(tryKey || seasonFor(todayAt()).key) === 'thanksgiving' && <button type="button" className="btn ghost" onClick={() => setShift(shift + BLOCK_DAYS)}>Next painting</button>}
+              {(showFor(tryKey || seasonFor(todayAt()).key, paintings) || {}).kind === 'harvest' && <button type="button" className="btn ghost" onClick={() => setShift(shift + BLOCK_DAYS)}>Next painting</button>}
               <button type="button" className="btn ghost" disabled={!showFor(tryKey || seasonFor(todayAt()).key, paintings)} onClick={() => playIt(tryKey || seasonFor(todayAt()).key)}>Play it</button>
             </div>
           </div>

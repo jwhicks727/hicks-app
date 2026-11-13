@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (then) — The witch is Halloween's alone, and every other season is a rotation
+
+Jason: "She should only be on Halloween. Fall should be a rotation same as Thanksgiving and every other season."
+- **Every season but Halloween is the same rotation** (`SHOWS`, `src/lib/harvest.js`): every two days Home hangs the next
+  of her paintings tagged for the season (`pickPainting(list, day, key)`, by slug, the same on every phone), and the phone
+  reads its pixels to choose the show (`styleFor`). Fall, Christmas, Advent, Easter, Lent, the Day of the Dead, Valentine's, the
+  Fourth, back to school, summer, spring, winter and Thanksgiving all work this way; a season with none of her paintings has no
+  show and waits for one. The wind (the real wind at home, leaves lifted from where she painted them) is one of the shows in
+  the pool, no longer Fall's alone.
+- **Pieces for any painting**: the leaves are still cut from warm autumn foliage first; a painting with none (spring, summer,
+  winter) gives pieces of its own brushy colour instead (`colourMask`, `src/lib/leafCut.js`), still her own pixels with flat paint
+  left out.
+- **The witch is in no season but Halloween** (flurries and the crow). The Day of the Dead no longer hangs her or drops her
+  leaves: it rotates its own paintings, if she has tagged any. The falling-leaves machinery (`leafPerches`, `dropOf`) is kept
+  and tested but no season uses it. This reverses 2026-11-05's "Halloween and the Day of the Dead keep their falling leaves"
+  for the Day of the Dead, and replaces the earlier fall-wind-with-cut-leaves arrangement (`CutWind`, removed).
+- Unverified on the live app: tried on a test page with a Christmas-tagged copy of the boardwalk painting (the wind style)
+  and, earlier, on crops of the Thanksgiving paintings; the colour-mask fallback is tested on a made-up painting only.
+
 ## 2026-11-13 (after the preview) — The witch is not part of fall; a show waits for its painting
 
 Jason, on the preview: the witch should not be part of fall, and nothing played on Thanksgiving ("Play it" did nothing).

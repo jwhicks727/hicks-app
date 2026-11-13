@@ -188,12 +188,13 @@ licence nobody wrote down.
   her pixels, over a painting that stays whole (`tests/wind.test.mjs`). Home
   hangs the painting the season's show plays from (`homePainting`), so a newer
   painting of the same season never takes its frame.
-- **Thanksgiving week is ten shows, one chosen per painting** (`src/lib/harvest.js`, `src/shell/HarvestShow.jsx`,
-  `src/shell/harvest/`; decisions log 2026-11-13): every two days Home hangs the next Thanksgiving painting and the
-  phone reads its own pixels to choose the show (a wheel, a stream, a fire, a lake, fruit, a blossom, gold, else a
-  sunbeam, whirl or garland). A new show finds
-  its own motion and its own thing in the painting, uses only pieces cut from that painting on the phone, never
-  alters it, and plays only where a painting hangs in view. Home's painting always comes from `pickPainting`.
+- **Every season but Halloween is a rotation, and Halloween alone is her witch's** (`src/lib/harvest.js`,
+  `src/shell/HarvestShow.jsx`, `src/shell/harvest/`; decisions log 2026-11-13): every two days Home hangs the next of her
+  paintings tagged for the season (`pickPainting(list, day, key)`) and the phone reads its own pixels to choose the show (a
+  wheel, a stream, a fire, a lake, fruit, a blossom, gold, else the wind, a sunbeam, a whirl or a garland). The witch is in no
+  other season and her leaves never stand in for another's. A new show finds its own motion and its own thing in the
+  painting, uses only pieces cut from that painting on the phone, never alters it, and plays only where a painting hangs in
+  view. Home's painting always comes from `pickPainting`; a season with none of her paintings has no show.
 - **The swirling light** (`GlowWrap` in `src/ui/Glow.jsx`) is for
   occasions, and only ever round the occasion's own card, never the whole
   screen: a concert's event card, the family day's celebration card, the
