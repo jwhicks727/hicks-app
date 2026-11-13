@@ -8,13 +8,14 @@ import { useNow } from '../lib/useNow.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { navigate } from '../lib/router.js'
 import { TOPICS, cleanDrawing, drawnWords, tilt, tapeOf } from '../lib/drawings.js'
-import { useDrawings, useDrawingUrls, saveDrawing, removeDrawing } from '../lib/useDrawings.js'
+import { useDrawings, useDrawingUrls, drawingUrl, saveDrawing, removeDrawing } from '../lib/useDrawings.js'
 import { drawingsInbox } from '../lib/drawingInbox.js'
 import { tally } from '../lib/paintingBatch.js'
 import AddDrawings from './AddDrawings.jsx'
 import RecropDrawing from './RecropDrawing.jsx'
 import './drawings.css'
 import { ZoomArt } from '../ui/ZoomView.jsx'
+import { HeldLink, PieceMenuButton } from '../ui/PieceMenu.jsx'
 
 const TINT = '#D9739B'
 
@@ -109,7 +110,7 @@ function Wall({ g, list }) {
       )}
       <section className="ag-wall span-6" aria-label="Anna’s drawings and paintings">
         {list.map((d) => (
-          <Link key={d.id} className="ag-piece" to={'/drawings/' + d.id} style={{ '--tilt': `${tilt(d.id)}deg` }}>
+          <HeldLink key={d.id} className="ag-piece" to={'/drawings/' + d.id} title={d.title} by="Anna" url={() => drawingUrl(d.path)} style={{ '--tilt': `${tilt(d.id)}deg` }}>
             <span className="ag-paper" data-tape={tapeOf(d.id)}>
               <span className="ag-tape" aria-hidden="true" />
               {urls[d.thumb_path || d.path]
@@ -118,10 +119,10 @@ function Wall({ g, list }) {
             </span>
             <b>{d.title}</b>
             <small>{drawnWords(d.made_on) || 'By Anna'}</small>
-          </Link>
+          </HeldLink>
         ))}
       </section>
-      {list.length > 0 && <p className="ag-note span-6">{list.length === 1 ? 'The first of her pieces on the wall.' : `${list.length} of her pieces on the wall.`} Tap one to see it large.</p>}
+      {list.length > 0 && <p className="ag-note span-6">{list.length === 1 ? 'The first of her pieces on the wall.' : `${list.length} of her pieces on the wall.`} Tap one to see it large; hold one to save, copy or share it.</p>}
     </>
   )
 }
@@ -169,6 +170,9 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
               {d.words && <div><dt>In her words</dt><dd className="ag-words">“{d.words}”</dd></div>}
               {!d.made_on && !d.topic && !d.words && <div><dt>By</dt><dd>Anna</dd></div>}
             </dl>
+            <div className="ag-actions">
+              <PieceMenuButton title={d.title} by="Anna" path={'/drawings/' + d.id} url={() => drawingUrl(d.path)} />
+            </div>
             {canChange && (
               <div className="ag-actions">
                 <button type="button" className="btn ghost" onClick={() => setEditing(true)}>Change the details</button>

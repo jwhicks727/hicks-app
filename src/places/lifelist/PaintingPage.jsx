@@ -15,6 +15,7 @@ import { usePaintings } from '../../parts/PaintingsProvider.jsx'
 import { SEASONS, windowsOf } from '../../lib/seasons.js'
 import { showFor } from '../../lib/seasonShows.js'
 import { ZoomArt } from '../../ui/ZoomView.jsx'
+import { PieceMenuButton } from '../../ui/PieceMenu.jsx'
 import PaintingSubjects from './PaintingSubjects.jsx'
 import '../../parts/paintings.css'
 
@@ -61,6 +62,7 @@ export default function PaintingPage({ slug }) {
           </ZoomArt>
         </Framed>
       </div>
+      <div className="span-6"><PieceMenuButton title={p.title} by="Laurie" path={'/lifelist/paintings/' + p.slug} url={() => p.src} /></div>
       <PaintingSubjects painting={p} />
       {c.parent && c.paintingsStored && <PaintingEdit painting={p} onSaved={c.reloadPaintings} />}
       {c.parent && c.paintingsStored && <AutumnLeaves painting={p} onSaved={c.reloadPaintings} />}

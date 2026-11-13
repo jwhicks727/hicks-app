@@ -337,6 +337,8 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       original, so it can be cropped again from its page.
 - [x] Called **Anna's Art** (2026-11-08), since she paints too; its address stays
       `/drawings`. A photo that looks like one already on her wall is flagged as it's added.
+- [x] Hold a piece of Anna's or Laurie's art (or right-click it) to save, copy or share it, or copy its app link; each piece's page has
+      the same menu behind a button (`src/ui/PieceMenu.jsx`, `src/lib/pieceMenu.js`, decisions log 2026-11-13).
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)
