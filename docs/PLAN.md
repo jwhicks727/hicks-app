@@ -21,12 +21,22 @@ Built in this order, each part in daily use before the next.
       West US (North California); new tables not exposed automatically;
       automatic row-level security on.
 - [x] The season's show: something from one of Laurie's paintings moves
-      across the screen, starting in her painting on Home. At Halloween her
-      painted leaves fall and the crow flies out of the painting and home again;
-      in autumn and Thanksgiving the real wind at home lifts leaves out of her
-      autumn paintings from where she painted them, blows them across the page,
-      and lets them settle on the cards (2026-11-05). The sky keeps its own
-      colours. Settings can try another season's show.
+      across the screen, starting in her painting on Home. At Halloween the crow
+      flies out of the painting and home again, and flurries of her witch's
+      leaves blow across and settle on the cards; the witch is in no other
+      season. Every other season is a rotation: a different painting of hers
+      tagged for it hangs on Home every two days, and its show has the witch's
+      shape: from the top of Home something made of the painting carries you
+      down to it, the page following; its own show plays there; and something
+      subtle made of it stays on every screen. The show is chosen from the
+      painting's pixels: a painted wheel assembles and spins, leaves
+      float down a painted stream, embers rise from a painted fire, a lake
+      ripples, pumpkins tumble, a blossom's petals flutter, golden leaves rain,
+      or the real wind at home, a sunbeam, a whirl or a garland of its own
+      pieces (2026-11-13; the wind first, 2026-11-05). The sky keeps its own
+      colours. Settings can try another season's show, names the painting on Home
+      for it with its place in the rotation ("3 of 10"), and Next painting
+      moves on to the next one.
 - [x] Home's **Art** card: Laurie's painting with Anna's newest drawing taped
       over a corner, each a tap from its gallery; "A gust" in autumn, and
       Anna's paper flutters in every gust (2026-11-05).

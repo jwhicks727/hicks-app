@@ -6,6 +6,155 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-13 (late) — Each show its own, and fun: many play with Home itself
+
+Jason: "Get creative here, we want each one to feel unique and fun." The first leads were too alike (five leaves falling in
+different ways). Each is now its own kind of motion, and several use the page itself (`src/lib/leads.js`,
+`src/shell/harvest/lead.js`, `linger.js`):
+- **Mandala**: its traced pieces turn in a kaleidoscope rosette that floats down the page, open into a ring round the frame,
+  slot in; afterwards the little wheel in the corner rolls as you scroll.
+- **Stream**: a river of her own painted water (soft pieces of the stream cut from the painting) winds down the page in S-bends,
+  her leaves riding it, and pours into the painting; a leaf floats along the bottom now and then.
+- **Fire**: a lit fuse runs down the outside of the cards, one side then the other, across the gaps, sparking and leaving a
+  glowing trail, and flares in the fire; a hearth glow of the fire's colour breathes at the bottom of the screen, an ember rising.
+- **Lake**: a leaf skips down like a flat stone, a ripple on the cards at each touch; ripples come and go.
+- **Pumpkins**: plinko: a pumpkin rolls along each card's top edge, drops off its end onto the next, and falls into the painting;
+  afterwards one peeks in from the side of the screen, wiggles, and ducks away.
+- **Blossom**: its petals become butterflies that hop from card to card, resting on each with wings slowly beating; one lands on
+  a card now and then, rests, and flies off.
+- **Golden**: two seeds spin down like maple keys, crossing like dancers; gold leaves rest along the top and let go.
+- **Wind**: a murmuration of her leaves loops across the top like starlings, then pours down; the wind stays.
+- **Sunbeam**: dappled sunlight (soft light with the shadows of her leaves in it) moves down the page; it drifts by again later.
+- **Whirl**: a whirl that grows, picking up two of her leaves from each card it passes; a tiny one spins up in a corner later.
+- **Garland**: bunting of her leaves drapes down the page in swags, side to side; a garland sways along the top edge.
+The cards are only read (their edges), never moved or changed. Tried on a Home-shaped test page with the paintings' crops; not
+yet on a phone.
+
+## 2026-11-13 (evening) — Every show has the witch's shape; the mandala is put together from its own pieces
+
+Jason: every animation should match the witch's structure: it starts at the top of the page, something gorgeous carries you
+down to the painting (like the crow), and something subtle stays throughout the app (like the falling leaves). "It's about
+bringing the paintings INTO the app, not just animating them." And the mandala's pieces are its own painted things, not cuts
+across it: they come in onto an empty frame, then the circle appears, then the spin.
+- **Three parts, every show** (`src/shell/HarvestShow.jsx`): (1) **the lead** (`src/lib/leads.js`, `src/shell/harvest/lead.js`):
+  from the top of Home, pieces of the painting travel down the page, the page following them as it follows the crow (never
+  above where it started; a scroll, touch or key lets it go), and land where the painting's show begins; once a day on each
+  device (`teamhicks.shows`, which Settings' "Play it again" clears), and again on Play it or the Art card's button. (2) **the
+  painting's own show**, from where the lead landed. (3) **what stays** (`src/shell/harvest/linger.js`): something subtle made of
+  the painting on every screen all day, with a most per sitting and a pause while the app is in the background.
+- Each its own: the stream's leaf rocks down like a leaf let go, a leaf floats past along the bottom afterwards; the fire's spark
+  falls like a shooting star with a trail, embers rise from the bottom; the lake's leaf skips down like a stone leaving ripples on
+  the cards, ripples come and go; a pumpkin bounces down from card edge to card edge, one rolls by now and then; a petal flutters
+  down like a butterfly, petals drift down; a golden leaf spins down like a maple seed, gold leaves rest along the top and let go
+  one at a time (the witch's own way); the wind's flock sweeps in from upwind, the wind stays; a band of sunlight slides down,
+  soft light sweeps across now and then; a little whirl wanders down, a leaf spirals down; a ribbon of leaves swoops to the frame,
+  a garland sways along the top edge; the mandala's pieces swirl down, a small copy of the wheel turns in the corner.
+- **The mandala's pieces are traced** (`tracePieces`, `src/lib/harvestFind.js`): the disc's ground colours are found (the tan,
+  and the white plate as a second ground because it is one large area), everything clearly not the ground near it is a painted
+  thing, sorted by colour family (green, red, orange pumpkins, the corn and husks) and parted where two only touch; each is cut
+  whole with a soft edge. The frame empties (her painting hidden for a moment, never changed), the plate and then each piece slot
+  in, the circle (97% of the disc, no corners) appears beneath them, lifts, turns once and settles, and her painting comes back.
+- Tried on a Home-shaped test page with the new stream photo and crops of the other Thanksgiving paintings from screenshots:
+  each lead starts at the top and the page follows it to the painting. Not yet seen on a phone with the real paintings.
+
+## 2026-11-13 (then) — The witch is Halloween's alone, and every other season is a rotation
+
+Jason: "She should only be on Halloween. Fall should be a rotation same as Thanksgiving and every other season."
+- **Every season but Halloween is the same rotation** (`SHOWS`, `src/lib/harvest.js`): every two days Home hangs the next
+  of her paintings tagged for the season (`pickPainting(list, day, key)`, by slug, the same on every phone), and the phone
+  reads its pixels to choose the show (`styleFor`). Fall, Christmas, Advent, Easter, Lent, the Day of the Dead, Valentine's, the
+  Fourth, back to school, summer, spring, winter and Thanksgiving all work this way; a season with none of her paintings has no
+  show and waits for one. The wind (the real wind at home, leaves lifted from where she painted them) is one of the shows in
+  the pool, no longer Fall's alone.
+- **Pieces for any painting**: the leaves are still cut from warm autumn foliage first; a painting with none (spring, summer,
+  winter) gives pieces of its own brushy colour instead (`colourMask`, `src/lib/leafCut.js`), still her own pixels with flat paint
+  left out.
+- **The witch is in no season but Halloween** (flurries and the crow). The Day of the Dead no longer hangs her or drops her
+  leaves: it rotates its own paintings, if she has tagged any. The falling-leaves machinery (`leafPerches`, `dropOf`) is kept
+  and tested but no season uses it. This reverses 2026-11-05's "Halloween and the Day of the Dead keep their falling leaves"
+  for the Day of the Dead, and replaces the earlier fall-wind-with-cut-leaves arrangement (`CutWind`, removed).
+- Unverified on the live app: tried on a test page with a Christmas-tagged copy of the boardwalk painting (the wind style)
+  and, earlier, on crops of the Thanksgiving paintings; the colour-mask fallback is tested on a made-up painting only.
+
+## 2026-11-13 (after the preview) — The witch is not part of fall; a show waits for its painting
+
+Jason, on the preview: the witch should not be part of fall, and nothing played on Thanksgiving ("Play it" did nothing).
+- **Her witch never stands in for autumn or Thanksgiving.** Fall and Thanksgiving had her as their fallback while no
+  autumn painting had leaves cut (the new stream photo had none), so she took Home and her leaves played. The fallback
+  is gone (`SHOWS.fall`, `SHOWS.thanksgiving`): with no leaves cut, fall's wind hangs her newest fall painting and the
+  phone cuts the leaves from it as it plays (`show.cut`, `src/shell/CutWind.jsx`); with no painting of hers at all there is
+  no show. The witch keeps Halloween and the Day of the Dead. Whether she should join Thanksgiving's rotation is
+  Jason's to say (she is not tagged for it).
+- **A harvest show waits for its painting.** It used to start only if the painting happened to be on screen three seconds
+  after the page opened, and the Art card is often below the fold; and "Play it" in Settings has no painting at all. It now
+  starts when the painting comes into view (scroll, resize, once a second), and "Play it" goes Home first, then plays
+  (a wind show with a gust), and a replay scrolls the painting into view.
+
+## 2026-11-13 (last) — Five more Thanksgiving shows, the mandala's wheel first
+
+Jason: a show for the mandala (its pieces arrive from every side and slot into place, then the wheel itself, the round
+part only, lifts, spins slowly and settles back down still turning), "and 3-4 others that will surprise me". Each is again
+read from the painting's own pixels (`src/lib/harvestFind.js`, `src/shell/harvest/`), in the order a painting is checked:
+- **The wheel**: a disc painted on the canvas is found from its edge (walking out from the middle to where the colour
+  changes most, then fitting a circle), cut by ring and wedge into 17 pieces that fly in from every direction; the wheel
+  (97% of the disc, so no corner is taken in) lifts with a shadow, makes one slow turn and lands at its own angle.
+- **The lake wakes**: a reflection is a row below which the colours of each column match those above (against the same
+  with one side turned left to right, so a painted symmetry is no reflection) with a shoreline there; her water is
+  copied in bands that slide sideways and settle, her leaves land and send ripples.
+- **Pumpkin tumble**: round orange shapes are cut whole with their painted outline; they hop out one by one, grow a third,
+  and tumble into a pile at the painting's foot (circles, gravity, rolling).
+- **Petal butterflies**: one star of gold is cut into its petals by where its outline narrows; they lift, flutter round the
+  page with their wings beating, and fly home to fit exactly where they were.
+- **Sunbeam**: a shaft of light (a gradient, clipped to the frame) crosses the painting, lighting dust made of her own
+  leaves and glinting on the leaves she painted; for woodland paintings with nothing more specific in them.
+Tuned and tested on the new stream photo and crops of the other nine Thanksgiving paintings from screenshots, in a test page:
+each is found in its own painting and in none of the others (the lake finder in particular has been tuned on one lake).
+Not yet seen on the real app.
+
+## 2026-11-13 (later) — Thanksgiving is five shows, a new painting every two days
+
+Jason: "make a few too, maybe rotate every few days. Really go for it." Decided:
+
+- **Every two days Home hangs the next of her Thanksgiving paintings** (`src/lib/harvest.js`: `pickPainting`, by the
+  date, the same on every phone, in a fixed order by slug so adding a painting never reorders the rest), and the show
+  is chosen from that painting's own pixels, read on the phone from a small copy (`styleFor`): a **stream** she
+  painted carries her leaves down it (`waterway.js`); a **fire** throws embers cut from her own flame, with a faint
+  glow of its own colour (`findFire`); a painting that is mostly gold has its **golden rain**, the leaves shimmering
+  where she painted them like aspens and then falling; anything else is a **whirl** (leaves lifted into a spinning
+  column that climbs the page and scatters) or a **garland**, by its slug and the day. Nothing is told to the phone
+  from outside and nothing is generated: the leaves are cut on the phone from the painting in view
+  (`leafOrigins` untouched; `leafCut.js`, kept only until the app closes), and fall back to the season's other cut
+  leaves when a painting has too little foliage.
+- Settings › Try another season › Thanksgiving gets **Next painting**, moving Home on a block of days so each can be
+  tried before the week. The Art card's button and "Play it" play the day's show again.
+- Unverified on the live app: all five were run on the new stream photo and crops of the other nine Thanksgiving
+  paintings taken from screenshots, in a test page; none yet on a phone with the real signed links.
+
+## 2026-11-13 — Halloween blows in flurries; Thanksgiving gathers a garland
+
+Jason missed two things from the first autumn: the forest stream's show, and the flurries of leaves that settle
+on the cards instead of one leaf at a time. Decided:
+
+- **Halloween is the wind, with her witch's own leaves** (`SHOWS.halloween`, kind `wind`, `own`: never an autumn
+  painting's leaves). Her witch's leaves have no measured places in the painting, so they blow in from upwind
+  rather than lifting out of it. The Day of the Dead keeps the slow falling leaves, the one show that still does.
+  This reverses 2026-11-05's "Halloween keeps its falling leaves", for Halloween only.
+- **Thanksgiving gathers where autumn scatters** (`src/lib/garland.js`, `src/shell/GarlandShow.jsx`, kind
+  `garland`). Leaves lift out of her autumn paintings from the places she painted them, sail over in arcs and
+  settle along the edge of the painting on Home, from the top both ways, closing at the bottom, until it wears a
+  garland of her own brushwork. It rests, each leaf breathing, then fades. Only where a painting hangs in view
+  (none elsewhere, nothing stands in), never under Anna's taped paper, transforms and opacity only, still under
+  less motion; "Play it" and the Art card's button gather it again.
+- **Where a painting has a stream, Thanksgiving's leaves float down it** (`src/lib/waterway.js`, "surprise me",
+  2026-11-13). The phone looks at a small copy of the painting and finds a band of pale or blue-grey paint running
+  up from the bottom edge and narrowing toward the horizon (nothing traced by hand, nothing generated); the leaves
+  land on its far end, ride its curve growing as they come, and slip out of the frame. A lake that fills the
+  picture, a path or a sky is not a stream, so those paintings get the garland. Found once per painting and kept
+  until the app closes. Unverified on the live app: tried on the new forest-stream photo and one lake painting.
+- **The stream's show comes back with its new photo**: the wind (and the garland) take leaves from any autumn
+  painting that has had them cut, so a parent taps "cut leaves" on the new photo's page
+  (`AutumnLeaves.jsx`). The old photo's sheet went with it.
+
 ## 2026-11-13 — Drawings and paintings hang on the academy's walls, not the floor
 
 Jason: Anna's drawings and Laurie's paintings belong on walls. Rooms now have a second way to hold a thing: hung on one

@@ -371,7 +371,10 @@ test('the wind takes leaves from any autumn painting that has had them cut, so a
   assert.equal(s.painting.slug, 'golden-creek', 'the old autumn paintings gone, the new photo’s leaves are used')
   assert.deepEqual(s.sheets[0].origins, { scale: 1.1, origins: [[0.5, 0.8]] })
   assert.equal(homePainting('fall', [witch, fresh]).slug, 'golden-creek', 'and it hangs on Home in autumn')
-  assert.equal(showFor('fall', [{ ...fresh, seasons: ['summer'] }, witch]).painting.slug, 'witch-and-crow', 'only an autumn painting’s leaves')
+  assert.equal(showFor('fall', [{ ...fresh, seasons: ['summer'] }, witch]), null, 'only an autumn painting’s leaves, and never the witch’s')
+  const bare = { ...fresh, leaves: null }
+  const cut = showFor('fall', [witch, bare])
+  assert.equal(cut.painting.slug, 'golden-creek'); assert.deepEqual(cut.sheets, [])  // an autumn painting with no leaves cut yet: it still hangs, and the phone cuts them as it plays
   assert.deepEqual(originsOf(PAINTINGS.find((p) => p.slug === 'autumn-pond')).origins.length, 20, 'the first two keep the origins the script measured')
   const both = showFor('fall', PAINTINGS)
   assert.deepEqual(both.sheets.map((x) => x.slug), ['autumn-stream', 'autumn-pond'])

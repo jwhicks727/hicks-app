@@ -30,13 +30,14 @@ test('every painting is here with its files, and nothing about it is guessed', (
 })
 
 test('her painting hangs in its season, and a season without one falls back to her newest', () => {
-  // Her leaves fall in fall; a season with none of her paintings has no show
-  assert.equal(showFor('fall').painting.slug, 'autumn-stream')
+  // Fall hangs one of her fall paintings (the next every two days); a season with none of her paintings has no show
+  assert.ok(['autumn-stream', 'autumn-pond'].includes(showFor('fall').painting.slug))
   assert.deepEqual(showFor('fall').sheets.map((x) => x.slug), ['autumn-stream', 'autumn-pond'], 'both of her autumn paintings give leaves')
   assert.equal(showFor('halloween').painting.slug, 'witch-and-crow')
-  assert.equal(showFor('christmas'), null)
+  assert.equal(showFor('christmas'), null, 'no Christmas painting, no show')
+  assert.equal(showFor('muertos'), null, 'the witch is Halloween’s alone: the Day of the Dead has none of hers')
   // The leaves rest along the top edge and let go one at a time, slowly
-  const show = showFor('halloween'), perches = leafPerches(show, 7)
+  const show = showFor('halloween'), perches = leafPerches(show, 7)  // the falling-leaves machinery no season uses now, kept and tested
   assert.equal(perches.length, PERCHES)
   assert.deepEqual(perches, leafPerches(show, 7), 'the same leaves for the same day')
   for (const p of perches) assert.ok(p.leaf.length === 4 && p.x >= 5 && p.x <= 93 && Math.abs(p.tilt) <= 45)
@@ -46,7 +47,7 @@ test('her painting hangs in its season, and a season without one falls back to h
   for (const r of [() => 0, () => 0.5, () => 0.999]) {
     const d = dropOf(show, perches[0], r)
     assert.ok(d.dur >= 20 && d.dur <= 28, 'a slow fall: twenty to twenty-eight seconds')
-    assert.ok(dropOf(showFor('muertos'), perches[0], r).dur >= 26, 'slower still for the Day of the Dead')
+    assert.ok(dropOf({ ...show, slow: true }, perches[0], r).dur >= 26, 'slower still when asked')
     assert.ok(dropGap(show, r) >= 9 && dropGap(show, r) <= 17, 'one every nine to seventeen seconds')
   }
   assert.ok(MAX_DROPS >= 12 && MAX_DROPS <= 60)
@@ -71,9 +72,13 @@ test('autumn’s leaves are her own paint, cut out at full size and drawn at the
   }
   // Her paintings say their titles are hers to give
   for (const slug of ['autumn-stream', 'autumn-pond']) { const p = paintingBySlug(slug); assert.equal(p.named, false); assert.equal(p.year, null); assert.equal(p.medium, null) }
-  // The witch's older sheet still works, drawn larger, and is the fallback until the new paintings are in
-  const old = paintingBySlug('witch-and-crow'), only = showFor('fall', [old])
-  assert.equal(only.painting.slug, 'witch-and-crow'); assert.equal(only.sheets[0].px, 1.25); assert.deepEqual(only.sheets[0].scale, [1.1, 1.9])
+  // The witch's older sheet still works, drawn larger, for her own Halloween; she never stands in for autumn or Thanksgiving
+  const old = paintingBySlug('witch-and-crow')
+  const own = showFor('halloween', [old]).sheets[0]
+  assert.equal(own.px, 1.25); assert.deepEqual(own.scale, [1.1, 1.9])
+  assert.equal(showFor('fall', [old]), null, 'the witch is not part of fall')
+  assert.equal(showFor('thanksgiving', [old], '2026-11-24'), null, 'nor of Thanksgiving, unless she is tagged for it')
+  assert.equal(showFor('halloween', [old]).painting.slug, 'witch-and-crow')
   assert.ok(existsSync(pub(paintingBySlug('witch-and-crow').leaves.sheet)))
   assert.equal(seasonByKey('halloween').key, 'halloween')
   assert.equal(seasonByKey('nope'), null)
@@ -122,7 +127,7 @@ test('a painting stored behind sign-in comes back in the same shape, its files b
   assert.equal(back.src, 'https://signed/witch-and-crow/full.jpg')
   assert.deepEqual(back.flyer.at, p.flyer.at); assert.equal(back.flyer.sprite, 'https://signed/witch-and-crow/flyer.png')
   assert.deepEqual(back.leaves.boxes, p.leaves.boxes)
-  assert.equal(showFor('fall', [back]).painting.slug, 'witch-and-crow')
+  assert.equal(showFor('halloween', [back]).painting.slug, 'witch-and-crow')
   assert.equal(showFor('fall', []), null, 'no paintings, no show')
   const plain = storedPaths('new-one', { flyer: null, leaves: null })
   assert.deepEqual(Object.keys(plain).sort(), ['small', 'src'])

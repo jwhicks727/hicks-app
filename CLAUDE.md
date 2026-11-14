@@ -188,6 +188,22 @@ licence nobody wrote down.
   her pixels, over a painting that stays whole (`tests/wind.test.mjs`). Home
   hangs the painting the season's show plays from (`homePainting`), so a newer
   painting of the same season never takes its frame.
+- **Every season but Halloween is a rotation, and Halloween alone is her witch's** (`src/lib/harvest.js`,
+  `src/shell/HarvestShow.jsx`, `src/shell/harvest/`; decisions log 2026-11-13): every two days Home hangs the next of her
+  paintings tagged for the season (`pickPainting(list, day, key)`) and the phone reads its own pixels to choose the show (a
+  wheel, a stream, a fire, a lake, fruit, a blossom, gold, else the wind, a sunbeam, a whirl or a garland). The witch is in no
+  other season and her leaves never stand in for another's. A new show finds its own motion and its own thing in the
+  painting, uses only pieces cut from that painting on the phone, never alters it, and plays only where a painting hangs in
+  view. Home's painting always comes from `pickPainting`; a season with none of her paintings has no show.
+- **Every show has the witch's shape** (`src/shell/HarvestShow.jsx`, `src/lib/leads.js`, `src/shell/harvest/lead.js`,
+  `linger.js`): it starts at the top of Home, something gorgeous made of the painting carries you down to it with the page
+  following (never above where it started; a scroll, touch or key lets go), the painting's own show plays where it lands, and
+  something subtle made of it stays on every screen all day. The first two play once a day on each device (`teamhicks.shows`).
+  It is about bringing the paintings into the app, not only animating them: a new show brings all three, each its own kind of
+  motion (never another's leaf falling again), and may play with Home itself (the cards' edges) but only reads the page,
+  never moves or changes it.
+- **A painting's pieces are its own painted things** (`tracePieces`): traced from the painting by colour, never cut by a line
+  across it; her painting may be hidden for a moment while its pieces come together, and is always shown again.
 - **The swirling light** (`GlowWrap` in `src/ui/Glow.jsx`) is for
   occasions, and only ever round the occasion's own card, never the whole
   screen: a concert's event card, the family day's celebration card, the

@@ -5,6 +5,8 @@ import { join } from 'node:path'
 import { windOf, pushOf, gustPlan, gustAt, delayAt, windAt, originInFrame, paintedWidth, stirOf, GUSTS, MAX_AIR, MAX_RESTING, SHOW_SECONDS } from '../src/lib/wind.js'
 import { LEAF_ORIGINS } from '../src/lib/leafOrigins.js'
 import { SHOWS, showFor } from '../src/lib/seasonShows.js'
+import { SEASON_ORDER } from '../src/lib/seasons.js'
+import { PAINTINGS } from '../src/lib/paintings.js'
 import { paintingBySlug } from '../src/lib/paintings.js'
 
 const root = new URL('..', import.meta.url).pathname
@@ -96,10 +98,19 @@ test('a quick scroll stirs the resting leaves, a slow one leaves them be', () =>
   assert.ok(stirOf(99999, 1).across <= 220)
 })
 
-test('autumn and Thanksgiving are the wind; Halloween and the Day of the Dead keep their falling leaves', () => {
-  assert.equal(SHOWS.fall.kind, 'wind'); assert.equal(SHOWS.thanksgiving.kind, 'wind')
-  assert.equal(SHOWS.halloween.kind, 'leaves'); assert.equal(SHOWS.muertos.kind, 'leaves')
-  assert.equal(showFor('fall').kind, 'wind')
+test('Halloween alone is her witch’s; every other season is a rotation of its own paintings', () => {
+  assert.equal(SHOWS.halloween.kind, 'wind')
+  for (const k of SEASON_ORDER.filter((x) => x !== 'halloween')) assert.equal(SHOWS[k].kind, 'harvest', `${k} is a rotation`)
+  assert.equal(showFor('fall').kind, 'harvest'); assert.equal(showFor('thanksgiving').kind, 'harvest')
+  // Halloween's flurries are her witch's leaves alone, never an autumn painting's
+  const h = showFor('halloween')
+  assert.deepEqual(h.sheets.map((x) => x.slug), ['witch-and-crow'])
+  // And the witch is in no other season, whatever has been cut
+  const witch = PAINTINGS.find((p) => p.slug === 'witch-and-crow')
+  for (const k of SEASON_ORDER.filter((x) => x !== 'halloween')) for (const d of ['2026-03-02', '2026-06-20', '2026-11-04', '2026-12-24']) {
+    const s = showFor(k, [witch], d)
+    assert.equal(s, null, `${k}: she is not part of it`)
+  }
 })
 
 test('the wind is transforms only, never takes a tap, and never plays under less motion', () => {
