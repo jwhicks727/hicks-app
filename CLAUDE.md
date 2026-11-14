@@ -127,6 +127,11 @@ and write the code fresh. SOAR's code belongs to the school.
   far off, on Home from two months out (`CountdownCard`), and in its last three days
   the Coming up card has it, so it never shows twice on Home. Never on the wall, and the
   family's real trips never go in a test or doc.
+- **A planned trip's page** (`/yonder/plan/<event id>`, `src/places/yonder/TripPlan.jsx`):
+  its stays and plans hang off the calendar event (`trip_stays`, `trip_plans`, the family's).
+  A stay is a public building's name, town and a point to about a hundred metres, never an
+  address (`tests/trip-plan.test.mjs`); its guide is asked by area (`guideAreas`), so a
+  stay's name never goes to Claude, and distances from it are worked out on the phone.
 - An Edge Function is told no more than it needs: the birds function gets a
   tenth-of-a-degree cell (`nearCell`, `tests/birds-near.test.mjs`), never a closer point.
 - A guide to a place (`area_guides`) is kept by area, never by person: no member id,

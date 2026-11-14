@@ -146,3 +146,40 @@ html[data-motion="less"] .yo-snow { display: none; }
 .yo-linklike { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; color: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; }
 .yo-field textarea { width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; resize: vertical; }
 .yo-field select { min-height: 44px; max-width: 100%; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; }
+
+/* A planned trip's page (TripPlan.jsx): where we're staying, our plans, the guides */
+.yo-plan-hero .yo-sky { margin-top: 2px; }
+.yo-stay-list, .yo-plan-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.yo-stay-list > li { display: grid; gap: 2px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yo-stay-list > li:first-child { border-top: 0; padding-top: 0; }
+.yo-stay-list b { font-size: 17px; overflow-wrap: anywhere; }
+.yo-stay-list small { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.yo-stay-list .yo-stay-note { color: var(--ink); white-space: pre-line; }
+.yo-stay-go { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+.yo-stay-go .icon-btn { margin-left: auto; }
+.yo-stay-form, .yo-plan-form { padding: 12px; border-radius: var(--r-control); border: 1px solid var(--line); background: color-mix(in srgb, var(--tint) 6%, var(--card)); }
+
+.yo-plan-day h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin: 4px 0 2px; }
+.yo-plan-list > li { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); }
+.yo-plan-list > li:first-child { border-top: 0; }
+.yo-plan-list > li:has(form) { display: block; padding: 6px 0; }
+.yo-plan { flex: 1; min-width: 0; display: grid; grid-template-columns: 4.6em minmax(0, 1fr); gap: 8px; align-items: baseline; min-height: 48px; padding: 8px 0; text-align: left; background: none; border: 0; font: inherit; color: var(--ink); cursor: pointer; }
+.yo-plan:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.yo-plan-time { color: color-mix(in srgb, var(--tint) 62%, var(--ink)); font-weight: 850; font-size: 14px; white-space: nowrap; }
+.yo-plan-what { display: grid; gap: 2px; min-width: 0; }
+.yo-plan-what b { overflow-wrap: anywhere; }
+.yo-plan-what small { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; white-space: pre-line; }
+.yo-plan-link { display: grid; place-items: center; width: 44px; height: 44px; flex: none; color: var(--ink); text-decoration: none; font-weight: 800; border-radius: var(--r-control); }
+.yo-plan-link:focus-visible { outline: 3px solid var(--ink); }
+.yo-plan-list .icon-btn { flex: none; }
+
+.yo-add-plan { display: grid; gap: 8px; margin: 12px 0 4px; padding: 12px; border-radius: var(--r-control); border: 1px solid var(--line); background: color-mix(in srgb, #C9863F 10%, var(--card)); }
+.yo-add-plan label { display: grid; gap: 4px; font-weight: 750; font-size: 14px; }
+.yo-add-plan select { font: inherit; min-height: 44px; padding: 8px 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+.yo-add-plan .muted { margin: 0; }
+.yo-plan-guide .ar-hero { margin-top: 0; }
+@media (min-width: 900px) {
+  .yo-plan-hero .ar-hero img { aspect-ratio: 21 / 8; }
+  .yo-plan-guide .ar-rail { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .yo-plan-guide .ar-tile { width: min(200px, 100%); }
+}

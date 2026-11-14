@@ -16,13 +16,13 @@ import './yonder.css'
 
 const whoseOf = (members, id) => (id && (members || []).find((m) => m.id === id)) || null
 
-/** One trip counting down: the sleeps big, then what and when, and its stamp. A milestone day gets the rainbow gleam. */
+/** One trip counting down: the sleeps big, then what and when, and its stamp; it opens the trip's page. A milestone day gets the rainbow gleam. */
 export function CountdownRow({ trip, today, members, gleam = false }) {
   const who = whoseOf(members, trip.for_whom)
   const wait = waitWords(today, trip.starts_on)
   const town = trip.town && !trip.title.toLowerCase().includes(trip.town.toLowerCase()) ? trip.town : ''
   return (
-    <Link className={'yo-count' + (gleam ? ' yo-gleaming' : '')} to={`/calendar/event/${trip.id}`}>
+    <Link className={'yo-count' + (gleam ? ' yo-gleaming' : '')} to={`/yonder/plan/${trip.id}`}>
       <span className={'yo-count-fig' + (trip.sleeps >= 1000 ? ' long' : '')}><b>{trip.sleeps.toLocaleString('en-US')}</b><small>{trip.sleeps === 1 ? 'sleep' : 'sleeps'}</small></span>
       <span className="yo-count-what">
         <b>{trip.title}</b>

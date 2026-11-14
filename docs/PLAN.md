@@ -397,7 +397,19 @@ and the phases are in issue #19; what's built is ticked here.
       every trip on the calendar starting in four days to two months, its sleeps big, its
       dates, whose trip it is and its stamp, up to three, with the way to the rest in the
       travel app (`CountdownCard`, `src/places/yonder/Countdown.jsx`; `homeCountdowns` in
-      `src/lib/yonder.js`). In a trip's last three days Coming up takes over.
+      `src/lib/yonder.js`). In a trip's last three days Coming up takes over. Each trip
+      opens its own page.
+- [x] **A planned trip's page** (2026-11-14, Jason's ask; `/yonder/plan/<event id>`,
+      `src/places/yonder/TripPlan.jsx`, `src/lib/tripPlan.js`), opened from every countdown,
+      Coming up and the trip we're on: Laurie's painting or the place's photo with the
+      countdown over the sky there; **where we're staying** (one or more stays, found on
+      OpenStreetMap by the phone, the place's name, town and spot to about a hundred metres,
+      never an address; `trip_stays`); **our plans** by day, with a time, where, a link and
+      a note (`trip_plans`); and **a guide to the area around each stay** (or the trip's
+      place), written by Claude for what we like with photos, in rows nearest the stay
+      first, each place a tap from a day in our plans. The guide is asked by area, so the
+      stay's name never reaches Claude; distances are worked out on the phone. The packing
+      list joins in the last two weeks. Unverified on a phone with real trips.
 - [ ] Unverified on a real iPhone: whether the installed app asks for location again
       each time it opens, and how to undo a "Don't Allow".
 - [x] **Birds around here** (2026-11-07): away, Home's Birds card and `/world/birds`

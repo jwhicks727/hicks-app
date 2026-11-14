@@ -149,7 +149,7 @@ function GuidesReport({ session }) {
     </div>
   )
 }
-/** The travel app in numbers: trips kept, postcards, hikes and their miles. Counts only, never where. */
+/** The travel app in numbers: trips kept, postcards, hikes and their miles, stays and plans entered. Counts only, never where. */
 function TripsReport({ session }) {
   const [d, setD] = useState(null)
   useEffect(() => {
@@ -160,7 +160,9 @@ function TripsReport({ session }) {
       supabase.from('outings').select('id', { count: 'exact', head: true }).gte('starts_on', year),
       supabase.from('postcards').select('id', { count: 'exact', head: true }).gte('on_date', year),
       supabase.from('trip_hikes').select('miles').gte('on_date', year).limit(1000),
-    ]).then(([o, p, h]) => { if (live) setD({ trips: o.count ?? 0, cards: p.count ?? 0, hikes: (h.data || []).length, miles: Math.round((h.data || []).reduce((a, r) => a + Number(r.miles || 0), 0) * 10) / 10 }) })
+      supabase.from('trip_stays').select('id', { count: 'exact', head: true }),
+      supabase.from('trip_plans').select('id', { count: 'exact', head: true }),
+    ]).then(([o, p, h, st, pl]) => { if (live) setD({ trips: o.count ?? 0, cards: p.count ?? 0, hikes: (h.data || []).length, miles: Math.round((h.data || []).reduce((a, r) => a + Number(r.miles || 0), 0) * 10) / 10, stays: st.count ?? 0, plans: pl.count ?? 0 }) })
     return () => { live = false }
   }, [session])
   if (!d) return <p className="muted">Counting…</p>
@@ -169,6 +171,8 @@ function TripsReport({ session }) {
       <tr><td>Trips kept this year</td><td className="num">{d.trips}</td></tr>
       <tr><td>Postcards sent</td><td className="num">{d.cards}</td></tr>
       <tr><td>Hikes ticked off</td><td className="num">{d.hikes} ({d.miles} mi)</td></tr>
+      <tr><td>Places to stay entered for trips</td><td className="num">{d.stays}</td></tr>
+      <tr><td>Plans made for trips</td><td className="num">{d.plans}</td></tr>
     </tbody></table>
   )
 }

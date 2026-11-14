@@ -145,7 +145,7 @@ export function TripAhead({ session, today, here, className = 'span-3' }) {
   const place = trip.place.split(',')[0]
   return (
     <Card tint="#2F7D7A" label="Coming up" glyph="star" className={className + ' here-trip'}>
-      <Link className="here-trip-head" to={`/calendar/event/${trip.id}`}>
+      <Link className="here-trip-head" to={`/yonder/plan/${trip.id}`}>
         <span className="here-when">{whenWords(trip, today)}{trip.inDays > 0 ? ` · ${sleepsFigure(trip.inDays)}` : ''}</span>
         <b className="here-title">{trip.title}</b>
         <span className="muted">{[place && place !== trip.title ? place : null, `${trip.miles} miles from home`].filter(Boolean).join(' · ')}</span>

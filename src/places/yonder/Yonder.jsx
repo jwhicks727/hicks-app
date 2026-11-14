@@ -26,6 +26,7 @@ import { useTripDays } from '../../parts/HereCards.jsx'
 import { PostcardForm, PostcardFront, TripQuest } from '../../parts/TravelBits.jsx'
 import Stamp from './Stamp.jsx'
 import { CountdownList } from './Countdown.jsx'
+import TripPlan from './TripPlan.jsx'
 import PhotoReel from '../../parts/PhotoReel.jsx'
 import { BeenTownPage, BeenTownsCard } from './Been.jsx'
 import { StartRecap } from './Recap.jsx'
@@ -35,10 +36,12 @@ import './yonder.css'
 
 // /yonder: the travel app (its name chosen in Admin: Yonder unless changed).
 // /yonder/day: today as a plan. /yonder/trip/<outing id>: a kept trip's scrapbook.
-// /yonder/passport: a stamp for every trip kept.
+// /yonder/passport: a stamp for every trip kept. /yonder/plan/<event id>: a planned
+// trip's own page (TripPlan.jsx): where we're staying, our plans and its guides.
 
 export default function Yonder({ rest = [] }) {
   if (rest[0] === 'day') return <OurDay />
+  if (rest[0] === 'plan') return <TripPlan id={/^[0-9a-f-]{36}$/i.test(rest[1] || '') ? rest[1] : null} />
   if (rest[0] === 'trip') return <Scrapbook id={rest[1]} />
   if (rest[0] === 'passport') return <Passport />
   if (rest[0] === 'town') return <BeenTownPage id={rest[1]} />
@@ -110,6 +113,7 @@ function NowCard({ c, trip }) {
       <div className="form-actions">
         {away && <Link className="btn" to="/world/around">What’s around here ›</Link>}
         {away && guide && <Link className="btn ghost" to="/yonder/day">Our day ›</Link>}
+        {trip.event_id && <Link className="btn ghost" to={`/yonder/plan/${trip.event_id}`}>Our plans ›</Link>}
         {trip.outing_id && <Link className="btn ghost" to={`/yonder/trip/${trip.outing_id}`}>The scrapbook so far ›</Link>}
       </div>
       {away && <PostcardForm here={c.here} me={c.me} today={c.today} />}
@@ -139,7 +143,10 @@ function NextCard({ c, next, gleam = false }) {
         </div>
         <p><b>{next.title}</b> <span className="muted">{range(next.starts_on, next.ends_on)}{who ? ` · ${who.name}’s trip` : ''}</span></p>
         <p className="muted">{visitsWords(c.outings.rows, next.town, c.today)}</p>
-        <Link className="btn ghost" to={`/calendar/event/${next.id}`}>The trip on the calendar ›</Link>
+        <div className="form-actions">
+          <Link className="btn" to={`/yonder/plan/${next.id}`}>Where we’re staying, our plans and the guide ›</Link>
+          <Link className="btn ghost" to={`/calendar/event/${next.id}`}>The trip on the calendar ›</Link>
+        </div>
       </Card>
       {next.sleeps <= 14 && <Packing c={c} trip={next} days={days || []} />}
     </>
@@ -147,7 +154,7 @@ function NextCard({ c, next, gleam = false }) {
 }
 
 /** The trip's packing list: our own items first, suggestions from the forecast and the plan one tap away. */
-function Packing({ c, trip, days }) {
+export function Packing({ c, trip, days }) {
   const p = usePacking(c.session, trip.id)
   const [draft, setDraft, clear] = useDraft(`packing.${trip.id}`, { title: '' })
   const [toast, setToast] = useState(null)
