@@ -122,6 +122,11 @@ and write the code fresh. SOAR's code belongs to the school.
   `tests/been.test.mjs`). Postcards and hikes keep a town and a day,
   never a point (`tests/yonder.test.mjs`). Where Laurie can eat well is a parent's ask,
   answered to the screen and never stored.
+- **A planned trip is a calendar event with its place on the map**, away from home
+  (`plannedTrips`, `src/lib/yonder.js`): every one counts down in the travel app however
+  far off, on Home from two months out (`CountdownCard`), and in its last three days
+  the Coming up card has it, so it never shows twice on Home. Never on the wall, and the
+  family's real trips never go in a test or doc.
 - An Edge Function is told no more than it needs: the birds function gets a
   tenth-of-a-degree cell (`nearCell`, `tests/birds-near.test.mjs`), never a closer point.
 - A guide to a place (`area_guides`) is kept by area, never by person: no member id,

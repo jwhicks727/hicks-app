@@ -38,6 +38,7 @@ import { hourIn, clockIn } from '../lib/here.js'
 import { WeatherHere, HereNowLine, TripAhead, whereWords } from '../parts/HereCards.jsx'
 import AroundCard from '../parts/AroundCard.jsx'
 import { BeenHereCard } from './yonder/Been.jsx'
+import { CountdownCard } from './yonder/Countdown.jsx'
 import RecapCards from './yonder/Recap.jsx'
 import { useRememberStay, useOutboxFlush } from '../lib/useStay.js'
 import { FamilyAway, MassNearHere, ParkNear, KeepTrip } from '../parts/FamilyTrips.jsx'
@@ -101,6 +102,7 @@ function HomeScreen() {
       <ZoneShift here={here} />
       <PrayerForTheRoad trip={tripsAhead(events, today, 0).find((t) => t.inDays === 0)} hour={hour} />
       <TripAhead session={session} today={today} here={here} />
+      <CountdownCard session={session} today={today} members={family.members} />
       {here.tier === 'away' && <AroundCard here={here} />}
       {(here.tier === 'away' || here.tier === 'near') && <BeenHereCard here={here} />}
       {here.tier === 'away' && me && <Card tint="#B5658F" label="A postcard" glyph="star" className="span-3"><PostcardForm here={here} me={me} today={today} /></Card>}

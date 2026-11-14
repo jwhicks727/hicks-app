@@ -6,8 +6,8 @@
 // today away (unkept until someone keeps it). Everything shown comes from real
 // data: the calendar, the forecast, the guide, the sky worked out on the phone.
 
-import { miles, AWAY_MI, placeWords } from './here.js'
-import { addDays, diffDays, WEEKDAYS } from './cal/dates.js'
+import { miles, AWAY_MI, TRIP_AHEAD_DAYS, placeWords } from './here.js'
+import { diffDays, WEEKDAYS } from './cal/dates.js'
 import { lifeList } from './life/birdStats.js'
 import { startBy } from './around.js'
 
@@ -31,15 +31,50 @@ export function currentTrip({ events = [], outings = [], here = null, today, hom
   return null
 }
 
-/** The next trip on the calendar, within two months: soonest first, with how many sleeps. */
-export function nextTrip(events, today, home, within = 60) {
-  const last = addDays(today, within)
-  const t = (events || []).filter((e) => e && e.lat != null && e.lng != null && e.starts_on > today && e.starts_on <= last && miles(home, e) > AWAY_MI)
-    .sort((a, b) => (a.starts_on < b.starts_on ? -1 : 1))[0]
-  return t ? { ...t, town: firstPart(t.place) || t.title, sleeps: diffDays(today, t.starts_on) } : null
+/**
+ * Every trip planned on the calendar, however far off: an event with a place on the
+ * map more than AWAY_MI from home that hasn't started yet. Soonest first, each with
+ * its town and how many sleeps until it starts.
+ */
+export function plannedTrips(events, today, home) {
+  return (events || []).filter((e) => e && e.lat != null && e.lng != null && e.starts_on > today && miles(home, e) > AWAY_MI)
+    .sort((a, b) => (a.starts_on < b.starts_on ? -1 : a.starts_on > b.starts_on ? 1 : String(a.id) < String(b.id) ? -1 : 1))
+    .map((t) => ({ ...t, town: firstPart(t.place) || t.title, sleeps: diffDays(today, t.starts_on) }))
 }
+/** The next planned trip, if it starts within `within` days (however far, by default). */
+export function nextTrip(events, today, home, within = Infinity) {
+  const t = plannedTrips(events, today, home)[0]
+  return t && t.sleeps <= within ? t : null
+}
+
+/** Home counts down to a trip from two months out; in its last days the Coming up card (TRIP_AHEAD_DAYS) takes over. */
+export const HOME_COUNTDOWN_DAYS = 60
+export function homeCountdowns(events, today, home) {
+  return plannedTrips(events, today, home).filter((t) => t.sleeps > TRIP_AHEAD_DAYS && t.sleeps <= HOME_COUNTDOWN_DAYS)
+}
+
 /** "4 sleeps until Big Bear", "1 sleep until Big Bear". */
 export const sleepsWords = (t) => `${t.sleeps} ${t.sleeps === 1 ? 'sleep' : 'sleeps'} until ${t.town}`
+/** The figure on its own: "1 sleep", "84 sleeps", "1,212 sleeps". */
+export const sleepsFigure = (n) => `${n.toLocaleString('en-US')} ${n === 1 ? 'sleep' : 'sleeps'}`
+
+/**
+ * A long wait in months and years, for a trip two months or more away: "2 months",
+ * "1 year and 5 months", "2 years". Whole calendar months, counted from the dates.
+ */
+export function waitWords(today, date) {
+  if (diffDays(today, date) < 60) return ''
+  const [y1, m1, d1] = today.split('-').map(Number), [y2, m2, d2] = date.split('-').map(Number)
+  const months = (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0)
+  const y = Math.floor(months / 12), m = months % 12
+  const mw = (n) => `${n} ${n === 1 ? 'month' : 'months'}`
+  if (!y) return mw(m)
+  return `${y} ${y === 1 ? 'year' : 'years'}${m ? ` and ${mw(m)}` : ''}`
+}
+
+/** The countdown's milestones, and the trip that reaches one today (only the first: a gleam is rare, one at a time). */
+export const MILESTONES = [1000, 500, 365, 100, 50, 10]
+export const milestoneTrip = (trips) => (trips || []).find((t) => MILESTONES.includes(t.sleeps)) || null
 
 const norm = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
 const ORD = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth']

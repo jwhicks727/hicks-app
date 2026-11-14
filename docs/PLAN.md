@@ -391,8 +391,13 @@ and the phases are in issue #19; what's built is ticked here.
       home's day.
 - [x] **Coming up** on Home: a trip on the calendar (an event with a place more than
       25 miles away) from three days before it starts until we're there: when, how far,
-      its forecast for those days and what to pack, from the forecast alone. It works
-      whether or not Notice where I am is on.
+      its forecast for those days and what to pack, from the forecast alone, and how many
+      sleeps are left. It works whether or not Notice where I am is on.
+- [x] **Counting down** on Home (2026-11-14, Laurie's idea: Anna loves a good countdown):
+      every trip on the calendar starting in four days to two months, its sleeps big, its
+      dates, whose trip it is and its stamp, up to three, with the way to the rest in the
+      travel app (`CountdownCard`, `src/places/yonder/Countdown.jsx`; `homeCountdowns` in
+      `src/lib/yonder.js`). In a trip's last three days Coming up takes over.
 - [ ] Unverified on a real iPhone: whether the installed app asks for location again
       each time it opens, and how to undo a "Don't Allow".
 - [x] **Birds around here** (2026-11-07): away, Home's Birds card and `/world/birds`
@@ -432,8 +437,11 @@ and the phases are in issue #19; what's built is ticked here.
       here wait for the jam scout. Unverified live until migration 20261107232000 runs.
 - [x] **The travel app** (2026-11-07; Yonder unless Admin names it Postcards, Field Trip,
       Wayfaring or Wanderings; `/yonder`, `src/places/yonder/`, `src/lib/yonder.js`):
-      the next trip counting its sleeps over the sky there now, with "your fourth time
-      in Big Bear" from kept trips; a shared packing list (our own items first,
+      the next trip counting its sleeps over the sky there now, however far off, with
+      "your fourth time in Big Bear" from kept trips; **Trips ahead**, every other trip
+      planned on the calendar with its own countdown (a long wait in months and years too;
+      a milestone day such as 100 or 10 sleeps gets the rainbow gleam, one at a time;
+      `plannedTrips`, `useTripEvents`); a shared packing list (our own items first,
       suggestions from the forecast and the trip a tap away); while away, a postcard to
       the family (Laurie's painting or the place's photo on the front, a stamp drawn in
       code; it shows in Meanwhile), Our day (`/yonder/day`: coffee, a hike that fits
