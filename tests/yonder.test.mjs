@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import SunCalc from 'suncalc'
 import {
-  APP_NAMES, appNameOf, currentTrip, nextTrip, sleepsWords, visitsWords, packingSuggestions, stampKind, hikeTotals, longestYet, tripLifers,
+  APP_NAMES, appNameOf, currentTrip, nextTrip, plannedTrips, homeCountdowns, HOME_COUNTDOWN_DAYS, sleepsFigure, waitWords, MILESTONES, milestoneTrip, sleepsWords, visitsWords, packingSuggestions, stampKind, hikeTotals, longestYet, tripLifers,
   onThisDayTrips, travelQuestion, boilingF, altitudeWords, coreTonight, dayPlan, inOrder, moveStop, fxUrl, shapeFx, showsUrl, shapeShows, zoneShiftWords, offsetMin,
 } from '../src/lib/yonder.js'
 import { EAT_TOOL, cleanPlaces, eatAsk, cellOf } from '../supabase/functions/_shared/around.js'
@@ -11,6 +11,7 @@ import { TASKS } from '../supabase/functions/_shared/claude.js'
 import { HOME_TOWN } from '../src/lib/sky.js'
 
 const src = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8')
+const addDaysTo = (d, n) => new Date(Date.parse(d + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10)
 const bear = { id: 'e1', title: 'Big Bear weekend', place: 'Big Bear Lake, California', lat: 34.24, lng: -116.91, starts_on: '2026-11-13', ends_on: '2026-11-15' }
 
 test('the trip we’re on: a calendar trip, a kept outing, or today away; nothing at home', () => {
@@ -27,10 +28,66 @@ test('the next trip counts its sleeps; visits come from kept trips only', () => 
   assert.equal(n.sleeps, 4)
   assert.equal(sleepsWords(n), '4 sleeps until Big Bear Lake')
   assert.equal(sleepsWords({ ...n, sleeps: 1 }), '1 sleep until Big Bear Lake')
-  assert.equal(nextTrip([bear], '2026-08-01', HOME_TOWN), null, 'more than two months off')
+  assert.equal(nextTrip([bear], '2026-08-01', HOME_TOWN).sleeps, 104, 'however far off')
+  assert.equal(nextTrip([bear], '2026-08-01', HOME_TOWN, 60), null, 'outside the window asked for')
   const kept = [{ id: 'a', title: 'Big Bear', place: 'Big Bear Lake', starts_on: '2026-02-06', ends_on: '2026-02-08' }, { id: 'b', title: 'Snow trip', place: 'Big Bear Lake, California', starts_on: '2025-01-10', ends_on: '2025-01-11' }]
   assert.equal(visitsWords(kept, 'Big Bear Lake', '2026-11-14'), 'Your third time in Big Bear Lake. Last time: February 2026.')
   assert.equal(visitsWords([], 'Sedona', '2026-11-14'), 'Your first time in Sedona.')
+})
+
+// Made-up trips: the family's own plans live in the calendar, never in this repository.
+const yosemite = { id: 'e2', title: 'Yosemite in the spring', place: 'Yosemite Valley, California', lat: 37.74, lng: -119.59, starts_on: '2027-04-10', ends_on: '2027-04-14', for_whom: null }
+const school = { id: 'e3', title: 'Class trip', place: 'Sacramento, California', lat: 38.58, lng: -121.49, starts_on: '2028-05-02', ends_on: '2028-05-06', for_whom: 'kid' }
+const atHome = { id: 'e4', title: 'Concert in town', place: 'Home town', lat: HOME_TOWN.lat, lng: HOME_TOWN.lng, starts_on: '2026-12-01', ends_on: '2026-12-01' }
+const noMap = { id: 'e5', title: 'Somewhere, someday', place: 'Somewhere', lat: null, lng: null, starts_on: '2027-01-01', ends_on: '2027-01-02' }
+
+test('every planned trip counts down in the travel app, however far off; soonest first', () => {
+  const p = plannedTrips([school, atHome, yosemite, noMap, bear], '2026-11-14', HOME_TOWN)
+  assert.deepEqual(p.map((t) => t.id), ['e2', 'e3'], 'started, at home or not on the map: not a planned trip')
+  assert.equal(p[0].town, 'Yosemite Valley')
+  assert.equal(p[0].sleeps, 147)
+  assert.equal(p[1].sleeps, 535, 'through a leap February')
+  assert.equal(plannedTrips([bear], '2026-11-13', HOME_TOWN).length, 0, 'the day it starts it is the trip we’re on, not one ahead')
+  assert.deepEqual(plannedTrips(null, '2026-11-14', HOME_TOWN), [])
+  const twin = { ...yosemite, id: 'e1b' }
+  assert.deepEqual(plannedTrips([twin, yosemite], '2026-11-14', HOME_TOWN).map((t) => t.id), ['e1b', 'e2'], 'same day: a steady order')
+})
+
+test('Home counts down from two months out; the Coming up card has the last three days', () => {
+  const at = (days) => ({ ...yosemite, id: `d${days}`, starts_on: addDaysTo('2026-11-14', days), ends_on: addDaysTo('2026-11-14', days + 2) })
+  const trips = [at(2), at(3), at(4), at(30), at(HOME_COUNTDOWN_DAYS), at(HOME_COUNTDOWN_DAYS + 1), at(400)]
+  assert.deepEqual(homeCountdowns(trips, '2026-11-14', HOME_TOWN).map((t) => t.sleeps), [4, 30, 60])
+  assert.equal(HOME_COUNTDOWN_DAYS, 60)
+})
+
+test('the sleeps never wrap; a long wait reads in months and years', () => {
+  assert.equal(sleepsFigure(1), '1 sleep')
+  assert.equal(sleepsFigure(84), '84 sleeps')
+  assert.equal(sleepsFigure(1212), '1,212 sleeps')
+  assert.equal(waitWords('2026-11-14', '2026-12-20'), '', 'under two months the sleeps say it')
+  assert.equal(waitWords('2026-11-14', '2027-01-13'), '1 month', 'sixty days, one whole month')
+  assert.equal(waitWords('2026-11-14', '2027-02-20'), '3 months')
+  assert.equal(waitWords('2026-11-14', '2027-11-14'), '1 year')
+  assert.equal(waitWords('2026-11-14', '2028-05-02'), '1 year and 5 months')
+  assert.equal(waitWords('2026-11-14', '2028-12-01'), '2 years')
+  assert.equal(waitWords('2026-11-30', '2027-03-01'), '3 months', 'counted from the dates, never a Date at midnight')
+})
+
+test('a milestone day gleams, one trip at a time', () => {
+  assert.deepEqual(MILESTONES, [1000, 500, 365, 100, 50, 10])
+  const a = { id: 'a', sleeps: 12 }, b = { id: 'b', sleeps: 100 }, c = { id: 'c', sleeps: 365 }
+  assert.equal(milestoneTrip([a, b, c]), b, 'only the first')
+  assert.equal(milestoneTrip([a]), null)
+  assert.equal(milestoneTrip([]), null)
+})
+
+test('the countdown lives in the travel app and, from two months out, on Home', () => {
+  const home = src('src/places/Home.jsx'), yonder = src('src/places/yonder/Yonder.jsx'), card = src('src/places/yonder/Countdown.jsx')
+  assert.match(home, /<TripAhead[^>]*\/>\s*<CountdownCard /, 'right after the Coming up card')
+  assert.match(card, /homeCountdowns\(/)
+  assert.match(yonder, /plannedTrips\(dedupeEvents\(c\.planned\.events\)/)
+  assert.match(src('src/lib/useCalendar.js'), /export function useTripEvents[\s\S]*?\.gt\('starts_on', today\)\.not\('lat', 'is', null\)/, 'only events with a place, however far off')
+  assert.match(src('src/places/yonder/yonder.css'), /html\[data-motion="less"\] \.yo-gleam \{ display: none; \}/, 'still under less motion')
 })
 
 test('packing comes from the forecast, the plan and who’s coming; stamps from what the trip was', () => {

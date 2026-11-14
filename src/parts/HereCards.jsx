@@ -14,6 +14,7 @@ import { inchWords } from '../lib/weather.js'
 import { tripForecastUrl } from '../lib/outdoors.js'
 import { useAround } from '../lib/useAround.js'
 import { cellIdOf } from '../lib/around.js'
+import { sleepsFigure } from '../lib/yonder.js'
 import { placeWords, tripsAhead, whenWords, tripWindow, shapeTripDays, packWords, miles, cellOf, OSM_CREDIT, TRIP_AHEAD_DAYS } from '../lib/here.js'
 
 /** The town's name, or our own place's while the name is still being looked up. */
@@ -145,7 +146,7 @@ export function TripAhead({ session, today, here, className = 'span-3' }) {
   return (
     <Card tint="#2F7D7A" label="Coming up" glyph="star" className={className + ' here-trip'}>
       <Link className="here-trip-head" to={`/calendar/event/${trip.id}`}>
-        <span className="here-when">{whenWords(trip, today)}</span>
+        <span className="here-when">{whenWords(trip, today)}{trip.inDays > 0 ? ` · ${sleepsFigure(trip.inDays)}` : ''}</span>
         <b className="here-title">{trip.title}</b>
         <span className="muted">{[place && place !== trip.title ? place : null, `${trip.miles} miles from home`].filter(Boolean).join(' · ')}</span>
       </Link>

@@ -6,6 +6,28 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-14 — Every planned trip counts down, however far off; Home from two months out
+
+Laurie, seeing the travel app: what if it counted down to the trips we know about, near and years away, since
+Anna loves a good countdown. Jason: "any planned trips live in Yonder no matter how far off, and once trips are
+within 60 days give them a home card." Until now the travel app counted down only to the soonest trip, and only
+inside two months.
+- **A planned trip is a calendar event with its place found on the map**, more than 25 miles from home, that
+  hasn't started (`plannedTrips`, `src/lib/yonder.js`). The calendar stays the one place trips are planned: its
+  packing list hangs off the event. A trip kept only in Life List doesn't count down; put it on the calendar.
+  Every such event still to come is read however far ahead (`useTripEvents`, only events with a place, so it
+  stays small).
+- **In the travel app**: the next trip over the sky there now, however far off, and **Trips ahead** with each
+  other trip's countdown, soonest first. Sleeps all the way (a child counts sleeps); two months or more also
+  says the wait in whole months and years ("1 year and 5 months to go"), counted from the dates.
+- **On Home**: a **Counting down** card for trips starting in four days to two months, up to three. In the last
+  three days the Coming up card (forecast, packing) has the trip, and now says its sleeps too, so the trip never
+  shows twice on Home.
+- **Milestones gleam**: 1000, 500, 365, 100, 50 and 10 sleeps get the rainbow gleam, one trip at a time per
+  screen, still under less motion. Rare by design.
+- Never on the wall. Tried on a test page with made-up trips at 390px, 844 × 390, the desktop and dark; not yet
+  seen on a phone with the family's real trips.
+
 ## 2026-11-13 (late) — Each show its own, and fun: many play with Home itself
 
 Jason: "Get creative here, we want each one to feel unique and fun." The first leads were too alike (five leaves falling in
