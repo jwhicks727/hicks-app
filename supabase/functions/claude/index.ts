@@ -224,7 +224,7 @@ async function kitchenContext(db: any, isParent: boolean, page?: { slug?: string
     db.from('recipes').select('id, slug, title').order('updated_at', { ascending: false }).limit(120),
     db.from('recipe_ratings').select('recipe_id, stars').limit(1000),
     db.from('fridge').select('recipe_id, status, added_on, done_on').order('added_on', { ascending: false }).limit(200),
-    db.from('week_plans').select('ideas').order('created_at', { ascending: false }).limit(1),
+    db.from('week_plans').select('ideas, on_hand').is('dismissed_at', null).order('created_at', { ascending: false }).limit(1),
     db.from('garden_log').select('on_date, note, spot:garden_spots(name)').eq('kind', 'harvest').gte('on_date', since).order('on_date', { ascending: false }).limit(12),
   ])
   const stars = new Map<string, number[]>()

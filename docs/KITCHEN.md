@@ -90,6 +90,11 @@ exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
 - **Timers** are kept on the device as their end times, so one started
   before the phone closed the app is still right; each chimes and buzzes
   once.
+- **Photos in the chat, and what's on hand.** The Kitchen chat's "Add photos" attaches up to four pictures of what
+  is in the house. Claude reads them once (`note_on_hand` proposes each thing with its amount, where it lives and a note); a
+  parent's yes keeps the list on the open plan (`week_plans.on_hand`), and the weekly planner and the recipe writer cook
+  around it (`kitchenNow`). The planner's On hand card lists it, each item removable. Photos are never stored (the chat's
+  history keeps only a count), and people in a photo are never described.
 - **Home** shows what's still in the fridge, and how many dishes are still
   to shop for, only while there are some.
 - **Food pictures.** Each ingredient's drawing (the Food Icon Pack's line

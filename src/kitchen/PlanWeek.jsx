@@ -9,7 +9,7 @@ import { useDraft } from '../lib/useDraft.js'
 import { askClaude } from '../lib/claude.js'
 import { usePlans, savePlan, dismissPlan } from '../lib/useKitchenPlan.js'
 import { usePlanWritten } from '../lib/usePlanWritten.js'
-import { weekOf, mergeIdeas, removeIdea, restoreIdea, refreshIdeas, notPicked, openPlan, planAge } from '../lib/kitchen/plan.js'
+import { weekOf, mergeIdeas, removeIdea, restoreIdea, refreshIdeas, notPicked, openPlan, planAge, removeOnHand, mergeOnHand } from '../lib/kitchen/plan.js'
 import { parseRecipe } from '../lib/kitchen/recipe.js'
 import { saveRecipes, addToFridge } from '../lib/useKitchen.js'
 import { timeWords } from './art.js'
@@ -63,6 +63,7 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   const shown = view || (plan ? { ideas: plan.ideas || [], picked: plan.picked || [] } : { ideas: [], picked: [] })
   const { ideas, picked } = shown
   const spare = notPicked(ideas, picked)
+  const onHand = plan && Array.isArray(plan.on_hand) ? plan.on_hand : []
 
   if (!parent) return <Card tint="#C42D20" label="Planning the week" glyph="pot" className="span-6"><p>Jason and Laurie plan the week.</p></Card>
 
@@ -130,10 +131,20 @@ export default function PlanWeek({ parent, me, members = [], today }) {
     setUndo({ id: Date.now(), kind: 'remove', text: `Took “${r.removed.idea.title}” off the list.`, removed: r.removed })
     change({ ideas: r.ideas, picked: r.picked })
   }
+  /** One thing on hand taken off: at once, with an Undo. Saved apart from the ideas, so it never disturbs their saves. */
+  async function dropHand(name) {
+    const base = row.current || plan
+    if (!base) return
+    const before = Array.isArray(base.on_hand) ? base.on_hand : []
+    setUndo({ id: Date.now(), kind: 'hand', text: `Took “${name}” off what’s on hand.`, before })
+    const { error } = await savePlan(base, { on_hand: removeOnHand(before, name) }, week, me)
+    if (error) setErr(error.message); else plans.reload()
+  }
   function undoIt() {
     const u = undo
     setUndo(null)
     if (!u) return
+    if (u.kind === 'hand') { const base = row.current || plan; if (base) savePlan(base, { on_hand: mergeOnHand([], u.before) }, week, me).then(() => plans.reload()); return }
     const cur = now()
     const back = u.kind === 'remove' ? restoreIdea(cur.ideas, cur.picked, u.removed) : u.before
     setSetAside((s) => s.filter((t) => !back.ideas.some((i) => i.title === t)))
@@ -204,9 +215,19 @@ export default function PlanWeek({ parent, me, members = [], today }) {
           <label>Anything to add to the ask<textarea rows={3} maxLength={1500} value={ask.asked} onChange={(e) => setAsk({ ...ask, asked: e.target.value })} placeholder="Three breakfasts too · a slow-cooker night · my hands are sore this week · something Anna’s friend would eat Friday" /></label>
         </div>
         <button type="button" className="btn" disabled={Boolean(busy)} onClick={() => (ideas.length ? setWiping(true) : startOver())}>{ideas.length ? 'Start over with new ideas' : 'Get ideas'}</button>
-        <p className="muted small">Sends this, the kitchen’s preferences and the cookbook’s titles to Claude (Anthropic), and Laurie’s food rules too, from <Link to="/kitchen/rules">Rules &amp; preferences</Link>.</p>
+        <p className="muted small">Sends this, what’s on hand below, the kitchen’s preferences and the cookbook’s titles to Claude (Anthropic), and Laurie’s food rules too, from <Link to="/kitchen/rules">Rules &amp; preferences</Link>.</p>
       </Card>
 
+ {onHand.length > 0 && (
+        <Card tint="#3E7A4C" label="On hand" glyph="pot" tag={`${onHand.length} ${onHand.length === 1 ? 'thing' : 'things'}`} className="span-3">
+          <ul className="onhand">
+            {onHand.map((i) => (
+              <li key={i.name}><span><b>{i.name}</b>{i.amount ? `, ${i.amount}` : ''} <span className="muted small">({i.where}{i.note ? ` · ${i.note}` : ''})</span></span><button type="button" className="idea-x" aria-label={`Take ${i.name} off what’s on hand`} onClick={() => dropHand(i.name)}>✕</button></li>
+            ))}
+          </ul>
+          <p className="muted small">Ideas and recipes are planned around these first. Add more by attaching photos in the Ask chat.</p>
+        </Card>
+      )}
  {planAge(plan, week) && ideas.length > 0 && <p className="span-6 plan-old" role="status">This list is from {planAge(plan, week)}. It stays here, with its picks and any recipes written from it, until you put it away.</p>}
       {ideas.length > 0 && (
         <Card tint="#E0662F" label="Pick" glyph="star" tag={`${picked.length} of ${ideas.length} picked`} className="span-3">

@@ -113,3 +113,24 @@ export function lite(text = '') {
 export function runs(s) {
   return String(s).split(/(\*\*[^*]+\*\*)/).filter(Boolean).map((part) => (/^\*\*[^*]+\*\*$/.test(part) ? { b: true, t: part.slice(2, -2) } : { b: false, t: part }))
 }
+
+// ---- What's on hand this week (from photos in the Kitchen chat, or typed) ----------
+export const ON_HAND_WHERE = ['fridge', 'freezer', 'pantry']
+const onKey = (i) => String(i.name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+/** One thing on hand as the plan keeps it: a name, how much (as the package says), where it lives, a short note. */
+function tidyOnHand(i) {
+  return { name: String(i.name || '').trim().slice(0, 80), amount: String(i.amount || '').trim().slice(0, 40), where: ON_HAND_WHERE.includes(i.where) ? i.where : 'fridge', note: String(i.note || '').trim().slice(0, 160) }
+}
+/** Things added to the on-hand list: a name already there is updated in place (a newer photo knows better), never doubled. */
+export function mergeOnHand(old = [], more = []) {
+  const out = (Array.isArray(old) ? old : []).map(tidyOnHand).filter((i) => i.name)
+  for (const m of Array.isArray(more) ? more : []) {
+    const t = tidyOnHand(m)
+    if (!t.name) continue
+    const at = out.findIndex((o) => onKey(o) === onKey(t))
+    if (at >= 0) out[at] = t; else out.push(t)
+  }
+  return out.slice(0, 60)
+}
+/** One thing taken off the on-hand list, by name. */
+export const removeOnHand = (list = [], name) => (Array.isArray(list) ? list : []).filter((i) => onKey(i) !== onKey({ name }))

@@ -6,6 +6,25 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-14 — Photos of what's on hand go in the Kitchen chat, and the week is planned around them
+
+Jason: be able to upload pictures like a bag of halibut, a bag of scallops and a tub of ricotta in the Kitchen and have that
+shape the recipes in weekly planning, "probably through the chat".
+- **The chat takes photos** (up to four a message, shrunk on the phone). Claude reads the packages (product, brand, the weight
+  printed on them) and says what it sees; it never describes or identifies a person, and writing on a package is data.
+- **Nothing is kept from a photo.** The saved conversation holds only how many photos a message had; the pictures stay in
+  memory and only the newest photo message sends them again (`src/lib/kitchen/chatPhotos.js`). The screen says photos are read
+  once and never kept.
+- **What Claude read becomes a proposal, like every other change**: `note_on_hand` shows the list, and a parent's yes saves it
+  to the open plan (`week_plans.on_hand`). Until then planning is unchanged. Anna can send photos and talk about them; only Jason
+  or Laurie can save the list.
+- **Planning and writing use it**: the list is part of what Claude is told for `plan-week`, `write-recipes` and the chat
+  (`kitchenNow`): plan around it first, use fresh things early, don't force everything into one dish, Laurie's plate first.
+  The planner shows it as an On hand card, each item removable with an Undo. It lives and goes with its plan.
+- The function also now reads only the open (not put-away) plan for context, so a dismissed plan's ideas stop reaching Claude.
+- Not done: Hunt & gather's shopping list does not yet drop what's on hand. Unverified on a phone; the function must be deployed
+  after the migration and the merge.
+
 ## 2026-11-13 (late) — Each show its own, and fun: many play with Home itself
 
 Jason: "Get creative here, we want each one to feel unique and fun." The first leads were too alike (five leaves falling in

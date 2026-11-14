@@ -78,6 +78,10 @@ and write the code fresh. SOAR's code belongs to the school.
   database (`fridge_got`), never on a device, so every phone sees the same
   list and a shop is never forgotten (decisions log, 2026-11-08).
 
+- **Photos in the Kitchen chat are read once and never kept** (`src/lib/kitchen/chatPhotos.js`,
+  `tests/kitchen-chat-photos.test.mjs`): the saved conversation holds only a count, the screen says they go to Claude, Claude
+  never describes a person in one, and what it read (`note_on_hand`, `week_plans.on_hand`) is saved only on a parent's yes.
+
 ## The morning and evening lists
 
 - **A list's words are its keeper's** (Early Bird and Night Owl, `src/places/lists/`):
