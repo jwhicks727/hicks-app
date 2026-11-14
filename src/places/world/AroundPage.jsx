@@ -138,9 +138,15 @@ function Guide({ where, here, place, map, guide, building, error, kept = false }
   )
 }
 
-function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes, someday, beenTown, beenList, onClose }) {
-  const away = awayWords(item, point)
-  const go = section.key === 'hikes' ? startBy(item.hike, sunset, now) : null
+/**
+ * One place from a guide, in a sheet. Also opened from a planned trip's page
+ * (src/places/yonder/TripPlan.jsx) with `planning`: no "We did it" or "We went
+ * here" before we've gone, `distance` from where we're staying, and the page's
+ * own actions as children.
+ */
+export function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes, someday, beenTown, beenList, onClose, planning = false, distance = null, children = null }) {
+  const away = distance ?? awayWords(item, point)
+  const go = section.key === 'hikes' && !planning ? startBy(item.hike, sunset, now) : null
   const [toast, setToast] = useState(null), [gleam, setGleam] = useState(false)
   const today = todayAt(HOME_TOWN.tz, now)
   const ticked = (hikes.rows || []).find((h) => h.name === item.name && h.on_date === today)
@@ -182,10 +188,11 @@ function ItemSheet({ item, section, point, sunset, now, zone, town, place, hikes
         <a className="btn" href={mapsSearch(item.name, item.town || town)} target="_blank" rel="noopener noreferrer">Directions</a>
         {item.website && <a className="btn ghost" href={item.website} target="_blank" rel="noopener noreferrer">Its website</a>}
         {place && <button type="button" className="btn ghost" aria-pressed={Boolean(hearted)} onClick={toggleHeart}>{hearted ? '♥ On Someday' : '♡ Someday'}</button>}
-        {section.key === 'hikes' && !ticked && <button type="button" className={'btn ar-did' + (gleam ? ' ar-gleaming' : '')} onClick={tick}>We did it</button>}
-        {section.key === 'hikes' && ticked && <span className={'ar-done' + (gleam ? ' ar-gleaming' : '')}>{gleam && <i className="ar-gleam" aria-hidden="true" />}Done today ✓</span>}
+        {section.key === 'hikes' && !planning && !ticked && <button type="button" className={'btn ar-did' + (gleam ? ' ar-gleaming' : '')} onClick={tick}>We did it</button>}
+        {section.key === 'hikes' && !planning && ticked && <span className={'ar-done' + (gleam ? ' ar-gleaming' : '')}>{gleam && <i className="ar-gleam" aria-hidden="true" />}Done today ✓</span>}
       </div>
-      <BeenButton item={item} section={section.key} t={beenTown} list={beenList} />
+      {children}
+      {!planning && <BeenButton item={item} section={section.key} t={beenTown} list={beenList} />}
       {toast && <Toast action="Undo" onAction={toast.undo} onClose={() => setToast(null)}>{toast.text}</Toast>}
       <p className="muted small">Sources: {item.sources.map((u, i) => <span key={u}>{i ? ' · ' : ''}<a href={u} target="_blank" rel="noopener noreferrer">{(() => { try { return new URL(u).hostname.replace(/^www\./, '') } catch { return 'link' } })()}</a></span>)}</p>
     </Sheet>

@@ -14,6 +14,32 @@
 .yo-next .yo-sky .yo-stamp { position: absolute; right: 14px; top: 50%; translate: 0 -50%; background: rgba(255, 248, 238, .82); border-radius: 4px; }
 .yo-sleeps { font-family: var(--font-voice); font-weight: 400; font-size: 28px; line-height: 1.1; overflow-wrap: anywhere; }
 .yo-sky span { font-size: 13px; font-weight: 700; opacity: .9; }
+.yo-next .yo-sky { overflow: hidden; }
+
+/* Countdowns to the trips we've planned (Countdown.jsx): the sleeps big, then what and when, then the stamp. */
+.yo-counts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.yo-count { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px; min-height: 64px; border-radius: var(--r-control); background: color-mix(in srgb, #2F7D7A 8%, var(--card)); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+.yo-count:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.yo-count-fig { display: grid; justify-items: center; width: 4.2em; line-height: 1; color: #2F7D7A; }
+.yo-count-fig b { font-family: var(--font-display); font-weight: 400; font-size: 34px; white-space: nowrap; }
+.yo-count-fig.long b { font-size: 24px; }
+.yo-count-fig small { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin-top: 5px; }
+:root[data-theme="dark"] .yo-count-fig { color: #7CC4C0; }
+.yo-count-what { display: grid; gap: 2px; min-width: 0; }
+.yo-count-what b { overflow-wrap: anywhere; }
+.yo-count-what small { color: var(--muted); font-size: 13px; }
+.yo-count-what .yo-count-wait { color: var(--ink); font-weight: 700; }
+.yo-count .yo-stamp { background: rgba(255, 248, 238, .82); border-radius: 4px; }
+.yo-countdown .btn, .yo-ahead .muted { margin-top: 4px; }
+
+/* The rainbow gleam: a countdown reaching a milestone (100 sleeps, 10 sleeps). Rare, one at a time. */
+.yo-gleam { position: absolute; inset: -10% -80%; z-index: 3; pointer-events: none;
+  background: linear-gradient(100deg, transparent 36%, rgba(255, 59, 48, .22) 41%, rgba(255, 204, 0, .28) 45%, rgba(52, 199, 89, .24) 49%, rgba(0, 122, 255, .22) 53%, rgba(175, 82, 222, .22) 57%, transparent 62%);
+  transform: translateX(-60%); animation: yo-gleam-sweep 1.4s ease-in-out 2 both; }
+@keyframes yo-gleam-sweep { to { transform: translateX(60%); } }
+.yo-sky.yo-gleaming { box-shadow: inset 0 0 0 3px #F2C14E; }
+.yo-count.yo-gleaming { background: linear-gradient(color-mix(in srgb, #F2C14E 12%, var(--card)), color-mix(in srgb, #F2C14E 12%, var(--card))) padding-box, linear-gradient(135deg, #F03E2F, #F2C14E, #5FA85A, #4A7FD6, #8A5BC4) border-box; box-shadow: none; border: 2px solid transparent; }
+html[data-motion="less"] .yo-gleam { display: none; }
 
 .yo-pack-list { list-style: none; margin: 0; padding: 0; display: grid; }
 .yo-pack-list li { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); }
@@ -120,3 +146,40 @@ html[data-motion="less"] .yo-snow { display: none; }
 .yo-linklike { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; color: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; }
 .yo-field textarea { width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; resize: vertical; }
 .yo-field select { min-height: 44px; max-width: 100%; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card); color: var(--ink); font: inherit; font-weight: 400; }
+
+/* A planned trip's page (TripPlan.jsx): where we're staying, our plans, the guides */
+.yo-plan-hero .yo-sky { margin-top: 2px; }
+.yo-stay-list, .yo-plan-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.yo-stay-list > li { display: grid; gap: 2px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yo-stay-list > li:first-child { border-top: 0; padding-top: 0; }
+.yo-stay-list b { font-size: 17px; overflow-wrap: anywhere; }
+.yo-stay-list small { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.yo-stay-list .yo-stay-note { color: var(--ink); white-space: pre-line; }
+.yo-stay-go { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+.yo-stay-go .icon-btn { margin-left: auto; }
+.yo-stay-form, .yo-plan-form { padding: 12px; border-radius: var(--r-control); border: 1px solid var(--line); background: color-mix(in srgb, var(--tint) 6%, var(--card)); }
+
+.yo-plan-day h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin: 4px 0 2px; }
+.yo-plan-list > li { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); }
+.yo-plan-list > li:first-child { border-top: 0; }
+.yo-plan-list > li:has(form) { display: block; padding: 6px 0; }
+.yo-plan { flex: 1; min-width: 0; display: grid; grid-template-columns: 4.6em minmax(0, 1fr); gap: 8px; align-items: baseline; min-height: 48px; padding: 8px 0; text-align: left; background: none; border: 0; font: inherit; color: var(--ink); cursor: pointer; }
+.yo-plan:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.yo-plan-time { color: color-mix(in srgb, var(--tint) 62%, var(--ink)); font-weight: 850; font-size: 14px; white-space: nowrap; }
+.yo-plan-what { display: grid; gap: 2px; min-width: 0; }
+.yo-plan-what b { overflow-wrap: anywhere; }
+.yo-plan-what small { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; white-space: pre-line; }
+.yo-plan-link { display: grid; place-items: center; width: 44px; height: 44px; flex: none; color: var(--ink); text-decoration: none; font-weight: 800; border-radius: var(--r-control); }
+.yo-plan-link:focus-visible { outline: 3px solid var(--ink); }
+.yo-plan-list .icon-btn { flex: none; }
+
+.yo-add-plan { display: grid; gap: 8px; margin: 12px 0 4px; padding: 12px; border-radius: var(--r-control); border: 1px solid var(--line); background: color-mix(in srgb, #C9863F 10%, var(--card)); }
+.yo-add-plan label { display: grid; gap: 4px; font-weight: 750; font-size: 14px; }
+.yo-add-plan select { font: inherit; min-height: 44px; padding: 8px 10px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+.yo-add-plan .muted { margin: 0; }
+.yo-plan-guide .ar-hero { margin-top: 0; }
+@media (min-width: 900px) {
+  .yo-plan-hero .ar-hero img { aspect-ratio: 21 / 8; }
+  .yo-plan-guide .ar-rail { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .yo-plan-guide .ar-tile { width: min(200px, 100%); }
+}

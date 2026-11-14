@@ -39,5 +39,5 @@ export const REGISTRY = [
     reports: [] },
   { key: 'yonder', name: 'Yonder', colour: '#2F7D7A',
     setup: [{ key: 'name', title: 'The travel app’s name', ready: true }],
-    reports: [{ key: 'trips', title: 'Trips', blurb: 'Trips kept, postcards, hikes and stamps: counts, never where', ready: true }] },
+    reports: [{ key: 'trips', title: 'Trips', blurb: 'Trips kept, postcards, hikes and stamps, stays and plans entered: counts, never where', ready: true }] },
 ]

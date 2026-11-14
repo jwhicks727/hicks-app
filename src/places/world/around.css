@@ -18,6 +18,7 @@
 @keyframes ar-dot-pulse { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
 html[data-motion="less"] .ar-dots { animation: none; }
 
+.ar-rail-wrap { min-width: 0; } /* a row of tiles scrolls inside its card, never widens it */
 .ar-rail-wrap h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 850; margin: 0 0 6px; }
 .ar-rail { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: 16px; margin: 0 -16px; padding: 2px 16px 8px; -webkit-overflow-scrolling: touch; }
 .ar-tile { flex: none; width: 168px; scroll-snap-align: start; display: grid; align-content: start; gap: 4px; padding: 0 0 10px; text-align: left; font: inherit; color: var(--ink);
@@ -28,6 +29,7 @@ html[data-motion="less"] .ar-dots { animation: none; }
 .ar-tile-drawn b { font-family: var(--font-voice); font-weight: 400; font-size: 44px; color: var(--on-colour); }
 .ar-tile-name { padding: 0 10px; font-weight: 850; line-height: 1.25; overflow-wrap: anywhere; }
 .ar-tile small { padding: 0 10px; color: var(--muted); font-size: 13px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ar-tile .ar-tile-meta { color: var(--ink); font-weight: 750; font-size: 12px; -webkit-line-clamp: 2; }
 @media (min-width: 900px) { .ar-section .ar-rail { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; } .ar-section .ar-tile { width: min(200px, 100%); } }
 
 .ar-list { list-style: none; margin: 0; padding: 0; display: grid; }

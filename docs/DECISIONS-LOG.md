@@ -6,6 +6,52 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-14 (later) — Each planned trip has its own page: where we're staying, our plans, and a guide around it
+
+Jason: the Home card should open a fuller view of the trip, "where we can enter our hotel and plans, and the app
+generates rich, gorgeous AI-found content including photos to orient us to our type of stuff that might be around
+(coffee roasters, hikes, etc)." Decided:
+- **`/yonder/plan/<event id>`, from every countdown** (Home's Counting down, the travel app's next trip and Trips
+  ahead), Home's Coming up card and the trip we're on. The page keeps a trip's things on its calendar event, like
+  the packing list: a feed's events are updated in place, so they stay put.
+- **Where we're staying is a public building, never an address.** One or more stays (a trip with stops gets a guide
+  for each): the place's name, its town and region and its spot to about a hundred metres, which the database
+  can't hold more closely (`numeric(6,3)`). Found on OpenStreetMap's Nominatim by the phone, one search when someone
+  taps Find it, with what they typed and the trip's town; the road and house number it returns are never kept.
+- **The guide is the guide we already have, asked for the stay's area.** Claude is told the tenth-of-a-degree cell,
+  the town, its region and the family's interests from Admin, never the stay's name or who's going. How far each
+  place is from the stay is worked out on the phone, and each section's places come nearest first. The page writes
+  a guide by itself when it opens and the area has none from this month, inside the existing caps (four new guides a
+  day); photos come as before (Wikimedia Commons, credited, or a place's own website; Laurie's painting first where
+  she has painted the place). No image is generated.
+- **Plans belong to the family**, like the packing list: anyone adds, changes or takes one off (with an Undo). A
+  guide's place joins a day's plans from its sheet in one tap; "We did it" and "We went here" stay off until we've
+  gone. Reports counts stays and plans, never which.
+- Tried on a test page with a stand-in database and made-up trips, at 390px, 844 × 390, the desktop and dark; the
+  migration has to be run before the preview shows it. Not yet seen with real trips.
+
+## 2026-11-14 — Every planned trip counts down, however far off; Home from two months out
+
+Laurie, seeing the travel app: what if it counted down to the trips we know about, near and years away, since
+Anna loves a good countdown. Jason: "any planned trips live in Yonder no matter how far off, and once trips are
+within 60 days give them a home card." Until now the travel app counted down only to the soonest trip, and only
+inside two months.
+- **A planned trip is a calendar event with its place found on the map**, more than 25 miles from home, that
+  hasn't started (`plannedTrips`, `src/lib/yonder.js`). The calendar stays the one place trips are planned: its
+  packing list hangs off the event. A trip kept only in Life List doesn't count down; put it on the calendar.
+  Every such event still to come is read however far ahead (`useTripEvents`, only events with a place, so it
+  stays small).
+- **In the travel app**: the next trip over the sky there now, however far off, and **Trips ahead** with each
+  other trip's countdown, soonest first. Sleeps all the way (a child counts sleeps); two months or more also
+  says the wait in whole months and years ("1 year and 5 months to go"), counted from the dates.
+- **On Home**: a **Counting down** card for trips starting in four days to two months, up to three. In the last
+  three days the Coming up card (forecast, packing) has the trip, and now says its sleeps too, so the trip never
+  shows twice on Home.
+- **Milestones gleam**: 1000, 500, 365, 100, 50 and 10 sleeps get the rainbow gleam, one trip at a time per
+  screen, still under less motion. Rare by design.
+- Never on the wall. Tried on a test page with made-up trips at 390px, 844 × 390, the desktop and dark; not yet
+  seen on a phone with the family's real trips.
+
 ## 2026-11-13 (late) — Each show its own, and fun: many play with Home itself
 
 Jason: "Get creative here, we want each one to feel unique and fun." The first leads were too alike (five leaves falling in

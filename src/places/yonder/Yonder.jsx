@@ -5,7 +5,8 @@ import { Crumb, Link } from '../../shell/Link.jsx'
 import { Toast } from '../../ui/Toast.jsx'
 import { navigate } from '../../lib/router.js'
 import { useSession } from '../../lib/auth.js'
-import { useFamily, useEvents } from '../../lib/useCalendar.js'
+import { useFamily, useEvents, useTripEvents } from '../../lib/useCalendar.js'
+import { dedupeEvents } from '../../lib/cal/tidy.js'
 import { useNow } from '../../lib/useNow.js'
 import { useHere } from '../../lib/useHere.js'
 import { useAround, useTravelSettings } from '../../lib/useAround.js'
@@ -18,12 +19,14 @@ import { todayAt, addDays } from '../../lib/cal/dates.js'
 import { HOME_TOWN, SKIES, phaseOf, skyGradient } from '../../lib/sky.js'
 import { clockIn, hourIn } from '../../lib/here.js'
 import { cellIdOf, mapsSearch, hikeWords } from '../../lib/around.js'
-import { currentTrip, nextTrip, sleepsWords, visitsWords, packingSuggestions, stampKind, hikeTotals, tripLifers, dayPlan, inOrder, moveStop, coreTonight, showsUrl, shapeShows } from '../../lib/yonder.js'
+import { currentTrip, plannedTrips, milestoneTrip, waitWords, sleepsWords, visitsWords, packingSuggestions, stampKind, hikeTotals, tripLifers, dayPlan, inOrder, moveStop, coreTonight, showsUrl, shapeShows } from '../../lib/yonder.js'
 import { aroundPlace } from '../../parts/AroundCard.jsx'
 import { usePlacePainting, SECTION_COLOURS } from '../../parts/AroundBits.jsx'
 import { useTripDays } from '../../parts/HereCards.jsx'
 import { PostcardForm, PostcardFront, TripQuest } from '../../parts/TravelBits.jsx'
 import Stamp from './Stamp.jsx'
+import { CountdownList } from './Countdown.jsx'
+import TripPlan from './TripPlan.jsx'
 import PhotoReel from '../../parts/PhotoReel.jsx'
 import { BeenTownPage, BeenTownsCard } from './Been.jsx'
 import { StartRecap } from './Recap.jsx'
@@ -33,10 +36,12 @@ import './yonder.css'
 
 // /yonder: the travel app (its name chosen in Admin: Yonder unless changed).
 // /yonder/day: today as a plan. /yonder/trip/<outing id>: a kept trip's scrapbook.
-// /yonder/passport: a stamp for every trip kept.
+// /yonder/passport: a stamp for every trip kept. /yonder/plan/<event id>: a planned
+// trip's own page (TripPlan.jsx): where we're staying, our plans and its guides.
 
 export default function Yonder({ rest = [] }) {
   if (rest[0] === 'day') return <OurDay />
+  if (rest[0] === 'plan') return <TripPlan id={/^[0-9a-f-]{36}$/i.test(rest[1] || '') ? rest[1] : null} />
   if (rest[0] === 'trip') return <Scrapbook id={rest[1]} />
   if (rest[0] === 'passport') return <Passport />
   if (rest[0] === 'town') return <BeenTownPage id={rest[1]} />
@@ -54,23 +59,32 @@ function useCtx() {
   const travel = useTravelSettings()
   const outings = useOutings(session)
   const { events } = useEvents(session, addDays(today, -10), addDays(today, 60))
-  return { session, family, me, parent: Boolean(me && me.role === 'parent'), now, today, here, travel, outings, events }
+  const planned = useTripEvents(session, today) // every trip still to come, however far off
+  return { session, family, me, parent: Boolean(me && me.role === 'parent'), now, today, here, travel, outings, events, planned }
 }
 const range = (a, b) => { const f = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); return a === b ? f(a) : `${f(a)} to ${f(b)}` }
 
 function YonderHome() {
   const c = useCtx()
   const trip = currentTrip({ events: c.events, outings: c.outings.rows, here: c.here, today: c.today, home: HOME_TOWN })
-  const next = nextTrip(c.events, c.today, HOME_TOWN)
+  const planned = plannedTrips(dedupeEvents(c.planned.events), c.today, HOME_TOWN)
+  const next = planned[0] || null, ahead = planned.slice(1)
+  const shining = milestoneTrip(planned) // one gleam at a time, on a milestone day
   const kept = (c.outings.rows || []).filter((o) => o.kind !== 'outing').slice().sort((a, b) => (a.starts_on < b.starts_on ? 1 : -1))
   return (
     <>
       <header className="hero span-6"><span className="kicker">Trips and postcards</span><h1 className="greet">{c.travel.appName}</h1></header>
       {trip && <NowCard c={c} trip={trip} />}
-      {next && <NextCard c={c} next={next} />}
-      {!trip && !next && (
+      {next && <NextCard c={c} next={next} gleam={shining === next} />}
+      {ahead.length > 0 && (
+        <Card tint="#2F7D7A" label="Trips ahead" glyph="calendar" tag={`${ahead.length}`} className="span-3 yo-ahead">
+          <CountdownList trips={ahead} today={c.today} members={c.family.members} shining={shining} />
+          <p className="muted small">Every trip on the calendar with its place, however far off. From two months out it counts down on Home too.</p>
+        </Card>
+      )}
+      {!trip && !next && c.planned.loaded && (
         <Card tint="#2F7D7A" label="The next trip" glyph="calendar" className="span-6">
-          <p>Put a trip on the calendar with its place (camping, a weekend away, a day out) and it counts down here, with its packing list, its weather, and a guide written two days before.</p>
+          <p>Put a trip on the calendar with its place found on the map (camping, a weekend away, a day out), however far off, and it counts down here, with its packing list, its weather, and a guide written two days before. From two months out it counts down on Home too.</p>
           <Link className="btn ghost" to="/calendar">The calendar ›</Link>
         </Card>
       )}
@@ -99,6 +113,7 @@ function NowCard({ c, trip }) {
       <div className="form-actions">
         {away && <Link className="btn" to="/world/around">What’s around here ›</Link>}
         {away && guide && <Link className="btn ghost" to="/yonder/day">Our day ›</Link>}
+        {trip.event_id && <Link className="btn ghost" to={`/yonder/plan/${trip.event_id}`}>Our plans ›</Link>}
         {trip.outing_id && <Link className="btn ghost" to={`/yonder/trip/${trip.outing_id}`}>The scrapbook so far ›</Link>}
       </div>
       {away && <PostcardForm here={c.here} me={c.me} today={c.today} />}
@@ -108,23 +123,30 @@ function NowCard({ c, trip }) {
   )
 }
 
-/** "4 sleeps until Big Bear", drawn over the sky there right now, with the trip's packing list. */
-function NextCard({ c, next }) {
+/** "4 sleeps until Big Bear", drawn over the sky there right now, with the trip's packing list. However far off. */
+function NextCard({ c, next, gleam = false }) {
   const t = SunCalc.getTimes(c.now, next.lat, next.lng)
   const key = phaseOf(c.now, t)
   const { days } = useTripDays({ ...next, inDays: next.sleeps }, c.today)
   const kind = stampKind({ title: next.title, place: next.place })
+  const wait = waitWords(c.today, next.starts_on)
+  const who = next.for_whom ? c.family.members.find((m) => m.id === next.for_whom) : null
   return (
     <>
       <Card tint="#2F7D7A" label="The next trip" glyph="calendar" className="span-3 yo-next">
-        <div className={'yo-sky' + (SKIES[key].dark ? ' dark' : '')} style={{ background: skyGradient(key) }}>
+        <div className={'yo-sky' + (SKIES[key].dark ? ' dark' : '') + (gleam ? ' yo-gleaming' : '')} style={{ background: skyGradient(key) }}>
           <b className="yo-sleeps">{next.sleeps <= 0 ? `Today: ${next.town}` : sleepsWords(next)}</b>
+          {wait && <span>{wait} to go</span>}
           <span>{SKIES[key].name.toLowerCase()} there now</span>
           <Stamp kind={kind} name={next.town} date={next.starts_on} size={64} tilt={-6} />
+          {gleam && <i className="yo-gleam" aria-hidden="true" />}
         </div>
-        <p><b>{next.title}</b> <span className="muted">{range(next.starts_on, next.ends_on)}</span></p>
+        <p><b>{next.title}</b> <span className="muted">{range(next.starts_on, next.ends_on)}{who ? ` · ${who.name}’s trip` : ''}</span></p>
         <p className="muted">{visitsWords(c.outings.rows, next.town, c.today)}</p>
-        <Link className="btn ghost" to={`/calendar/event/${next.id}`}>The trip on the calendar ›</Link>
+        <div className="form-actions">
+          <Link className="btn" to={`/yonder/plan/${next.id}`}>Where we’re staying, our plans and the guide ›</Link>
+          <Link className="btn ghost" to={`/calendar/event/${next.id}`}>The trip on the calendar ›</Link>
+        </div>
       </Card>
       {next.sleeps <= 14 && <Packing c={c} trip={next} days={days || []} />}
     </>
@@ -132,7 +154,7 @@ function NextCard({ c, next }) {
 }
 
 /** The trip's packing list: our own items first, suggestions from the forecast and the plan one tap away. */
-function Packing({ c, trip, days }) {
+export function Packing({ c, trip, days }) {
   const p = usePacking(c.session, trip.id)
   const [draft, setDraft, clear] = useDraft(`packing.${trip.id}`, { title: '' })
   const [toast, setToast] = useState(null)

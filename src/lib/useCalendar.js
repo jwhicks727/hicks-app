@@ -51,6 +51,26 @@ export function useEvents(session, from, to) {
   return state
 }
 
+/**
+ * Approved events with a place on the map that start after `today`, however far
+ * off: the trips still to come (plannedTrips in src/lib/yonder.js picks the ones
+ * away from home). A place-less event is never a trip, so the query stays small.
+ */
+export function useTripEvents(session, today) {
+  const [state, setState] = useState({ events: [], loaded: false, error: null })
+  useEffect(() => {
+    let live = true
+    if (!supabase || !session) { setState({ events: [], loaded: Boolean(session === null), error: null }); return undefined }
+    fetchAll(() => supabase.from('calendar_events')
+      .select('id, source_id, title, starts_on, ends_on, starts_at, ends_at, kind, for_whom, notes, place, lat, lng, outdoors')
+      .eq('status', 'approved').gt('starts_on', today).not('lat', 'is', null).not('lng', 'is', null)
+      .order('starts_on').order('id'))
+      .then(({ data, error }) => { if (live) setState({ events: data || [], loaded: true, error: error ? error.message : null }) })
+    return () => { live = false }
+  }, [session, today])
+  return state
+}
+
 /** One event, by id. */
 export function useEvent(session, id) {
   const [state, setState] = useState({ event: null, loaded: false, error: null })

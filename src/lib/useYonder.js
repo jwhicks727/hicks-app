@@ -25,6 +25,16 @@ export const usePostcards = (session, since) => useRows(session, () => supabase.
 export const sendPostcard = (row) => supabase.from('postcards').insert(row).select('id').single()
 export const removePostcard = (id) => supabase.from('postcards').delete().eq('id', id)
 
+// A planned trip's page: where we're staying and our plans (src/lib/tripPlan.js checks each row first)
+export const useTripStays = (session, eventId) => useRows(session, () => supabase.from('trip_stays').select('*').eq('event_id', eventId).order('from_date', { nullsFirst: true }).order('created_at'), [eventId], Boolean(eventId))
+export const addStay = (row) => supabase.from('trip_stays').insert(row).select('id').single()
+export const updateStay = (id, row) => supabase.from('trip_stays').update(row).eq('id', id)
+export const removeStay = (id) => supabase.from('trip_stays').delete().eq('id', id)
+export const useTripPlans = (session, eventId) => useRows(session, () => supabase.from('trip_plans').select('*').eq('event_id', eventId).order('on_date', { nullsFirst: false }).order('at_time', { nullsFirst: false }).order('created_at').limit(500), [eventId], Boolean(eventId))
+export const addPlan = (row) => supabase.from('trip_plans').insert(row).select('id').single()
+export const updatePlan = (id, row) => supabase.from('trip_plans').update(row).eq('id', id)
+export const removePlan = (id) => supabase.from('trip_plans').delete().eq('id', id)
+
 export const usePacking = (session, eventId) => useRows(session, () => supabase.from('packing_items').select('*').eq('event_id', eventId).order('suggested').order('created_at'), [eventId], Boolean(eventId))
 export const addPacking = (eventId, title, suggested = false) => supabase.from('packing_items').insert({ event_id: eventId, title: String(title).slice(0, 120), suggested }).select('id').single()
 export const tickPacking = (id, done) => supabase.from('packing_items').update({ done }).eq('id', id)
