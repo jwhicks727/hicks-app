@@ -11,6 +11,7 @@ import { usePlans, savePlan, dismissPlan } from '../lib/useKitchenPlan.js'
 import { usePlanWritten } from '../lib/usePlanWritten.js'
 import { weekOf, mergeIdeas, removeIdea, restoreIdea, refreshIdeas, notPicked, openPlan, planAge } from '../lib/kitchen/plan.js'
 import { parseRecipe } from '../lib/kitchen/recipe.js'
+import { writeEach, failedWords } from '../lib/kitchen/writeEach.js'
 import { saveRecipes, addToFridge } from '../lib/useKitchen.js'
 import { timeWords } from './art.js'
 import { useMemberPhones } from '../lib/useMemberPhones.js'
@@ -173,10 +174,11 @@ export default function PlanWeek({ parent, me, members = [], today }) {
   async function write() {
     const chosen = picked.map((i) => ideas[i]).filter(Boolean)
     setBusy(`Writing ${chosen.length} ${chosen.length === 1 ? 'recipe' : 'recipes'} in your format… a minute or two.`); setErr(null)
-    const res = await askClaude('write-recipes', { ideas: chosen })
+    // One request a recipe (src/lib/kitchen/writeEach.js): all at once can pass the function's time limit
+    const { bodies, failed, reason } = await writeEach(chosen, (idea) => askClaude('write-recipes', { ideas: [idea] }))
     setBusy(null)
-    if (res.error) { setErr(res.error); return }
-    setWritten({ recipes: (res.recipes || []).map((r) => r.body) })
+    if (failed.length) setErr(failedWords(failed, reason))
+    if (bodies.length) setWritten({ recipes: bodies })
   }
   async function saveAll() {
     setBusy('Saving…')

@@ -6,6 +6,21 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-15 — The picked recipes are written one request each
+
+"Write the 3 picked" ended in "Claude couldn’t be reached just now". The `claude` function replies only when
+everything is written, and the platform ends a request after about 150 seconds with an answer that has none of our
+words in it, so the app fell back to its generic line. Several full recipes in one request can pass that.
+(Inferred from the code: the function's logs weren't read.)
+
+- **The planner asks once per recipe** (`writeEach`, `src/lib/kitchen/writeEach.js`), three at a time. Each request
+  stays far under the limit, the recipes that come back are kept, and one that doesn't is named on screen with the
+  reason and can be picked and written again. No function change, so nothing to deploy.
+- **A timeout says so**: `askClaude` answers "Claude took too long to answer" for the platform's 504 or 546.
+- The function still takes up to eight ideas in one request; the app no longer uses that.
+
+---
+
 ## 2026-11-15 — Anna chooses the tape on each of her pieces
 
 Anna asked to change the colour of the tape on her art whenever she likes, and Jason asked for washi patterns
