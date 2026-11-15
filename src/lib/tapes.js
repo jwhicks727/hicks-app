@@ -118,6 +118,31 @@ function discoBody() {
   return s
 }
 
+/** Anna's three cats as the Pets launch draws them (src/places/pets/PetsLaunch.jsx, LOOKS): the same colours, drawn
+ *  round 0,0 at the size of a head. Kona is white with blue eyes and an orange splotch, Portia a black tuxedo, Goldie a calico. */
+const CAT = {
+  kona: { fur: '#FCFBF9', earL: '#FCFBF9', earR: '#FCFBF9', inner: '#F3AABD', innerR: '#F3AABD', line: '#D6CDE0', eyes: 'blue',
+    marks: "<path d='M20 44C18 36 24 31 32 31C40 30 46 35 44 42C42 47 36 48 30 47C24 47 21 47 20 44Z' fill='#EA9340'/><path d='M29 38C32 33 40 34 40 39C39 44 31 44 29 38Z' fill='#2B2330'/>" },
+  portia: { fur: '#2B2330', earL: '#2B2330', earR: '#2B2330', inner: '#8A5B7A', innerR: '#8A5B7A', line: null, eyes: 'amber',
+    marks: "<path d='M47.5 36L52.5 36L54 66L46 66Z' fill='#FCFBF9'/><path d='M30 74C34 67 44 66 50 70C56 66 66 67 70 74C68 85 59 92 50 92C41 92 32 85 30 74Z' fill='#FCFBF9'/>" },
+  goldie: { fur: '#F6E8CF', earL: '#EA9340', earR: '#2B2330', inner: '#EBA3B8', innerR: '#7A5A6E', line: null, eyes: 'dark',
+    marks: "<ellipse cx='29' cy='40' rx='16' ry='13' fill='#EA9340'/><ellipse cx='73' cy='41' rx='14' ry='11' fill='#2B2330'/>" },
+}
+const CAT_EYES = { blue: '#5AA7E8', amber: '#E8B53A' }
+/** One of the cats' heads, centred on 0,0 and about 17 strip-heights across at the scale the tape uses. */
+const catHead = (look) => {
+  const c = CAT[look], stroke = c.line ? ` stroke='${c.line}' stroke-width='1.1' stroke-linejoin='round'` : ''
+  const eyes = [33, 67].map((x) => (CAT_EYES[c.eyes]
+    ? `<ellipse cx='${x}' cy='58' rx='7.6' ry='9.4' fill='${CAT_EYES[c.eyes]}'/><ellipse cx='${x}' cy='59' rx='3.6' ry='6.6' fill='#1B1824'/><circle cx='${x + 2.4}' cy='54.6' r='2.6' fill='#FFFFFF'/>`
+    : `<ellipse cx='${x}' cy='58' rx='6.5' ry='8.5' fill='#2A2230'/><circle cx='${x + 2.2}' cy='55' r='2.4' fill='#FFFFFF'/>`)).join('')
+  return `<g transform='translate(-50 -60)'>`
+    + `<polygon points='12,42 18,6 47,28' fill='${c.earL}'${stroke}/><polygon points='20,35 22,16 38,27' fill='${c.inner}'/>`
+    + `<polygon points='88,42 82,6 53,28' fill='${c.earR}'${stroke}/><polygon points='80,35 78,16 62,27' fill='${c.innerR}'/>`
+    + `<ellipse cx='50' cy='60' rx='41' ry='32' fill='${c.fur}'${stroke}/>${c.marks}${eyes}`
+    + `<path d='M46 68h8l-4 5z' fill='#E58AA5'/><path d='M50 73q-5 5-10 2M50 73q5 5 10 2' fill='none' stroke='#2A2230' stroke-width='1.7' stroke-linecap='round'/>`
+    + `</g>`
+}
+
 // ---- the tapes ---------------------------------------------------------------------------------------------------
 
 /** The groups the picker shows, in order. */
@@ -215,6 +240,7 @@ export const TAPES = [
   { id: 'six-on-stage', name: 'Six on stage', group: 'faves', tint: '#1C1A22', bg: `${tile(72, 24, ['#FF4FA3', '#FFE14D', '#3DF5FF', '#B57CFF', '#3DDC97', '#FF9F43'].map((c, i) => at(6 + i * 12, 12, 0.48, M.star(c))).join(''))}, linear-gradient(100deg, transparent 20%, rgba(255,248,238,.16) 30%, transparent 40%, transparent 60%, rgba(255,248,238,.16) 70%, transparent 80%), #1C1A22`, line: 'Lights up: six, together.' },
   { id: 'agent', name: 'Agent of oddities', group: 'faves', tint: '#1C1A22', bg: `${tile(48, 24, `${at(10, 12, 0.72, M.magnifier('#FFF8EE'))}${at(26, 12, 0.62, M.query('#E63946'))}${at(40, 12, 0.36, M.gem('#FFF8EE', '#1C1A22'))}`)}, linear-gradient(180deg, #1C1A22 0 42%, #E63946 42% 58%, #1C1A22 58%)`, line: 'For agents who handle anything odd.' },
   { id: 'gadget-lab', name: 'Gadget lab', group: 'faves', tint: '#E63946', bg: `${tile(48, 24, `${at(10, 12.5, 0.8, M.gadget('#1C1A22', '#7FE3FF', '#E63946'))}${at(30, 12.5, 0.8, M.gadget('#E63946', '#FFE14D', '#1C1A22'), 8)}<text x='42' y='16' font-family='monospace' font-weight='700' font-size='11' fill='#1C1A22'>?</text>`)}, ${checks('#FFF8EE', '#F0E6D6', 0.5)}`, line: 'Every gadget, field tested.' },
+  { id: 'our-pets', name: 'Our pets', group: 'faves', tint: '#7FB7C9', bg: `${tile(60, 24, at(10, 12, 0.19, catHead('kona')) + at(30, 12, 0.19, catHead('portia')) + at(50, 12, 0.19, catHead('goldie')))}, #7FB7C9`, line: 'Kona, Portia and Goldie, peeking over the wall.' },
 ]
 
 /** The sparks that twinkle over a glitter tape (src/ui/tape.css fades them in and out: opacity only). */

@@ -352,13 +352,14 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       `/drawings`. A photo that looks like one already on her wall is flagged as it's added.
 - [x] Hold a piece of Anna's or Laurie's art (or right-click it) to save, copy or share it, or copy its app link; each piece's page has
       the same menu behind a button (`src/ui/PieceMenu.jsx`, `src/lib/pieceMenu.js`, decisions log 2026-11-13).
-- [x] **Her own tape on every piece** (2026-11-15, Anna's ask): sixty washi tapes drawn in code
+- [x] **Her own tape on every piece** (2026-11-15, Anna's ask): sixty-one washi tapes drawn in code
       (`src/lib/tapes.js`): plain colours, rainbows and Pride, glitter that twinkles, kawaii,
       rockstar, fruit and flowers, and nods to her favourites. Tap the tape on a piece's page (or
       **Change the tape**) and pick one, or **Surprise me**; it shows at once and is saved for every
       phone (`drawing_tapes`; anyone in the family chooses). The chosen tape follows the piece to
       her wall, Home's art card and the academy's walls (the little tabs take its colour). A piece
-      nobody has chosen for keeps the tape it always had.
+      nobody has chosen for keeps the tape it always had. One of them has the three cats of the
+      Pets launch (Kona, Portia and Goldie, in the colours Jason described), drawn in code.
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)
