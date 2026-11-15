@@ -92,3 +92,12 @@ test('her wall, a drawing’s page and Home’s art card all hang the chosen tap
   assert.match(css, /prefers-reduced-motion: reduce\) \{ \.tape-glitter::after \{ animation: none/)
   assert.doesNotMatch(css, /@keyframes[^{]+\{[^}]*(transform|filter|left|top|width)/, 'the twinkle is opacity only')
 })
+
+test('fruit is one group: the twenty new ones with watermelon, lemon slices and cherries; flowers, butterflies, sprinkles and space are Misc', () => {
+  const fruit = tapesIn('fruit').map((t) => t.id)
+  for (const id of ['watermelon', 'lemons', 'cherries', 'apples', 'dragon-fruit']) assert.ok(fruit.includes(id), `${id} is fruit`)
+  assert.equal(fruit.length, 23, 'twenty new, and the three that were in the old fun group')
+  assert.deepEqual(tapesIn('misc').map((t) => t.id).sort(), ['butterflies', 'daisies', 'space', 'sprinkles'])
+  assert.ok(!GROUPS.some(([g]) => g === 'fun'), 'the old fun group is gone')
+  assert.deepEqual(GROUPS.map(([g]) => g).slice(-3), ['fruit', 'misc', 'faves'], 'fruit and misc sit before her favourites')
+})

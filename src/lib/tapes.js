@@ -191,8 +191,8 @@ export const GROUPS = [
   ['glitter', 'Glitter and shine'],
   ['kawaii', 'Kawaii'],
   ['rock', 'Rockstar'],
-  ['fun', 'Fruit, flowers and space'],
-  ['fruit', 'More fruit'],
+  ['fruit', 'Fruit'],
+  ['misc', 'Misc'],
   ['faves', 'Her favourites'],
 ]
 
@@ -264,14 +264,14 @@ export const TAPES = [
   { id: 'notes', name: 'Music notes', group: 'rock', tint: '#C9B6FF', bg: `${tile(36, 24, `${at(8, 11, 0.62, M.note('#3B2370'))}${at(21, 13, 0.52, M.note('#FF4F9A'))}${at(31, 9, 0.44, M.note('#3B2370'))}`)}, #C9B6FF` },
   { id: 'guitars', name: 'Rock guitars', group: 'rock', tint: '#E63946', bg: `${tile(32, 24, `${at(9, 12.5, 0.85, M.guitar('#1C1A22'), -30)}${at(24, 12.5, 0.85, M.guitar('#FFE14D'), 30)}`)}, #E63946` },
 
-  // Fruit, flowers and space
-  { id: 'daisies', name: 'Daisies', group: 'fun', tint: '#8CCB6A', bg: `${tile(32, 24, `${at(8, 9, 0.65, M.daisy())}${at(24, 16, 0.55, M.daisy('#FFF8EE', '#FF9F43'))}`)}, #8CCB6A` },
-  { id: 'butterflies', name: 'Butterflies', group: 'fun', tint: '#BFE3FF', bg: `${tile(36, 24, `${at(9, 11, 0.7, M.butterfly('#FF8FC2', '#FFC14D'), -12)}${at(27, 13, 0.6, M.butterfly('#9B7BFF', '#5FD0C4'), 14)}`)}, #BFE3FF` },
-  { id: 'watermelon', name: 'Watermelon', group: 'fun', tint: '#FF8FA0', bg: `${tile(24, 24, at(12, 11, 0.85, M.melon()))}, ${bands(['#FFD1D8', '#FFD1D8', '#FFD1D8', '#9BD89E'])}` },
-  { id: 'lemons', name: 'Lemon slices', group: 'fun', tint: '#FFF09A', bg: `${tile(24, 24, at(12, 12, 0.85, M.lemon()))}, #8FD3B6` },
-  { id: 'cherries', name: 'Cherries', group: 'fun', tint: '#FFF8EE', bg: `${tile(24, 24, at(12, 11, 0.85, M.cherries()))}, ${checks('#FFE3E6', '#FFF8EE', 0.33)}` },
-  { id: 'space', name: 'Outer space', group: 'fun', tint: '#1F2A5A', bg: `${tile(48, 24, `${at(10, 12, 0.85, M.planet('#FF9F6E', '#FFE0C2'))}${at(32, 9, 0.5, M.planet('#7FD1FF', '#C9B6FF'))}${at(24, 20, 0.16, M.star('#FFF8EE'))}${at(42, 18, 0.2, M.star('#FFE9A8'))}${at(20, 4, 0.12, M.star('#FFF8EE'))}`)}, ${dots('rgba(255,248,238,.55)', 0.025, 0.3)}, #1F2A5A` },
-  { id: 'sprinkles', name: 'Rainbow sprinkles', group: 'fun', tint: '#FFE3EE', bg: `${tile(24, 24, (() => { const r = seeded('sprinkles'); return Array.from({ length: 14 }, (_, i) => at(n2(1 + r() * 22), n2(1 + r() * 22), 0.9, M.sprinkle(BRIGHT[i % BRIGHT.length], Math.round(r() * 180)))).join('') })())}, #FFE3EE` },
+  // Misc: flowers, butterflies, sprinkles and space. Watermelon, lemons and cherries are fruit, so they're in the fruit group
+  { id: 'daisies', name: 'Daisies', group: 'misc', tint: '#8CCB6A', bg: `${tile(32, 24, `${at(8, 9, 0.65, M.daisy())}${at(24, 16, 0.55, M.daisy('#FFF8EE', '#FF9F43'))}`)}, #8CCB6A` },
+  { id: 'butterflies', name: 'Butterflies', group: 'misc', tint: '#BFE3FF', bg: `${tile(36, 24, `${at(9, 11, 0.7, M.butterfly('#FF8FC2', '#FFC14D'), -12)}${at(27, 13, 0.6, M.butterfly('#9B7BFF', '#5FD0C4'), 14)}`)}, #BFE3FF` },
+  { id: 'watermelon', name: 'Watermelon', group: 'fruit', tint: '#FF8FA0', bg: `${tile(24, 24, at(12, 11, 0.85, M.melon()))}, ${bands(['#FFD1D8', '#FFD1D8', '#FFD1D8', '#9BD89E'])}` },
+  { id: 'lemons', name: 'Lemon slices', group: 'fruit', tint: '#FFF09A', bg: `${tile(24, 24, at(12, 12, 0.85, M.lemon()))}, #8FD3B6` },
+  { id: 'cherries', name: 'Cherries', group: 'fruit', tint: '#FFF8EE', bg: `${tile(24, 24, at(12, 11, 0.85, M.cherries()))}, ${checks('#FFE3E6', '#FFF8EE', 0.33)}` },
+  { id: 'space', name: 'Outer space', group: 'misc', tint: '#1F2A5A', bg: `${tile(48, 24, `${at(10, 12, 0.85, M.planet('#FF9F6E', '#FFE0C2'))}${at(32, 9, 0.5, M.planet('#7FD1FF', '#C9B6FF'))}${at(24, 20, 0.16, M.star('#FFF8EE'))}${at(42, 18, 0.2, M.star('#FFE9A8'))}${at(20, 4, 0.12, M.star('#FFF8EE'))}`)}, ${dots('rgba(255,248,238,.55)', 0.025, 0.3)}, #1F2A5A` },
+  { id: 'sprinkles', name: 'Rainbow sprinkles', group: 'misc', tint: '#FFE3EE', bg: `${tile(24, 24, (() => { const r = seeded('sprinkles'); return Array.from({ length: 14 }, (_, i) => at(n2(1 + r() * 22), n2(1 + r() * 22), 0.9, M.sprinkle(BRIGHT[i % BRIGHT.length], Math.round(r() * 180)))).join('') })())}, #FFE3EE` },
   fruitTape('apples', 'Apples', '#E5484D', FRUIT.apple, '#FFE3E3'),
   fruitTape('green-apples', 'Green apples', '#8BC34A', FRUIT.greenApple, '#EAF7D8'),
   fruitTape('pears', 'Pears', '#C6D96B', FRUIT.pear, '#F4F6D8'),
