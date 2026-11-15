@@ -377,7 +377,8 @@ test('the wind takes leaves from any autumn painting that has had them cut, so a
   assert.equal(cut.painting.slug, 'golden-creek'); assert.deepEqual(cut.sheets, [])  // an autumn painting with no leaves cut yet: it still hangs, and the phone cuts them as it plays
   assert.deepEqual(originsOf(PAINTINGS.find((p) => p.slug === 'autumn-pond')).origins.length, 20, 'the first two keep the origins the script measured')
   const both = showFor('fall', PAINTINGS)
-  assert.deepEqual(both.sheets.map((x) => x.slug), ['autumn-stream', 'autumn-pond'])
+  assert.deepEqual(both.sheets.map((x) => x.slug).sort(), ['autumn-pond', 'autumn-stream'], 'both autumn paintings give leaves, in the order the day allows')
+  assert.equal(both.sheets[0].slug, both.painting.slug, 'the painting of the day leads')
 })
 
 // ---- What's kept with a painting ------------------------------------------------------------------

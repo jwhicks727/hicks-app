@@ -31,8 +31,10 @@ test('every painting is here with its files, and nothing about it is guessed', (
 
 test('her painting hangs in its season, and a season without one falls back to her newest', () => {
   // Fall hangs one of her fall paintings (the next every two days); a season with none of her paintings has no show
-  assert.ok(['autumn-stream', 'autumn-pond'].includes(showFor('fall').painting.slug))
-  assert.deepEqual(showFor('fall').sheets.map((x) => x.slug), ['autumn-stream', 'autumn-pond'], 'both of her autumn paintings give leaves')
+  const fall = showFor('fall')
+  assert.ok(['autumn-stream', 'autumn-pond'].includes(fall.painting.slug))
+  assert.deepEqual(fall.sheets.map((x) => x.slug).sort(), ['autumn-pond', 'autumn-stream'], 'both of her autumn paintings give leaves, whichever hangs today')
+  assert.equal(fall.sheets[0].slug, fall.painting.slug, 'the painting of the day leads its own leaves')
   assert.equal(showFor('halloween').painting.slug, 'witch-and-crow')
   assert.equal(showFor('christmas'), null, 'no Christmas painting, no show')
   assert.equal(showFor('muertos'), null, 'the witch is Halloween’s alone: the Day of the Dead has none of hers')
