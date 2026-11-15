@@ -360,7 +360,7 @@ Catholic line art, the St. Nicholas Center's CC0 images.
       her wall, Home's art card and the academy's walls (the little tabs take its colour). A piece
       nobody has chosen for keeps the tape it always had. One of them has the three cats of the
       Pets launch (Kona, Portia and Goldie, in the colours Jason described), drawn in code. Twenty fruit
-      tapes (apples, pears, grapes, kiwi slices and the rest) are in the More fruit group.
+      tapes (apples, pears, grapes, kiwi slices and the rest) are in the Fruit group.
 - [ ] Drawings tied to a person or a pet's page once Pets is built.
 
 ## 1f. Pets (an app)
