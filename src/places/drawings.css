@@ -13,25 +13,20 @@
 .ag-piece:focus-visible .ag-paper { outline: 3px solid var(--sky-ink); outline-offset: 5px; }
 
 /* A sheet of paper with its tape. The paper is cream in either theme: it is the drawing's own paper. */
-.ag-paper { --tape: #F29CB7; position: relative; display: block; width: 100%; max-width: 320px; padding: 7px; background: #FFFCF4; border-radius: 2px; transform: rotate(var(--tilt, 0deg)); transition: transform .22s ease, box-shadow .22s ease;
+.ag-paper { position: relative; display: block; width: 100%; max-width: 320px; padding: 7px; background: #FFFCF4; border-radius: 2px; transform: rotate(var(--tilt, 0deg)); transition: transform .22s ease, box-shadow .22s ease;
   box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset, 0 2px 3px rgba(40, 20, 28, .25), 0 12px 22px -6px rgba(40, 20, 28, .45); }
-.ag-paper[data-tape="1"] { --tape: #F6D94D; }
-.ag-paper[data-tape="2"] { --tape: #8FD3B6; }
-.ag-paper[data-tape="3"] { --tape: #B9A4E6; }
 .ag-paper img, .ag-blank { display: block; width: 100%; height: auto; }
 .ag-blank { background: repeating-linear-gradient(135deg, #F1E8D6 0 10px, #F7F0E2 10px 20px); }
 .ag-paper img { box-shadow: 0 0 0 1px rgba(60, 40, 30, .18); }
-/* Washi tape: a strip with torn ends, a little see-through */
-.ag-tape { position: absolute; z-index: 2; top: -11px; left: 50%; width: 74px; height: 24px; margin-left: -37px; transform: rotate(-2.5deg); background: color-mix(in srgb, var(--tape) 78%, transparent);
-  box-shadow: 0 1px 2px rgba(40, 20, 28, .2);
-  clip-path: polygon(0 0, 100% 0, 97% 25%, 100% 50%, 97% 75%, 100% 100%, 0 100%, 3% 75%, 0 50%, 3% 25%); }
+/* Washi tape (src/ui/Tape.jsx, the patterns in src/lib/tapes.js): its font-size is its height, which the patterns are measured in */
+.ag-tape { position: absolute; z-index: 2; top: -11px; left: 50%; width: 74px; height: 24px; font-size: 24px; margin-left: -37px; transform: rotate(-2.5deg); }
 .ag-piece:hover .ag-paper { transform: rotate(0deg) translateY(-4px); }
 .ag-note { color: var(--sky-ink); font-weight: 700; opacity: .85; }
 
 /* One drawing, hung large */
 .ag-hang { display: grid; justify-items: center; padding: 14px 0 6px; }
 .ag-hang .ag-paper { max-width: min(100%, 880px); padding: 12px; }
-.ag-hang .ag-tape { width: 104px; height: 30px; margin-left: -52px; top: -15px; }
+.ag-hang .ag-tape { width: 116px; height: 30px; font-size: 30px; margin-left: -58px; top: -15px; }
 .ag-hang .ag-paper, .ag-hang .ag-paper:hover { transform: rotate(var(--tilt, 0deg)); }
 
 .ag-facts { margin: 0; display: grid; }
@@ -42,7 +37,24 @@
 .ag-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .ag-preview { display: block; width: 100%; max-width: 260px; height: auto; margin: 10px 0 0; border-radius: var(--r-control); box-shadow: 0 0 0 1px var(--line); }
 
+/* Choosing the tape (src/places/TapePicker.jsx): the one showing, large, then every tape by group, each a tap */
+.ag-tapes-now { position: sticky; top: calc(6px + env(safe-area-inset-top, 0px)); z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0 -10px; padding: 10px;
+  border-radius: var(--r-control); background: var(--card); box-shadow: 0 6px 12px -8px rgba(40, 20, 28, .35); }
+.ag-tapes-big { position: relative; flex: none; width: 96px; height: 32px; font-size: 32px; transform: rotate(-2deg); }
+.ag-tapes-name { flex: 1 1 0; min-width: 0; font-family: var(--font-display); font-weight: 400; font-size: 21px; line-height: 1.15; overflow-wrap: break-word; }
+.ag-tapes-now small { flex: 1 0 100%; color: var(--muted); font-weight: 700; font-size: 13px; line-height: 1.25; }
+.ag-tapes-now .btn { flex: none; }
+.ag-tapes-msg { margin: 10px 0 0; font-weight: 800; color: var(--ink); }
+.ag-tapes-group h3 { margin: 18px 0 8px; font-size: 15px; font-weight: 800; color: var(--muted); }
+.ag-tapes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.ag-swatch { display: grid; gap: 6px; justify-items: center; align-content: start; min-height: 44px; padding: 10px 6px 8px; border: 1px solid var(--line); border-radius: var(--r-control, 4px);
+  background: color-mix(in srgb, var(--tint) 10%, var(--card)); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; line-height: 1.2; text-align: center; cursor: pointer; }
+.ag-swatch span { overflow-wrap: anywhere; }
+.ag-swatch.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink) inset; }
+.ag-swatch:focus-visible { outline: 3px solid var(--sky-ink); outline-offset: 2px; }
+.ag-swatch-tape { position: relative; width: 100%; max-width: 92px; height: 28px; font-size: 28px; transform: rotate(-2deg); }
+
 /* A finger isn't a pointer: bigger buttons there, the desktop's layout untouched */
-@media (pointer: coarse) { .ag-actions .btn, .ag-add .btn { min-height: 44px; } }
+@media (pointer: coarse) { .ag-actions .btn, .ag-add .btn { min-height: 44px; } .ag-hang .ag-tape { height: 34px; font-size: 34px; top: -18px; } }
 html[data-motion="less"] .ag-paper { transition: none; }
 html[data-motion="less"] .ag-piece:hover .ag-paper { transform: rotate(var(--tilt, 0deg)); }

@@ -29,7 +29,7 @@ The apps (each at its own address):
 | **The Academy** (`/academy`) | Anna's own school, built room by room in isometric art: she names it, adds any room, arranges everything. Above all it celebrates her: tasks light stars, goals end in trophies, good grades earn medals, and anyone can cheer her. |
 | **Life List** (`/lifelist`) | Everything we've seen and done: Laurie's birds, camping and Disneyland trips, the national parks we're checking off. |
 | **Laurie's Gallery** (`/lifelist/paintings`) | Laurie's paintings, behind sign-in, in frames that follow each canvas's shape: a featured wall that changes every few days, and finding them by colour, mood, subject, year, season, medium or shape, or sorting them as a rainbow. Jason or Laurie add many at once at `/lifelist/paintings/add`, cropped on the phone and read by Claude for the year and month by her signature, a working title, the medium, seasons, shape and a few words about it; a second photo of one already in is noticed. `/lifelist/paintings/look-again` does the same for the paintings already in. |
-| **Anna's Art** (`/drawings`) | Anna's drawings and paintings, taped to a wall, behind sign-in; anyone in the family can add many at once at `/drawings/add` (cropped on the device, Claude suggesting a title, the topic and any written day, a second photo of one already up noticed, the batch waiting in the family's storage to finish on another device). |
+| **Anna's Art** (`/drawings`) | Anna's drawings and paintings, taped to a wall, behind sign-in; anyone in the family can add many at once at `/drawings/add` (cropped on the device, Claude suggesting a title, the topic and any written day, a second photo of one already up noticed, the batch waiting in the family's storage to finish on another device). Each piece's washi tape is hers to choose from sixty, drawn in code. |
 | **Jams** (`/jams`) | Our music, jam bands first: shows near us, free live recordings, a built-in player, and each person's favourites. |
 | **The Garden** (`/garden`) | Maps of the yard, each room's plants side by side, what needs doing today, photos Claude can look at. |
 | **Pets** (`/pets`) | Coming soon: Appa and the cats, launched with a scene around Anna's drawing of them. |
@@ -142,6 +142,11 @@ and added: `docs/ART-CAPTURE.md`.
   stars, pegs and Appa are this repository's own shapes, no one's artwork), with
   the cats coloured as Jason describes them; no image generator is involved
   (`src/places/pets/PetsLaunch.jsx`).
+- **The washi tapes** on Anna's art (`src/lib/tapes.js`, `src/ui/Tape.jsx`) are drawn in
+  code in this repository: CSS gradients and small SVG shapes (hearts, stars, kitties,
+  clouds, guitars, gadgets), nothing downloaded and no image generator. The tapes that nod
+  to her favourite shows, music and games use only colours and plain shapes: never a name,
+  logo, character or anything copied from them (`tests/tapes.test.mjs`).
 - **Fonts:** Nunito from Google Fonts (SIL Open Font Licence) for everything
   read or tapped. The wordmark "Team Hicks", the headings and the big numbers
   are set in Agbalumo (Sorkin Type, SIL Open Font Licence, from Google Fonts),

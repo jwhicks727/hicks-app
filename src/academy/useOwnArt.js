@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useDrawings, useDrawingUrls } from '../lib/useDrawings.js'
 import { usePaintings } from '../parts/PaintingsProvider.jsx'
-import { artList, artUrl, artName, artRatio, drawingFilesFor, drawingFile } from './ownArt.js'
+import { artList, artUrl, artName, artRatio, artTapeTint, drawingFilesFor, drawingFile } from './ownArt.js'
 
 /**
  * Anna's drawings and Laurie's paintings for a room: what's placed in it always, and every one for the catalog only
@@ -19,6 +19,7 @@ export function useOwnArt(items, all) {
     urlOf: (k) => artUrl(k, src),
     nameOf: (k) => artName(k, src),
     ratioOf: (k) => artRatio(k, src),
+    tapeOf: (k) => artTapeTint(k, src),
     urls,
   }
 }

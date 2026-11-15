@@ -1,0 +1,15 @@
+/* Washi tape (src/ui/Tape.jsx, the patterns in src/lib/tapes.js): a strip with torn ends, a little see-through.
+   The place that shows it sets its position, size and font-size (= the strip's height: the patterns are measured in it).
+   Only a glitter tape moves: its sparks fade in and out, opacity only, and are still under less motion. */
+.tape { display: block; opacity: .9; border: 0; padding: 0; margin: 0; overflow: hidden; background-clip: border-box;
+  box-shadow: 0 1px 2px rgba(40, 20, 28, .22);
+  clip-path: polygon(0 0, 100% 0, 97% 25%, 100% 50%, 97% 75%, 100% 100%, 0 100%, 3% 75%, 0 50%, 3% 25%); }
+/* A faint sheen across every tape, as washi paper catches the light */
+.tape::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255, 255, 255, .22), transparent 45%, rgba(0, 0, 0, .06)); }
+.tape-glitter::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: var(--tw) 0 0 / 1em 1em repeat;
+  opacity: .15; animation: tape-twinkle 2.4s ease-in-out infinite alternate; }
+@keyframes tape-twinkle { from { opacity: .1; } to { opacity: 1; } }
+button.tape { cursor: pointer; font: inherit; }
+button.tape:focus-visible { outline: 3px solid var(--sky-ink, #3A2A33); outline-offset: 3px; }
+html[data-motion="less"] .tape-glitter::after { animation: none; opacity: .7; }
+@media (prefers-reduced-motion: reduce) { .tape-glitter::after { animation: none; opacity: .7; } }

@@ -7,6 +7,8 @@
 // buckets, through signed links), so nothing is copied and a drawing taken down simply leaves its square empty.
 // Pure, so tests run it in Node (tests/own-art.test.mjs).
 
+import { tapeById } from '../lib/tapes.js'
+
 export const DRAWING = 'd:', PAINTING = 'p:'
 
 export const drawingKey = (id) => DRAWING + id
@@ -56,6 +58,15 @@ export function artName(k, { drawings = [], paintings = [] } = {}) {
   if (!a) return null
   const f = a.kind === 'drawing' ? drawings.find((x) => x.id === a.id) : paintings.find((x) => x.slug === a.id)
   return f ? f.title : a.kind === 'drawing' ? 'A drawing' : 'A painting'
+}
+
+/** The colour of the tape chosen for a drawing (src/lib/tapes.js), for the little tabs that hold it on a room's wall; null for a painting or a drawing nobody has chosen a tape for. */
+export function artTapeTint(k, { drawings = [] } = {}) {
+  const a = parseArtKey(k)
+  if (!a || a.kind !== 'drawing') return null
+  const d = drawings.find((x) => x.id === a.id)
+  const t = d && d.tape ? tapeById(d.tape) : null
+  return t ? t.tint : null
 }
 
 /** The address of the piece's own page in Anna's Art or Laurie's Gallery (where Back comes home to the room), or null. */
