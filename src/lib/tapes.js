@@ -143,6 +143,45 @@ const catHead = (look) => {
     + `</g>`
 }
 
+// ---- fruit: each drawn round 0,0 at about ±9, like the motifs above ---------------------------------------------------
+
+const slice = (rim, flesh, seg) => `<circle r='8.8' fill='${rim}'/><circle r='7.4' fill='${flesh}'/>`
+  + Array.from({ length: 6 }, (_, k) => `<path d='M0 0L${n2(7.4 * Math.cos((k * Math.PI) / 3))} ${n2(7.4 * Math.sin((k * Math.PI) / 3))}' stroke='${seg}' stroke-width='1.2'/>`).join('')
+  + `<circle r='1' fill='${seg}'/>`
+const apple = (f, hi) => `<path d='M0-5.5C-3-8-9-7.5-9 .5C-9 6-5.5 9-3 9C-1.5 9-1 7.8 0 7.8S1.5 9 3 9C5.5 9 9 6 9 .5C9-7.5 3-8 0-5.5Z' fill='${f}'/>`
+  + `<path d='M0-5.5Q0-8 .8-9.8' stroke='#6B4226' stroke-width='1' fill='none'/><path d='M1-8.2Q4-11.2 7.4-9.2Q4.4-7 1-8.2Z' fill='#4CAF6A'/>`
+  + `<path d='M-5.5-1Q-6.4 2-5.2 4.5' stroke='${hi}' stroke-width='1.3' fill='none' stroke-linecap='round' opacity='.6'/>`
+const drupelets = (f, hi) => [[-3.6, -5], [0, -5.2], [3.6, -5], [-5.6, -0.8], [-1.8, -1.2], [1.8, -1.2], [5.6, -0.8], [-3.6, 3.4], [0, 3.2], [3.6, 3.4], [0, 7.2]]
+  .map(([x, y]) => `<circle cx='${x}' cy='${y}' r='2.1' fill='${f}'/><circle cx='${n2(x - 0.6)}' cy='${n2(y - 0.6)}' r='0.5' fill='${hi}'/>`).join('')
+  + `<path d='M1-8.4Q3.5-11 6.8-9.6Q4-7.4 1-8.4Z' fill='#4CAF6A'/>`
+const FRUIT = {
+  apple: apple('#E5484D', '#FFF8EE'),
+  greenApple: apple('#8BC34A', '#FFF8EE'),
+  pear: `<path d='M0-8.5C-1.6-8.5-1.8-6-1.8-4.2C-5.8-4-8.6-.5-8.2 3C-7.8 7-4.4 9 0 9S7.8 7 8.2 3C8.6-.5 5.8-4 1.8-4.2C1.8-6 1.6-8.5 0-8.5Z' fill='#C6D96B'/><path d='M0-8.5Q.8-11 2.8-11.4' stroke='#6B4226' stroke-width='1' fill='none' stroke-linecap='round'/><path d='M-4.8 2Q-5 5-3.2 6.2' stroke='#FFFFFF' stroke-width='1.1' fill='none' stroke-linecap='round' opacity='.55'/>`,
+  orange: slice('#FF8A1C', '#FFF3DC', '#FF8A1C'),
+  lime: slice('#6DB33F', '#EEF9CF', '#6DB33F'),
+  grapes: `<path d='M0-9Q.6-11.2 3-11.4' stroke='#6B4226' stroke-width='1' fill='none'/>`
+    + [[-4, -5], [0, -5], [4, -5], [-2, 0], [2, 0], [0, 4.4]].map(([x, y]) => `<circle cx='${x}' cy='${y}' r='2.7' fill='#7B4FB8'/><circle cx='${n2(x - 0.8)}' cy='${n2(y - 0.9)}' r='0.6' fill='#FFFFFF' opacity='.7'/>`).join(''),
+  banana: `<path d='M-8.5-6.5Q-10 4 1 8.2Q7.8 9.5 9.5-3.8Q4 2.6 0 2.4Q-4.2 1.8-8.5-6.5Z' fill='#FFE14D'/><path d='M-8.5-6.5l-1.8-1.8' stroke='#6B4226' stroke-width='1.6' stroke-linecap='round'/><path d='M9.5-3.8l1.2-1.4' stroke='#6B4226' stroke-width='1.4' stroke-linecap='round'/><path d='M-4-4.6Q-5 .5-1.2 4.4' stroke='#FFF6B8' stroke-width='1.2' fill='none' stroke-linecap='round'/>`,
+  peach: `<path d='M0-6.5C-4-9-9-7-9-1C-9 6-4.5 9 0 9C4.5 9 9 6 9-1C9-7 4-9 0-6.5Z' fill='#FF9E7A'/><path d='M0-6.5Q-2 1 0 9' stroke='#E07A5F' stroke-width='1' fill='none'/><path d='M1.2-7.6Q4.6-10.6 7.8-8.6Q4.6-6.4 1.2-7.6Z' fill='#4CAF6A'/>`,
+  pineapple: `<ellipse rx='6.4' ry='8.6' fill='#F6B73C'/><path d='M-6.4-3L0-9.4 6.4-3M-6.4 3L0-3.4 6.4 3M-6.4 9L0 2.6 6.4 9' fill='none' stroke='#C98B1A' stroke-width='.9'/><path d='M-3-8.2L-5.6-12.6-1.8-9ZM-.6-8.8L0-13.6 1.2-9ZM2.4-8.4L5.4-12.6 3.4-8.6Z' fill='#4CAF6A'/>`,
+  kiwi: `<circle r='8.8' fill='#8B5A2B'/><circle r='7.5' fill='#8CC63F'/><circle r='5.4' fill='#C9E77A'/><circle r='2.2' fill='#F4F9C9'/>`
+    + Array.from({ length: 12 }, (_, k) => `<circle cx='${n2(4.6 * Math.cos((k * Math.PI) / 6))}' cy='${n2(4.6 * Math.sin((k * Math.PI) / 6))}' r='0.55' fill='#2B2330'/>`).join(''),
+  mango: `<ellipse rx='6.8' ry='8.8' fill='#FFC145' transform='rotate(-22)'/><ellipse cx='1.2' cy='1.6' rx='4.2' ry='6.2' fill='#F5703C' opacity='.45' transform='rotate(-22)'/><path d='M1.6-8.1Q3.8-10.4 6-9.4' stroke='#6B4226' stroke-width='1.1' fill='none' stroke-linecap='round'/>`,
+  blueberries: [[-4, -2], [3.5, -2.5], [-0.5, 3.2], [5, 3], [-5, 4.4]].map(([x, y]) => `<circle cx='${x}' cy='${y}' r='3.2' fill='#3D5A9A'/><circle cx='${n2(x - 1)}' cy='${n2(y - 1.1)}' r='0.8' fill='#A9BDF0'/>`).join(''),
+  raspberry: drupelets('#E0245E', '#FFB3C8'),
+  blackberry: drupelets('#2B2330', '#7A6A8A'),
+  plum: `<ellipse rx='7.2' ry='7.8' fill='#6B2F7E'/><ellipse cx='-2.4' cy='-2.6' rx='1.8' ry='2.6' fill='#B98BCF' opacity='.7'/><path d='M0-7.6Q.6-9.6 2.4-10' stroke='#4E7A2A' stroke-width='1' fill='none' stroke-linecap='round'/><path d='M1.4-8.6Q4-10.4 6-8.8Q3.6-7.2 1.4-8.6Z' fill='#4CAF6A'/>`,
+  pomegranate: `<circle r='8' fill='#D7263D'/><path d='M-3-7.2L-3.4-10.4 0-8.2 3.4-10.4 3-7.2Z' fill='#9E1B2C'/><circle cx='-2.6' cy='-2.8' r='1.3' fill='#FF8FA0' opacity='.7'/><circle cx='2.4' cy='1.6' r='1' fill='#FF8FA0' opacity='.5'/>`,
+  avocado: `<path d='M0-9C-4-9-6-4-6 1C-6 6-3 9 0 9C3 9 6 6 6 1C6-4 4-9 0-9Z' fill='#3E6B2A'/><path d='M0-6.2C-2.6-6.2-3.6-3-3.6 .2C-3.6 3.2-2 5.2 0 5.2C2 5.2 3.6 3.2 3.6 .2C3.6-3 2.6-6.2 0-6.2Z' fill='#E6F09A'/><circle cy='1.6' r='3.2' fill='#8B4A2B'/><circle cx='-1' cy='.4' r='.9' fill='#B77A4E'/>`,
+  coconut: `<circle r='8.4' fill='#8B5A2B'/><circle cx='-2.4' cy='-2.6' r='3.2' fill='#B98352' opacity='.6'/><circle cx='-2.2' cy='3.4' r='.9' fill='#3D2412'/><circle cx='1.2' cy='3.4' r='.9' fill='#3D2412'/><circle cx='-.5' cy='4.9' r='.9' fill='#3D2412'/>`,
+  fig: `<path d='M0-8C-3.8-8-6-2.4-6 1.6C-6 6.2-3.2 9 0 9C3.2 9 6 6.2 6 1.6C6-2.4 3.8-8 0-8Z' fill='#8A5A4A'/><path d='M-3.2-4.4Q-3.4 0-2 4.6' stroke='#B98BCF' stroke-width='.9' fill='none' opacity='.7'/><path d='M0-8Q.4-10 2.6-10.4' stroke='#4E7A2A' stroke-width='1.2' fill='none' stroke-linecap='round'/>`,
+  dragon: `<ellipse rx='6.6' ry='8' fill='#E8488A'/><path d='M-4.6-5.6L-7.6-8.2-2.2-7.6ZM0-7.6L-1-10.4 1.4-7.8ZM4.6-5.6L7.6-8.2 2.2-7.6Z' fill='#7CB342'/>`
+    + [[-2.8, -1], [1.2, -2.6], [3.2, 1.6], [-1.4, 2.4], [0.4, 5.2], [-3.6, 4.6], [1.8, 0.4]].map(([x, y]) => `<circle cx='${x}' cy='${y}' r='0.7' fill='#2B2330'/>`).join(''),
+}
+/** A fruit tape: two of the fruit on a plain ground. */
+const fruitTape = (id, name, tint, motif, ground) => ({ id, name, group: 'fruit', tint, bg: `${tile(36, 24, at(9, 12, 0.75, motif) + at(27, 12, 0.75, motif))}, ${ground}` })
+
 // ---- the tapes ---------------------------------------------------------------------------------------------------
 
 /** The groups the picker shows, in order. */
@@ -153,6 +192,7 @@ export const GROUPS = [
   ['kawaii', 'Kawaii'],
   ['rock', 'Rockstar'],
   ['fun', 'Fruit, flowers and space'],
+  ['fruit', 'More fruit'],
   ['faves', 'Her favourites'],
 ]
 
@@ -232,6 +272,26 @@ export const TAPES = [
   { id: 'cherries', name: 'Cherries', group: 'fun', tint: '#FFF8EE', bg: `${tile(24, 24, at(12, 11, 0.85, M.cherries()))}, ${checks('#FFE3E6', '#FFF8EE', 0.33)}` },
   { id: 'space', name: 'Outer space', group: 'fun', tint: '#1F2A5A', bg: `${tile(48, 24, `${at(10, 12, 0.85, M.planet('#FF9F6E', '#FFE0C2'))}${at(32, 9, 0.5, M.planet('#7FD1FF', '#C9B6FF'))}${at(24, 20, 0.16, M.star('#FFF8EE'))}${at(42, 18, 0.2, M.star('#FFE9A8'))}${at(20, 4, 0.12, M.star('#FFF8EE'))}`)}, ${dots('rgba(255,248,238,.55)', 0.025, 0.3)}, #1F2A5A` },
   { id: 'sprinkles', name: 'Rainbow sprinkles', group: 'fun', tint: '#FFE3EE', bg: `${tile(24, 24, (() => { const r = seeded('sprinkles'); return Array.from({ length: 14 }, (_, i) => at(n2(1 + r() * 22), n2(1 + r() * 22), 0.9, M.sprinkle(BRIGHT[i % BRIGHT.length], Math.round(r() * 180)))).join('') })())}, #FFE3EE` },
+  fruitTape('apples', 'Apples', '#E5484D', FRUIT.apple, '#FFE3E3'),
+  fruitTape('green-apples', 'Green apples', '#8BC34A', FRUIT.greenApple, '#EAF7D8'),
+  fruitTape('pears', 'Pears', '#C6D96B', FRUIT.pear, '#F4F6D8'),
+  fruitTape('orange-slices', 'Orange slices', '#FF8A1C', FRUIT.orange, '#FFF0DB'),
+  fruitTape('lime-slices', 'Lime slices', '#6DB33F', FRUIT.lime, '#EAF7D8'),
+  fruitTape('grapes', 'Grapes', '#7B4FB8', FRUIT.grapes, '#EFE7FA'),
+  fruitTape('bananas', 'Bananas', '#FFE14D', FRUIT.banana, '#FFF8D6'),
+  fruitTape('peaches', 'Peaches', '#FF9E7A', FRUIT.peach, '#FFE9E0'),
+  fruitTape('pineapples', 'Pineapples', '#F6B73C', FRUIT.pineapple, '#FFF3CC'),
+  fruitTape('kiwi-slices', 'Kiwi slices', '#8CC63F', FRUIT.kiwi, '#EEF7DA'),
+  fruitTape('mangoes', 'Mangoes', '#FFC145', FRUIT.mango, '#FFF1D6'),
+  fruitTape('blueberries', 'Blueberries', '#3D5A9A', FRUIT.blueberries, '#E6ECFA'),
+  fruitTape('raspberries', 'Raspberries', '#E0245E', FRUIT.raspberry, '#FDE6EE'),
+  fruitTape('blackberries', 'Blackberries', '#4A3D57', FRUIT.blackberry, '#ECE6F0'),
+  fruitTape('plums', 'Plums', '#6B2F7E', FRUIT.plum, '#F1E6F4'),
+  fruitTape('pomegranates', 'Pomegranates', '#D7263D', FRUIT.pomegranate, '#FCE4E4'),
+  fruitTape('avocados', 'Avocados', '#3E6B2A', FRUIT.avocado, '#EEF5DA'),
+  fruitTape('coconuts', 'Coconuts', '#8B5A2B', FRUIT.coconut, '#F4EDE2'),
+  fruitTape('figs', 'Figs', '#8A5A4A', FRUIT.fig, '#F5ECE6'),
+  fruitTape('dragon-fruit', 'Dragon fruit', '#E8488A', FRUIT.dragon, '#FDE3EF'),
 
   // Her favourites: nods, never names or copies (see the note at the top)
   { id: 'kitty-kingdom', name: 'Kitty Kingdom', group: 'faves', tint: '#9B6BD6', bg: `${tile(36, 24, `${at(9, 13, 0.8, M.catEars('#5B2F91', '#FFB3E6'))}${at(27, 12, 0.32, M.pixelHeart('#FF6FB5'))}`)}, ${stripes(['#B48CE8', '#A57CDE'], 0.18, 90)}`, line: 'Purple, cat ears, and a whole lot of heart.' },
