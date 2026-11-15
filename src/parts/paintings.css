@@ -78,8 +78,8 @@ html[data-motion="less"] .pf-sky, html[data-motion="less"] .pf-sky.on { transiti
 .art-flap { display: block; padding: 4px; background: #FFFCF4; border-radius: 2px; transform-origin: 50% 0;
   box-shadow: 0 2px 3px rgba(20, 10, 10, .35), 0 10px 18px -8px rgba(20, 10, 10, .6); }
 .art-flap img { display: block; width: 100%; height: auto; box-shadow: 0 0 0 1px rgba(60, 40, 30, .16); }
-.art-tape { position: absolute; z-index: 2; top: -9px; left: 50%; width: 48px; height: 17px; margin-left: -24px; transform: rotate(-3deg); background: color-mix(in srgb, #F29CB7 78%, transparent);
-  box-shadow: 0 1px 2px rgba(20, 10, 10, .25); clip-path: polygon(0 0, 100% 0, 97% 25%, 100% 50%, 97% 75%, 100% 100%, 0 100%, 3% 75%, 0 50%, 3% 25%); }
+/* Her tape (src/ui/Tape.jsx): the one chosen for this drawing; its font-size is its height, which the patterns are measured in */
+.art-tape { position: absolute; z-index: 2; top: -9px; left: 50%; width: 52px; height: 17px; font-size: 17px; margin-left: -26px; transform: rotate(-3deg); }
 .art-taped:focus-visible { outline: none; }
 .art-taped:focus-visible .art-flap { outline: 3px solid #FFF; outline-offset: 3px; }
 .art-flap.go { animation: art-flutter 1.8s .35s ease-out both; }

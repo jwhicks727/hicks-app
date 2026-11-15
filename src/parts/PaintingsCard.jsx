@@ -9,6 +9,8 @@ import { todayAt, addDays } from '../lib/cal/dates.js'
 import { reducedMotion } from '../lib/motion.js'
 import { tilt } from '../lib/drawings.js'
 import { useDrawings, useDrawingUrls } from '../lib/useDrawings.js'
+import { tapeFor } from '../lib/tapes.js'
+import Tape from '../ui/Tape.jsx'
 
 /**
  * "Art": one of Laurie's paintings, beautifully clipped (the season's if it has one, else her newest),
@@ -66,7 +68,7 @@ export default function PaintingsCard({ season, auto = false, className = 'span-
         <PaintingFrame painting={p} focus={p.focus} auto={auto} linkTo="/lifelist/paintings" />
         {anna && annaSrc && (
           <Link to={`/drawings/${anna.id}`} className={'art-taped at-' + corner} data-art-cover="" style={{ '--tilt': `${(corner === 'right' ? 3 : -3) + tilt(anna.id)}deg` }} aria-label={`${anna.title}, a drawing by Anna: open it`}>
-            <span className="art-tape" aria-hidden="true" />
+            <Tape tape={tapeFor(anna)} className="art-tape" />
             <span key={gust ? gust.n : 0} className={'art-flap' + (gust ? ' go' : '')} style={gust ? { '--side': gust.side, '--amp': gust.strength } : undefined}>
               <img src={annaSrc} alt="" width={anna.width || undefined} height={anna.height || undefined} />
             </span>

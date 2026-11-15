@@ -7,12 +7,15 @@ import { useFamily } from '../lib/useCalendar.js'
 import { useNow } from '../lib/useNow.js'
 import { todayAt } from '../lib/cal/dates.js'
 import { navigate } from '../lib/router.js'
-import { TOPICS, cleanDrawing, drawnWords, tilt, tapeOf } from '../lib/drawings.js'
+import { TOPICS, cleanDrawing, drawnWords, tilt } from '../lib/drawings.js'
+import { tapeFor } from '../lib/tapes.js'
 import { useDrawings, useDrawingUrls, drawingUrl, saveDrawing, removeDrawing } from '../lib/useDrawings.js'
 import { drawingsInbox } from '../lib/drawingInbox.js'
 import { tally } from '../lib/paintingBatch.js'
 import AddDrawings from './AddDrawings.jsx'
 import RecropDrawing from './RecropDrawing.jsx'
+import TapePicker from './TapePicker.jsx'
+import Tape from '../ui/Tape.jsx'
 import './drawings.css'
 import { ZoomArt } from '../ui/ZoomView.jsx'
 import { HeldLink, PieceMenuButton } from '../ui/PieceMenu.jsx'
@@ -59,13 +62,16 @@ export default function Drawings({ rest }) {
     if (d) setGone((x) => Object.fromEntries(Object.entries(x).filter(([k]) => k !== d.id)))
     setUndo(null)
   }
-  const list = g.list.filter((d) => !gone[d.id])
+  // A tape just chosen shows everywhere at once, before the list is read again: { drawing id: tape id, or null for its first }
+  const [chosen, setChosen] = useState({})
+  const showTape = (drawingId, tape) => setChosen((x) => ({ ...x, [drawingId]: tape }))
+  const list = g.list.filter((d) => !gone[d.id]).map((d) => (d.id in chosen ? { ...d, tape: chosen[d.id] } : d))
   const [id] = rest || []
   return (
     <>
       {id === 'add'
         ? (family.loaded && me ? <AddDrawings me={me} members={family.members} g={g} today={today} /> : <header className="hero span-6"><Crumb to="/drawings">Anna’s Art</Crumb><h1 className="greet">…</h1></header>)
-        : id ? <DrawingPage id={id} g={g} list={list} me={me} parent={parent} today={today} onTakeDown={takeDown} /> : <Wall g={g} list={list} />}
+        : id ? <DrawingPage id={id} g={g} list={list} me={me} parent={parent} today={today} onTakeDown={takeDown} onShowTape={showTape} /> : <Wall g={g} list={list} />}
       {undo && <Toast key={undo.id} action="Undo" onAction={undoIt} onClose={() => { setUndo(null); commit() }}>{undo.text}</Toast>}
     </>
   )
@@ -111,8 +117,8 @@ function Wall({ g, list }) {
       <section className="ag-wall span-6" aria-label="Anna’s drawings and paintings">
         {list.map((d) => (
           <HeldLink key={d.id} className="ag-piece" to={'/drawings/' + d.id} title={d.title} by="Anna" url={() => drawingUrl(d.path)} style={{ '--tilt': `${tilt(d.id)}deg` }}>
-            <span className="ag-paper" data-tape={tapeOf(d.id)}>
-              <span className="ag-tape" aria-hidden="true" />
+            <span className="ag-paper">
+              <Tape tape={tapeFor(d)} className="ag-tape" />
               {urls[d.thumb_path || d.path]
                 ? <img src={urls[d.thumb_path || d.path]} alt={`${d.title}, by Anna`} width={d.width || undefined} height={d.height || undefined} loading="lazy" style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} />
                 : <span className="ag-blank" style={{ aspectRatio: d.width && d.height ? `${d.width} / ${d.height}` : '3 / 2' }} />}
@@ -127,10 +133,10 @@ function Wall({ g, list }) {
   )
 }
 
-function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
+function DrawingPage({ id, g, list, me, parent, today, onTakeDown, onShowTape }) {
   const i = list.findIndex((x) => x.id === id), d = list[i]
   const urls = useDrawingUrls(d ? [d.path] : [])
-  const [editing, setEditing] = useState(false), [recrop, setRecrop] = useState(false)
+  const [editing, setEditing] = useState(false), [recrop, setRecrop] = useState(false), [picking, setPicking] = useState(false)
   if (!d) {
     return (
       <header className="hero span-6">
@@ -141,7 +147,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
   }
   const canChange = parent || Boolean(me && d.added_by === me.id)
   const near = (k) => list[(i + k + list.length) % list.length]
-  const step = (q) => (e) => { e.preventDefault(); setEditing(false); setRecrop(false); navigate('/drawings/' + q.id, { replace: true }) }
+  const step = (q) => (e) => { e.preventDefault(); setEditing(false); setRecrop(false); setPicking(false); navigate('/drawings/' + q.id, { replace: true }) }
   const src = urls[d.path]
   return (
     <>
@@ -151,14 +157,16 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
         <h1 className="greet">{d.title}</h1>
       </header>
       <div className="ag-hang span-6" style={{ '--tilt': `${tilt(d.id) / 2}deg` }}>
-        <div className="ag-paper" data-tape={tapeOf(d.id)}>
-          <span className="ag-tape" aria-hidden="true" />
+        <div className="ag-paper">
+          <Tape tape={tapeFor(d)} className="ag-tape" label={`The tape: ${tapeFor(d).name}. Change it`} onClick={me && !picking ? () => { setEditing(false); setRecrop(false); setPicking(true) } : undefined} />
           {src
             ? <ZoomArt src={src} title={d.title} alt={`${d.title}, by Anna`}><img src={src} alt={`${d.title}, by Anna`} width={d.width || undefined} height={d.height || undefined} style={d.width && d.height ? { aspectRatio: `${d.width} / ${d.height}` } : undefined} /></ZoomArt>
             : <span className="ag-blank" style={{ aspectRatio: d.width && d.height ? `${d.width} / ${d.height}` : '3 / 2' }} />}
         </div>
       </div>
-      {editing
+      {picking
+        ? <TapePicker key={d.id} d={d} me={me} ready={Boolean(g.tapes)} missing={Boolean(g.tapesMissing)} onShow={(t) => onShowTape(d.id, t)} onDone={() => { setPicking(false); g.reload() }} />
+        : editing
         ? <EditDrawing d={d} today={today} onDone={() => { setEditing(false); g.reload() }} onCancel={() => setEditing(false)} />
         : recrop
           ? <Card className="span-6" tint={TINT} label="Crop it again" glyph="star"><RecropDrawing drawing={d} onDone={() => { setRecrop(false); g.reload() }} onCancel={() => setRecrop(false)} /></Card>
@@ -171,6 +179,7 @@ function DrawingPage({ id, g, list, me, parent, today, onTakeDown }) {
               {!d.made_on && !d.topic && !d.words && <div><dt>By</dt><dd>Anna</dd></div>}
             </dl>
             <div className="ag-actions">
+              {me && <button type="button" className="btn" onClick={() => setPicking(true)}>Change the tape</button>}
               <PieceMenuButton title={d.title} by="Anna" path={'/drawings/' + d.id} url={() => drawingUrl(d.path)} />
             </div>
             {canChange && (

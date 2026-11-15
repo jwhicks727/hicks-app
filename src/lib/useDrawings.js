@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 import { useSession } from './auth.js'
-import { sortDrawings, drawingFiles, migrationMissing } from './drawings.js'
+import { sortDrawings, drawingFiles, migrationMissing, withTapes } from './drawings.js'
 
 // Anna's drawings: the table's rows (every one, paged: Supabase stops at 1000
 // without saying so) and, separately, signed links to their pictures.
@@ -22,11 +22,35 @@ export function useDrawings() {
         rows.push(...(data || []))
         if (!data || data.length < PAGE) break
       }
-      if (live) setState({ list: sortDrawings(rows), loaded: true, error: null, missing: false })
+      // The tape each one hangs with (src/lib/tapes.js): a separate read, so the wall still shows with the tapes'
+      // one-time database step not yet run (`tapes` is false then, and the picker says so)
+      const t = await loadTapes()
+      if (live) setState({ list: withTapes(sortDrawings(rows), t.map), loaded: true, error: null, missing: false, tapes: t.ok, tapesMissing: t.missing })
     })()
     return () => { live = false }
   }, [session, n])
   return { ...state, reload: useCallback(() => setN((x) => x + 1), []) }
+}
+
+/** Every chosen tape, { drawing id: tape id }, paged like the drawings. */
+async function loadTapes() {
+  const map = {}
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from('drawing_tapes').select('drawing_id, tape').order('drawing_id').range(from, from + PAGE - 1)
+    if (error) return { map, ok: false, missing: migrationMissing(error) }
+    for (const r of data || []) map[r.drawing_id] = r.tape
+    if (!data || data.length < PAGE) break
+  }
+  return { map, ok: true, missing: false }
+}
+
+/**
+ * Choose a drawing's tape (by `me`, the family member choosing), or with no tape put back the one it always had.
+ * `set_by` is sent each time: changing someone else's choice writes the row under the chooser's own name.
+ */
+export function saveTape(drawingId, tape, me) {
+  if (!tape) return supabase.from('drawing_tapes').delete().eq('drawing_id', drawingId)
+  return supabase.from('drawing_tapes').upsert({ drawing_id: drawingId, tape, set_by: me, updated_at: new Date().toISOString() }, { onConflict: 'drawing_id' })
 }
 
 export const saveDrawing = (id, fields) => supabase.from('annas_drawings').update(fields).eq('id', id)

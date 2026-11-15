@@ -89,5 +89,8 @@ export function tapeOf(id) {
   return h % 4
 }
 
+/** The drawings, each with `tape`: the id of the tape chosen for it (`drawing_tapes`), or null. The rows are left alone. */
+export const withTapes = (rows, map = {}) => rows.map((r) => ({ ...r, tape: (map && map[r.id]) || null }))
+
 /** True when the database answered that the table isn't there: the migration hasn't been run. */
 export const migrationMissing = (error) => Boolean(error && (error.code === '42P01' || error.code === 'PGRST205' || /does not exist|schema cache/i.test(error.message || '')))

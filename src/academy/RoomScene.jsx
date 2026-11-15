@@ -46,7 +46,7 @@ const light = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return ((
 const trunc = (s, n) => (s && s.length > n ? s.slice(0, n - 1) + '…' : s || '')
 const glowId = (id, c) => `${id}-glow-${c.slice(1)}`
 
-export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, artUrl, artLabel, artRatio, onOpen, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
+export default function RoomScene({ room, kind, items, arranging = false, selected, onSelect, onDrop, urlFor, artUrl, artLabel, artRatio, artTape, onOpen, assetOf, onPrize, extras = {}, now = new Date(), atmos, id = 'r' }) {
   const svg = useRef(null), drag = useRef(null)
   const [hop, setHop] = useState(null)
   const a = atmos || atmosphereAt({ now })
@@ -173,7 +173,7 @@ export default function RoomScene({ room, kind, items, arranging = false, select
           {['left', 'right'].map((side) => (
             <g key={side} transform={wallMatrix(side, N)}>
               {hung.filter((it) => it.w === side).map((it) => (
-                <WallPiece key={it.id} it={it} size={sizeOf(it)} href={artUrl ? artUrl(it.k) : null} label={artLabel ? artLabel(it.k) : 'A picture'} picked={selected === it.id} arranging={arranging}
+                <WallPiece key={it.id} it={it} size={sizeOf(it)} href={artUrl ? artUrl(it.k) : null} label={artLabel ? artLabel(it.k) : 'A picture'} tape={artTape ? artTape(it.k) : null} picked={selected === it.id} arranging={arranging}
                   washes={glassy ? [] : washes} onDown={(e) => down(e, it)} onOpen={onOpen && isOwnArt(it.k) ? () => onOpen(artPath(it.k)) : null} />
               ))}
             </g>
@@ -249,7 +249,7 @@ function wallItemsOf(items, wall) {
  * taped up, a little crooked as on her own wall. The picture itself is shown whole, as it was made: framed, never
  * altered. The hour's light falls over it like the rest of the wall. A tap opens its page; while arranging it's picked up.
  */
-function WallPiece({ it, size, href, label, picked, arranging, washes, onDown, onOpen }) {
+function WallPiece({ it, size, href, label, tape, picked, arranging, washes, onDown, onOpen }) {
   const art = parseArtKey(it.k), painting = art && art.kind === 'painting'
   const x = it.x - size.w / 2, y = it.y - size.h / 2, rim = painting ? Math.max(2.5, size.w * 0.07) : 1.6
   const open = !arranging && onOpen
@@ -263,7 +263,7 @@ function WallPiece({ it, size, href, label, picked, arranging, washes, onDown, o
         ? <><rect x={x - rim} y={y - rim} width={size.w + rim * 2} height={size.h + rim * 2} fill="#6B4426" /><rect x={x - rim * 0.45} y={y - rim * 0.45} width={size.w + rim * 0.9} height={size.h + rim * 0.9} fill="#C9A227" opacity=".55" /><rect x={x - 1} y={y - 1} width={size.w + 2} height={size.h + 2} fill="#FFF8EE" /></>
         : <rect x={x - rim} y={y - rim} width={size.w + rim * 2} height={size.h + rim * 2} fill="#FFF8EE" />}
       {href ? <image href={href} x={x} y={y} width={size.w} height={size.h} preserveAspectRatio="xMidYMid meet" /> : <rect x={x} y={y} width={size.w} height={size.h} fill="#EFE6D6" />}
-      {!painting && [[x + size.w * 0.12, -12], [x + size.w * 0.88, 12]].map(([cx, deg], k) => <rect key={k} x={cx - 6} y={y - rim - 3} width="12" height="6" fill="#F7E7A1" opacity=".85" transform={`rotate(${deg} ${cx} ${y - rim})`} />)}
+      {!painting && [[x + size.w * 0.12, -12], [x + size.w * 0.88, 12]].map(([cx, deg], k) => <rect key={k} x={cx - 6} y={y - rim - 3} width="12" height="6" fill={tape || '#F7E7A1'} opacity=".85" transform={`rotate(${deg} ${cx} ${y - rim})`} />)}
       {washes.map(([tint, k], n) => <rect key={n} x={x - rim} y={y - rim} width={size.w + rim * 2} height={size.h + rim * 2} fill={tint} opacity={k} pointerEvents="none" />)}
       {picked && <rect x={x - rim - 3} y={y - rim - 3} width={size.w + rim * 2 + 6} height={size.h + rim * 2 + 6} fill="none" stroke="#FFFFFF" strokeWidth="2" strokeDasharray="4 3" pointerEvents="none" />}
     </g>

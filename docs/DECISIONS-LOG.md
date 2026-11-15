@@ -6,6 +6,27 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-15 — Anna chooses the tape on each of her pieces
+
+Anna asked to change the colour of the tape on her art whenever she likes, and Jason asked for washi patterns
+too: rainbows (pastel and Pride), glitter, kawaii, rockstar, and nods to her favourite characters. There are now
+sixty tapes (`src/lib/tapes.js`), every one drawn in code.
+
+- **Anyone in the family can choose a piece's tape** (`drawing_tapes`, one row a drawing, the chooser's name on it).
+  The drawing's own rule (whoever added it, or a parent) would have stopped her, since a parent photographs most of
+  her art; a tape on a family wall is harmless for anyone to change.
+- **The choice is kept in the database, not on a device**, so every phone shows the same tape. A run of taps saves
+  once, a moment after the last, so trying ten tapes writes one row. A piece nobody has chosen for keeps the tape it
+  always had (the first four of the catalogue, picked by its id): nothing on her wall changes until she picks.
+- **The tributes are nods, never copies.** The tapes for her favourite show, band and channel are colours and plain
+  shapes (cat ears and pixel hearts in purple; a cat-eye flick and six stars; a magnifying glass, gadgets and a
+  question mark in black and red), with names of our own. No name, logo, character, lyric or picture of theirs is
+  in a tape, its name or its line, and `tests/tapes.test.mjs` keeps the names out.
+- **Glitter twinkles; nothing gleams.** A glitter tape's sparks fade in and out (opacity only, still under less
+  motion). A rainbow tape is a pattern that holds still: the rainbow gleam stays for something wonderful.
+- **The tape follows the piece**: her wall, its page, Home's art card, and the academy's walls, whose tiny tabs take
+  the tape's colour. The Pets launch keeps its clothes pegs.
+
 ## 2026-11-13 (late) — Each show its own, and fun: many play with Home itself
 
 Jason: "Get creative here, we want each one to feel unique and fun." The first leads were too alike (five leaves falling in

@@ -303,6 +303,12 @@ licence nobody wrote down.
   `crop`) so a drawing can be cropped again. Anything that moves around a drawing (the
   Pets launch) is drawn in code (`tests/drawings.test.mjs`, `tests/drawing-batch.test.mjs`).
   The Pets launch always hangs the first drawing marked "Our pets", never a newer one.
+- **Anna's tapes are hers to choose** (`src/lib/tapes.js`, `src/ui/Tape.jsx`, `drawing_tapes`; decisions log
+  2026-11-15): every tape is drawn in code (gradients and small SVG shapes, never a file or a generated image), and a
+  piece shows its tape through `tapeFor()`, wherever it hangs. A new tape goes in `TAPES` with an id the database
+  accepts; an id is never renamed or removed while a drawing might use it (an unknown one falls back to the first
+  four). A tribute to something she loves is colours and plain shapes with a name of our own: never its name, logo,
+  character or anything copied from it (`tests/tapes.test.mjs`). Only a glitter tape moves, by opacity.
 - Animations are welcome. Under the device's Reduce Motion they become a
   gentle fade or stop (`src/lib/motion.js`). No `filter: blur()` on anything
   large: iPhones repaint it slowly. Soft shapes come from gradients.
