@@ -137,7 +137,7 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
           <ul>
             {check.map((c) => (
               <li key={c.what} className={checked[c.what] || ''}>
-                <span><b>{c.what}</b>{bought && <span className={'left' + (c.left <= 0 ? ' due' : '')}> · {c.left <= 0 ? 'check it today' : `good about ${c.left} more ${c.left === 1 ? 'day' : 'days'}`}</span>}<br /><span className="muted">{c.tell}</span></span>
+                <span><b>{c.what}</b>{bought && <span className={'left' + (c.left <= 0 ? ' due' : '')}> · {c.left <= 0 ? 'check it today' : `good about ${c.left} more ${c.left === 1 ? 'day' : 'days'}`}</span>}<br />{c.items.length > 0 && <span className="cc-items">In this recipe: {c.items.join(', ')}.<br /></span>}<span className="muted">{c.tell}</span></span>
                 <span className="cc-b">
                   <button type="button" aria-pressed={checked[c.what] === 'good'} onClick={() => setChecked({ ...checked, [c.what]: 'good' })}>Good</button>
                   <button type="button" aria-pressed={checked[c.what] === 'gone'} onClick={() => setChecked({ ...checked, [c.what]: 'gone' })}>Gone</button>

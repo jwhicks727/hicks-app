@@ -180,17 +180,24 @@ export const artFor = (parsed) => artFromTitle(parsed.title)
 
 /**
  * The cook check: the fresh things in a recipe, fastest to spoil first, given
- * how many days it has been in the fridge. [{ what, item, days, left, tell }]
+ * how many days it has been in the fridge. [{ what, item, items, days, left, tell }]
+ * `items` is every ingredient of the recipe in that group, as the recipe names it
+ * ("baby spinach", "cilantro", "limes"), so the check says which leafy green, which
+ * herb, which citrus to look at, never only the kind.
  */
+export const checkName = (item) => String(item || '').split(/[,(;]/)[0].replace(/\s+/g, ' ').trim().toLowerCase()
 export function cookCheck(groups, daysInFridge = 0) {
-  const seen = new Set(), out = []
+  const byKind = new Map(), out = []
   for (const g of groups) for (const ing of g) {
     const t = ing.item.toLowerCase()
     if (/\bfrozen\b|\bcanned\b|\bdried\b|\bjarred\b|\bpaste\b|\bpowder\b|\bground\b(?! (beef|pork|lamb|turkey))/.test(t)) continue
     const k = KEEPS.find(([re]) => re.test(t))
-    if (!k || seen.has(k[2])) continue
-    seen.add(k[2])
-    out.push({ what: k[2], item: ing.item, days: k[1], left: k[1] - daysInFridge, tell: k[3] })
+    if (!k) continue
+    const name = checkName(ing.item)
+    const seen = byKind.get(k[2])
+    if (seen) { if (name && !seen.items.includes(name)) seen.items.push(name); continue }
+    const row = { what: k[2], item: ing.item, items: name ? [name] : [], days: k[1], left: k[1] - daysInFridge, tell: k[3] }
+    byKind.set(k[2], row); out.push(row)
   }
   return out.sort((a, b) => a.left - b.left)
 }
