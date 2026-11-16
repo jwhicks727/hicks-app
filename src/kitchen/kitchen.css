@@ -67,6 +67,7 @@
 .cook-check li.good { background: color-mix(in srgb, #5FA85A 14%, var(--card)); }
 .cook-check li.gone { background: color-mix(in srgb, #E0662F 16%, var(--card)); }
 .cook-check .left { font-size: 13px; font-weight: 700; color: var(--muted); } .cook-check .left.due { color: #A33A1C; }
+.cook-check .cc-items { font-weight: 700; color: var(--ink); }
 .cc-b { display: flex; gap: 4px; flex: none; }
 .cc-b button { min-height: 40px; padding: 0 12px; border-radius: var(--r-control); border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font-weight: 750; cursor: pointer; }
 .cc-b button[aria-pressed="true"] { background: var(--steady); color: var(--on-steady); border-color: var(--steady); }

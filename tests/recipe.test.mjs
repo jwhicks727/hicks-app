@@ -96,6 +96,16 @@ test('the cook check puts what spoils first, first', async () => {
   const c = cookCheck(groups, 2)
   assert.deepEqual(c.map((x) => x.what), ['Fresh fish', 'Avocado', 'Tender herbs', 'Scallions', 'Citrus'])
   assert.equal(c[0].left, 0); assert.match(c[0].tell, /briny/)
+  assert.deepEqual(c.find((x) => x.what === 'Citrus').items, ['limes'])
+  assert.deepEqual(c.find((x) => x.what === 'Scallions').items, ['scallions'])
+})
+
+test('the cook check names which leafy green, herb and citrus the recipe holds', async () => {
+  const { cookCheck } = await import('../src/lib/kitchen/food.js')
+  const c = cookCheck([[{ item: 'baby spinach' }, { item: 'cilantro, chopped' }, { item: 'fresh basil (a handful)' }, { item: 'lemon, zested' }, { item: 'limes' }, { item: 'lemon juice' }]], 0)
+  assert.deepEqual(c.find((x) => x.what === 'Citrus').items, ['lemon', 'limes', 'lemon juice'])
+  assert.deepEqual(c.find((x) => x.what === 'Tender herbs').items, ['cilantro', 'fresh basil'])
+  assert.deepEqual(c.find((x) => x.what === 'Leafy greens').items, ['baby spinach'])
 })
 
 test('a recipe’s three pictures: protein first, never the salt', async () => {
