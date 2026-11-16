@@ -15,7 +15,9 @@ export async function askClaude(task, inputs = {}) {
     if (error) {
       let why = ''
       try { why = (await error.context.json()).error } catch { /* no body */ }
-      return { error: why || 'Claude couldn’t be reached just now' }
+      // The platform's own timeout answers with no words of ours (504, or 546 when the function gave up)
+      const slow = [504, 546].includes(error.context && error.context.status)
+      return { error: why || (slow ? 'Claude took too long to answer' : 'Claude couldn’t be reached just now') }
     }
     return data
   } catch {
