@@ -1,0 +1,81 @@
+/* Kitchen timers (src/kitchen/Timers.jsx): the dock above the tab bar on every
+   screen, the full-screen alarm when one is up, and a step's own start buttons. */
+
+/* The dock: one card a timer, big numbers, a bar that drains */
+.kt-dock { position: fixed; z-index: 46; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tab-bottom) + var(--tabbar) + 10px); display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 8px; pointer-events: none; }
+body:has(.kchat-fab) .kt-dock { bottom: calc(var(--tab-bottom) + var(--tabbar) + 72px); }
+body:has(.toast) .kt-dock { bottom: calc(var(--tab-bottom) + var(--tabbar) + 76px); }
+html.cooking .kt-dock { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+html.kt-docked .app { padding-bottom: calc(var(--tabbar) + var(--tab-bottom) + 40px + var(--kt-dock, 80px)); }
+
+.kt-timer { pointer-events: auto; position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "what x" "left add"; align-items: center; gap: 0 6px; padding: 6px 6px 12px 14px; border-radius: var(--r-card); background: var(--steady); color: var(--on-steady); box-shadow: 0 0 0 2px #F03E2F, 0 14px 28px -12px rgba(0, 0, 0, .7); }
+.kt-what { grid-area: what; min-width: 0; display: grid; color: inherit; text-decoration: none; }
+.kt-label { font-weight: 850; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kt-dish { font-size: 12px; font-weight: 700; opacity: .75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+a.kt-what .kt-dish { text-decoration: underline; text-underline-offset: 2px; }
+.kt-left { grid-area: left; min-width: 0; font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.05; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kt-add, .kt-x { min-width: 44px; min-height: 44px; display: grid; place-items: center; border: 0; border-radius: var(--r-control); background: color-mix(in srgb, var(--on-steady) 14%, transparent); color: inherit; font: inherit; font-weight: 850; font-size: 15px; cursor: pointer; }
+.kt-add { grid-area: add; }
+.kt-x { grid-area: x; background: transparent; }
+.kt-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: color-mix(in srgb, var(--on-steady) 16%, transparent); }
+.kt-bar i { display: block; height: 100%; background: #F03E2F; transform-origin: left center; transition: transform 1s linear; }
+/* the last minute: the kitchen's own red, and it breathes */
+.kt-timer.soon { background: #C42D20; color: var(--on-colour); animation: kt-breathe 1s ease-in-out infinite alternate; }
+.kt-timer.soon .kt-bar i { background: var(--on-colour); }
+.kt-timer.soon .kt-add { background: color-mix(in srgb, var(--on-colour) 20%, transparent); }
+@keyframes kt-breathe { from { transform: scale(1); } to { transform: scale(1.03); } }
+
+/* Time's up: the whole screen, in the kitchen's red */
+.kt-alarm { position: fixed; inset: 0; z-index: 85; display: flex; overflow-y: auto; padding: max(20px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: radial-gradient(120% 90% at 50% 40%, #F03E2F, #C42D20 55%, #7A1A12); color: var(--on-colour); text-align: center; animation: kt-in .2s ease both; }
+@keyframes kt-in { from { opacity: 0; } to { opacity: 1; } }
+.kt-alarm::before { content: ""; position: fixed; inset: 0; background: #FF8A5C; opacity: 0; pointer-events: none; }
+.kt-alarm.ringing::before { animation: kt-flash 1s steps(1, end) infinite; }
+@keyframes kt-flash { 50% { opacity: .35; } }
+.kt-rings { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.kt-rings i { grid-area: 1 / 1; width: 60vmin; height: 60vmin; border-radius: 50%; border: 6px solid var(--on-colour); opacity: 0; }
+.kt-alarm.ringing .kt-rings i { animation: kt-ring 2s ease-out infinite; }
+.kt-alarm.ringing .kt-rings i:nth-child(2) { animation-delay: .66s; }
+.kt-alarm.ringing .kt-rings i:nth-child(3) { animation-delay: 1.33s; }
+@keyframes kt-ring { from { transform: scale(.3); opacity: .55; } to { transform: scale(1.6); opacity: 0; } }
+.kt-alarm-in { position: relative; width: min(100%, 560px); margin: auto; display: grid; gap: 14px; } /* margin, not centring: a tall alarm scrolls from its top */
+.kt-alarm-k { font-family: var(--font-display); font-size: 52px; line-height: 1.05; }
+.kt-up { display: grid; gap: 6px; padding: 16px; border-radius: var(--r-card); background: rgba(40, 8, 4, .28); }
+.kt-up h2 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.15; overflow-wrap: anywhere; }
+.kt-up.one { background: transparent; padding: 0; }
+.kt-up.one h2 { font-size: 40px; }
+.kt-up .kt-dish { font-size: 16px; opacity: .9; white-space: normal; }
+.kt-over { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
+.kt-hint { font-weight: 700; font-size: 16px; }
+.kt-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.kt-acts button { min-height: 56px; padding: 0 20px; border-radius: var(--r-control); border: 2px solid var(--on-colour); background: transparent; color: var(--on-colour); font: inherit; font-weight: 850; font-size: 18px; cursor: pointer; white-space: nowrap; }
+.kt-acts .kt-stop { flex-basis: 100%; min-height: 72px; border: 0; background: var(--on-colour); color: #7A1A12; font-size: 26px; box-shadow: 0 4px 0 #5A120C; }
+.kt-acts .kt-stop:focus-visible { outline: 4px solid #2B1D16; outline-offset: 3px; }
+html.phone-landscape .kt-alarm-k { font-size: 34px; }
+@media (max-height: 420px) { .kt-alarm-k { font-size: 34px; } .kt-up.one h2 { font-size: 28px; } .kt-acts .kt-stop { min-height: 56px; font-size: 22px; } }
+
+/* A step's own timers: one button for each wait its words name */
+.kt-step { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.kt-start { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; max-width: 100%; padding: 0 14px; border: 2px solid #C42D20; border-radius: var(--r-control); background: color-mix(in srgb, #F03E2F 12%, var(--card)); color: #8A2A0E; font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+.kt-start span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kt-start b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.kt-step .kt-start b, :root[data-theme] .kt-step .kt-start b { color: inherit; font-weight: 850; } /* not the recipe's bold colour */
+.kt-start svg { flex: none; }
+.kt-start.on { border-color: transparent; background: var(--steady); color: var(--on-steady); cursor: default; }
+.kt-start.up { border-style: dashed; }
+.kt-dot { width: 10px; height: 10px; flex: none; border-radius: 50%; background: #F03E2F; animation: kt-blink 1s ease-in-out infinite alternate; }
+@keyframes kt-blink { from { opacity: 1; } to { opacity: .3; } }
+:root[data-theme="dark"] .kt-start:not(.on) { color: #F4A47C; border-color: #F4A47C; }
+.kt-step.big .kt-start { min-height: 60px; padding: 0 20px; font-size: 19px; }
+.kt-step.big .kt-start b { font-size: 21px; }
+
+@media (min-width: 960px) {
+  .kt-dock { left: auto; right: 24px; bottom: 24px; width: 340px; grid-template-columns: 1fr; }
+  body:has(.kchat-fab) .kt-dock { bottom: 90px; }
+  body:has(.toast) .kt-dock { bottom: 90px; }
+  html.kt-docked .app { padding-bottom: 30px; }
+}
+
+html[data-motion="less"] .kt-timer.soon, html[data-motion="less"] .kt-dot, html[data-motion="less"] .kt-alarm.ringing .kt-rings i, html[data-motion="less"] .kt-alarm.ringing::before { animation: none; }
+html[data-motion="less"] .kt-bar i { transition: none; }
+@media (prefers-reduced-motion: reduce) { .kt-timer.soon, .kt-dot, .kt-alarm.ringing .kt-rings i, .kt-alarm.ringing::before { animation: none; } .kt-bar i { transition: none; } }
+html.kt-docked .cook-mode > .cm-body { padding-bottom: calc(var(--kt-dock, 80px) + 12px); }

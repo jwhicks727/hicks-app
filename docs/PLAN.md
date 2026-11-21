@@ -579,6 +579,9 @@ and the phases are in issue #19; what's built is ticked here.
       recipe page (three plates, cook check, ingredient pictures, timed
       steps, start-by time, ratings), cook mode, timers, the fridge and its
       Home card. Runs once `20261031230100_kitchen` has run.
+- [x] Timers for each wait a step's words name (none for chopping), in the
+      shell so they count and ring on every screen, with a full-screen alarm
+      that rings until stopped.
 - [x] Keepers and unicorns (celebrated, and back on "Make it again"); the
       week's Probably buy and Check the pantry lists; each of us asked to rate
       in the days after a dinner.

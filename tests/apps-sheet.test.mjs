@@ -15,7 +15,8 @@ test('the sheet ends above the floating tab bar, by the same two numbers the bar
 
 test('everything that floats above the bar uses the same two numbers', () => {
   const kitchen = readFileSync(new URL('../src/kitchen/kitchen.css', import.meta.url), 'utf8')
-  for (const sel of ['\\.timers', '\\.kchat-fab']) assert.match(kitchen.match(new RegExp(sel + ' \\{[^}]*\\}'))[0], /bottom: calc\(var\(--tab-bottom\) \+ var\(--tabbar\)/)
+  const timers = readFileSync(new URL('../src/kitchen/timers.css', import.meta.url), 'utf8')
+  for (const [sheet, sel] of [[timers, '\\.kt-dock'], [kitchen, '\\.kchat-fab']]) assert.match(sheet.match(new RegExp('^' + sel + ' \\{[^}]*\\}', 'm'))[0], /bottom: calc\(var\(--tab-bottom\) \+ var\(--tabbar\)/)
   assert.match(css, /\.sky-bg \{[^}]*min-height: 100lvh/)
 })
 

@@ -2,12 +2,11 @@ import { AltitudeNote, CookedOnTrip } from './TripTag.jsx'
 import { useEffect, useState } from 'react'
 import { goBack } from '../lib/router.js'
 import { iconFor } from '../lib/kitchen/food.js'
-import { startTimer } from '../lib/kitchen/timers.js'
 import { FoodIcon } from './FoodIcon.jsx'
 import { Inline, Prose } from './Inline.jsx'
 import { parsed, PEOPLE } from './art.js'
 import { useSwipe } from '../calendar/useSwipe.js'
-import Timers from './Timers.jsx'
+import { StepTimers } from './Timers.jsx'
 import { DISHES } from '../lib/mindful.js'
 
 /** Keeps the screen awake while cooking, where the phone allows it. */
@@ -21,9 +20,13 @@ function useWakeLock() {
   }, [])
 }
 
-/** Cook mode: one step at a time, big, with its timer; Back leaves it. */
+/** Cook mode: one step at a time, big, with a timer for each wait it names; Back leaves it. */
 export default function CookMode({ data, slug, parent }) {
   useWakeLock()
+  useEffect(() => { // the timers' dock sits above cook mode's own buttons
+    document.documentElement.classList.add('cooking')
+    return () => document.documentElement.classList.remove('cooking')
+  }, [])
   const [i, setI] = useState(0)
   const [showIngredients, setShowIngredients] = useState(false)
   const r = data.recipe ? parsed(data.recipe.body) : null
@@ -59,7 +62,7 @@ export default function CookMode({ data, slug, parent }) {
           <>
             <p className="cm-n">Step {s.n} of {r.steps.length}{s.time && <> · {s.time}</>}</p>
             <p className="cm-text"><Inline text={s.text} groups={r.groups} /></p>
-            {s.minutes != null && <button type="button" className="btn cm-timer" onClick={() => startTimer({ label: `Step ${s.n}: ${r.title}`, minutes: s.minutes, recipe: slug })}>Start a {s.time} timer</button>}
+            <StepTimers step={s} recipe={slug} title={r.title} big />
           </>
         ) : (
           <>
@@ -76,7 +79,6 @@ export default function CookMode({ data, slug, parent }) {
         {!done ? <button type="button" className="btn" onClick={() => setI(i + 1)}>{i === r.steps.length - 1 ? 'Plate it ›' : 'Next ›'}</button>
           : <button type="button" className="btn" onClick={() => goBack(`/kitchen/recipe/${slug}`)}>Done</button>}
       </nav>
-      <Timers />
     </div>
   )
 }

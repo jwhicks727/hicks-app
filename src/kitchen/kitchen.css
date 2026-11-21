@@ -85,21 +85,12 @@
 .step-n { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--steady); color: var(--on-steady); font-family: var(--font-voice); font-size: 20px; }
 .step p { font-size: 17px; line-height: 1.55; }
 .step b { color: #8A2A0E; }
-.step-time { float: right; margin: 0 0 6px 10px; min-height: 36px; padding: 0 12px; border-radius: 18px; border: 0; background: color-mix(in srgb, #E0662F 16%, var(--card)); color: #8A2A0E; font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; white-space: nowrap; }
-@media (pointer: coarse) { .step-time { min-height: 44px; } }
+.step-est { float: right; margin: 2px 0 4px 10px; font-size: 13px; font-weight: 800; color: var(--muted); white-space: nowrap; } /* how long the step takes, all of it: not a timer */
 .section-card.why { background: linear-gradient(180deg, color-mix(in srgb, #3E7A4C 12%, var(--card)), var(--card)); }
 .section-card.why p { font-size: 17px; }
 .recipe-foot { display: flex; justify-content: center; }
 .recipe-foot .btn.ghost { background: var(--card); }
 
-/* Timers, docked above the tab bar */
-.timers { position: fixed; z-index: 30; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tab-bottom) + var(--tabbar) + 12px); display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; pointer-events: none; }
-.timer { pointer-events: auto; display: flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 8px 16px; border: 0; border-radius: 24px; background: var(--steady); color: var(--on-steady); font: inherit; box-shadow: 0 10px 24px -10px rgba(0, 0, 0, .6); cursor: pointer; max-width: 100%; }
-.timer b { font-family: var(--font-voice); font-weight: 400; font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.timer span { font-size: 13px; font-weight: 700; opacity: .85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46vw; }
-.timer.done { background: #E0662F; animation: timer-done 1s ease-in-out infinite alternate; }
-@keyframes timer-done { to { transform: scale(1.06); } }
-@media (min-width: 960px) { .timers { left: auto; right: 24px; bottom: 24px; justify-content: flex-end; } }
 
 /* Cook mode: the whole screen, one step at a time */
 .cook-mode { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; background: linear-gradient(180deg, color-mix(in srgb, #FFB86B 12%, var(--card)), var(--card) 40%); color: var(--ink); padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); touch-action: pan-y; }
@@ -118,11 +109,9 @@
 .cm-text { font-size: 26px; line-height: 1.45; font-weight: 600; text-wrap: pretty; }
 .cm-text b { color: #8A2A0E; font-weight: 850; } /* the amounts and the ingredients a step names: what to reach for */
 :root[data-theme="dark"] .cm-text b, :root[data-theme="dark"] .step b { color: #F4A47C; }
-.cm-timer { justify-self: start; min-height: 56px; font-size: 18px; }
 .cm-plates { display: grid; gap: 10px; }
 .cm-nav { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; padding-top: 8px; }
 .cm-nav .btn { justify-self: stretch; min-height: 60px; font-size: 18px; }
-.cook-mode .timers { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 @media (min-width: 960px) {
   .cook-mode { padding: 24px max(24px, calc((100vw - 900px) / 2)); }
   .cm-text { font-size: 32px; }
@@ -138,7 +127,7 @@ html.phone-landscape .cm-text { font-size: 20px; }
   .recipe-hero h1 { font-size: 44px; }
   .ingredients-card { position: sticky; top: 24px; }
 }
-@media (prefers-reduced-motion: reduce) { .timer.done { animation: none; } .cm-body { animation-name: fade-in; } }
+@media (prefers-reduced-motion: reduce) { .cm-body { animation-name: fade-in; } }
 
 /* Keepers and unicorns */
 .badge { justify-self: start; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 14px; font-size: 13px; font-weight: 800; white-space: nowrap; }

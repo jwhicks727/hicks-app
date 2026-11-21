@@ -78,6 +78,16 @@ and write the code fresh. SOAR's code belongs to the school.
   database (`fridge_got`), never on a device, so every phone sees the same
   list and a shop is never forgotten (decisions log, 2026-11-08).
 
+## The Kitchen's timers
+
+- **A timer is a wait the step's words name** (`stepTimers`, `src/lib/kitchen/stepTimers.js`,
+  `tests/timers.test.mjs`): one for each ("simmer 10 minutes, then rest 5 minutes" is two), never the
+  step's heading time, which is the whole step. A step with no time in its words gets one only
+  when it leaves the food in the oven, a pot or the fridge. Chopping and whisking get none.
+- The timers live in the shell (`<Timers />` in `src/App.jsx`), never on one page, so they
+  count and ring wherever the cook is. An ended one takes the whole screen and rings until
+  someone stops it or adds time; a timer is never a quiet chip.
+
 ## The morning and evening lists
 
 - **A list's words are its keeper's** (Early Bird and Night Owl, `src/places/lists/`):

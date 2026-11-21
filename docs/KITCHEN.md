@@ -52,7 +52,9 @@ exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
   ordered list: `**1. (3 min)** Heat the oven…`. A time on every step;
   amounts repeated inline and bold ("add the **2 Tbsp curry paste**"); prep
   woven in at the smart moment; every ingredient used in a step; grams beside
-  volume for baking.
+  volume for baking. Every wait the cook should time is said in the words
+  with its minutes ("roast 20–25 minutes", "simmer 10 minutes, then rest
+  5 minutes"): each gets its own timer; a bare "rest 5" gets none. The heading time is the whole step.
 - Closing sections, in this order, leaving out what doesn't apply:
   **Plating**, **Laurie's plate**, **Jason's plate**, **Anna's add-on**,
   **Heat**, **Herbs** (cilantro only where the cuisine fits, always on the
@@ -72,24 +74,36 @@ exactly this (`src/lib/kitchen/recipe.js`, tested in `tests/recipe.test.mjs`).
   Food Icon Pack, coloured in to each drawing's own outline), time and
   hands-on time, "Dinner at … start by …", ratings (each of us taps only our
   own), the three plates, the **cook check**, ingredients with their
-  pictures to tick off as they come out, steps with a timer on each time,
+  pictures to tick off as they come out, steps with a timer for each wait,
   then the closing sections, Why it works set apart.
 - **The cook check** lists the fresh things most likely to have turned,
   fastest first, from how long each keeps and how many days the recipe has
   been in the fridge (since it was shopped for), with how to tell (`KEEPS` in
   `src/lib/kitchen/food.js`). "Good" or "Gone" for each; a gone one says to
   swap it or pick more up.
-- **Cook mode** (`…/cook`): one step at a time in big type, its timer a tap
-  away, the ingredients a tap away, the screen kept awake; swipe or the big
+- **Cook mode** (`…/cook`): one step at a time in big type, a big button for
+  each of its timers, the ingredients a tap away, the screen kept awake; swipe or the big
   buttons to move; Back leaves it. It ends on the plating and the three
   plates. In each step the amounts **and the ingredients it names** are
   picked out in the same bold colour, matched against the recipe's own
   ingredient list (`stepParts` in `src/lib/kitchen/recipe.js`): "whisk **3
   Tbsp** **peanut butter** with the **hoisin sauce**". The recipe page's
   steps do the same.
-- **Timers** are kept on the device as their end times, so one started
-  before the phone closed the app is still right; each chimes and buzzes
-  once.
+- **Timers** come from a step's words, one for each wait they name ("roast
+  20–25 minutes", "simmer 10 minutes, then rest 5 minutes"), labelled by the word that asks
+  for it; a step with no time in its words gets one only when it leaves the
+  food in the oven, a pot or the fridge, for the step's time; chopping,
+  whisking, seconds, a limit or how long something keeps get none
+  (`stepTimers`, `src/lib/kitchen/stepTimers.js`). A range runs to its low
+  end. They are kept on the device as their end times, so one started before
+  the phone closed the app is still right, and they live in the shell: the
+  dock above the tab bar counts them down on every screen, with +1, a stop
+  (with Undo) and a link back to the dish, and turns red in the last minute.
+  An ended one takes the whole screen and beeps every two seconds (and buzzes
+  where the phone can) until someone stops it or adds time; after ten minutes
+  it goes quiet, and two hours after it ended it is let go. The screen stays
+  awake while one runs. A web app can't ring while the phone is locked or the
+  app is closed.
 - **Home** shows what's still in the fridge, and how many dishes are still
   to shop for, only while there are some.
 - **Food pictures.** Each ingredient's drawing (the Food Icon Pack's line
