@@ -6,6 +6,34 @@ new entry; the old one stays. The working rules for every project are in
 
 ---
 
+## 2026-11-21 — A timer for each wait, and one you can't miss
+
+Jason found the Kitchen's timers ineffective: a timer on every step, even where none was needed; only one on a
+step that waits twice; and so quiet they were easy to ignore. The causes were in the code: every step's heading
+time (`**2. (25 min)**`, the whole step, chopping and all) became its timer; one heading time meant one timer;
+the timers counted and rang only while a recipe page or cook mode was open; and the chime played once, through
+audio an iPhone keeps asleep until a tap wakes it.
+
+- **A timer is a wait the step's words name** (`stepTimers`, `src/lib/kitchen/stepTimers.js`): "roast 20–25
+  minutes", "simmer 10 minutes, then rest 5 minutes" give one each, labelled by the word that asks ("Roast", "Simmer").
+  A range runs to its low end and the alarm offers the rest. A step with no time in its words gets one only when
+  it hands the food to the oven, a pot or the fridge ("roast until it flakes"), for the step's time. Chopping,
+  whisking, a minute or seconds, a limit ("up to 2 hours"), how long something keeps and a rate get none.
+- **The timers live in the shell** (`<Timers />` in `src/App.jsx`), so one counts and rings on every screen.
+  The dock is big: the label, the dish (a link back to it), the time, a draining bar, +1 and a stop with Undo;
+  the last minute turns the Kitchen's red and breathes.
+- **An ended timer takes the whole screen and rings until someone stops it or adds time**: a kitchen-timer
+  beep every two seconds for ten minutes, a buzz where the phone has one, the tab's title blinking; then it
+  shows quietly, and two hours after it ended it is let go. The starting tap (and any tap while one runs) wakes
+  the sound; while it rings, an iPhone that knows `navigator.audioSession` is asked to play it as playback, as
+  its own Clock does, so the silent switch doesn't swallow it (and music pauses). The screen is kept awake while
+  any timer runs. Unverified on a real iPhone; and a web app can't ring while the phone is locked or the app is
+  closed: kept awake, it stays open.
+- **Recipes say their waits**: the Kitchen brief asks Claude to give each timed wait its minutes in the step's
+  words (needs the `claude` function deployed).
+
+---
+
 ## 2026-11-15 — The picked recipes are written one request each
 
 "Write the 3 picked" ended in "Claude couldn’t be reached just now". The `claude` function replies only when

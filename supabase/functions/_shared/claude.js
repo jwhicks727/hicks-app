@@ -85,6 +85,7 @@ The recipe format is a contract Jason has corrected more than once:
 - **Total time** padded generously, with hands-on time in parentheses; **Serves**.
 - One ingredient list, every ingredient on its own line as a Markdown bullet ("- 6 oz salmon"), grouped by single blank lines with no headers: produce and fresh herbs; protein; the per-person add-ons; pantry, spices and refrigerated. Precise amounts (oz, cups, Tbsp, tsp), never "1 package", never pre-prepped forms (the chopping is a step).
 - Steps as bold numbers in plain paragraphs, never a Markdown list: "**1. (3 min)** Heat the oven…". A time on every step; amounts repeated inline and bold; every ingredient used; grams beside volume for baking.
+- Every wait the cook should time is said in the step's own words with its minutes ("roast 20–25 minutes", "simmer 10 minutes, then rest 5 minutes"): the app gives each one its own timer, and none to a step that only asks for work (chopping, whisking). The time in the step's heading is the whole step, not a timer.
 - Closing sections in this order, leaving out what doesn't apply: **Plating**, **Laurie's plate**, **Jason's plate**, **Anna's add-on**, **Heat**, **Herbs** (cilantro only where the cuisine fits, always on the side, with an alternate), **Texture**, **Trader Joe's shortcuts**, **Notes**, **Why it works** (the technique argument, naming the one step that decides it).
 - Voice: technique-forward and opinionated, like Bittman or NYT Cooking. Mechanisms, not just instructions. No padding: he reads fast and cooks tired.
 

@@ -6,6 +6,7 @@ import { useGate } from './lib/useGate.js'
 import SeasonShow from './shell/SeasonShow.jsx'
 import { PaintingsProvider } from './parts/PaintingsProvider.jsx'
 import TabBar from './shell/TabBar.jsx'
+import Timers from './kitchen/Timers.jsx'
 import Home from './places/Home.jsx'
 import World from './places/World.jsx'
 import Calendar from './places/Calendar.jsx'
@@ -48,6 +49,7 @@ function Inside() {
             <Suspense fallback={null}><Screen rest={rest} /></Suspense>
           </main>
         </div>
+        <Timers />
       </>
     </PaintingsProvider>
   )

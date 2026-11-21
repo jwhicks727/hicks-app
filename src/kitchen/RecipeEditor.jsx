@@ -24,7 +24,7 @@ const TEMPLATE = `# Recipe name
 
 ## Steps
 **1. (10 min)** What to do first.
-**2. (35 min)** What to do next.
+**2. (35 min)** What to do next: roast 30 minutes, then rest 5 minutes.
 
 **Laurie’s plate**
 Say what is on her plate, and what it leaves out.
@@ -60,7 +60,7 @@ export default function RecipeEditor({ slug, data, parent }) {
         <label className="re-label">Its text, in the Kitchen’s format
           <textarea className="re-text" value={text} spellCheck="true" onChange={(e) => setDraft({ text: e.target.value })} aria-describedby="re-help" />
         </label>
-        <p id="re-help" className="muted small">One ingredient a line, starting with “- ”; a blank line between groups; steps like “**1. (10 min)** …”. Laurie’s plate is kept private and only the parents see it.</p>
+        <p id="re-help" className="muted small">One ingredient a line, starting with “- ”; a blank line between groups; steps like “**1. (10 min)** …”, with each wait in the words (“roast 30 minutes”) for its own timer. Laurie’s plate is kept private and only the parents see it.</p>
       </Card>
       <Card tint="#3E7A4C" label="How it reads" glyph="star" className="span-3">
         <dl className="place-facts">

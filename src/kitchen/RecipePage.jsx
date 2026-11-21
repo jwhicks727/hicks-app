@@ -11,14 +11,13 @@ import { iconFor, cookCheck, groupName } from '../lib/kitchen/food.js'
 import { easyOnHands, scaleAmount, plainRecipe } from '../lib/kitchen/recipe.js'
 import { noteRecent } from '../lib/kitchen/recent.js'
 import { Toast } from '../ui/Toast.jsx'
-import { startTimer } from '../lib/kitchen/timers.js'
 import { rate, addToFridge, finishFridge, intoFridge, removeRecipe } from '../lib/useKitchen.js'
 import { FoodIcon, RecipeArt } from './FoodIcon.jsx'
 import KitchenMenu from './KitchenMenu.jsx'
 import { artFor } from '../lib/kitchen/food.js'
 import { Inline, Prose } from './Inline.jsx'
 import { parsed, timeWords, PEOPLE } from './art.js'
-import Timers from './Timers.jsx'
+import { StepTimers } from './Timers.jsx'
 import { standing as standingOf, stillToShop, boughtOn } from '../lib/kitchen/week.js'
 import { StandingBadge, UnicornGlow } from './Unicorn.jsx'
 
@@ -174,8 +173,9 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
           <div key={s.n} className="step">
             <span className="step-n">{s.n}</span>
             <div>
-              {s.minutes != null && <button type="button" className="step-time" onClick={() => startTimer({ label: `Step ${s.n}: ${r.title}`, minutes: s.minutes, recipe: slug })} aria-label={`Start a ${s.time} timer for step ${s.n}`}>▶ {s.time}</button>}
+              {s.time && <span className="step-est">{s.time}</span>}
               <p><Inline text={s.text} groups={r.groups} /></p>
+              <StepTimers step={s} recipe={slug} title={r.title} />
             </div>
           </div>
         ))}
@@ -195,7 +195,6 @@ export default function RecipePage({ data, slug, me, members, parent, today, onC
           <p>Its ratings go with it. Opening the file from Obsidian again brings it back.</p>
         </Confirm>
       )}
-      <Timers />
       {said && <Toast onClose={() => setSaid(null)}>{said}</Toast>}
     </>
   )
